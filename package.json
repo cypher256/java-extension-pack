@@ -1,0 +1,64 @@
+{
+  "name": "java-extension-pack",
+  "displayName": "Java Extension Pack with JDK",
+  "description": "Includes multiple versions LTS JDK for out-of-the-box development",
+  "icon": "README_icon.png",
+  "version": "1.0.0",
+  "publisher": "Pleiades",
+  "repository": {
+    "url": "https://github.com/cypher256/pleiades.io/issues?q="
+  },
+  "author": {
+    "name": "Shinji Kashihara"
+  },
+  "engines": {
+    "vscode": "^1.54.0"
+  },
+  "keywords": [
+    "java",
+    "debugger",
+    "junit",
+    "gradle",
+    "maven",
+    "spring"
+  ],
+  "categories": [
+    "Programming Languages",
+    "Linters",
+    "Debuggers",
+    "Formatters",
+    "Snippets",
+    "Extension Packs"
+  ],
+  "extensionPack": [
+    "vscjava.vscode-java-pack",
+    "vscjava.vscode-gradle",
+    "vmware.vscode-boot-dev-pack",
+    "redhat.vscode-community-server-connector"
+  ],
+  "activationEvents": [],
+  "main": "./out/extension.js",
+  "contributes": {
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile && npm run lint",
+    "lint": "eslint src --ext ts",
+    "test": "node ./out/test/runTest.js"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.54.0",
+    "@types/glob": "^8.1.0",
+    "@types/mocha": "^10.0.1",
+    "@types/node": "16.x",
+    "@typescript-eslint/eslint-plugin": "^5.56.0",
+    "@typescript-eslint/parser": "^5.56.0",
+    "eslint": "^8.36.0",
+    "glob": "^8.1.0",
+    "mocha": "^10.2.0",
+    "typescript": "^4.9.5",
+    "@vscode/test-electron": "^2.3.0"
+  }
+}
