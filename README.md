@@ -1,14 +1,36 @@
-# Java Extension Pack with JDK
+# Java Extension Pack JDK Bundle
 
-Just by installing this extension, you can start Java development right out of the box without installing JDK or setting environment variables.
-<br><br>
+Just by installing this extension, you can start Java development right out of the box without installing JDK and setting environment variables.
+<br>
+<br>
 
 # Features
 
-## Multiple JDK versions included
-Includes Adoptium Java 8, 11, 17 and auto-configures java.configuration.runtimes<br>
-License: MIT (Adoptium: GPL v2 with the Classpath Exception)
-<p><img src="./README_multi_versions.png" style="max-width:600px"></p>
+## Auto-configuration multiple JDK versions
+Installing this extension will download Adoptium JDK 8, 11, 17 LTS and auto-configure `java.configuration.runtimes`. The configured JDKs are available in the following 'Extension Pack for Java' features.
+<br>
+<br>
+
+## Java Project Runtime Information
+To see which JDKs are used for your projects in multi-root workspaces, you can trigger the command `Configure Java Runtime` in Command Palette (Ctrl/Cmd + Shift + P).
+<br>
+<p><img src="https://code.visualstudio.com/assets/docs/java/java-project/configure-project-runtime.png" style="max-width:600px"></p>
+<br>
+
+## Change JDK for Gradle and Maven projects
+If you want to change the JDK version for your Gradle or Maven projects, you need to update it in your build scripts (build.gradle or pom.xml). You can click ⓘ to see how to make such changes. Click 🖊 will navigate to the build script file of the project.
+<br>
+<br>
+
+## Change JDK for unmanaged folders
+To change the JDK for unmanaged folders (with out any build tools), you can click the 🖊 button. It will list all the JDKs and you can select one for your unmanaged folders.
+<br>
+<br>
+
+# License
+- This extension: MIT
+- Adoptium JDK: https://adoptium.net/docs/faq/
+<br>
 <br>
 
 # Extensions Included
