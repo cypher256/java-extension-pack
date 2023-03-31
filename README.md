@@ -7,7 +7,15 @@ Just by installing this extension, you can start Java development right out of t
 # Features
 
 ## Auto-configuration multiple JDK versions
-Installing this extension will download Adoptium JDK 8, 11, 17 LTS and auto-configure `java.configuration.runtimes`. The configured JDKs are available in the following 'Extension Pack for Java' features.
+Installing this extension will download Adoptium LTS JDKs and auto-configure your VSCode user settings.
+
+|Setting Name|Auto-Configuration|
+|---|---|
+|`java.configuration.runtimes`|JDK 8, 11, 17 in this extension|
+|`java.jdt.ls.java.home`|JDK 17 in this extension|
+|`java.home`|Deprecated, will be removed|
+
+The configured JDKs are available in the following 'Extension Pack for Java' features.
 <br>
 <br>
 
