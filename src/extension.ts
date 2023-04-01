@@ -10,7 +10,7 @@ const TARGET_JAVA_VERSIONS = [8, 11, 17];
 const DEFAULT_JAVA_VERSION = 17;
 
 export async function activate(context:vscode.ExtensionContext) {
-	console.info('[Pleiades] Called activate START');
+	console.info('[Pleiades] Called activate START', context.globalStorageUri.fsPath);
 	if (process.platform.match(/^(win32|darwin)$/) || (process.platform === 'linux' && process.arch === 'x64')) {
 
 		let osArch = 'x64_windows_hotspot';
@@ -99,10 +99,10 @@ async function downloadJdk(
 	const downloadUrlPrefix = `${URL_PREFIX}/temurin${javaVersion}-binaries/releases/download/${p1}/`;
 	const fileName = `OpenJDK${javaVersion}U-jdk_${osArch}_${p2}.${osArch.includes('windows') ? 'zip' : 'tar.gz'}`;
 	const downloadUrl = downloadUrlPrefix + fileName;
-	console.info('[Pleiades] Downloading... ', downloadUrl);
-	vscode.window.setStatusBarMessage(`Downloading ${fullVersion}...`, 60_000);
 	
 	// Download JDK
+	console.info('[Pleiades] Downloading... ', downloadUrl);
+	vscode.window.setStatusBarMessage(`Downloading... ${fullVersion}`, 10_000);
 	if (!fs.existsSync(userDir)) {
 		fs.mkdirSync(userDir);
 	}
@@ -116,6 +116,7 @@ async function downloadJdk(
 	console.info('[Pleiades] Saved. ', downloadedFile);
 
 	// Decompress JDK
+	vscode.window.setStatusBarMessage(`Installing... ${fullVersion}`, 10_000);
 	rmSync(jdkDir, { recursive: true });
 	try {
 		await decompress(downloadedFile, userDir, {
@@ -142,9 +143,9 @@ async function downloadJdk(
 	}
 	matchRuntime.path = javaHome;
 	const message = fullVersionOld 
-		? `Updated JDK ${runtimeVersion}: ${fullVersionOld} -> ${fullVersion}`
-		: `Installed JDK ${runtimeVersion}: ${fullVersion}`;
-	vscode.window.setStatusBarMessage(message, 60_000);
+		? `UPDATE SUCCESSFUL JDK ${runtimeVersion}: ${fullVersionOld} -> ${fullVersion}`
+		: `INSTALL SUCCESSFUL JDK ${runtimeVersion}: ${fullVersion}`;
+	vscode.window.setStatusBarMessage(message, 10_000);
 	return true;
 }
 

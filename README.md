@@ -1,13 +1,13 @@
 # Java Extension Pack JDK Bundle
 
-Just by installing this extension, you can start Java development right out of the box without installing JDK and setting environment variables.
+Just install this extension and you can start Java development out of the box without installing JDK or setting environment variables.
 <br>
 <br>
 
 # Features
 
 ## Auto-configuration multiple JDK versions
-Installing this extension will download Adoptium LTS JDKs and auto-configure your VSCode user settings.
+Installing this extension downloads the Adoptium LTS JDKs and automatically configures the Java Runtime user setting. It also download automatically when the JDKs are updated.
 
 |Setting Name|Auto-Configuration|
 |---|---|
@@ -17,19 +17,19 @@ Installing this extension will download Adoptium LTS JDKs and auto-configure you
 
 ```json
 "java.configuration.runtimes": [
-{
-	"name": "JavaSE-1.8",
-	"path": "c:\\Users\\AppData\\Roaming\\Code\\User\\globalStorage\\pleiades.java-extension-pack-jdk\\8"
-},
-{
-	"name": "JavaSE-11",
-	"path": "c:\\Users\\AppData\\Roaming\\Code\\User\\globalStorage\\pleiades.java-extension-pack-jdk\\11"
-},
-{
-	"name": "JavaSE-17",
-	"path": "c:\\Users\\AppData\\Roaming\\Code\\User\\globalStorage\\pleiades.java-extension-pack-jdk\\17",
-	"default": true
-}
+  {
+    "name": "JavaSE-1.8",
+    "path": "c:\\Users\\<UserName>\\AppData\\Roaming\\Code\\User\\globalStorage\\pleiades.java-extension-pack-jdk\\8"
+  },
+  {
+    "name": "JavaSE-11",
+    "path": "c:\\Users\\<UserName>\\AppData\\Roaming\\Code\\User\\globalStorage\\pleiades.java-extension-pack-jdk\\11"
+  },
+  {
+    "name": "JavaSE-17",
+    "path": "c:\\Users\\<UserName>\\AppData\\Roaming\\Code\\User\\globalStorage\\pleiades.java-extension-pack-jdk\\17",
+    "default": true
+  }
 ],
 ```
 
@@ -50,6 +50,14 @@ If you want to change the JDK version for your Gradle or Maven projects, you nee
 
 ## Change JDK for unmanaged folders
 To change the JDK for unmanaged folders (with out any build tools), you can click the 🖊 button. It will list all the JDKs and you can select one for your unmanaged folders.
+<br>
+<br>
+
+# Supported Platforms
+The JDK to be downloaded depends on the OS and architecture.
+- Windows x64
+- macos x64, aarch64
+- Linux x64
 <br>
 <br>
 

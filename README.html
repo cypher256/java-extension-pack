@@ -366,12 +366,12 @@ code {
     });
   </script>
 <h1 id="java-extension-pack-jdk-bundle">Java Extension Pack JDK Bundle</h1>
-<p>Just by installing this extension, you can start Java development right out of the box without installing JDK and setting environment variables.
+<p>Just install this extension and you can start Java development out of the box without installing JDK or setting environment variables.
 <br>
 <br></p>
 <h1 id="features">Features</h1>
 <h2 id="auto-configuration-multiple-jdk-versions">Auto-configuration multiple JDK versions</h2>
-<p>Installing this extension will download Adoptium LTS JDKs and auto-configure your VSCode user settings.</p>
+<p>Installing this extension downloads the Adoptium LTS JDKs and automatically configures the Java Runtime user setting. It also download automatically when the JDKs are updated.</p>
 <table>
 <thead>
 <tr>
@@ -395,19 +395,19 @@ code {
 </tbody>
 </table>
 <pre class="hljs"><code><div><span class="hljs-string">"java.configuration.runtimes"</span>: [
-{
-	<span class="hljs-attr">"name"</span>: <span class="hljs-string">"JavaSE-1.8"</span>,
-	<span class="hljs-attr">"path"</span>: <span class="hljs-string">"c:\\Users\\AppData\\Roaming\\Code\\User\\globalStorage\\pleiades.java-extension-pack-jdk\\8"</span>
-},
-{
-	<span class="hljs-attr">"name"</span>: <span class="hljs-string">"JavaSE-11"</span>,
-	<span class="hljs-attr">"path"</span>: <span class="hljs-string">"c:\\Users\\AppData\\Roaming\\Code\\User\\globalStorage\\pleiades.java-extension-pack-jdk\\11"</span>
-},
-{
-	<span class="hljs-attr">"name"</span>: <span class="hljs-string">"JavaSE-17"</span>,
-	<span class="hljs-attr">"path"</span>: <span class="hljs-string">"c:\\Users\\AppData\\Roaming\\Code\\User\\globalStorage\\pleiades.java-extension-pack-jdk\\17"</span>,
-	<span class="hljs-attr">"default"</span>: <span class="hljs-literal">true</span>
-}
+  {
+    <span class="hljs-attr">"name"</span>: <span class="hljs-string">"JavaSE-1.8"</span>,
+    <span class="hljs-attr">"path"</span>: <span class="hljs-string">"c:\\Users\\&lt;UserName&gt;\\AppData\\Roaming\\Code\\User\\globalStorage\\pleiades.java-extension-pack-jdk\\8"</span>
+  },
+  {
+    <span class="hljs-attr">"name"</span>: <span class="hljs-string">"JavaSE-11"</span>,
+    <span class="hljs-attr">"path"</span>: <span class="hljs-string">"c:\\Users\\&lt;UserName&gt;\\AppData\\Roaming\\Code\\User\\globalStorage\\pleiades.java-extension-pack-jdk\\11"</span>
+  },
+  {
+    <span class="hljs-attr">"name"</span>: <span class="hljs-string">"JavaSE-17"</span>,
+    <span class="hljs-attr">"path"</span>: <span class="hljs-string">"c:\\Users\\&lt;UserName&gt;\\AppData\\Roaming\\Code\\User\\globalStorage\\pleiades.java-extension-pack-jdk\\17"</span>,
+    <span class="hljs-attr">"default"</span>: <span class="hljs-literal">true</span>
+  }
 ],
 </div></code></pre>
 <p>The configured JDKs are available in the following 'Extension Pack for Java' features.
@@ -426,6 +426,15 @@ code {
 <p>To change the JDK for unmanaged folders (with out any build tools), you can click the 🖊 button. It will list all the JDKs and you can select one for your unmanaged folders.
 <br>
 <br></p>
+<h1 id="supported-platforms">Supported Platforms</h1>
+<p>The JDK to be downloaded depends on the OS and architecture.</p>
+<ul>
+<li>Windows x64</li>
+<li>macos x64, aarch64</li>
+<li>Linux x64
+<br>
+<br></li>
+</ul>
 <h1 id="license">License</h1>
 <ul>
 <li>This extension: MIT</li>
