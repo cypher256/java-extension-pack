@@ -1,5 +1,5 @@
 {
-  "name": "java-extension-pack",
+  "name": "java-extension-pack-jdk",
   "displayName": "Java Extension Pack JDK Bundle",
   "description": "Includes multiple versions LTS JDK for out-of-the-box development",
   "icon": "README_icon.png",

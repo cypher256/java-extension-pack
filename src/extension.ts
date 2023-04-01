@@ -1,21 +1,16 @@
 import * as vscode from 'vscode';
-import * as fs from 'fs'
-import * as path from 'path'
+import * as fs from 'fs';
+import * as path from 'path';
 import * as stream from 'stream';
 import { promisify } from 'util';
 import * as decompress from 'decompress';
 import axios from 'axios';
 
 const TARGET_JAVA_VERSIONS = [8, 11, 17];
-// const TARGET_JAVA_VERSIONS = [8];
-const DEFAULT_JAVA_VERSION = TARGET_JAVA_VERSIONS[TARGET_JAVA_VERSIONS.length - 1];
+const DEFAULT_JAVA_VERSION = 17;
 
-export function deactivate() {
-	console.info('[Pleiades] Called deactivate');
-}
-
-export function activate(context:vscode.ExtensionContext) {
-	console.info('[Pleiades] Called activate');
+export async function activate(context:vscode.ExtensionContext) {
+	console.info('[Pleiades] Called activate START');
 	if (process.platform.match(/^(win32|darwin)$/) || (process.platform === 'linux' && process.arch === 'x64')) {
 
 		let osArch = 'x64_windows_hotspot';
@@ -29,82 +24,138 @@ export function activate(context:vscode.ExtensionContext) {
 			osArch = 'x64_linux_hotspot';
 		}
 
-		for (const javaVersion of TARGET_JAVA_VERSIONS) {
-			if (process.arch === 'arm64' && javaVersion === 8) {
-				osArch = 'x64_mac_hotspot';
-			}
-			try {
-				downloadJdk(context, javaVersion, osArch);
-			} catch (e:any) {
-
-				let message = 'JDK download failed. ';
-				if (e.message) message += e.message + ' ';
-				if (e.request && e.request.path) message += e.request.path;
-				if (message.length == 0) {
-					console.error(e);
-					message += e;
+		try {
+			const promiseArray: Promise<Boolean>[] = [];
+			const config = vscode.workspace.getConfiguration();
+			const RUNTIMES_KEY = 'java.configuration.runtimes';
+			const runtimes:any[] = config.get(RUNTIMES_KEY) || [];
+	
+			for (const javaVersion of TARGET_JAVA_VERSIONS) {
+				if (process.arch === 'arm64' && javaVersion === 8) {
+					osArch = 'x64_mac_hotspot';
 				}
-				vscode.window.showErrorMessage(message);
+				promiseArray.push(
+					downloadJdk(context, javaVersion, osArch, runtimes)
+				);
 			}
+	
+			const updates = await Promise.all(promiseArray);
+			if (updates.includes(true)) {
+				if (!runtimes.find(r => r.default)) {
+					const defaultRuntime = runtimes.find(r => r.name === 'JavaSE-' + DEFAULT_JAVA_VERSION);
+					if (defaultRuntime) {
+						defaultRuntime.default = true;
+					}
+				}
+				runtimes.sort((a, b) => a.name.localeCompare(b.name));
+				config.update(RUNTIMES_KEY, runtimes, vscode.ConfigurationTarget.Global);
+				console.info(`[Pleiades] Updated ${RUNTIMES_KEY}`);
+				config.update('java.home', undefined, true);
+			}
+
+		} catch (e:any) {
+
+			let message = 'JDK download failed. ';
+			if (e.message) {message += e.message + ' ';}
+			if (e.request && e.request.path) {message += e.request.path;}
+			if (message.length === 0) {
+				console.error(e);
+				message += e;
+			}
+			vscode.window.showErrorMessage(message);
 		}
+
 	} else {
 		vscode.window.showErrorMessage('Unable to download JDK due to unsupported OS or architecture.');
-		return;
 	}
+	console.info('[Pleiades] Called activate END');
 }
 
-async function downloadJdk(context:vscode.ExtensionContext, javaVersion:number, osArch:string): Promise<void> {
-	const URL_PREFIX = 'https://github.com/adoptium';
-	const response = await axios.get(`${URL_PREFIX}/temurin${javaVersion}-binaries/releases/latest`)
-	const redirectedUrl:string = response.request.res.responseUrl;
-	const verDirName = redirectedUrl.replace(/.+tag\//, '');
-	const p1 = verDirName.replace('+', '%2B');
-	const p2 = verDirName.replace('+', '_').replace(/(jdk|-)/g, '');
+async function downloadJdk(
+	context:vscode.ExtensionContext, 
+	javaVersion:number, 
+	osArch:string, 
+	runtimes:any[]): Promise<Boolean> {
 
+	// Get Download URL
+	const URL_PREFIX = 'https://github.com/adoptium';
+	const response = await axios.get(`${URL_PREFIX}/temurin${javaVersion}-binaries/releases/latest`);
+	const redirectedUrl:string = response.request.res.responseUrl;
+	const fullVersion = redirectedUrl.replace(/.+tag\//, '');
+
+	const userDir = context.globalStorageUri.fsPath;
+	const jdkDir = path.join(userDir, String(javaVersion));
+	const versionFile = path.join(jdkDir, 'version.txt');
+	let fullVersionOld = null;
+	if (fs.existsSync(versionFile)) {
+		fullVersionOld = fs.readFileSync(versionFile).toString();
+		if (fullVersion === fullVersionOld) {
+			console.info('[Pleiades] No updates. ', fullVersion);
+			return false;
+		}
+	}
+	const p1 = fullVersion.replace('+', '%2B');
+	const p2 = fullVersion.replace('+', '_').replace(/(jdk|-)/g, '');
 	const downloadUrlPrefix = `${URL_PREFIX}/temurin${javaVersion}-binaries/releases/download/${p1}/`;
 	const fileName = `OpenJDK${javaVersion}U-jdk_${osArch}_${p2}.${osArch.includes('windows') ? 'zip' : 'tar.gz'}`;
 	const downloadUrl = downloadUrlPrefix + fileName;
 	console.info('[Pleiades] Downloading... ', downloadUrl);
+	vscode.window.setStatusBarMessage(`Downloading ${fullVersion}...`, 60_000);
 	
-	const userDir = context.globalStorageUri.fsPath;
+	// Download JDK
 	if (!fs.existsSync(userDir)) {
 		fs.mkdirSync(userDir);
 	}
-	const jdkDir = path.join(userDir, String(javaVersion));
-	const outFilePath = jdkDir + '.tmp';
-	// const writer = fs.createWriteStream(outFilePath);
-	// const res = await axios.get(downloadUrl, {responseType: 'stream'});
-	// res.data.pipe(writer);
-	// await promisify(stream.finished)(writer);
-	console.info('[Pleiades] Saved. ', outFilePath);
+	const isMac = process.platform === 'darwin';
+	const javaHome = isMac ? path.join(jdkDir, 'Home') : jdkDir;
+	const downloadedFile = jdkDir + '.tmp';
+	const writer = fs.createWriteStream(downloadedFile);
+	const res = await axios.get(downloadUrl, {responseType: 'stream'});
+	res.data.pipe(writer);
+	await promisify(stream.finished)(writer);
+	console.info('[Pleiades] Saved. ', downloadedFile);
 
-	await decompress(outFilePath, userDir, {
-		map: file => {
-			file.path = file.path.replace(/^[^\/]+/, String(javaVersion));
-			return file;
-		}
-	});
-
-	const RUNTIMES_KEY = 'java.configuration.runtimes';
-	const runtimeVersion = 'JavaSE-' + (javaVersion === 8 ? 1.8 : javaVersion);
-	const conf = vscode.workspace.getConfiguration();
-	const runtimes:any[] = conf.get(RUNTIMES_KEY) || [];
-
-	let targetRuntime = runtimes.find(r => r.name === runtimeVersion);
-	if (targetRuntime == null) {
-		targetRuntime = {
-			name: runtimeVersion,
-			default: javaVersion === DEFAULT_JAVA_VERSION,
-		};
-		if (targetRuntime.default) {
-			runtimes.forEach(r => r.default = false);
-		}
-		runtimes.push(targetRuntime);
+	// Decompress JDK
+	rmSync(jdkDir, { recursive: true });
+	try {
+		await decompress(downloadedFile, userDir, {
+			map: file => {
+				file.path = file.path.replace(/^[^\/]+/, String(javaVersion));
+				if (isMac) {
+					file.path = file.path.replace(/^([0-9]+\/)Contents\//, '$1');
+				}
+				return file;
+			}
+		});
+	} catch (e) {
+		console.info('[Pleiades] Failed decompress: ' + e);
 	}
-	targetRuntime.path = jdkDir;
-	console.info('[Pleiades]', runtimes);
+	fs.rmSync(downloadedFile);
+	fs.writeFileSync(versionFile, fullVersion);
 
-	// conf.update(RUNTIMES_KEY, runtimes, vscode.ConfigurationTarget.Global);
+	// Set Configuration
+	const runtimeVersion = 'JavaSE-' + (javaVersion === 8 ? 1.8 : javaVersion);
+	let matchRuntime = runtimes.find(r => r.name === runtimeVersion);
+	if (!matchRuntime) {
+		matchRuntime = {name: runtimeVersion};
+		runtimes.push(matchRuntime);
+	}
+	matchRuntime.path = javaHome;
+	const message = fullVersionOld 
+		? `Updated JDK ${runtimeVersion}: ${fullVersionOld} -> ${fullVersion}`
+		: `Installed JDK ${runtimeVersion}: ${fullVersion}`;
+	vscode.window.setStatusBarMessage(message, 60_000);
+	return true;
+}
+
+function rmSync(path:string, options?:object): void {
+	try {
+		if (fs.existsSync(path)) {
+			fs.rmSync(path, options);
+		}
+	} catch (e) {
+		console.info('[Pleiades] Failed remove: ' + e);
+	}
 }
 
 /*

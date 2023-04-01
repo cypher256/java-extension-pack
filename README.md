@@ -12,8 +12,26 @@ Installing this extension will download Adoptium LTS JDKs and auto-configure you
 |Setting Name|Auto-Configuration|
 |---|---|
 |`java.configuration.runtimes`|JDK 8, 11, 17 in this extension|
-|`java.jdt.ls.java.home`|JDK 17 in this extension|
-|`java.home`|Deprecated, will be removed|
+|`java.jdt.ls.java.home`|Keep current settings|
+|`java.home`|Remove due to deprecated|
+
+```json
+"java.configuration.runtimes": [
+{
+	"name": "JavaSE-1.8",
+	"path": "c:\\Users\\AppData\\Roaming\\Code\\User\\globalStorage\\pleiades.java-extension-pack-jdk\\8"
+},
+{
+	"name": "JavaSE-11",
+	"path": "c:\\Users\\AppData\\Roaming\\Code\\User\\globalStorage\\pleiades.java-extension-pack-jdk\\11"
+},
+{
+	"name": "JavaSE-17",
+	"path": "c:\\Users\\AppData\\Roaming\\Code\\User\\globalStorage\\pleiades.java-extension-pack-jdk\\17",
+	"default": true
+}
+],
+```
 
 The configured JDKs are available in the following 'Extension Pack for Java' features.
 <br>
