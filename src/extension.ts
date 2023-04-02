@@ -50,7 +50,9 @@ export async function activate(context:vscode.ExtensionContext) {
 				runtimes.sort((a, b) => a.name.localeCompare(b.name));
 				config.update(RUNTIMES_KEY, runtimes, vscode.ConfigurationTarget.Global);
 				console.info(`[Pleiades] Updated ${RUNTIMES_KEY}`);
+
 				config.update('java.home', undefined, true);
+				// TODO java.jdt.ls.java.home 未設定時は DEFAULT_JAVA_VERSION のパス
 			}
 
 		} catch (e:any) {
