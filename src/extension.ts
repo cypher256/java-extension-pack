@@ -3,6 +3,7 @@
  * Copyright (c) Shinji Kashihara.
  */
 import * as vscode from 'vscode';
+import { l10n } from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as stream from 'stream';
@@ -51,7 +52,7 @@ export async function activate(context:vscode.ExtensionContext) {
 				runtimes.sort((a, b) => a.name.localeCompare(b.name));
 				config.update(CONFIG_KEY_JAVA_RUNTIMES, runtimes, vscode.ConfigurationTarget.Global);
 				Pleiades.log(`Updated ${CONFIG_KEY_JAVA_RUNTIMES}`);
-				vscode.window.setStatusBarMessage(`JDK Bundle: Updated ${CONFIG_KEY_JAVA_RUNTIMES}`, 10_000);
+				vscode.window.setStatusBarMessage(`JDK Bundle: ${l10n.t('Updated')} ${CONFIG_KEY_JAVA_RUNTIMES}`, 10_000);
 			}
 
 			const jdtRuntimePath = runtimes.find(r => r.name === 'JavaSE-' + JDT_JAVA_VERSION)?.path;
@@ -63,7 +64,7 @@ export async function activate(context:vscode.ExtensionContext) {
 					config.update(CONFIG_KEY_JDT_JAVA_HOME, jdtRuntimePath, vscode.ConfigurationTarget.Global);
 					config.update('java.home', undefined, true);
 					Pleiades.log(`Updated ${CONFIG_KEY_JDT_JAVA_HOME}`);
-					vscode.window.setStatusBarMessage(`JDK Bundle: Updated ${CONFIG_KEY_JDT_JAVA_HOME}`, 10_000);
+					vscode.window.setStatusBarMessage(`JDK Bundle: ${l10n.t('Updated')} ${CONFIG_KEY_JDT_JAVA_HOME}`, 10_000);
 				}
 			}
 
@@ -97,13 +98,25 @@ async function downloadJdk(
 
 	const userDir = context.globalStorageUri.fsPath;
 	const jdkDir = path.join(userDir, String(javaVersion));
+	const isMac = process.platform === 'darwin';
+	const javaHome = isMac ? path.join(jdkDir, 'Home') : jdkDir;
+	const runtimeVersion = 'JavaSE-' + (javaVersion === 8 ? 1.8 : javaVersion);
+	let matchedRuntime = runtimes.find(r => r.name === runtimeVersion);
+
+	// Check Version File
 	const versionFile = path.join(jdkDir, 'version.txt');
 	let fullVersionOld = null;
 	if (fs.existsSync(versionFile)) {
 		fullVersionOld = fs.readFileSync(versionFile).toString();
 		if (fullVersion === fullVersionOld) {
 			Pleiades.log('No updates.', fullVersion);
-			return false;
+			if (matchedRuntime) {
+				return false;
+			}
+			// Missing Configuration but exists JDK
+			matchedRuntime = {name: runtimeVersion, path: javaHome};
+			runtimes.push(matchedRuntime);
+			return true;
 		}
 	}
 	const p1 = fullVersion.replace('+', '%2B');
@@ -114,12 +127,10 @@ async function downloadJdk(
 	
 	// Download JDK
 	Pleiades.log('Downloading... ', downloadUrl);
-	progress.report({ message: `JDK Bundle: Downloading ${fullVersion}` });
+	progress.report({ message: `JDK Bundle: ${l10n.t('Downloading')} ${fullVersion}` });
 	if (!fs.existsSync(userDir)) {
 		fs.mkdirSync(userDir);
 	}
-	const isMac = process.platform === 'darwin';
-	const javaHome = isMac ? path.join(jdkDir, 'Home') : jdkDir;
 	const downloadedFile = jdkDir + '.tmp';
 	const writer = fs.createWriteStream(downloadedFile);
 	const res = await axios.get(downloadUrl, {responseType: 'stream'});
@@ -128,7 +139,7 @@ async function downloadJdk(
 	Pleiades.log('Saved. ', downloadedFile);
 
 	// Decompress JDK
-	progress.report({ message: `JDK Bundle: Installing ${fullVersion}` });
+	progress.report({ message: `JDK Bundle: ${l10n.t('Installing')} ${fullVersion}` });
 	Pleiades.rmSync(jdkDir, { recursive: true });
 	try {
 		await decompress(downloadedFile, userDir, {
@@ -147,17 +158,15 @@ async function downloadJdk(
 	fs.writeFileSync(versionFile, fullVersion);
 
 	// Set Configuration
-	const runtimeVersion = 'JavaSE-' + (javaVersion === 8 ? 1.8 : javaVersion);
-	let matchRuntime = runtimes.find(r => r.name === runtimeVersion);
-	if (matchRuntime) {
-		matchRuntime.path = javaHome;
+	if (matchedRuntime) {
+		matchedRuntime.path = javaHome;
 	} else {
-		matchRuntime = {name: runtimeVersion, path: javaHome};
-		runtimes.push(matchRuntime);
+		matchedRuntime = {name: runtimeVersion, path: javaHome};
+		runtimes.push(matchedRuntime);
 	}
 	const message = fullVersionOld 
-		? `UPDATE SUCCESSFUL ${runtimeVersion}: ${fullVersionOld} -> ${fullVersion}`
-		: `INSTALL SUCCESSFUL ${runtimeVersion}: ${fullVersion}`;
+		? `${l10n.t('UPDATE SUCCESSFUL')} ${runtimeVersion}: ${fullVersionOld} -> ${fullVersion}`
+		: `${l10n.t('INSTALL SUCCESSFUL')} ${runtimeVersion}: ${fullVersion}`;
 	progress.report({ message: `JDK Bundle: ${message}` });
 	return true;
 }
