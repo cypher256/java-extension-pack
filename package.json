@@ -3,7 +3,7 @@
   "displayName": "Java Extension Pack JDK Bundle",
   "description": "Includes multiple versions LTS JDK for out-of-the-box development",
   "icon": "README_icon.png",
-  "version": "1.1.0",
+  "version": "17.0.0",
   "publisher": "Pleiades",
   "repository": {
     "url": "https://github.com/cypher256/pleiades.io/issues?q="
@@ -40,6 +40,7 @@
     "onStartupFinished"
   ],
   "main": "./out/extension.js",
+  "l10n": "./l10n",
   "contributes": {},
   "scripts": {
     "vscode:prepublish": "npm run compile",
