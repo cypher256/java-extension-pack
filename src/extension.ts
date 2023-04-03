@@ -1,3 +1,7 @@
+/**
+ * Java Extension Pack JDK Bundle
+ * Copyright (c) Shinji Kashihara.
+ */
 import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -5,54 +9,62 @@ import * as stream from 'stream';
 import { promisify } from 'util';
 import * as decompress from 'decompress';
 import axios from 'axios';
+import { Pleiades } from './pleiades';
 
 const TARGET_JAVA_VERSIONS = [8, 11, 17];
 const DEFAULT_JAVA_VERSION = 17;
+const JDT_JAVA_VERSION = DEFAULT_JAVA_VERSION;
 
 export async function activate(context:vscode.ExtensionContext) {
-	console.info('[Pleiades] Called activate START', context.globalStorageUri.fsPath);
-	if (process.platform.match(/^(win32|darwin)$/) || (process.platform === 'linux' && process.arch === 'x64')) {
+	Pleiades.log('Called activate START', context.globalStorageUri.fsPath);
 
-		let osArch = 'x64_windows_hotspot';
-		if (process.platform === 'darwin') {
-			if (process.arch === 'arm64') {
-				osArch = 'aarch64_mac_hotspot';
-			} else {
-				osArch = 'x64_mac_hotspot';
-			}
-		} else if (process.platform === 'linux') {
-			osArch = 'x64_linux_hotspot';
-		}
+	const osArch = new Pleiades.OsArch();
+	if (!osArch.isTarget()) {
+		vscode.window.showErrorMessage('Unable to download JDK due to unsupported OS or architecture.');
+		return;
+	}
 
+	vscode.window.withProgress({location: vscode.ProgressLocation.Window}, async progress => {
 		try {
 			const promiseArray: Promise<Boolean>[] = [];
 			const config = vscode.workspace.getConfiguration();
-			const RUNTIMES_KEY = 'java.configuration.runtimes';
-			const runtimes:any[] = config.get(RUNTIMES_KEY) || [];
+			const CONFIG_KEY_JAVA_RUNTIMES = 'java.configuration.runtimes';
+			const runtimes:Pleiades.JavaRuntime[] = config.get(CONFIG_KEY_JAVA_RUNTIMES) || [];
 	
 			for (const javaVersion of TARGET_JAVA_VERSIONS) {
-				if (process.arch === 'arm64' && javaVersion === 8) {
-					osArch = 'x64_mac_hotspot';
-				}
 				promiseArray.push(
-					downloadJdk(context, javaVersion, osArch, runtimes)
+					downloadJdk(
+						progress, 
+						context, 
+						javaVersion, 
+						osArch.getString(javaVersion), 
+						runtimes)
 				);
 			}
 	
 			const updates = await Promise.all(promiseArray);
-			if (updates.includes(true)) {
-				if (!runtimes.find(r => r.default)) {
-					const defaultRuntime = runtimes.find(r => r.name === 'JavaSE-' + DEFAULT_JAVA_VERSION);
-					if (defaultRuntime) {
-						defaultRuntime.default = true;
-					}
+			if (updates.includes(true) || !runtimes.find(r => r.default)) {
+				const defaultRuntime = runtimes.find(r => r.name === 'JavaSE-' + DEFAULT_JAVA_VERSION);
+				if (defaultRuntime) {
+					defaultRuntime.default = true;
 				}
 				runtimes.sort((a, b) => a.name.localeCompare(b.name));
-				config.update(RUNTIMES_KEY, runtimes, vscode.ConfigurationTarget.Global);
-				console.info(`[Pleiades] Updated ${RUNTIMES_KEY}`);
+				config.update(CONFIG_KEY_JAVA_RUNTIMES, runtimes, vscode.ConfigurationTarget.Global);
+				Pleiades.log(`Updated ${CONFIG_KEY_JAVA_RUNTIMES}`);
+				vscode.window.setStatusBarMessage(`JDK Bundle: Updated ${CONFIG_KEY_JAVA_RUNTIMES}`, 10_000);
+			}
 
-				config.update('java.home', undefined, true);
-				// TODO java.jdt.ls.java.home 未設定時は DEFAULT_JAVA_VERSION のパス
+			const jdtRuntimePath = runtimes.find(r => r.name === 'JavaSE-' + JDT_JAVA_VERSION)?.path;
+			if (jdtRuntimePath) {
+				const CONFIG_KEY_JDT_JAVA_HOME = 'java.jdt.ls.java.home';
+				const jdtJavaHome = config.get(CONFIG_KEY_JDT_JAVA_HOME);
+				if (jdtJavaHome !== jdtRuntimePath) {
+					// Java Extension prompts to reload dialog
+					config.update(CONFIG_KEY_JDT_JAVA_HOME, jdtRuntimePath, vscode.ConfigurationTarget.Global);
+					config.update('java.home', undefined, true);
+					Pleiades.log(`Updated ${CONFIG_KEY_JDT_JAVA_HOME}`);
+					vscode.window.setStatusBarMessage(`JDK Bundle: Updated ${CONFIG_KEY_JDT_JAVA_HOME}`, 10_000);
+				}
 			}
 
 		} catch (e:any) {
@@ -66,18 +78,16 @@ export async function activate(context:vscode.ExtensionContext) {
 			}
 			vscode.window.showErrorMessage(message);
 		}
-
-	} else {
-		vscode.window.showErrorMessage('Unable to download JDK due to unsupported OS or architecture.');
-	}
-	console.info('[Pleiades] Called activate END');
+		Pleiades.log('Called activate END');
+	});
 }
 
 async function downloadJdk(
+	progress:vscode.Progress<any>,
 	context:vscode.ExtensionContext, 
 	javaVersion:number, 
 	osArch:string, 
-	runtimes:any[]): Promise<Boolean> {
+	runtimes:Pleiades.JavaRuntime[]): Promise<Boolean> {
 
 	// Get Download URL
 	const URL_PREFIX = 'https://github.com/adoptium';
@@ -92,7 +102,7 @@ async function downloadJdk(
 	if (fs.existsSync(versionFile)) {
 		fullVersionOld = fs.readFileSync(versionFile).toString();
 		if (fullVersion === fullVersionOld) {
-			console.info('[Pleiades] No updates. ', fullVersion);
+			Pleiades.log('No updates.', fullVersion);
 			return false;
 		}
 	}
@@ -103,8 +113,8 @@ async function downloadJdk(
 	const downloadUrl = downloadUrlPrefix + fileName;
 	
 	// Download JDK
-	console.info('[Pleiades] Downloading... ', downloadUrl);
-	vscode.window.setStatusBarMessage(`Downloading... ${fullVersion}`, 10_000);
+	Pleiades.log('Downloading... ', downloadUrl);
+	progress.report({ message: `JDK Bundle: Downloading ${fullVersion}` });
 	if (!fs.existsSync(userDir)) {
 		fs.mkdirSync(userDir);
 	}
@@ -115,11 +125,11 @@ async function downloadJdk(
 	const res = await axios.get(downloadUrl, {responseType: 'stream'});
 	res.data.pipe(writer);
 	await promisify(stream.finished)(writer);
-	console.info('[Pleiades] Saved. ', downloadedFile);
+	Pleiades.log('Saved. ', downloadedFile);
 
 	// Decompress JDK
-	vscode.window.setStatusBarMessage(`Installing... ${fullVersion}`, 10_000);
-	rmSync(jdkDir, { recursive: true });
+	progress.report({ message: `JDK Bundle: Installing ${fullVersion}` });
+	Pleiades.rmSync(jdkDir, { recursive: true });
 	try {
 		await decompress(downloadedFile, userDir, {
 			map: file => {
@@ -131,76 +141,23 @@ async function downloadJdk(
 			}
 		});
 	} catch (e) {
-		console.info('[Pleiades] Failed decompress: ' + e);
+		Pleiades.log('Failed decompress: ' + e);
 	}
-	fs.rmSync(downloadedFile);
+	Pleiades.rmSync(downloadedFile);
 	fs.writeFileSync(versionFile, fullVersion);
 
 	// Set Configuration
 	const runtimeVersion = 'JavaSE-' + (javaVersion === 8 ? 1.8 : javaVersion);
 	let matchRuntime = runtimes.find(r => r.name === runtimeVersion);
-	if (!matchRuntime) {
-		matchRuntime = {name: runtimeVersion};
+	if (matchRuntime) {
+		matchRuntime.path = javaHome;
+	} else {
+		matchRuntime = {name: runtimeVersion, path: javaHome};
 		runtimes.push(matchRuntime);
 	}
-	matchRuntime.path = javaHome;
 	const message = fullVersionOld 
-		? `UPDATE SUCCESSFUL JDK ${runtimeVersion}: ${fullVersionOld} -> ${fullVersion}`
-		: `INSTALL SUCCESSFUL JDK ${runtimeVersion}: ${fullVersion}`;
-	vscode.window.setStatusBarMessage(message, 10_000);
+		? `UPDATE SUCCESSFUL ${runtimeVersion}: ${fullVersionOld} -> ${fullVersion}`
+		: `INSTALL SUCCESSFUL ${runtimeVersion}: ${fullVersion}`;
+	progress.report({ message: `JDK Bundle: ${message}` });
 	return true;
 }
-
-function rmSync(path:string, options?:object): void {
-	try {
-		if (fs.existsSync(path)) {
-			fs.rmSync(path, options);
-		}
-	} catch (e) {
-		console.info('[Pleiades] Failed remove: ' + e);
-	}
-}
-
-/*
-JDK download first URL
-https://github.com/adoptium/temurin8-binaries/releases/latest
-https://github.com/adoptium/temurin11-binaries/releases/latest
-https://github.com/adoptium/temurin17-binaries/releases/latest
-
-redirected URL
-https://github.com/adoptium/temurin8-binaries/releases/tag/jdk8u362-b09
-https://github.com/adoptium/temurin11-binaries/releases/tag/jdk-11.0.18+10
-https://github.com/adoptium/temurin17-binaries/releases/tag/jdk-17.0.6+10
-
-download URL
-https://github.com/adoptium/temurin8-binaries/releases/download/jdk8u362-b09/OpenJDK8U-jdk_x64_windows_hotspot_8u362b09.zip
-https://github.com/adoptium/temurin8-binaries/releases/download/jdk8u362-b09/OpenJDK8U-jdk_x64_mac_hotspot_8u362b09.tar.gz
-https://github.com/adoptium/temurin11-binaries/releases/download/jdk-11.0.18%2B10/OpenJDK11U-jdk_x64_windows_hotspot_11.0.18_10.zip
-https://github.com/adoptium/temurin11-binaries/releases/download/jdk-11.0.18%2B10/OpenJDK11U-jdk_x64_mac_hotspot_11.0.18_10.tar.gz
-https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.6%2B10/OpenJDK17U-jdk_x64_windows_hotspot_17.0.6_10.zip
-https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.6%2B10/OpenJDK17U-jdk_x64_mac_hotspot_17.0.6_10.tar.gz
-
-  OpenJDK8U-jdk_aarch64_linux_hotspot_8u362b09.tar.gz
-  OpenJDK8U-jdk_arm_linux_hotspot_8u362b09.tar.gz
-  OpenJDK8U-jdk_ppc64le_linux_hotspot_8u362b09.tar.gz
-  OpenJDK8U-jdk_ppc64_aix_hotspot_8u362b09.tar.gz
-  OpenJDK8U-jdk_sparcv9_solaris_hotspot_8u362b09.tar.gz
-  OpenJDK8U-jdk_x64_alpine-linux_hotspot_8u362b09.tar.gz
-+ OpenJDK8U-jdk_x64_linux_hotspot_8u362b09.tar.gz
-+ OpenJDK8U-jdk_x64_mac_hotspot_8u362b09.tar.gz
-  OpenJDK8U-jdk_x64_solaris_hotspot_8u362b09.tar.gz
-+ OpenJDK8U-jdk_x64_windows_hotspot_8u362b09.zip
-  OpenJDK8U-jdk_x86-32_windows_hotspot_8u362b09.zip
-  
-  OpenJDK17U-jdk_aarch64_linux_hotspot_17.0.6_10.tar.gz
-+ OpenJDK17U-jdk_aarch64_mac_hotspot_17.0.6_10.tar.gz
-  OpenJDK17U-jdk_arm_linux_hotspot_17.0.6_10.tar.gz
-  OpenJDK17U-jdk_ppc64le_linux_hotspot_17.0.6_10.tar.gz
-  OpenJDK17U-jdk_ppc64_aix_hotspot_17.0.6_10.tar.gz
-  OpenJDK17U-jdk_s390x_linux_hotspot_17.0.6_10.tar.gz
-  OpenJDK17U-jdk_x64_alpine-linux_hotspot_17.0.6_10.tar.gz
-+ OpenJDK17U-jdk_x64_linux_hotspot_17.0.6_10.tar.gz
-+ OpenJDK17U-jdk_x64_mac_hotspot_17.0.6_10.tar.gz
-+ OpenJDK17U-jdk_x64_windows_hotspot_17.0.6_10.zip
-  OpenJDK17U-jdk_x86-32_windows_hotspot_17.0.6_10.zip
-*/
