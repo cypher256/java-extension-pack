@@ -3,28 +3,6 @@
 #---------------------------------------
 
 Check directory and delete runtime settings
-Scan JDK in local directories
-  Version in release file
-  JAVA_VERSION="17.0.6"
-
---- Oracle 17.0.6+
-C:\Program Files\Java\jdk-17
-/Library/Java/JavaVirtualMachines/jdk-17.jdk/Contents/Home
-/usr/lib/jvm/jdk-17-oracle-x64
-
---- Adoptium
-C:\Program Files\Eclipse Adoptium\jdk-17.0.6.10-hotspot
-/Library/Java/JavaVirtualMachines/temurin-17.jdk/Contents/Home
-/usr/lib/jvm/temurin-17-jdk-amd64
-
---- Corretto
-C:\Program Files\Amazon Corretto\jdk17.0.0_35
-/Library/Java/JavaVirtualMachines/amazon-corretto-17.jdk/Contents/Home
-/usr/lib/jvm/java-17-amazon-corretto.<cpu_arch>.
-
---- SDKMAN
-~/.sdkamn/candidates/java/17.0.6-tem
-/usr/lib/jvm/java-17-openjdk-amd64
 
 #---------------------------------------
 # Publish

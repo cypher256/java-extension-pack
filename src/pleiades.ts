@@ -11,6 +11,10 @@ export namespace Pleiades {
 		path: string;
 		default?: boolean;
 	}
+
+	export function runtimeName(javaVersion:number): string {
+		return 'JavaSE-' + (javaVersion <= 8 ? '1.' + javaVersion : javaVersion);
+	}
 	
 	export class OsArch {
 	
@@ -21,7 +25,7 @@ export namespace Pleiades {
 	
 		public getName(javaVersion: number): string {
 			if (!this.isTarget()) {
-				throw `Unsupported OS architecture. ${process.platform} ${process.arch}`;
+				throw new Error(`Unsupported OS architecture. ${process.platform} ${process.arch}`);
 			}
 			if (process.platform === 'darwin') {
 				if (process.arch === 'arm64' && javaVersion >= 11) {
