@@ -56,7 +56,7 @@ To change the JDK for unmanaged folders (with out any build tools), you can clic
 <br>
 
 # Supported Platforms
-The JDK to be downloaded depends on the OS and architecture.
+The JDK downloaded depends on the OS and architecture.
 - Windows x64
 - macos x64, aarch64
 - Linux x64

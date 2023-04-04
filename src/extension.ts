@@ -17,7 +17,7 @@ const DEFAULT_JAVA_VERSION = 17;
 const JDT_JAVA_VERSION = DEFAULT_JAVA_VERSION;
 
 export async function activate(context:vscode.ExtensionContext) {
-	Pleiades.log('Called activate START', context.globalStorageUri.fsPath);
+	Pleiades.log('activate START', context.globalStorageUri.fsPath);
 
 	const osArch = new Pleiades.OsArch();
 	if (!osArch.isTarget()) {
@@ -27,7 +27,7 @@ export async function activate(context:vscode.ExtensionContext) {
 
 	vscode.window.withProgress({location: vscode.ProgressLocation.Window}, async progress => {
 		try {
-			const promiseArray: Promise<Boolean>[] = [];
+			const promiseArray: Promise<boolean>[] = [];
 			const config = vscode.workspace.getConfiguration();
 			const CONFIG_KEY_JAVA_RUNTIMES = 'java.configuration.runtimes';
 			const runtimes:Pleiades.JavaRuntime[] = config.get(CONFIG_KEY_JAVA_RUNTIMES) || [];
@@ -38,7 +38,7 @@ export async function activate(context:vscode.ExtensionContext) {
 						progress, 
 						context, 
 						javaVersion, 
-						osArch.getString(javaVersion), 
+						osArch.getName(javaVersion), 
 						runtimes)
 				);
 			}
@@ -79,7 +79,7 @@ export async function activate(context:vscode.ExtensionContext) {
 			}
 			vscode.window.showErrorMessage(message);
 		}
-		Pleiades.log('Called activate END');
+		Pleiades.log('activate END');
 	});
 }
 
@@ -88,7 +88,7 @@ async function downloadJdk(
 	context:vscode.ExtensionContext, 
 	javaVersion:number, 
 	osArch:string, 
-	runtimes:Pleiades.JavaRuntime[]): Promise<Boolean> {
+	runtimes:Pleiades.JavaRuntime[]): Promise<boolean> {
 
 	// Get Download URL
 	const URL_PREFIX = 'https://github.com/adoptium';

@@ -1,24 +1,68 @@
 #---------------------------------------
-# JDK URL
+# TODO
+#---------------------------------------
+
+Check directory and delete runtime settings
+Scan JDK in local directories
+  Version in release file
+  JAVA_VERSION="17.0.6"
+
+--- Oracle 17.0.6+
+C:\Program Files\Java\jdk-17
+/Library/Java/JavaVirtualMachines/jdk-17.jdk/Contents/Home
+/usr/lib/jvm/jdk-17-oracle-x64
+
+--- Adoptium
+C:\Program Files\Eclipse Adoptium\jdk-17.0.6.10-hotspot
+/Library/Java/JavaVirtualMachines/temurin-17.jdk/Contents/Home
+/usr/lib/jvm/temurin-17-jdk-amd64
+
+--- Corretto
+C:\Program Files\Amazon Corretto\jdk17.0.0_35
+/Library/Java/JavaVirtualMachines/amazon-corretto-17.jdk/Contents/Home
+/usr/lib/jvm/java-17-amazon-corretto.<cpu_arch>.
+
+--- SDKMAN
+~/.sdkamn/candidates/java/17.0.6-tem
+/usr/lib/jvm/java-17-openjdk-amd64
+
+#---------------------------------------
+# Publish
+#---------------------------------------
+
+npx vsce login Pleiades
+npx vsce publish
+
+#---------------------------------------
+# l10n Generate
+#---------------------------------------
+
+npx @vscode/l10n-dev export --outDir ./l10n ./src
+
+#---------------------------------------
+# JDK URL Format
 #---------------------------------------
 
 JDK download first URL
-https://github.com/adoptium/temurin8-binaries/releases/latest
-https://github.com/adoptium/temurin11-binaries/releases/latest
-https://github.com/adoptium/temurin17-binaries/releases/latest
+https://github.com/adoptium/
+temurin8-binaries/releases/latest
+temurin11-binaries/releases/latest
+temurin17-binaries/releases/latest
 
 redirected URL
-https://github.com/adoptium/temurin8-binaries/releases/tag/jdk8u362-b09
-https://github.com/adoptium/temurin11-binaries/releases/tag/jdk-11.0.18+10
-https://github.com/adoptium/temurin17-binaries/releases/tag/jdk-17.0.6+10
+https://github.com/adoptium/
+temurin8-binaries/releases/tag/jdk8u362-b09
+temurin11-binaries/releases/tag/jdk-11.0.18+10
+temurin17-binaries/releases/tag/jdk-17.0.6+10
 
 download URL
-https://github.com/adoptium/temurin8-binaries/releases/download/jdk8u362-b09/OpenJDK8U-jdk_x64_windows_hotspot_8u362b09.zip
-https://github.com/adoptium/temurin8-binaries/releases/download/jdk8u362-b09/OpenJDK8U-jdk_x64_mac_hotspot_8u362b09.tar.gz
-https://github.com/adoptium/temurin11-binaries/releases/download/jdk-11.0.18%2B10/OpenJDK11U-jdk_x64_windows_hotspot_11.0.18_10.zip
-https://github.com/adoptium/temurin11-binaries/releases/download/jdk-11.0.18%2B10/OpenJDK11U-jdk_x64_mac_hotspot_11.0.18_10.tar.gz
-https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.6%2B10/OpenJDK17U-jdk_x64_windows_hotspot_17.0.6_10.zip
-https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.6%2B10/OpenJDK17U-jdk_x64_mac_hotspot_17.0.6_10.tar.gz
+https://github.com/adoptium/
+temurin8-binaries/releases/download/jdk8u362-b09/OpenJDK8U-jdk_x64_windows_hotspot_8u362b09.zip
+temurin8-binaries/releases/download/jdk8u362-b09/OpenJDK8U-jdk_x64_mac_hotspot_8u362b09.tar.gz
+temurin11-binaries/releases/download/jdk-11.0.18%2B10/OpenJDK11U-jdk_x64_windows_hotspot_11.0.18_10.zip
+temurin11-binaries/releases/download/jdk-11.0.18%2B10/OpenJDK11U-jdk_x64_mac_hotspot_11.0.18_10.tar.gz
+temurin17-binaries/releases/download/jdk-17.0.6%2B10/OpenJDK17U-jdk_x64_windows_hotspot_17.0.6_10.zip
+temurin17-binaries/releases/download/jdk-17.0.6%2B10/OpenJDK17U-jdk_x64_mac_hotspot_17.0.6_10.tar.gz
 
   OpenJDK8U-jdk_aarch64_linux_hotspot_8u362b09.tar.gz
   OpenJDK8U-jdk_arm_linux_hotspot_8u362b09.tar.gz
@@ -43,16 +87,3 @@ https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.6%2B10
 + OpenJDK17U-jdk_x64_mac_hotspot_17.0.6_10.tar.gz
 + OpenJDK17U-jdk_x64_windows_hotspot_17.0.6_10.zip
   OpenJDK17U-jdk_x86-32_windows_hotspot_17.0.6_10.zip
-
-#---------------------------------------
-# Publish
-#---------------------------------------
-
-npx vsce login Pleiades
-npx vsce publish
-
-#---------------------------------------
-# l10n Generate
-#---------------------------------------
-
-npx @vscode/l10n-dev export --outDir ./l10n ./src

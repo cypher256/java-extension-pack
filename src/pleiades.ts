@@ -9,17 +9,17 @@ export namespace Pleiades {
 	export interface JavaRuntime {
 		name: string;
 		path: string;
-		default?: Boolean;
+		default?: boolean;
 	}
 	
 	export class OsArch {
 	
-		public isTarget(): Boolean {
+		public isTarget(): boolean {
 			return process.platform.match(/^(win32|darwin)$/) !== null || 
 				(process.platform === 'linux' && process.arch === 'x64');
 		}
 	
-		public getString(javaVersion: number): string {
+		public getName(javaVersion: number): string {
 			if (!this.isTarget()) {
 				throw `Unsupported OS architecture. ${process.platform} ${process.arch}`;
 			}
