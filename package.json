@@ -3,7 +3,7 @@
   "displayName": "Java Extension Pack JDK Bundle",
   "description": "Includes multiple versions LTS JDK for out-of-the-box development",
   "icon": "README_icon.png",
-  "version": "17.0.1",
+  "version": "17.1.0",
   "publisher": "Pleiades",
   "repository": {
     "url": "https://github.com/cypher256/pleiades.io/issues?q="
@@ -58,7 +58,7 @@
     "@types/lodash": "^4.14.192",
     "@types/mocha": "^10.0.1",
     "@types/node": "16.x",
-    "@types/vscode": "^1.77.0",
+    "@types/vscode": "^1.54.0",
     "@typescript-eslint/eslint-plugin": "^5.57.1",
     "@typescript-eslint/parser": "^5.57.1",
     "@vscode/test-electron": "^2.3.0",

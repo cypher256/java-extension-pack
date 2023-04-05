@@ -15,7 +15,7 @@ import axios from 'axios';
 import { promisify } from 'util';
 import { JdkBundle } from './jdkbundle';
 
-const TARGET_JAVA_VERSIONS = [8, 11, 17];
+const LTS_JAVA_VERSIONS = [8, 11, 17];
 const DEFAULT_JAVA_VERSION = 17;
 const JDT_JAVA_VERSION = DEFAULT_JAVA_VERSION;
 const CONFIG_KEY_JAVA_RUNTIMES = 'java.configuration.runtimes';
@@ -46,7 +46,7 @@ export async function activate(context:vscode.ExtensionContext) {
 
 		try {
 			const promiseArray: Promise<void>[] = [];
-			for (const majorVersion of TARGET_JAVA_VERSIONS) {
+			for (const majorVersion of LTS_JAVA_VERSIONS) {
 				promiseArray.push(
 					downloadJdk(
 						context, 
@@ -117,7 +117,7 @@ async function scanJdk(
 	const redhatProp = redhat?.packageJSON?.contributes?.configuration?.properties;
 	const redhatRuntimeNames:string[] = redhatProp?.[CONFIG_KEY_JAVA_RUNTIMES]?.items?.properties?.name?.enum || [];
 	if (redhatRuntimeNames.length === 0) {
-		redhatRuntimeNames.push(...TARGET_JAVA_VERSIONS.map(s => JdkBundle.runtimeName(s)));
+		redhatRuntimeNames.push(...LTS_JAVA_VERSIONS.map(s => JdkBundle.runtimeName(s)));
 		JdkBundle.log('Failed getExtension redhat', redhat);
 	}
 
@@ -144,9 +144,13 @@ async function scanJdk(
 	}
 	const latestVersionMap = new Map<number, JdkInfo>();
 	
-	for await(const release of fg.stream(scanDirs, {followSymbolicLinks:false})) {
+	for await(const releaseBuf of fg.stream(scanDirs, {followSymbolicLinks:false})) {
 
-		const javac = path.join(release.toString(), '../bin', osArch.isWindows() ? 'javac.exe' : 'javac');
+		const release = releaseBuf.toString();
+		if (release.includes('/current/')) {
+			continue;
+		}
+		const javac = path.join(release, '../bin', osArch.isWindows() ? 'javac.exe' : 'javac');
 		if (!fs.existsSync(javac)) {
 			continue;
 		}
