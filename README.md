@@ -7,30 +7,47 @@ Just install this extension and you can start Java development out of the box wi
 # Features
 
 ## Auto-configuration multiple JDK versions
-Installing this extension downloads the Adoptium LTS JDKs and automatically configures the Java Runtime user setting. It also download automatically when the JDKs are updated.
+At startup, it is auto-configured as follows ([Supported Java versions](https://github.com/redhat-developer/vscode-java#features)). If the same major version has different minor versions, the latest version is set.
 
-|Setting Name|Auto-Configuration|
+1. Auto-scan JDKs installed using installer or SDKMAN
+1. Auto-detect environment variables JAVA_HOME and JDK_HOME
+1. Auto-download JDK 8, 11, 17 if not found on local (Auto-update)
+1. Auto-configure user settings (Delete entries where JDK does not exist)
+
+|Configuration Name|Configured Value|
 |---|---|
-|`java.configuration.runtimes`|JDK 8, 11, 17 in this extension|
-|`java.jdt.ls.java.home`|JDK 17 in this extension|
+|`java.configuration.runtimes`|Auto-scanned or auto-downloaded JDK|
+|`java.jdt.ls.java.home`|JDK 17|
 |`java.home`|Remove due to deprecated|
 
 ```json
-// User settings.json
+// ex: Auto-configured User settings.json
 "java.configuration.runtimes": [
   {
-    "name": "JavaSE-1.8",
+    "name": "JavaSE-1.8", // Adoptium (Auto-download)
     "path": "c:\\Users\\<UserName>\\AppData\\Roaming\\Code\\User\\globalStorage\\pleiades.java-extension-pack-jdk\\8"
   },
   {
-    "name": "JavaSE-11",
-    "path": "c:\\Users\\<UserName>\\AppData\\Roaming\\Code\\User\\globalStorage\\pleiades.java-extension-pack-jdk\\11"
+    "name": "JavaSE-11", // Corretto (Auto-scan)
+    "path": "c:\\Program Files\\Amazon Corretto\\jdk11.0.18_10"
   },
   {
-    "name": "JavaSE-17",
+    "name": "JavaSE-16", // Oracle (Auto-scan)
+    "path": "c:\\Program Files\\java\\jdk-16.0.2"
+  },
+  {
+    "name": "JavaSE-17", // Adoptium (Auto-download)
     "path": "c:\\Users\\<UserName>\\AppData\\Roaming\\Code\\User\\globalStorage\\pleiades.java-extension-pack-jdk\\17",
     "default": true
   },
+  {
+    "name": "JavaSE-18", // JAVA_HOME (Auto-detect)
+    "path": "d:\\jdk\\18"
+  },
+  {
+    "name": "JavaSE-19", // Adoptium (Auto-scan)
+    "path": "c:\\Program Files\\Eclipse Adoptium\\jdk-19.0.2.7-hotspot"
+  }
 ],
 "java.jdt.ls.java.home": "c:\\Users\\<UserName>\\AppData\\Roaming\\Code\\User\\globalStorage\\pleiades.java-extension-pack-jdk\\17",
 ```
