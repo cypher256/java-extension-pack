@@ -1,9 +1,9 @@
 {
   "name": "java-extension-pack-jdk",
   "displayName": "Java Extension Pack JDK Bundle",
-  "description": "JDK installation and JAVA_HOME settings are not required",
+  "description": "JDK installation and JAVA_HOME settings are NOT required",
   "icon": "README_icon.png",
-  "version": "17.2.0",
+  "version": "17.2.1",
   "publisher": "Pleiades",
   "repository": {
     "url": "https://github.com/cypher256/pleiades.io/issues?q="
