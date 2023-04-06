@@ -16,8 +16,8 @@ import { promisify } from 'util';
 import { jdkbundle } from './jdkbundle';
 
 const AVAILABLE_LTS_VERSIONS = [8, 11, 17];
-const LATEST_LTS_VERSION = 17;
-const JDT_VERSION = LATEST_LTS_VERSION;
+const JDT_LTS_VERSION = AVAILABLE_LTS_VERSIONS[AVAILABLE_LTS_VERSIONS.length - 1];
+const INIT_DEFAULT_LTS_VERSION = JDT_LTS_VERSION;
 const CONFIG_KEY_JAVA_RUNTIMES = 'java.configuration.runtimes';
 
 export async function activate(context:vscode.ExtensionContext) {
@@ -76,7 +76,7 @@ function updateConfiguration(
 	const noneDefault = runtimes.find(r => r.default) ? false : true;
 
 	if (noneDefault || !_.isEqual(runtimes, runtimesOld)) {
-		const latestLtsRuntime = runtimes.find(r => r.name === jdkbundle.runtime.nameOf(LATEST_LTS_VERSION));
+		const latestLtsRuntime = runtimes.find(r => r.name === jdkbundle.runtime.nameOf(INIT_DEFAULT_LTS_VERSION));
 		if (noneDefault && latestLtsRuntime) {
 			latestLtsRuntime.default = true;
 		}
@@ -86,7 +86,7 @@ function updateConfiguration(
 		vscode.window.setStatusBarMessage(`JDK Bundle: ${l10n.t('Updated')} ${CONFIG_KEY_JAVA_RUNTIMES}`, 10_000);
 	}
 
-	const jdtRuntimePath = runtimes.find(r => r.name === jdkbundle.runtime.nameOf(JDT_VERSION))?.path;
+	const jdtRuntimePath = runtimes.find(r => r.name === jdkbundle.runtime.nameOf(JDT_LTS_VERSION))?.path;
 	if (jdtRuntimePath) {
 		const CONFIG_KEY_JDT_JAVA_HOME = 'java.jdt.ls.java.home';
 		const jdtJavaHome = config.get(CONFIG_KEY_JDT_JAVA_HOME);
@@ -98,12 +98,12 @@ function updateConfiguration(
 		}
 	}
 
-	const defaultRuntime = runtimes.find(r => r.default);
-	if (!process.env.JAVA_HOME && defaultRuntime) {
+	const userDefaultRuntime = runtimes.find(r => r.default);
+	if (!fs.existsSync(process.env.JAVA_HOME || '') && userDefaultRuntime) {
 		const CONFIG_KEY_JAVA_DOT_HOME = 'java.home';
 		const javaDotHome:string = config.get(CONFIG_KEY_JAVA_DOT_HOME) || '';
-		if (javaDotHome !== defaultRuntime.path) {
-			updateConfig(CONFIG_KEY_JAVA_DOT_HOME, defaultRuntime.path);
+		if (javaDotHome !== userDefaultRuntime.path) {
+			updateConfig(CONFIG_KEY_JAVA_DOT_HOME, userDefaultRuntime.path);
 			updateConfig('maven.terminal.useJavaHome', true);
 			jdkbundle.log(`Updated ${CONFIG_KEY_JAVA_DOT_HOME}`);
 		}

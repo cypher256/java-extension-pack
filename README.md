@@ -18,8 +18,8 @@ At startup, it is auto-configured as follows. If the same major version has diff
 |Configuration Name|Configured Value|
 |---|---|
 |`java.configuration.runtimes`|Auto-scanned or auto-downloaded JDK|
-|`java.jdt.ls.java.home`|default JDK|
-|`java.home`|Latest LTS if JAVA_HOME not set (Deprecated but used by Maven)|
+|`java.jdt.ls.java.home`|Suitable JDK|
+|`java.home`|default JDK if JAVA_HOME not set (Deprecated but used by Maven)|
 |`maven.terminal.useJavaHome`|true if JAVA_HOME not set|
 
 ```json
