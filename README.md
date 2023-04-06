@@ -11,7 +11,7 @@ At startup, it is auto-configured as follows. If the same major version has diff
 
 1. Auto-scan JDKs installed using SDKMAN or installer for Windows, macos, Linux
 1. Auto-detect environment variables JAVA_HOME and JDK_HOME
-1. Auto-download LTS JDKs and [available latest JDK]((https://github.com/redhat-developer/vscode-java#features)) if not found on local
+1. Auto-download LTS JDKs and [available latest JDK](https://github.com/redhat-developer/vscode-java#features) if not found on local
 1. Auto-update automatically downloaded managed JDKs
 1. Auto-configure user settings (Delete entries where JDK does not exist)
 
