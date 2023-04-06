@@ -7,7 +7,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as semver from 'semver';
 
-export namespace JdkBundle {
+export namespace jdkbundle {
 
 	export interface JavaRuntime {
 		name: string;
@@ -15,59 +15,52 @@ export namespace JdkBundle {
 		default?: boolean;
 	}
 
-	export function runtimeName(javaVersion:number): string {
-		return 'JavaSE-' + (javaVersion <= 8 ? '1.' + javaVersion : javaVersion);
-	}
+	export namespace runtime {
 
-	export function isScanedJdk(runtime:JavaRuntime, context:vscode.ExtensionContext): boolean {
-		const runtimePath = path.normalize(runtime.path);
-		const userDir = path.normalize(context.globalStorageUri.fsPath);
-		return !runtimePath.startsWith(userDir);
-	}
+		export function versionOf(runtimeName:string): number {
+			return Number(runtimeName.replace('JavaSE-', ''));
+		}
 
-	export function rmSync(path:string, options?:object): void {
-		try {
-			if (fs.existsSync(path)) {
-				fs.rmSync(path, options);
+		export function nameOf(javaVersion:number): string {
+			return 'JavaSE-' + (javaVersion <= 8 ? '1.' + javaVersion : javaVersion);
+		}
+
+		export function isVSCodeStorage(targetPath:string, context:vscode.ExtensionContext): boolean {
+			const _runtimePath = path.normalize(targetPath);
+			const _userDir = path.normalize(context.globalStorageUri.fsPath);
+			return _runtimePath.startsWith(_userDir);
+		}
+
+		export function isSmallLeft(leftVersion:string, rightVersion:string): boolean {
+			try {
+				return semver.lt(
+					leftVersion.replace(/_/g, '+'), 
+					rightVersion.replace(/_/g, '+')
+				);
+			} catch (e) {
+				jdkbundle.log('Failed compare semver: ' + e);
+				return false;
 			}
-		} catch (e) {
-			JdkBundle.log('Failed rmSync: ' + e);
 		}
-	}
-	
-	export function log(message?: any, ...optionalParams: any[]): void {
-		console.log(`[Pleiades]`, message, ...optionalParams);
 	}
 
-	export function isLowerLeft(leftVersion:string, rightVersion:string): boolean {
-		try {
-			return semver.lt(
-				leftVersion.replace(/_/g, '+'), 
-				rightVersion.replace(/_/g, '+')
-			);
-		} catch (e) {
-			JdkBundle.log('Failed isLowerLeft: ' + e);
-			return false;
-		}
-	}
-	
-	export class OsArch {
-	
-		public isTarget(): boolean {
-			return process.platform.match(/^(win32|darwin)$/) !== null || 
-				(process.platform === 'linux' && process.arch === 'x64');
-		}
+	export namespace os {
 
-		public isMac(): boolean {
+		export function isMac(): boolean {
 			return process.platform === 'darwin';
 		}
 
-		public isWindows(): boolean {
+		export function isWindows(): boolean {
 			return process.platform === 'win32';
 		}
 	
-		public getName(javaVersion: number): string {
-			if (!this.isTarget()) {
+		export function isTarget(): boolean {
+			return process.platform.match(/^(win32|darwin)$/) !== null || 
+				(process.platform === 'linux' && process.arch === 'x64');
+		}
+	
+		export function nameOf(javaVersion: number): string {
+			if (!isTarget()) {
 				throw new Error(`Unsupported OS architecture. ${process.platform} ${process.arch}`);
 			}
 			if (process.platform === 'darwin') {
@@ -81,5 +74,19 @@ export namespace JdkBundle {
 			}
 			return 'x64_windows_hotspot';
 		}
+	}
+
+	export function rmSync(path:string, options?:object): void {
+		try {
+			if (fs.existsSync(path)) {
+				fs.rmSync(path, options);
+			}
+		} catch (e) {
+			jdkbundle.log('Failed rmSync: ' + e);
+		}
+	}
+	
+	export function log(message?: any, ...optionalParams: any[]): void {
+		console.log(`[Pleiades]`, message, ...optionalParams);
 	}
 }

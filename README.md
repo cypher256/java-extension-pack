@@ -1,24 +1,26 @@
 # Java Extension Pack JDK Bundle
 
-Just install this extension and you can start Java development out of the box without installing JDK or setting environment variables.
+Just install this extension and you can start Java development out of the box without installing JDK or setting environment variables. Gradle/Maven tasks can be run from the Gradle/Maven view or the Command Palette. Note that PATH environment variables and other settings are required when using it on the command line.
 <br>
 <br>
 
 # Features
 
 ## Auto-configuration multiple JDK versions
-At startup, it is auto-configured as follows ([Supported Java versions](https://github.com/redhat-developer/vscode-java#features)). If the same major version has different minor versions, the latest version is set.
+At startup, it is auto-configured as follows. If the same major version has different minor versions, the latest version is set.
 
-1. Auto-scan JDKs installed using installer or SDKMAN
+1. Auto-scan JDKs installed using SDKMAN or installer for Windows, macos, Linux
 1. Auto-detect environment variables JAVA_HOME and JDK_HOME
-1. Auto-download JDK 8, 11, 17 if not found on local (Auto-update)
+1. Auto-download LTS JDKs and [available latest JDK]((https://github.com/redhat-developer/vscode-java#features)) if not found on local
+1. Auto-update automatically downloaded managed JDKs
 1. Auto-configure user settings (Delete entries where JDK does not exist)
 
 |Configuration Name|Configured Value|
 |---|---|
 |`java.configuration.runtimes`|Auto-scanned or auto-downloaded JDK|
-|`java.jdt.ls.java.home`|JDK 17|
-|`java.home`|Remove due to deprecated|
+|`java.jdt.ls.java.home`|default JDK|
+|`java.home`|Latest LTS if JAVA_HOME not set (Deprecated but used by Maven)|
+|`maven.terminal.useJavaHome`|true if JAVA_HOME not set|
 
 ```json
 // ex: Auto-configured User settings.json
@@ -52,7 +54,7 @@ At startup, it is auto-configured as follows ([Supported Java versions](https://
 "java.jdt.ls.java.home": "c:\\Users\\<UserName>\\AppData\\Roaming\\Code\\User\\globalStorage\\pleiades.java-extension-pack-jdk\\17",
 ```
 
-The configured JDKs are available in the following 'Extension Pack for Java' features.
+The configured JDKs are available in the "Extension Pack for Java" feature below included in this extension.
 <br>
 <br>
 
