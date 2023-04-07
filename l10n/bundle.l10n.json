@@ -1,7 +1,6 @@
 {
-  "Updated": "Updated",
   "Downloading": "Downloading",
   "Installing": "Installing",
-  "UPDATE SUCCESSFUL": "UPDATE SUCCESSFUL",
-  "INSTALL SUCCESSFUL": "INSTALL SUCCESSFUL"
+  "UPDATE SUCCESS": "UPDATE SUCCESS",
+  "INSTALL SUCCESS": "INSTALL SUCCESS"
 }

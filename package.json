@@ -3,7 +3,7 @@
   "displayName": "Java Extension Pack JDK Bundle",
   "description": "JDK installation and JAVA_HOME settings are NOT required",
   "icon": "README_icon.png",
-  "version": "17.2.2",
+  "version": "17.2.3",
   "publisher": "Pleiades",
   "repository": {
     "url": "https://github.com/cypher256/pleiades.io/issues?q="
@@ -36,8 +36,7 @@
     "vmware.vscode-boot-dev-pack",
     "redhat.vscode-community-server-connector"
   ],
-  "extensionDependencies": [
-  ],
+  "extensionDependencies": [],
   "activationEvents": [
     "onStartupFinished"
   ],
@@ -61,6 +60,7 @@
     "@types/vscode": "^1.54.0",
     "@typescript-eslint/eslint-plugin": "^5.57.1",
     "@typescript-eslint/parser": "^5.57.1",
+    "@vscode/l10n-dev": "^0.0.23",
     "@vscode/test-electron": "^2.3.0",
     "eslint": "^8.37.0",
     "glob": "^8.1.0",

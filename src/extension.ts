@@ -20,6 +20,10 @@ const JDT_LTS_VERSION = AVAILABLE_LTS_VERSIONS[AVAILABLE_LTS_VERSIONS.length - 1
 const INIT_DEFAULT_LTS_VERSION = JDT_LTS_VERSION;
 const CONFIG_KEY_JAVA_RUNTIMES = 'java.configuration.runtimes';
 
+/**
+ * Activates the extension.
+ * @param context The extension context.
+ */
 export async function activate(context:vscode.ExtensionContext) {
 
 	jdkbundle.log('activate START', context.globalStorageUri.fsPath);
@@ -33,6 +37,7 @@ export async function activate(context:vscode.ExtensionContext) {
 		const runtimes:jdkbundle.JavaRuntime[] = config.get(CONFIG_KEY_JAVA_RUNTIMES) || [];
 		const downloadVersions = new Set(AVAILABLE_LTS_VERSIONS);
 
+		// Scan JDK
 		try {
 			const runtimesOld = _.cloneDeep(runtimes);
 			await scanJdk(context, runtimes, downloadVersions);
@@ -44,6 +49,7 @@ export async function activate(context:vscode.ExtensionContext) {
 			jdkbundle.log(e);
 		}
 
+		// Download JDK
 		try {
 			const runtimesOld = _.cloneDeep(runtimes);
 			const promiseArray: Promise<void>[] = [];
@@ -66,26 +72,24 @@ export async function activate(context:vscode.ExtensionContext) {
 	});
 }
 
+/**
+ * Updates the Java runtime configurations for the VSCode Java extension.
+ * @param context The VSCode extension context.
+ * @param runtimes An array of Java runtime objects to update the configuration with.
+ * @param runtimesOld An array of previous Java runtime objects to compare with `runtimes`.
+ */
 function updateConfiguration(
 	context:vscode.ExtensionContext, 
 	runtimes:jdkbundle.JavaRuntime[], 
 	runtimesOld:jdkbundle.JavaRuntime[]) {
 
 	const config = vscode.workspace.getConfiguration();
-	const updateConfig = (section:string, value:any) => config.update(section, value, vscode.ConfigurationTarget.Global);
-	const noneDefault = runtimes.find(r => r.default) ? false : true;
+	const updateConfig = (section:string, value:any) => {
+		config.update(section, value, vscode.ConfigurationTarget.Global);
+		jdkbundle.log(`Updated ${section}`);
+	};
 
-	if (noneDefault || !_.isEqual(runtimes, runtimesOld)) {
-		const latestLtsRuntime = runtimes.find(r => r.name === jdkbundle.runtime.nameOf(INIT_DEFAULT_LTS_VERSION));
-		if (noneDefault && latestLtsRuntime) {
-			latestLtsRuntime.default = true;
-		}
-		runtimes.sort((a, b) => a.name.localeCompare(b.name));
-		updateConfig(CONFIG_KEY_JAVA_RUNTIMES, runtimes);
-		jdkbundle.log(`Updated ${CONFIG_KEY_JAVA_RUNTIMES}`);
-		vscode.window.setStatusBarMessage(`JDK Bundle: ${l10n.t('Updated')} ${CONFIG_KEY_JAVA_RUNTIMES}`, 10_000);
-	}
-
+	// VSCode JDT LS Java Home (Always overwrite)
 	const jdtRuntimePath = runtimes.find(r => r.name === jdkbundle.runtime.nameOf(JDT_LTS_VERSION))?.path;
 	if (jdtRuntimePath) {
 		const CONFIG_KEY_JDT_JAVA_HOME = 'java.jdt.ls.java.home';
@@ -93,23 +97,45 @@ function updateConfiguration(
 		if (jdtJavaHome !== jdtRuntimePath) {
 			// Java Extension prompts to reload dialog
 			updateConfig(CONFIG_KEY_JDT_JAVA_HOME, jdtRuntimePath);
-			jdkbundle.log(`Updated ${CONFIG_KEY_JDT_JAVA_HOME}`);
-			vscode.window.setStatusBarMessage(`JDK Bundle: ${l10n.t('Updated')} ${CONFIG_KEY_JDT_JAVA_HOME}`, 10_000);
 		}
 	}
 
-	const userDefaultRuntime = runtimes.find(r => r.default);
-	if (!fs.existsSync(process.env.JAVA_HOME || '') && userDefaultRuntime) {
-		const CONFIG_KEY_JAVA_DOT_HOME = 'java.home';
-		const javaDotHome:string = config.get(CONFIG_KEY_JAVA_DOT_HOME) || '';
-		if (javaDotHome !== userDefaultRuntime.path) {
-			updateConfig(CONFIG_KEY_JAVA_DOT_HOME, userDefaultRuntime.path);
-			updateConfig('maven.terminal.useJavaHome', true);
-			jdkbundle.log(`Updated ${CONFIG_KEY_JAVA_DOT_HOME}`);
+	// Project Runtimes Default (Keep if set)
+	const initDefaultRuntime = runtimes.find(r => r.name === jdkbundle.runtime.nameOf(INIT_DEFAULT_LTS_VERSION));
+	const isNoneDefault = runtimes.find(r => r.default) ? false : true;
+	if (isNoneDefault || !_.isEqual(runtimes, runtimesOld)) {
+		if (isNoneDefault && initDefaultRuntime) {
+			initDefaultRuntime.default = true;
+		}
+		runtimes.sort((a, b) => a.name.localeCompare(b.name));
+		updateConfig(CONFIG_KEY_JAVA_RUNTIMES, runtimes);
+	}
+
+	// Project Maven Java Home (Keep if exsits)
+	if (!fs.existsSync(process.env.JAVA_HOME || '') && initDefaultRuntime) {
+		const CONFIG_KEY_MAVEN_CUSTOM_ENV = 'maven.terminal.customEnv';
+		const customEnv:any[] = config.get(CONFIG_KEY_MAVEN_CUSTOM_ENV) || [];
+		let javaHomeEntry = customEnv.find(i => i.environmentVariable === 'JAVA_HOME');
+		if (javaHomeEntry && fs.existsSync(javaHomeEntry.value)) {
+		} else {
+			if (!javaHomeEntry) {
+				javaHomeEntry = {environmentVariable:'JAVA_HOME'};
+				customEnv.push(javaHomeEntry);
+			}
+			javaHomeEntry.value = initDefaultRuntime.path;
+			updateConfig(CONFIG_KEY_MAVEN_CUSTOM_ENV, customEnv);
+			updateConfig('java.home', undefined);
 		}
 	}
 }
 
+/**
+ * Scan installed JDK on the system and updates the given list of Java runtimes.
+ * @param context The VS Code extension context.
+ * @param runtimes The list of Java runtimes to update.
+ * @param downloadVersions The set of versions to download.
+ * @returns Promise that resolves when the JDK scan and runtime update is complete.
+ */
 async function scanJdk(
 	context:vscode.ExtensionContext, 
 	runtimes:jdkbundle.JavaRuntime[],
@@ -208,6 +234,14 @@ async function scanJdk(
 	}
 }
 
+/**
+ * Downloads and installs a specific version of the JDK if it is not already installed.
+ * @param context The extension context.
+ * @param runtimes An array of installed Java runtimes.
+ * @param majorVersion The major version of the JDK to download.
+ * @param progress A progress object used to report the download and installation progress.
+ * @returns A promise that resolves when the JDK is downloaded and installed.
+ */
 async function downloadJdk(
 	context:vscode.ExtensionContext, 
 	runtimes:jdkbundle.JavaRuntime[],
@@ -217,7 +251,7 @@ async function downloadJdk(
 	const runtimeName = jdkbundle.runtime.nameOf(majorVersion);
 	const matchedRuntime = runtimes.find(r => r.name === runtimeName);
 	if (matchedRuntime && !jdkbundle.runtime.isVSCodeStorage(matchedRuntime.path, context)) {
-		return;
+		return; // Don't download if user installation
 	}
 
 	// Get Download URL
@@ -290,7 +324,7 @@ async function downloadJdk(
 		runtimes.push({name: runtimeName, path: javaHome});
 	}
 	const message = fullVersionOld 
-		? `${l10n.t('UPDATE SUCCESSFUL')} ${runtimeName}: ${fullVersionOld} -> ${fullVersion}`
-		: `${l10n.t('INSTALL SUCCESSFUL')} ${runtimeName}: ${fullVersion}`;
-	progress.report({ message: `JDK Bundle: ${message}` });
+		? `${l10n.t('UPDATE SUCCESS')} ${runtimeName}: ${fullVersionOld} -> ${fullVersion}`
+		: `${l10n.t('INSTALL SUCCESS')} ${runtimeName}: ${fullVersion}`;
+	vscode.window.setStatusBarMessage(`JDK Bundle: ${message}`, 10_000);
 }

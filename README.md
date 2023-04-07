@@ -17,10 +17,10 @@ At startup, it is auto-configured as follows. If the same major version has diff
 
 |Configuration Name|Configured Value|
 |---|---|
-|`java.configuration.runtimes`|Auto-scanned or auto-downloaded JDK|
-|`java.jdt.ls.java.home`|Suitable JDK|
-|`java.home`|default JDK if JAVA_HOME not set (Deprecated but used by Maven)|
-|`maven.terminal.useJavaHome`|true if JAVA_HOME not set|
+|`java.configuration.runtimes`|Auto-scanned and auto-downloaded JDKs|
+|`java.jdt.ls.java.home`|Suitable JDK for JDT Language Server|
+|`java.home`|Delete as deprecated|
+|`maven.terminal.customEnv`|Set `JAVA_HOME` if environment variable JAVA_HOME not set|
 
 ```json
 // ex: Auto-configured User settings.json
