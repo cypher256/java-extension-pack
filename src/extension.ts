@@ -7,7 +7,7 @@ import { l10n } from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as stream from 'stream';
-import * as os from 'os'
+import * as os from 'os';
 import * as fg from 'fast-glob';
 import * as _ from "lodash";
 import * as decompress from 'decompress';
@@ -115,17 +115,20 @@ function updateConfiguration(
 	if (!fs.existsSync(process.env.JAVA_HOME || '') && initDefaultRuntime) {
 		const CONFIG_KEY_MAVEN_CUSTOM_ENV = 'maven.terminal.customEnv';
 		const customEnv:any[] = config.get(CONFIG_KEY_MAVEN_CUSTOM_ENV) || [];
-		let javaHomeEntry = customEnv.find(i => i.environmentVariable === 'JAVA_HOME');
-		if (javaHomeEntry && fs.existsSync(javaHomeEntry.value)) {
+		let mavenJavaHome = customEnv.find(i => i.environmentVariable === 'JAVA_HOME');
+		if (mavenJavaHome && fs.existsSync(mavenJavaHome.value)) {
 		} else {
-			if (!javaHomeEntry) {
-				javaHomeEntry = {environmentVariable:'JAVA_HOME'};
-				customEnv.push(javaHomeEntry);
+			if (!mavenJavaHome) {
+				mavenJavaHome = {environmentVariable:'JAVA_HOME'};
+				customEnv.push(mavenJavaHome);
 			}
-			javaHomeEntry.value = initDefaultRuntime.path;
+			mavenJavaHome.value = initDefaultRuntime.path;
 			updateConfig(CONFIG_KEY_MAVEN_CUSTOM_ENV, customEnv);
-			updateConfig('java.home', undefined);
 		}
+	}
+	const CONFIG_KEY_JAVA_DOT_HOME = 'java.home';
+	if (config.get(CONFIG_KEY_JAVA_DOT_HOME)) {
+		updateConfig(CONFIG_KEY_JAVA_DOT_HOME, undefined);
 	}
 }
 
@@ -165,15 +168,15 @@ async function scanJdk(
 
 	// Directories to Scan
 	const scanDirs:string[] = jdkbundle.os.isWindows()
-		? 
+		? [
 			// Windows
-			['java', 'Eclipse Adoptium', 'Amazon Corretto'].map(s => `c:/Program Files/${s}/*/release`)
-		: [
+			...['java', 'Eclipse Adoptium', 'Amazon Corretto'].map(s => `c:/Program Files/${s}/*/release`)
+		] : [
 			// Linux
 			'/usr/lib/jvm/*/release',
 			// macos
 			'/Library/Java/JavaVirtualMachines/*/Contents/Home/release',
-			path.join(os.homedir(), '.sdkman/candidates/java/*/release'),
+			path.join(os.homedir(), '.sdkman/candidates/java/*/release')
 		]
 	;
 	for (const javaHome of [process.env.JAVA_HOME, process.env.JDK_HOME]) {
