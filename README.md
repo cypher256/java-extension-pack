@@ -1,6 +1,6 @@
 # Java Extension Pack JDK Bundle
 
-Just install this extension and you can start Java development out of the box without installing JDK or setting environment variables. Gradle/Maven tasks can be run from the Gradle/Maven view or the Command Palette. Note that PATH environment variables and other settings are required when using it on the command line.
+Just install the extension and you can start Java development out of the box without installing JDK or setting environment variables. Gradle/Maven tasks can be run from the Gradle/Maven view or the Command Palette. Note that PATH environment variables and other settings are required when using it on the command line.
 <br>
 <br>
 
@@ -9,9 +9,9 @@ Just install this extension and you can start Java development out of the box wi
 ## Auto-configuration multiple JDK versions
 At startup, it is auto-configured as follows. If the same major version has different minor versions, the latest version is set.
 
-1. Auto-scan JDKs installed using SDKMAN or installer for Windows, macos, Linux
-1. Auto-detect environment variables JAVA_HOME and JDK_HOME
-1. Auto-download LTS JDKs and [available latest JDK](https://github.com/redhat-developer/vscode-java#features) if not found on local
+1. Auto-scan JDKs from each OS installation directory, SDKMAN, jEnv, jabba, ASDF, etc...
+1. Auto-detect environment variables JAVA_HOME, JDK_HOME and PATH
+1. Auto-download Adoptium LTS JDKs and [available latest JDK](https://github.com/redhat-developer/vscode-java#features) if not installed
 1. Auto-update automatically downloaded managed JDKs
 1. Auto-configure user settings (Delete entries where JDK does not exist)
 
@@ -54,7 +54,7 @@ At startup, it is auto-configured as follows. If the same major version has diff
 "java.jdt.ls.java.home": "c:\\Users\\<UserName>\\AppData\\Roaming\\Code\\User\\globalStorage\\pleiades.java-extension-pack-jdk\\17",
 ```
 
-The configured JDKs are available in the "Extension Pack for Java" feature below included in this extension.
+The configured JDKs are available in the "Extension Pack for Java" feature below included in the extension.
 <br>
 <br>
 
@@ -83,7 +83,7 @@ The JDK downloaded depends on the OS and architecture.
 <br>
 
 # License
-- This extension: MIT
+- The extension: MIT
 - Adoptium JDK: https://adoptium.net/docs/faq/
 <br>
 <br>

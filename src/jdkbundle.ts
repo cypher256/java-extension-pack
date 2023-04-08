@@ -5,7 +5,7 @@
 import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
-import * as semver from 'semver';
+import { compare } from 'compare-versions';
 
 export namespace jdkbundle {
 
@@ -18,7 +18,7 @@ export namespace jdkbundle {
 	export namespace runtime {
 
 		export function versionOf(runtimeName:string): number {
-			return Number(runtimeName.replace('JavaSE-', ''));
+			return Number(runtimeName.replace(/^JavaSE-(1\.|)/, ''));
 		}
 
 		export function nameOf(javaVersion:number): string {
@@ -31,14 +31,12 @@ export namespace jdkbundle {
 			return _runtimePath.startsWith(_userDir);
 		}
 
-		export function isSmallLeft(leftVersion:string, rightVersion:string): boolean {
+		export function isNewLeft(leftVersion:string, rightVersion:string): boolean {
 			try {
-				return semver.lt(
-					leftVersion.replace(/_/g, '+'), 
-					rightVersion.replace(/_/g, '+')
-				);
+				const optimize = (s:string) => {return s.replace(/_/g, '.')};
+				return compare(optimize(leftVersion), optimize(rightVersion), '>');
 			} catch (e) {
-				jdkbundle.log('Failed compare semver: ' + e);
+				jdkbundle.log('Failed compare-versions: ' + e);
 				return false;
 			}
 		}

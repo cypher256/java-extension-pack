@@ -7,8 +7,7 @@ import { l10n } from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as stream from 'stream';
-import * as os from 'os';
-import * as fg from 'fast-glob';
+import * as jdkutils from 'jdk-utils';
 import * as _ from "lodash";
 import * as decompress from 'decompress';
 import axios from 'axios';
@@ -152,12 +151,12 @@ async function scanJdk(
 	}
 
 	// Get Supported Runtime Names from Red Hat Extension
-	const redhat = vscode.extensions.getExtension('redhat.java');
-	const redhatProp = redhat?.packageJSON?.contributes?.configuration?.properties;
+	const redhatJava = vscode.extensions.getExtension('redhat.java');
+	const redhatProp = redhatJava?.packageJSON?.contributes?.configuration?.properties;
 	const redhatRuntimeNames:string[] = redhatProp?.[CONFIG_KEY_JAVA_RUNTIMES]?.items?.properties?.name?.enum || [];
 	if (redhatRuntimeNames.length === 0) {
 		redhatRuntimeNames.push(...[...downloadVersions].map(s => jdkbundle.runtime.nameOf(s)));
-		jdkbundle.log('Failed getExtension RedHat', redhat);
+		jdkbundle.log('Failed getExtension RedHat', redhatJava);
 	} else {
 		const latestVersion = jdkbundle.runtime.versionOf(redhatRuntimeNames[redhatRuntimeNames.length - 1]);
 		if (latestVersion) {
@@ -166,73 +165,42 @@ async function scanJdk(
 		}
 	}
 
-	// Directories to Scan
-	const scanDirs:string[] = jdkbundle.os.isWindows()
-		? [
-			// Windows
-			...['java', 'Eclipse Adoptium', 'Amazon Corretto'].map(s => `c:/Program Files/${s}/*/release`)
-		] : [
-			// Linux
-			'/usr/lib/jvm/*/release',
-			// macos
-			'/Library/Java/JavaVirtualMachines/*/Contents/Home/release',
-			path.join(os.homedir(), '.sdkman/candidates/java/*/release')
-		]
-	;
-	for (const javaHome of [process.env.JAVA_HOME, process.env.JDK_HOME]) {
-		if (javaHome) {
-			// fast-glob cannot use Windows '\' delimiter, so replace
-			scanDirs.push(path.join(javaHome, 'release').replace(/\\/g,'/'));
-		}
-	}
+	// Scan JDK
+	const scannedJavas = await jdkutils.findRuntimes({ checkJavac: true, withVersion: true });
 	interface JdkInfo extends jdkbundle.JavaRuntime {
 		fullVersion: string;
 	}
-	const latestVersionMap = new Map<number, JdkInfo>();
-	
-	// Scan JDK
-	for await(const releaseBuf of fg.stream(scanDirs, {followSymbolicLinks:false})) {
+	const latestMajorMap = new Map<number, JdkInfo>();
 
-		const release = releaseBuf.toString();
-		if (release.includes('/current/')) { // macos SDKMAN link
+	for (const scannedJava of scannedJavas) {
+		const scanedVersion = scannedJava.version;
+		jdkbundle.log(`Detected. ${scanedVersion?.major} (${scanedVersion?.java_version}) ${scannedJava.homedir}`);
+		if (!scanedVersion || !scannedJava.hasJavac) {
 			continue;
 		}
-		const javac = path.join(release, '../bin', jdkbundle.os.isWindows() ? 'javac.exe' : 'javac');
-		if (!fs.existsSync(javac)) {
-			continue;
-		}
-		const lines = fs.readFileSync(release).toString().split(/\r?\n/);
-		const versionLine = lines.find(s => s.startsWith('JAVA_VERSION='));
-		if (!versionLine) {
-			continue;
-		}
-		const fullVersion = versionLine.replace(/^.+="([^"]+)"$/, '$1');
-		const majorVersion:number = Number(fullVersion.replace(/^(1\.[5-8]|[0-9]+).*$/, '$1').replace(/^1\./, ''));
-		jdkbundle.log(`Detected. ${majorVersion} (${fullVersion}) ${release}`);
-
-		const runtimeName = jdkbundle.runtime.nameOf(majorVersion);
+		const runtimeName = jdkbundle.runtime.nameOf(scanedVersion.major);
 		if (!redhatRuntimeNames.includes(runtimeName)) {
 			continue;
 		}
-		const jdkInfo = latestVersionMap.get(majorVersion);
-		if (!jdkInfo || jdkbundle.runtime.isSmallLeft(jdkInfo.fullVersion, fullVersion)) {
-			latestVersionMap.set(majorVersion, {
-				fullVersion: fullVersion,
+		const latestJdk = latestMajorMap.get(scanedVersion.major);
+		if (!latestJdk || jdkbundle.runtime.isNewLeft(scanedVersion.java_version, latestJdk.fullVersion)) {
+			latestMajorMap.set(scanedVersion.major, {
+				fullVersion: scanedVersion.java_version,
 				name: runtimeName,
-				path: path.dirname(path.normalize(release.toString()))
+				path: scannedJava.homedir,
 			});
 		}
 	}
 
 	// Set Runtimes Configuration
-	for (const scanedJdk of latestVersionMap.values()) {
-		const matchedRuntime = runtimes.find(r => r.name === scanedJdk.name);
+	for (const scannedJdkInfo of latestMajorMap.values()) {
+		const matchedRuntime = runtimes.find(r => r.name === scannedJdkInfo.name);
 		if (matchedRuntime) {
 			if (!jdkbundle.runtime.isVSCodeStorage(matchedRuntime.path, context)) {
-				matchedRuntime.path = scanedJdk.path;
+				matchedRuntime.path = scannedJdkInfo.path;
 			}
 		} else {
-			runtimes.push({name: scanedJdk.name, path: scanedJdk.path});
+			runtimes.push({name: scannedJdkInfo.name, path: scannedJdkInfo.path});
 		}
 	}
 }
