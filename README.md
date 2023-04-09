@@ -7,7 +7,7 @@ Just install the extension and you can start Java development out of the box wit
 # Features
 
 ## Auto-configuration multiple JDK versions
-At startup, it is auto-configured as follows. If the same major version has different minor versions, the latest version is set.
+At startup, it is auto-configured as follows. If there are multiple versions of the same version, the latest minor version is used. To refresh the configuration, run `Reload Window` from the command palette (Ctrl/Cmd + Shift + P).
 
 1. Auto-scan JDKs from each OS installation directory, SDKMAN, jEnv, jabba, ASDF, etc...
 1. Auto-detect environment variables JAVA_HOME, JDK_HOME and PATH
@@ -59,7 +59,7 @@ The configured JDKs are available in the "Extension Pack for Java" feature below
 <br>
 
 ## Java Project Runtime Information
-To see which JDKs are used for your projects in multi-root workspaces, you can trigger the command `Configure Java Runtime` in Command Palette (Ctrl/Cmd + Shift + P).
+To see which JDKs are used for your projects in multi-root workspaces, you can trigger the command `Configure Java Runtime` in Command Palette.
 <br>
 <p><img src="https://code.visualstudio.com/assets/docs/java/java-project/configure-project-runtime.png" style="max-width:600px"></p>
 <br>
