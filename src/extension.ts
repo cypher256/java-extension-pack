@@ -88,14 +88,15 @@ function updateConfiguration(
 		jdkbundle.log(`Updated ${section}`);
 	};
 
-	// VSCode JDT LS Java Home (Always overwrite)
+	// VSCode LS Java Home (Always overwrite)
 	const jdtRuntimePath = runtimes.find(r => r.name === jdkbundle.runtime.nameOf(JDT_LTS_VERSION))?.path;
 	if (jdtRuntimePath) {
-		const CONFIG_KEY_JDT_JAVA_HOME = 'java.jdt.ls.java.home';
-		const jdtJavaHome = config.get(CONFIG_KEY_JDT_JAVA_HOME);
-		if (jdtJavaHome !== jdtRuntimePath) {
-			// Java Extension prompts to reload dialog
-			updateConfig(CONFIG_KEY_JDT_JAVA_HOME, jdtRuntimePath);
+		for (const CONFIG_KEY_LS_JAVA_HOME of ['java.jdt.ls.java.home', 'spring-boot.ls.java.home']) {
+			const lsJavaHome = config.get(CONFIG_KEY_LS_JAVA_HOME);
+			if (lsJavaHome !== jdtRuntimePath) {
+				// JDT LS: Java Extension prompts to reload dialog
+				updateConfig(CONFIG_KEY_LS_JAVA_HOME, jdtRuntimePath);
+			}
 		}
 	}
 

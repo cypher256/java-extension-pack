@@ -18,8 +18,9 @@ At startup, it is auto-configured as follows. If there are multiple versions of 
 |Configuration Name|Configured Value|
 |---|---|
 |`java.configuration.runtimes`|Auto-scanned and auto-downloaded JDKs|
-|`java.jdt.ls.java.home`|Suitable JDK for JDT Language Server|
 |`java.home`|Delete as deprecated|
+|`java.jdt.ls.java.home`|Suitable JDK for JDT Language Server|
+|`spring-boot.ls.java.home`|Suitable JDK for JDT Language Server|
 |`maven.terminal.customEnv`|Set `JAVA_HOME` if environment variable JAVA_HOME not set|
 
 ```json
