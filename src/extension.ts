@@ -111,18 +111,22 @@ function updateConfiguration(
 	}
 
 	// Project Maven Java Home (Keep if exsits)
-	if (!fs.existsSync(process.env.JAVA_HOME || '') && initDefaultRuntime) {
+	if (initDefaultRuntime) {
 		const CONFIG_KEY_MAVEN_CUSTOM_ENV = 'maven.terminal.customEnv';
 		const customEnv:any[] = config.get(CONFIG_KEY_MAVEN_CUSTOM_ENV) || [];
 		let mavenJavaHome = customEnv.find(i => i.environmentVariable === 'JAVA_HOME');
-		if (mavenJavaHome && fs.existsSync(mavenJavaHome.value)) {
-		} else {
-			if (!mavenJavaHome) {
-				mavenJavaHome = {environmentVariable:'JAVA_HOME'};
-				customEnv.push(mavenJavaHome);
-			}
+		const updateMavenJavaHome = () => {
 			mavenJavaHome.value = initDefaultRuntime.path;
 			updateConfig(CONFIG_KEY_MAVEN_CUSTOM_ENV, customEnv);
+		};
+		if (mavenJavaHome) {
+			if (!fs.existsSync(mavenJavaHome.value)) {
+				updateMavenJavaHome();
+			}
+		} else if (!fs.existsSync(process.env.JAVA_HOME || '')) {
+			mavenJavaHome = {environmentVariable: 'JAVA_HOME'};
+			customEnv.push(mavenJavaHome);
+			updateMavenJavaHome();
 		}
 	}
 	const CONFIG_KEY_JAVA_DOT_HOME = 'java.home';
