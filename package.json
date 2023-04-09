@@ -17,7 +17,7 @@
   "keywords": [
     "jdk",
     "JAVA_HOME",
-    "PATH",
+    "java",
     "gradle",
     "maven",
     "spring"
