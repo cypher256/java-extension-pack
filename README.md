@@ -13,7 +13,7 @@ At startup, it is auto-configured as follows. If there are multiple versions of 
 1. Auto-detect environment variables JAVA_HOME, JDK_HOME and PATH
 1. Auto-download Adoptium LTS JDKs and [available latest JDK](https://github.com/redhat-developer/vscode-java#features) if not installed
 1. Auto-update automatically downloaded managed JDKs
-1. Auto-configure user settings (Delete entries where JDK does not exist)
+1. Auto-configure user settings (Auto-update version path changes)
 
 |Configuration Name|Configured Value|
 |---|---|
