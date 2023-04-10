@@ -25,6 +25,10 @@ export namespace jdkbundle {
 			return 'JavaSE-' + (javaVersion <= 8 ? '1.' + javaVersion : javaVersion);
 		}
 
+		export function javaHome(jdkDir:string): string {
+			return jdkbundle.os.isMac() ? path.join(jdkDir, 'Home') : jdkDir;
+		}
+
 		export function isVSCodeStorage(targetPath:string, context:vscode.ExtensionContext): boolean {
 			const _runtimePath = path.normalize(targetPath);
 			const _userDir = path.normalize(context.globalStorageUri.fsPath);

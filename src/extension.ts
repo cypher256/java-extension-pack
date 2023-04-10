@@ -167,7 +167,7 @@ async function scanJdk(
 		}
 	}
 
-	// Scan JDK
+	// Scan Installed JDK
 	const scannedJavas = await jdkutils.findRuntimes({ checkJavac: true, withVersion: true });
 	interface JdkInfo extends jdkbundle.JavaRuntime {
 		fullVersion: string;
@@ -190,6 +190,27 @@ async function scanJdk(
 				fullVersion: scanedVersion.java_version,
 				name: runtimeName,
 				path: scannedJava.homedir,
+			});
+		}
+	}
+
+	// Scan Downloaded JDK (Old Version Support)
+	for (const runtimeName of redhatRuntimeNames) {
+		const major = jdkbundle.runtime.versionOf(runtimeName);
+		if (latestMajorMap.has(major)) {
+			continue;
+		}
+		const downloadJdkDir = path.join(context.globalStorageUri.fsPath, String(major));
+		if (!fs.existsSync(downloadJdkDir)) {
+			continue;
+		}
+		const javaHome = jdkbundle.runtime.javaHome(downloadJdkDir);
+		const donwloadJava = await jdkutils.getRuntime(javaHome, { checkJavac: true });
+		if (donwloadJava?.hasJavac) {
+			latestMajorMap.set(major, {
+				fullVersion: '',
+				name: runtimeName,
+				path: javaHome,
 			});
 		}
 	}
@@ -232,9 +253,9 @@ async function downloadJdk(
 	const response = await axios.get(`${URL_PREFIX}/temurin${majorVersion}-binaries/releases/latest`);
 	const redirectedUrl:string = response.request.res.responseUrl;
 	const fullVersion = redirectedUrl.replace(/.+tag\//, '');
-	const userDir = context.globalStorageUri.fsPath;
-	const jdkDir = path.join(userDir, String(majorVersion));
-	const javaHome = jdkbundle.os.isMac() ? path.join(jdkDir, 'Home') : jdkDir;
+	const globalStorageDir = context.globalStorageUri.fsPath;
+	const jdkDir = path.join(globalStorageDir, String(majorVersion));
+	const javaHome = jdkbundle.runtime.javaHome(jdkDir);
 
 	// Check Version File
 	const versionFile = path.join(jdkDir, 'version.txt');
@@ -261,8 +282,8 @@ async function downloadJdk(
 	// Download JDK
 	jdkbundle.log('Downloading... ', downloadUrl);
 	progress.report({ message: `JDK Bundle: ${l10n.t('Downloading')} ${fullVersion}` });
-	if (!fs.existsSync(userDir)) {
-		fs.mkdirSync(userDir);
+	if (!fs.existsSync(globalStorageDir)) {
+		fs.mkdirSync(globalStorageDir);
 	}
 	const downloadedFile = jdkDir + '.tmp';
 	const writer = fs.createWriteStream(downloadedFile);
@@ -275,7 +296,7 @@ async function downloadJdk(
 	progress.report({ message: `JDK Bundle: ${l10n.t('Installing')} ${fullVersion}` });
 	jdkbundle.rmSync(jdkDir, { recursive: true });
 	try {
-		await decompress(downloadedFile, userDir, {
+		await decompress(downloadedFile, globalStorageDir, {
 			map: file => {
 				file.path = file.path.replace(/^[^\/]+/, String(majorVersion));
 				if (jdkbundle.os.isMac()) {
