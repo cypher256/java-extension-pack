@@ -33,7 +33,7 @@ export namespace jdkbundle {
 
 		export function isNewLeft(leftVersion:string, rightVersion:string): boolean {
 			try {
-				const optimize = (s:string) => {return s.replace(/_/g, '.')};
+				const optimize = (s:string) => s.replace(/_/g, '.');
 				return compare(optimize(leftVersion), optimize(rightVersion), '>');
 			} catch (e) {
 				jdkbundle.log('Failed compare-versions: ' + e);

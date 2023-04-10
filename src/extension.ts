@@ -40,7 +40,7 @@ export async function activate(context:vscode.ExtensionContext) {
 		try {
 			const runtimesOld = _.cloneDeep(runtimes);
 			await scanJdk(context, runtimes, downloadVersions);
-			updateConfiguration(context, runtimes, runtimesOld);
+			updateConfiguration(runtimes, runtimesOld);
 
 		} catch (e:any) {
 			let message = `JDK scan failed. ${e.message ? e.message : e}`;
@@ -58,7 +58,7 @@ export async function activate(context:vscode.ExtensionContext) {
 				);
 			}
 			await Promise.all(promiseArray);
-			updateConfiguration(context, runtimes, runtimesOld);
+			updateConfiguration(runtimes, runtimesOld);
 
 		} catch (e:any) {
 			let message = 'JDK download failed.';
@@ -73,12 +73,10 @@ export async function activate(context:vscode.ExtensionContext) {
 
 /**
  * Updates the Java runtime configurations for the VSCode Java extension.
- * @param context The VSCode extension context.
  * @param runtimes An array of Java runtime objects to update the configuration with.
  * @param runtimesOld An array of previous Java runtime objects to compare with `runtimes`.
  */
 function updateConfiguration(
-	context:vscode.ExtensionContext, 
 	runtimes:jdkbundle.JavaRuntime[], 
 	runtimesOld:jdkbundle.JavaRuntime[]) {
 
@@ -92,8 +90,7 @@ function updateConfiguration(
 	const jdtRuntimePath = runtimes.find(r => r.name === jdkbundle.runtime.nameOf(JDT_LTS_VERSION))?.path;
 	if (jdtRuntimePath) {
 		for (const CONFIG_KEY_LS_JAVA_HOME of ['java.jdt.ls.java.home', 'spring-boot.ls.java.home']) {
-			const lsJavaHome = config.get(CONFIG_KEY_LS_JAVA_HOME);
-			if (lsJavaHome !== jdtRuntimePath) {
+			if (jdtRuntimePath !== config.get(CONFIG_KEY_LS_JAVA_HOME)) {
 				// JDT LS: Java Extension prompts to reload dialog
 				updateConfig(CONFIG_KEY_LS_JAVA_HOME, jdtRuntimePath);
 			}

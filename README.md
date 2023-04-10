@@ -1,5 +1,10 @@
 # Java Extension Pack JDK Bundle
 
+[![ESLint](https://github.com/cypher256/java-extension-pack/actions/workflows/eslint.yml/badge.svg)](https://github.com/cypher256/java-extension-pack/actions/workflows/eslint.yml)
+![](https://img.shields.io/visual-studio-marketplace/d/Pleiades.java-extension-pack-jdk?color=yellow)
+![](https://img.shields.io/visual-studio-marketplace/i/Pleiades.java-extension-pack-jdk?color=blue)
+![](https://img.shields.io/visual-studio-marketplace/last-updated/Pleiades.java-extension-pack-jdk?color=orange)
+
 Just install the extension and you can start Java development out of the box without installing JDK or setting environment variables. Gradle/Maven tasks can be run from the Gradle/Maven view or the Command Palette. Note that PATH environment variables and other settings are required when using it on the command line.
 <br>
 <br>
@@ -9,7 +14,7 @@ Just install the extension and you can start Java development out of the box wit
 ## Auto-configuration multiple JDK versions
 At startup, it is auto-configured as follows. If there are multiple JDKs of the same version, the latest minor version among them is used. To refresh the configuration, run `Reload Window` from the command palette (Ctrl/Cmd + Shift + P).
 
-1. Auto-scan JDKs from each OS installation directory, SDKMAN, jEnv, jabba, ASDF, etc...
+1. Auto-scan JDKs from OS-specific default location, SDKMAN, jEnv, jabba, ASDF, etc...
 1. Auto-detect environment variables JAVA_HOME, JDK_HOME and PATH
 1. Auto-download Adoptium LTS JDKs and [available latest JDK](https://github.com/redhat-developer/vscode-java#features) if not installed
 1. Auto-update automatically downloaded managed JDKs
