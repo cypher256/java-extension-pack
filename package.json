@@ -19,7 +19,7 @@
     "JAVA_HOME",
     "java",
     "gradle",
-    "maven",
+    "lombok",
     "spring"
   ],
   "categories": [
