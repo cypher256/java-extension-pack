@@ -33,9 +33,8 @@ At startup, it is auto-configured as follows. If there are multiple JDKs of the 
 |Windows|%APPDATA%\Code\User\globalStorage\pleiades.java-extension-pack-jdk\ |
 |macos|$HOME/Library/Application Support/Code/User/globalStorage/pleiades.java-extension-pack-jdk/|
 |Linux|$HOME/.config/Code/User/globalStorage/pleiades.java-extension-pack-jdk/|
-<br>
 
-### e.g. Auto-configured User settings.json
+#### e.g. Auto-configured User settings.json
 ```json
 "java.configuration.runtimes": [
   {
@@ -70,6 +69,7 @@ At startup, it is auto-configured as follows. If there are multiple JDKs of the 
 The configured JDKs are available in the "Extension Pack for Java" feature below included in the extension.
 <br>
 <br>
+<br>
 
 ## Java Project Java Version List
 To see which JDKs are used for your projects in multi-root workspaces, you can trigger the command `Configure Java Runtime` in Command Palette.
@@ -84,18 +84,17 @@ If you want to change the JDK version for your Gradle or Maven projects, you nee
 To change the JDK for unmanaged folders (with out any build tools), you can click the 🖊 button. It will list all the JDKs and you can select one for your unmanaged folders.
 <br>
 <br>
+<br>
 
 # Supported Platforms
 The JDK downloaded depends on the OS and architecture.
 - Windows x64
 - macos x64, aarch64
 - Linux x64
-<br>
 
 # License
 - The extension: MIT
 - Adoptium JDK: https://adoptium.net/docs/faq/
-<br>
 
 # Extensions Included
 
