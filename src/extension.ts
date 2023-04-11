@@ -167,7 +167,7 @@ async function scanJdk(
 		}
 	}
 
-	// Scan Installed JDK
+	// Scan User Installed JDK
 	const scannedJavas = await jdkutils.findRuntimes({ checkJavac: true, withVersion: true });
 	interface JdkInfo extends jdkbundle.JavaRuntime {
 		fullVersion: string;
@@ -194,22 +194,22 @@ async function scanJdk(
 		}
 	}
 
-	// Scan Downloaded JDK (Old Version Support)
-	for (const runtimeName of redhatRuntimeNames) {
-		const major = jdkbundle.runtime.versionOf(runtimeName);
+	// Scan Auto-Downloaded JDK (Old Version Support)
+	for (const redhatRuntimeName of redhatRuntimeNames) {
+		const major = jdkbundle.runtime.versionOf(redhatRuntimeName);
 		if (latestMajorMap.has(major)) {
-			continue;
+			continue; // Prioritize User Installed JDK
 		}
 		const downloadJdkDir = path.join(context.globalStorageUri.fsPath, String(major));
 		if (!fs.existsSync(downloadJdkDir)) {
 			continue;
 		}
 		const javaHome = jdkbundle.runtime.javaHome(downloadJdkDir);
-		const donwloadJava = await jdkutils.getRuntime(javaHome, { checkJavac: true });
-		if (donwloadJava?.hasJavac) {
+		const downloadedJava = await jdkutils.getRuntime(javaHome, { checkJavac: true });
+		if (downloadedJava?.hasJavac) {
 			latestMajorMap.set(major, {
 				fullVersion: '',
-				name: runtimeName,
+				name: redhatRuntimeName,
 				path: javaHome,
 			});
 		}
@@ -219,7 +219,7 @@ async function scanJdk(
 	for (const scannedJdkInfo of latestMajorMap.values()) {
 		const matchedRuntime = runtimes.find(r => r.name === scannedJdkInfo.name);
 		if (matchedRuntime) {
-			if (!jdkbundle.runtime.isVSCodeStorage(matchedRuntime.path, context)) {
+			if (jdkbundle.runtime.isUserInstalled(matchedRuntime.path, context)) {
 				matchedRuntime.path = scannedJdkInfo.path;
 			}
 		} else {
@@ -244,7 +244,7 @@ async function downloadJdk(
 
 	const runtimeName = jdkbundle.runtime.nameOf(majorVersion);
 	const matchedRuntime = runtimes.find(r => r.name === runtimeName);
-	if (matchedRuntime && !jdkbundle.runtime.isVSCodeStorage(matchedRuntime.path, context)) {
+	if (matchedRuntime && jdkbundle.runtime.isUserInstalled(matchedRuntime.path, context)) {
 		return; // Don't download if user installation
 	}
 
@@ -254,11 +254,11 @@ async function downloadJdk(
 	const redirectedUrl:string = response.request.res.responseUrl;
 	const fullVersion = redirectedUrl.replace(/.+tag\//, '');
 	const globalStorageDir = context.globalStorageUri.fsPath;
-	const jdkDir = path.join(globalStorageDir, String(majorVersion));
-	const javaHome = jdkbundle.runtime.javaHome(jdkDir);
+	const downloadJdkDir = path.join(globalStorageDir, String(majorVersion));
+	const javaHome = jdkbundle.runtime.javaHome(downloadJdkDir);
 
 	// Check Version File
-	const versionFile = path.join(jdkDir, 'version.txt');
+	const versionFile = path.join(downloadJdkDir, 'version.txt');
 	let fullVersionOld = null;
 	if (fs.existsSync(versionFile)) {
 		fullVersionOld = fs.readFileSync(versionFile).toString();
@@ -285,7 +285,7 @@ async function downloadJdk(
 	if (!fs.existsSync(globalStorageDir)) {
 		fs.mkdirSync(globalStorageDir);
 	}
-	const downloadedFile = jdkDir + '.tmp';
+	const downloadedFile = downloadJdkDir + '.tmp';
 	const writer = fs.createWriteStream(downloadedFile);
 	const res = await axios.get(downloadUrl, {responseType: 'stream'});
 	res.data.pipe(writer);
@@ -294,7 +294,7 @@ async function downloadJdk(
 
 	// Decompress JDK
 	progress.report({ message: `JDK Bundle: ${l10n.t('Installing')} ${fullVersion}` });
-	jdkbundle.rmSync(jdkDir, { recursive: true });
+	jdkbundle.rmSync(downloadJdkDir, { recursive: true });
 	try {
 		await decompress(downloadedFile, globalStorageDir, {
 			map: file => {

@@ -4,7 +4,7 @@ All notable changes to the "java-extension-pack-jdk" extension will be documente
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## [Unreleased]
+## [Future Release]
 ### Changed
 - Change JDT LS version from 17 to 21
 

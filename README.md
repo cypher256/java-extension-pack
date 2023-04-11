@@ -5,7 +5,7 @@
 ![](https://img.shields.io/visual-studio-marketplace/i/Pleiades.java-extension-pack-jdk?color=blue)
 ![](https://img.shields.io/visual-studio-marketplace/last-updated/Pleiades.java-extension-pack-jdk?color=orange)
 
-Just install the extension and you can start Java development out of the box without installing JDK or setting environment variables. Gradle/Maven tasks can be run from the Gradle/Maven view or the Command Palette. Note that PATH environment variables and other settings are required when using it on the command line.
+Just install the extension and you can start Java development out of the box without installing JDK or setting the JAVA_HOME environment variables. Gradle/Maven tasks can be run from the Gradle/Maven view or the Command Palette. Note that the JAVA_HOME and PATH environment variables must be set when used on the command line.
 <br>
 <br>
 
@@ -17,7 +17,7 @@ At startup, it is auto-configured as follows. If there are multiple JDKs of the 
 1. Auto-scan JDKs from OS-specific default location, SDKMAN, jEnv, jabba, ASDF, etc...
 1. Auto-detect environment variables JAVA_HOME, JDK_HOME and PATH
 1. Auto-download Adoptium LTS JDKs and [available latest JDK](https://github.com/redhat-developer/vscode-java#features) if not installed
-1. Auto-update automatically downloaded managed JDKs
+1. Auto-update auto-downloaded JDKs
 1. Auto-configure user settings (Auto-update version path changes)
 
 |Configuration Name|Configured Value|
@@ -28,8 +28,15 @@ At startup, it is auto-configured as follows. If there are multiple JDKs of the 
 |`spring-boot.ls.java.home`|Suitable JDK for ST4 Language Server|
 |`maven.terminal.customEnv`|Set `JAVA_HOME` if environment variable JAVA_HOME not set|
 
+|OS|Auto-downloaded JDK Location|
+|---|---|
+|Windows|%APPDATA%\Code\User\globalStorage\pleiades.java-extension-pack-jdk\ |
+|macos|$HOME/Library/Application Support/Code/User/globalStorage/pleiades.java-extension-pack-jdk/|
+|Linux|$HOME/.config/Code/User/globalStorage/pleiades.java-extension-pack-jdk/|
+<br>
+
+### e.g. Auto-configured User settings.json
 ```json
-// ex: Auto-configured User settings.json
 "java.configuration.runtimes": [
   {
     "name": "JavaSE-1.8", // Adoptium (Auto-download)
@@ -68,11 +75,9 @@ The configured JDKs are available in the "Extension Pack for Java" feature below
 To see which JDKs are used for your projects in multi-root workspaces, you can trigger the command `Configure Java Runtime` in Command Palette.
 <br>
 <p><img src="https://code.visualstudio.com/assets/docs/java/java-project/configure-project-runtime.png" style="max-width:600px"></p>
-<br>
 
 ## Change JDK for Gradle and Maven projects
 If you want to change the JDK version for your Gradle or Maven projects, you need to update it in your build scripts (build.gradle or pom.xml). You can click ⓘ to see how to make such changes. Click 🖊 will navigate to the build script file of the project.
-<br>
 <br>
 
 ## Change JDK for unmanaged folders
@@ -86,12 +91,10 @@ The JDK downloaded depends on the OS and architecture.
 - macos x64, aarch64
 - Linux x64
 <br>
-<br>
 
 # License
 - The extension: MIT
 - Adoptium JDK: https://adoptium.net/docs/faq/
-<br>
 <br>
 
 # Extensions Included
