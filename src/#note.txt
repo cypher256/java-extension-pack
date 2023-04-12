@@ -11,13 +11,7 @@ npx vsce publish
 
 npm i -g npm-check-updates
 ncu -u --target minor
-npm install
-
-#---------------------------------------
-# l10n Generate
-#---------------------------------------
-
-npx @vscode/l10n-dev export --outDir ./l10n ./src
+npm update
 
 #---------------------------------------
 # JDK URL Format

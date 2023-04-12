@@ -5,6 +5,7 @@
 import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
+import * as jdkutils from 'jdk-utils';
 import { compare } from 'compare-versions';
 
 export namespace jdkbundle {
@@ -43,6 +44,11 @@ export namespace jdkbundle {
 				jdkbundle.log('Failed compare-versions: ' + e);
 				return false;
 			}
+		}
+
+		export async function getJavacRuntime(javaHome:string): Promise<jdkutils.IJavaRuntime | undefined> {
+			const runtime = await jdkutils.getRuntime(javaHome, { checkJavac: true });
+			return runtime?.hasJavac ? runtime : undefined;
 		}
 	}
 

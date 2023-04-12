@@ -14,11 +14,11 @@ Just install the extension and you can start Java development out of the box wit
 ## Auto-configuration multiple JDK versions
 At startup, it is auto-configured as follows. If there are multiple JDKs of the same version, the latest minor version among them is used. To refresh the configuration, run `Reload Window` from the command palette (Ctrl/Cmd + Shift + P).
 
+1. Auto-remove configuration when JDK uninstalled or version path changed
 1. Auto-scan JDKs from OS-specific default location, SDKMAN, jEnv, jabba, ASDF, etc...
 1. Auto-detect environment variables JAVA_HOME, JDK_HOME and PATH
 1. Auto-download Adoptium LTS JDKs and [available latest JDK](https://github.com/redhat-developer/vscode-java#features) if not installed
 1. Auto-update auto-downloaded JDKs
-1. Auto-configure user settings (Auto-update version path changes)
 
 |Configuration Name|Configured Value|
 |---|---|

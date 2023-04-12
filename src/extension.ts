@@ -147,7 +147,7 @@ async function scanJdk(
 
 	// Remove configuration where directory does not exist
 	for (let i = runtimes.length - 1; i >= 0; i--) {
-		if (!fs.existsSync(runtimes[i].path)) { 
+		if (!await jdkbundle.runtime.getJavacRuntime(runtimes[i].path)) { 
 			runtimes.splice(i, 1);
 		}
 	}
@@ -205,8 +205,8 @@ async function scanJdk(
 			continue;
 		}
 		const javaHome = jdkbundle.runtime.javaHome(downloadJdkDir);
-		const downloadedJava = await jdkutils.getRuntime(javaHome, { checkJavac: true });
-		if (downloadedJava?.hasJavac) {
+		const downloadedJava = await jdkbundle.runtime.getJavacRuntime(javaHome);
+		if (downloadedJava) {
 			latestMajorMap.set(major, {
 				fullVersion: '',
 				name: redhatRuntimeName,
@@ -307,6 +307,11 @@ async function downloadJdk(
 		});
 	} catch (e) {
 		jdkbundle.log('Failed decompress: ' + e);
+	}
+	const downloadedJava = await jdkbundle.runtime.getJavacRuntime(javaHome);
+	if (!downloadedJava) {
+		jdkbundle.log('Invalid jdk directory.', javaHome);
+		return;
 	}
 	jdkbundle.rmSync(downloadedFile);
 	fs.writeFileSync(versionFile, fullVersion);
