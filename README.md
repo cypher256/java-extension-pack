@@ -33,6 +33,7 @@ At startup, it is auto-configured as follows. If there are multiple JDKs of the 
 |Windows|%APPDATA%\Code\User\globalStorage\pleiades.java-extension-pack-jdk\ |
 |macos|$HOME/Library/Application Support/Code/User/globalStorage/pleiades.java-extension-pack-jdk/|
 |Linux|$HOME/.config/Code/User/globalStorage/pleiades.java-extension-pack-jdk/|
+
 <br>
 
 #### e.g. Auto-configured User settings.json
