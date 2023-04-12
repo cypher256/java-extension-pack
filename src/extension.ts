@@ -201,9 +201,6 @@ async function scanJdk(
 			continue; // Prioritize User Installed JDK
 		}
 		const downloadJdkDir = path.join(context.globalStorageUri.fsPath, String(major));
-		if (!fs.existsSync(downloadJdkDir)) {
-			continue;
-		}
 		const javaHome = jdkbundle.runtime.javaHome(downloadJdkDir);
 		const downloadedJava = await jdkbundle.runtime.getJavacRuntime(javaHome);
 		if (downloadedJava) {
@@ -308,8 +305,8 @@ async function downloadJdk(
 	} catch (e) {
 		jdkbundle.log('Failed decompress: ' + e);
 	}
-	const downloadedJava = await jdkbundle.runtime.getJavacRuntime(javaHome);
-	if (!downloadedJava) {
+	const installedJava = await jdkbundle.runtime.getJavacRuntime(javaHome);
+	if (!installedJava) {
 		jdkbundle.log('Invalid jdk directory.', javaHome);
 		return;
 	}

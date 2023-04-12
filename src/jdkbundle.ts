@@ -19,11 +19,16 @@ export namespace jdkbundle {
 	export namespace runtime {
 
 		export function versionOf(runtimeName:string): number {
-			return Number(runtimeName.replace(/^JavaSE-(1\.|)/, ''));
+			return Number(runtimeName.replace(/^J(ava|2)SE-(1\.|)/, ''));
 		}
 
-		export function nameOf(javaVersion:number): string {
-			return 'JavaSE-' + (javaVersion <= 8 ? '1.' + javaVersion : javaVersion);
+		export function nameOf(majorVersion:number): string {
+			if (majorVersion <= 5) {
+				return 'J2SE-1.' + majorVersion;
+			} else if (majorVersion <= 8) {
+				return 'JavaSE-1.' + majorVersion;
+			}
+			return 'JavaSE-' + majorVersion;
 		}
 
 		export function javaHome(downloadJdkDir:string): string {
