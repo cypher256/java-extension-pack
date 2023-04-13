@@ -3,7 +3,7 @@
   "displayName": "Java Extension Pack JDK Auto",
   "description": "JDK Auto-configuration and Popular Java Extension Packs",
   "icon": "README_icon.png",
-  "version": "17.2.11",
+  "version": "17.2.13",
   "publisher": "Pleiades",
   "repository": {
     "url": "https://github.com/cypher256/java-extension-pack.git"

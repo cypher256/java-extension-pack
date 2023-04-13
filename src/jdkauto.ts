@@ -8,7 +8,7 @@ import * as path from 'path';
 import * as jdkutils from 'jdk-utils';
 import { compare } from 'compare-versions';
 
-export namespace jdkbundle {
+export namespace jdkauto {
 
 	export interface ConfigRuntime {
 		name: string;
@@ -32,7 +32,7 @@ export namespace jdkbundle {
 		}
 
 		export function javaHome(downloadJdkDir:string): string {
-			return jdkbundle.os.isMac() ? path.join(downloadJdkDir, 'Home') : downloadJdkDir;
+			return jdkauto.os.isMac() ? path.join(downloadJdkDir, 'Home') : downloadJdkDir;
 		}
 
 		export function isUserInstalled(javaHome:string, context:vscode.ExtensionContext): boolean {
@@ -46,7 +46,7 @@ export namespace jdkbundle {
 				const optimize = (s:string) => s.replace(/_/g, '.');
 				return compare(optimize(leftVersion), optimize(rightVersion), '>');
 			} catch (e) {
-				jdkbundle.log('Failed compare-versions: ' + e);
+				jdkauto.log('Failed compare-versions: ' + e);
 				return false;
 			}
 		}
@@ -95,7 +95,7 @@ export namespace jdkbundle {
 				fs.rmSync(path, options);
 			}
 		} catch (e) {
-			jdkbundle.log('Failed rmSync: ' + e);
+			jdkauto.log('Failed rmSync: ' + e);
 		}
 	}
 	
