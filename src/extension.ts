@@ -214,6 +214,7 @@ async function scanJdk(
 		const downloadJdkDir = path.join(context.globalStorageUri.fsPath, String(major));
 		const javaHome = jdkauto.runtime.javaHome(downloadJdkDir);
 		if (await jdkauto.runtime.isValidJdk(javaHome)) {
+			jdkauto.log(`Add auto-downloaded JDK ${major}`);
 			latestMajorMap.set(major, {
 				fullVersion: '',
 				name: redhatRuntimeName,
@@ -272,17 +273,14 @@ async function downloadJdk(
 
 	// Check Version File
 	const versionFile = path.join(downloadJdkDir, 'version.txt');
-	let fullVersionOld = null;
-	if (fs.existsSync(versionFile)) {
-		fullVersionOld = fs.readFileSync(versionFile).toString();
-		if (fullVersion === fullVersionOld) {
-			jdkauto.log('No updates.', fullVersion);
-			if (!matchedRuntime) {
-				// Missing configuration entry but exists JDK directory
-				runtimes.push({name: runtimeName, path: javaHome});
-			}
-			return;
+	const fullVersionOld = fs.existsSync(versionFile) ? fs.readFileSync(versionFile).toString() : null;
+	if (fullVersion === fullVersionOld && await jdkauto.runtime.isValidJdk(javaHome)) {
+		jdkauto.log('No updates.', fullVersion);
+		if (!matchedRuntime) {
+			// Missing configuration entry but exists JDK directory
+			runtimes.push({name: runtimeName, path: javaHome});
 		}
+		return;
 	}
 	const p1 = fullVersion.replace('+', '%2B');
 	const p2 = fullVersion.replace('+', '_').replace(/(jdk|-)/g, '');
