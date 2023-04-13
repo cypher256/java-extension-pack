@@ -1,4 +1,4 @@
-# Java Extension Pack JDK Bundle
+# Java Extension Pack JDK Auto
 
 [![ESLint](https://github.com/cypher256/java-extension-pack/actions/workflows/eslint.yml/badge.svg)](https://github.com/cypher256/java-extension-pack/actions/workflows/eslint.yml)
 ![](https://img.shields.io/visual-studio-marketplace/d/Pleiades.java-extension-pack-jdk?color=yellow)
@@ -14,7 +14,8 @@ Just install the extension and you can start Java development out of the box wit
 ## Auto-configuration multiple JDK versions
 At startup, it is auto-configured as follows. If there are multiple JDKs of the same version, the latest minor version among them is used. To refresh the configuration, run `Reload Window` from the command palette (Ctrl/Cmd + Shift + P).
 
-1. Auto-remove configuration when JDK uninstalled or version path changed
+1. Auto-fix invalid JDK configuration path (e.g. /jdk/bin/java -> /jdk)
+1. Auto-remove configuration entries when JDK uninstalled or version path changed
 1. Auto-scan JDKs from OS-specific default location, SDKMAN, jEnv, jabba, ASDF, etc...
 1. Auto-detect environment variables JAVA_HOME, JDK_HOME and PATH
 1. Auto-download Adoptium LTS JDKs and [available latest JDK](https://github.com/redhat-developer/vscode-java#features) if not installed
@@ -90,8 +91,8 @@ To change the JDK for unmanaged folders (with out any build tools), you can clic
 <br>
 <br>
 
-# Supported Platforms
-The JDK downloaded depends on the OS and architecture.
+# Auto-download Support
+Auto-downloads are supported on the following platforms.
 - Windows x64
 - macos x64, aarch64
 - Linux x64

@@ -26,49 +26,46 @@ const CONFIG_KEY_JAVA_RUNTIMES = 'java.configuration.runtimes';
 export async function activate(context:vscode.ExtensionContext) {
 
 	jdkbundle.log('activate START', context.globalStorageUri.fsPath);
-	if (!jdkbundle.os.isTarget()) {
-		vscode.window.showErrorMessage('Unable to download JDK due to unsupported OS or architecture.');
-		return;
+	const config = vscode.workspace.getConfiguration();
+	const runtimes:jdkbundle.ConfigRuntime[] = config.get(CONFIG_KEY_JAVA_RUNTIMES) || [];
+	const downloadVersions = new Set(AVAILABLE_LTS_VERSIONS);
+
+	// Scan JDK
+	try {
+		const runtimesOld = _.cloneDeep(runtimes);
+		await scanJdk(context, runtimes, downloadVersions);
+		updateConfiguration(runtimes, runtimesOld);
+
+	} catch (e:any) {
+		let message = `JDK scan failed. ${e.message ? e.message : e}`;
+		vscode.window.showErrorMessage(message);
+		jdkbundle.log(e);
 	}
 
-	vscode.window.withProgress({location: vscode.ProgressLocation.Window}, async progress => {
-		const config = vscode.workspace.getConfiguration();
-		const runtimes:jdkbundle.JavaRuntime[] = config.get(CONFIG_KEY_JAVA_RUNTIMES) || [];
-		const downloadVersions = new Set(AVAILABLE_LTS_VERSIONS);
-
-		// Scan JDK
-		try {
-			const runtimesOld = _.cloneDeep(runtimes);
-			await scanJdk(context, runtimes, downloadVersions);
-			updateConfiguration(runtimes, runtimesOld);
-
-		} catch (e:any) {
-			let message = `JDK scan failed. ${e.message ? e.message : e}`;
-			vscode.window.showErrorMessage(message);
-			jdkbundle.log(e);
-		}
-
-		// Download JDK
-		try {
-			const runtimesOld = _.cloneDeep(runtimes);
-			const promiseArray: Promise<void>[] = [];
-			for (const majorVersion of downloadVersions) {
-				promiseArray.push(
-					downloadJdk(context, runtimes, majorVersion, progress)
-				);
+	// Download JDK
+	if (jdkbundle.os.isDownloadTarget()) {
+		vscode.window.withProgress({location: vscode.ProgressLocation.Window}, async progress => {
+			try {
+				const runtimesOld = _.cloneDeep(runtimes);
+				const promiseArray: Promise<void>[] = [];
+				for (const majorVersion of downloadVersions) {
+					promiseArray.push(
+						downloadJdk(context, runtimes, majorVersion, progress)
+					);
+				}
+				await Promise.all(promiseArray);
+				updateConfiguration(runtimes, runtimesOld);
+	
+			} catch (e:any) {
+				let message = 'JDK download failed.';
+				if (e.request?.path) {message += ' ' + e.request.path;}
+				message += ` ${e.message ? e.message : e}`;
+				vscode.window.showErrorMessage(message);
+				jdkbundle.log(e);
 			}
-			await Promise.all(promiseArray);
-			updateConfiguration(runtimes, runtimesOld);
-
-		} catch (e:any) {
-			let message = 'JDK download failed.';
-			if (e.request?.path) {message += ' ' + e.request.path;}
-			message += ` ${e.message ? e.message : e}`;
-			vscode.window.showErrorMessage(message);
-			jdkbundle.log(e);
-		}
-		jdkbundle.log('activate END');
-	});
+			jdkbundle.log('activate END');
+		});
+	}
 }
 
 /**
@@ -77,8 +74,8 @@ export async function activate(context:vscode.ExtensionContext) {
  * @param runtimesOld An array of previous Java runtime objects to compare with `runtimes`.
  */
 function updateConfiguration(
-	runtimes:jdkbundle.JavaRuntime[], 
-	runtimesOld:jdkbundle.JavaRuntime[]) {
+	runtimes:jdkbundle.ConfigRuntime[], 
+	runtimesOld:jdkbundle.ConfigRuntime[]) {
 
 	const config = vscode.workspace.getConfiguration();
 	const updateConfig = (section:string, value:any) => {
@@ -108,7 +105,7 @@ function updateConfiguration(
 		updateConfig(CONFIG_KEY_JAVA_RUNTIMES, runtimes);
 	}
 
-	// Project Maven Java Home (Keep if exsits)
+	// Project Maven Java Home (Keep if exists)
 	if (initDefaultRuntime) {
 		const CONFIG_KEY_MAVEN_CUSTOM_ENV = 'maven.terminal.customEnv';
 		const customEnv:any[] = config.get(CONFIG_KEY_MAVEN_CUSTOM_ENV) || [];
@@ -142,13 +139,27 @@ function updateConfiguration(
  */
 async function scanJdk(
 	context:vscode.ExtensionContext, 
-	runtimes:jdkbundle.JavaRuntime[],
+	runtimes:jdkbundle.ConfigRuntime[],
 	downloadVersions:Set<number>) {
 
-	// Remove configuration where directory does not exist
+	// Fix JDK path
+	const getValidPath = async (p:string) => {
+		const MAX_UPPER_LEVEL = 2; // e.g. /jdk/bin/java -> /jdk
+		for (let i = 0; i <= MAX_UPPER_LEVEL; i++) {
+			if (await jdkbundle.runtime.isValidJdk(p)) {return p;};
+			p = path.resolve(p, '..');
+		}
+		return undefined;
+	};
 	for (let i = runtimes.length - 1; i >= 0; i--) {
-		if (!await jdkbundle.runtime.getJavacRuntime(runtimes[i].path)) { 
+		const originPath = runtimes[i].path;
+		const validPath = await getValidPath(originPath);
+		if (!validPath) {
+			jdkbundle.log(`Remove ${originPath}`);
 			runtimes.splice(i, 1);
+		} else if (validPath !== originPath) {
+			jdkbundle.log(`Fix\n   ${originPath}\n-> ${validPath}`);
+			runtimes[i].path = validPath;
 		}
 	}
 
@@ -168,26 +179,26 @@ async function scanJdk(
 	}
 
 	// Scan User Installed JDK
-	const scannedJavas = await jdkutils.findRuntimes({ checkJavac: true, withVersion: true });
-	interface JdkInfo extends jdkbundle.JavaRuntime {
+	interface JdkInfo extends jdkbundle.ConfigRuntime {
 		fullVersion: string;
 	}
 	const latestMajorMap = new Map<number, JdkInfo>();
+	const scannedJavas = await jdkutils.findRuntimes({ checkJavac: true, withVersion: true });
 
 	for (const scannedJava of scannedJavas) {
-		const scanedVersion = scannedJava.version;
-		jdkbundle.log(`Detected. ${scanedVersion?.major} (${scanedVersion?.java_version}) ${scannedJava.homedir}`);
-		if (!scanedVersion || !scannedJava.hasJavac) {
+		const scannedVersion = scannedJava.version;
+		jdkbundle.log(`Detected. ${scannedVersion?.major} (${scannedVersion?.java_version}) ${scannedJava.homedir}`);
+		if (!scannedVersion || !scannedJava.hasJavac) {
 			continue;
 		}
-		const runtimeName = jdkbundle.runtime.nameOf(scanedVersion.major);
+		const runtimeName = jdkbundle.runtime.nameOf(scannedVersion.major);
 		if (!redhatRuntimeNames.includes(runtimeName)) {
 			continue;
 		}
-		const latestJdk = latestMajorMap.get(scanedVersion.major);
-		if (!latestJdk || jdkbundle.runtime.isNewLeft(scanedVersion.java_version, latestJdk.fullVersion)) {
-			latestMajorMap.set(scanedVersion.major, {
-				fullVersion: scanedVersion.java_version,
+		const latestJdk = latestMajorMap.get(scannedVersion.major);
+		if (!latestJdk || jdkbundle.runtime.isNewLeft(scannedVersion.java_version, latestJdk.fullVersion)) {
+			latestMajorMap.set(scannedVersion.major, {
+				fullVersion: scannedVersion.java_version,
 				name: runtimeName,
 				path: scannedJava.homedir,
 			});
@@ -202,8 +213,7 @@ async function scanJdk(
 		}
 		const downloadJdkDir = path.join(context.globalStorageUri.fsPath, String(major));
 		const javaHome = jdkbundle.runtime.javaHome(downloadJdkDir);
-		const downloadedJava = await jdkbundle.runtime.getJavacRuntime(javaHome);
-		if (downloadedJava) {
+		if (await jdkbundle.runtime.isValidJdk(javaHome)) {
 			latestMajorMap.set(major, {
 				fullVersion: '',
 				name: redhatRuntimeName,
@@ -235,7 +245,7 @@ async function scanJdk(
  */
 async function downloadJdk(
 	context:vscode.ExtensionContext, 
-	runtimes:jdkbundle.JavaRuntime[],
+	runtimes:jdkbundle.ConfigRuntime[],
 	majorVersion:number, 
 	progress:vscode.Progress<any>): Promise<void> {
 
@@ -246,8 +256,14 @@ async function downloadJdk(
 	}
 
 	// Get Download URL
-	const URL_PREFIX = 'https://github.com/adoptium';
-	const response = await axios.get(`${URL_PREFIX}/temurin${majorVersion}-binaries/releases/latest`);
+	const URL_PREFIX = `https://github.com/adoptium/temurin${majorVersion}-binaries/releases`;
+	let response;
+	try {
+		response = await axios.get(`${URL_PREFIX}/latest`);
+	} catch (e:any) {
+		jdkbundle.log(`Offline.`, e);
+		return;
+	}
 	const redirectedUrl:string = response.request.res.responseUrl;
 	const fullVersion = redirectedUrl.replace(/.+tag\//, '');
 	const globalStorageDir = context.globalStorageUri.fsPath;
@@ -270,7 +286,7 @@ async function downloadJdk(
 	}
 	const p1 = fullVersion.replace('+', '%2B');
 	const p2 = fullVersion.replace('+', '_').replace(/(jdk|-)/g, '');
-	const downloadUrlPrefix = `${URL_PREFIX}/temurin${majorVersion}-binaries/releases/download/${p1}/`;
+	const downloadUrlPrefix = `${URL_PREFIX}/download/${p1}/`;
 	const arch = jdkbundle.os.nameOf(majorVersion);
 	const fileExt = jdkbundle.os.isWindows() ? 'zip' : 'tar.gz';
 	const fileName = `OpenJDK${majorVersion}U-jdk_${arch}_${p2}.${fileExt}`;
@@ -282,7 +298,7 @@ async function downloadJdk(
 	if (!fs.existsSync(globalStorageDir)) {
 		fs.mkdirSync(globalStorageDir);
 	}
-	const downloadedFile = downloadJdkDir + '.tmp';
+	const downloadedFile = downloadJdkDir + '_download_tmp.' + fileExt;
 	const writer = fs.createWriteStream(downloadedFile);
 	const res = await axios.get(downloadUrl, {responseType: 'stream'});
 	res.data.pipe(writer);
@@ -303,10 +319,9 @@ async function downloadJdk(
 			}
 		});
 	} catch (e) {
-		jdkbundle.log('Failed decompress: ' + e);
+		jdkbundle.log('Failed decompress: ' + e); // Validate by isValidJdk
 	}
-	const installedJava = await jdkbundle.runtime.getJavacRuntime(javaHome);
-	if (!installedJava) {
+	if (!await jdkbundle.runtime.isValidJdk(javaHome)) {
 		jdkbundle.log('Invalid jdk directory.', javaHome);
 		return;
 	}

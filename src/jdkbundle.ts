@@ -10,7 +10,7 @@ import { compare } from 'compare-versions';
 
 export namespace jdkbundle {
 
-	export interface JavaRuntime {
+	export interface ConfigRuntime {
 		name: string;
 		path: string;
 		default?: boolean;
@@ -51,9 +51,9 @@ export namespace jdkbundle {
 			}
 		}
 
-		export async function getJavacRuntime(javaHome:string): Promise<jdkutils.IJavaRuntime | undefined> {
+		export async function isValidJdk(javaHome:string): Promise<boolean> {
 			const runtime = await jdkutils.getRuntime(javaHome, { checkJavac: true });
-			return runtime?.hasJavac ? runtime : undefined;
+			return runtime?.hasJavac ? true : false;
 		}
 	}
 
@@ -67,13 +67,13 @@ export namespace jdkbundle {
 			return process.platform === 'win32';
 		}
 	
-		export function isTarget(): boolean {
+		export function isDownloadTarget(): boolean {
 			return process.platform.match(/^(win32|darwin)$/) !== null || 
 				(process.platform === 'linux' && process.arch === 'x64');
 		}
 	
 		export function nameOf(javaVersion: number): string {
-			if (!isTarget()) {
+			if (!isDownloadTarget()) {
 				throw new Error(`Unsupported OS architecture. ${process.platform} ${process.arch}`);
 			}
 			if (process.platform === 'darwin') {

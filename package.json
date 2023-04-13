@@ -1,7 +1,7 @@
 {
   "name": "java-extension-pack-jdk",
-  "displayName": "Java Extension Pack JDK Bundle",
-  "description": "JDK installation and JAVA_HOME settings are NOT required",
+  "displayName": "Java Extension Pack JDK Auto",
+  "description": "JDK Auto-configuration and Popular Java Extension Packs",
   "icon": "README_icon.png",
   "version": "17.2.11",
   "publisher": "Pleiades",

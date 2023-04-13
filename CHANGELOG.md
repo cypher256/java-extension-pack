@@ -10,9 +10,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [17.x.x] - 2023-x-x
 ### Added
-- java.jdt.ls.java.home support
-- spring-boot.ls.java.home support
-- Maven configuration support
+- Add java.jdt.ls.java.home support
+- Add spring-boot.ls.java.home support
+- Add Maven configuration support
+- Add Offline support
 
 ## [1.0.0] - 2023-04-01
 ### Added
