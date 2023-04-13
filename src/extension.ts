@@ -276,10 +276,6 @@ async function downloadJdk(
 	const fullVersionOld = fs.existsSync(versionFile) ? fs.readFileSync(versionFile).toString() : null;
 	if (fullVersion === fullVersionOld && await jdkauto.runtime.isValidJdk(javaHome)) {
 		jdkauto.log('No updates.', fullVersion);
-		if (!matchedRuntime) {
-			// Missing configuration entry but exists JDK directory
-			runtimes.push({name: runtimeName, path: javaHome});
-		}
 		return;
 	}
 	const p1 = fullVersion.replace('+', '%2B');
