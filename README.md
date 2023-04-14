@@ -11,7 +11,7 @@ Just install the extension and you can start Java development out of the box wit
 
 # Features
 
-## Auto-configuration multiple JDK versions
+## JDK Auto-configuration
 At startup, it is auto-configured as follows. If there are multiple JDKs of the same version, the latest minor version among them is used. To refresh the configuration, run `Reload Window` from the command palette (Ctrl/Cmd + Shift + P).
 
 1. Auto-fix invalid JDK configuration path (e.g. /jdk/bin/java -> /jdk)

@@ -73,9 +73,6 @@ export namespace jdkauto {
 		}
 	
 		export function nameOf(javaVersion: number): string {
-			if (!isDownloadTarget()) {
-				throw new Error(`Unsupported OS architecture. ${process.platform} ${process.arch}`);
-			}
 			if (process.platform === 'darwin') {
 				if (process.arch === 'arm64' && javaVersion >= 11) {
 					return 'aarch64_mac_hotspot';
@@ -100,6 +97,6 @@ export namespace jdkauto {
 	}
 	
 	export function log(message?: any, ...optionalParams: any[]): void {
-		console.log(`[Pleiades]`, message, ...optionalParams);
+		console.log(`[jdkauto]`, message, ...optionalParams);
 	}
 }
