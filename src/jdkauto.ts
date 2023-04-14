@@ -86,11 +86,9 @@ export namespace jdkauto {
 		}
 	}
 
-	export function rmSync(path:string, options?:object): void {
+	export function rmSync(path:string): void {
 		try {
-			if (fs.existsSync(path)) {
-				fs.rmSync(path, options);
-			}
+			fs.rmSync(path, {recursive: true, force: true});
 		} catch (e) {
 			jdkauto.log('Failed rmSync: ' + e);
 		}

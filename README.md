@@ -98,7 +98,7 @@ Auto-downloads are supported on the following platforms.
 - Linux x64
 
 # License
-- The extension: MIT
+- MIT (c) Shinji Kashihara
 - Adoptium JDK: https://adoptium.net/docs/faq/
 
 # Extensions Included

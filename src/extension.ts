@@ -13,6 +13,7 @@ import * as decompress from 'decompress';
 import axios from 'axios';
 import { promisify } from 'util';
 import { jdkauto } from './jdkauto';
+import * as os from "os";
 
 const AVAILABLE_LTS_VERSIONS = [8, 11, 17];
 const JDT_LTS_VERSION = AVAILABLE_LTS_VERSIONS[AVAILABLE_LTS_VERSIONS.length - 1];
@@ -308,7 +309,7 @@ async function downloadJdk(
 
 	// Decompress JDK
 	progress.report({ message: `JDK Auto: ${l10n.t('Installing')} ${fullVersion}` });
-	jdkauto.rmSync(downloadJdkDir, { recursive: true });
+	jdkauto.rmSync(downloadJdkDir);
 	try {
 		await decompress(downloadedFile, globalStorageDir, {
 			map: file => {
