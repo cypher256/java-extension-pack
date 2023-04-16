@@ -307,7 +307,7 @@ async function downloadJdk(
 	const downloadUrl = downloadUrlPrefix + fileName;
 	
 	// Download JDK
-	jdkauto.log('Downloading... ', downloadUrl);
+	jdkauto.log('Downloading...', downloadUrl);
 	progress.report({ message: `JDK Auto: ${l10n.t('Downloading')} ${fullVersion}` });
 	if (!fs.existsSync(globalStorageDir)) {
 		fs.mkdirSync(globalStorageDir);
@@ -317,9 +317,9 @@ async function downloadJdk(
 	const res = await axios.get(downloadUrl, {responseType: 'stream'});
 	res.data.pipe(writer);
 	await promisify(stream.finished)(writer);
-	jdkauto.log('Saved. ', downloadedFile);
 
 	// Decompress JDK
+	jdkauto.log('Installing...', downloadedFile);
 	progress.report({ message: `JDK Auto: ${l10n.t('Installing')} ${fullVersion}` });
 	jdkauto.rmSync(downloadJdkDir);
 	try {
@@ -333,7 +333,7 @@ async function downloadJdk(
 			}
 		});
 	} catch (e) {
-		jdkauto.log('Failed decompress: ' + e); // Validate by isValidJdk
+		jdkauto.log('Failed decompress: ' + e); // Validate below
 	}
 	if (!await jdkauto.runtime.isValidJdk(downloadJdkDir)) {
 		jdkauto.log('Invalid jdk directory:', downloadJdkDir);
