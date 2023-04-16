@@ -1,5 +1,6 @@
 # Java Extension Pack JDK Auto
 
+[![GitHub Sponsor](https://img.shields.io/static/v1?label=Sponsor&message=%E2%9D%A4&logo=GitHub&color=ff69b4)](https://github.com/sponsors/cypher256)
 [![ESLint](https://github.com/cypher256/java-extension-pack/actions/workflows/eslint.yml/badge.svg)](https://github.com/cypher256/java-extension-pack/actions/workflows/eslint.yml)
 ![](https://img.shields.io/visual-studio-marketplace/d/Pleiades.java-extension-pack-jdk?color=yellow)
 ![](https://img.shields.io/visual-studio-marketplace/i/Pleiades.java-extension-pack-jdk?color=blue)

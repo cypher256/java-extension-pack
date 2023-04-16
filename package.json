@@ -3,7 +3,7 @@
   "displayName": "Java Extension Pack JDK Auto",
   "description": "JDK Auto-configuration and Popular Java Extension Packs",
   "icon": "README_icon.png",
-  "version": "17.3.0",
+  "version": "17.3.1",
   "publisher": "Pleiades",
   "repository": {
     "url": "https://github.com/cypher256/java-extension-pack.git"
@@ -15,12 +15,19 @@
     "vscode": "^1.54.0"
   },
   "keywords": [
-    "jdk",
+    "auto",
+    "config",
+    "gradle",
     "JAVA_HOME",
     "java",
-    "gradle",
+    "jdk",
     "lombok",
-    "spring"
+    "maven",
+    "path",
+    "settings",
+    "spring-boot",
+    "spring",
+    "tomcat"
   ],
   "categories": [
     "Programming Languages",
