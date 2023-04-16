@@ -31,10 +31,6 @@ export namespace jdkauto {
 			return 'JavaSE-' + majorVersion;
 		}
 
-		export function javaHome(downloadJdkDir:string): string {
-			return jdkauto.os.isMac() ? path.join(downloadJdkDir, 'Home') : downloadJdkDir;
-		}
-
 		export function isUserInstalled(javaHome:string, context:vscode.ExtensionContext): boolean {
 			const _javaHome = path.normalize(javaHome);
 			const _globalStorageDir = path.normalize(context.globalStorageUri.fsPath);
@@ -59,33 +55,26 @@ export namespace jdkauto {
 
 	export namespace os {
 
-		export function isMac(): boolean {
-			return process.platform === 'darwin';
-		}
-
-		export function isWindows(): boolean {
-			return process.platform === 'win32';
-		}
+		export const isWindows = process.platform === 'win32';
+		export const isMac = process.platform === 'darwin';
+		export const isLinux = process.platform === 'linux';
+		export const isDownloadTarget = isWindows || isMac || (isLinux && process.arch === 'x64');
 	
-		export function isDownloadTarget(): boolean {
-			return process.platform.match(/^(win32|darwin)$/) !== null || 
-				(process.platform === 'linux' && process.arch === 'x64');
-		}
-	
-		export function nameOf(javaVersion: number): string {
-			if (process.platform === 'darwin') {
+		export function archOf(javaVersion: number): string {
+			if (isWindows) {
+				return 'x64_windows_hotspot';
+			} else if (isMac) {
 				if (process.arch === 'arm64' && javaVersion >= 11) {
 					return 'aarch64_mac_hotspot';
 				} else {
 					return 'x64_mac_hotspot';
 				}
-			} else if (process.platform === 'linux') {
+			} else {
 				return 'x64_linux_hotspot';
 			}
-			return 'x64_windows_hotspot';
 		}
 	}
-
+	
 	export function rmSync(path:string): void {
 		try {
 			fs.rmSync(path, {recursive: true, force: true});

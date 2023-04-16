@@ -12,13 +12,13 @@ Just install the extension and you can start Java development out of the box wit
 # Features
 
 ## JDK Auto-configuration
-At startup, it is auto-configured as follows. If there are multiple JDKs of the same version, the latest minor version among them is used. To refresh the configuration, run `Reload Window` from the command palette (Ctrl/Cmd + Shift + P).
+The JDKs are auto-configured as follows on VSCode startup. If there are multiple JDKs of the same version, the latest minor version among them is used. To force a configuration update, run `Reload Window` from the Command Palette (Ctrl/Cmd + Shift + P).
 
 1. Auto-fix invalid JDK configuration path (e.g. /jdk/bin/java -> /jdk)
 1. Auto-remove configuration entries when JDK uninstalled or version path changed
 1. Auto-scan JDKs from OS-specific default location, SDKMAN, jEnv, jabba, ASDF, etc...
 1. Auto-detect environment variables JAVA_HOME, JDK_HOME and PATH
-1. Auto-download Adoptium LTS JDKs and [available latest JDK](https://github.com/redhat-developer/vscode-java#features) if not installed
+1. Auto-download Adoptium LTS JDKs and [available latest JDK](https://marketplace.visualstudio.com/items?itemName=redhat.java#features) if not installed
 1. Auto-update auto-downloaded JDKs
 
 |Configuration Name|Configured Value|
@@ -31,6 +31,12 @@ At startup, it is auto-configured as follows. If there are multiple JDKs of the 
 
 <br>
 
+### Auto-download Support
+Auto-download is supported on the following platforms:
+- Windows x64
+- macos x64, aarch64
+- Linux x64
+
 |OS|Auto-downloaded JDK Location|
 |---|---|
 |Windows|%APPDATA%\Code\User\globalStorage\pleiades.java-extension-pack-jdk\ |
@@ -39,7 +45,7 @@ At startup, it is auto-configured as follows. If there are multiple JDKs of the 
 
 <br>
 
-#### e.g. Auto-configured User settings.json
+### e.g. Auto-configured User settings.json
 ```json
 "java.configuration.runtimes": [
   {
@@ -57,7 +63,7 @@ At startup, it is auto-configured as follows. If there are multiple JDKs of the 
   {
     "name": "JavaSE-17", // Adoptium (Auto-download)
     "path": "c:\\Users\\<UserName>\\AppData\\Roaming\\Code\\User\\globalStorage\\pleiades.java-extension-pack-jdk\\17",
-    "default": true
+    "default": true // for No build tools
   },
   {
     "name": "JavaSE-18", // JAVA_HOME (Auto-detect)
@@ -76,7 +82,7 @@ The configured JDKs are available in the "Extension Pack for Java" feature below
 <br>
 <br>
 
-## Java Project Java Version List
+# Java Version List for Project
 To see which JDKs are used for your projects in multi-root workspaces, you can trigger the command `Configure Java Runtime` in Command Palette.
 <br>
 <p><img src="https://code.visualstudio.com/assets/docs/java/java-project/configure-project-runtime.png" style="max-width:600px"></p>
@@ -90,12 +96,6 @@ To change the JDK for unmanaged folders (with out any build tools), you can clic
 <br>
 <br>
 <br>
-
-# Auto-download Support
-Auto-downloads are supported on the following platforms.
-- Windows x64
-- macos x64, aarch64
-- Linux x64
 
 # License
 - MIT (c) Shinji Kashihara
