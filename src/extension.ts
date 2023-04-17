@@ -242,7 +242,7 @@ async function scanJdk(
 	}
 
 	// Old support: To be removed in 2024
-	// Remove old format config (Supress invalid runtime notifiction)
+	// Remove old format config (Suppress invalid runtime notification)
 	if (jdkauto.os.isMac) {
 		for (let i = runtimes.length - 1; i >= 0; i--) { // Decrement for splice
 			const major = jdkauto.runtime.versionOf(runtimes[i].name);
