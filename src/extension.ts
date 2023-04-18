@@ -15,8 +15,8 @@ import { promisify } from 'util';
 import { jdkauto } from './jdkauto';
 
 const AVAILABLE_LTS_VERSIONS = [8, 11, 17] as const;
-const JDT_LS_VERSION = AVAILABLE_LTS_VERSIONS[AVAILABLE_LTS_VERSIONS.length - 1];
-const INIT_DEFAULT_LTS_VERSION = JDT_LS_VERSION;
+const JDT_LS_MIN_VERSION = _.last(AVAILABLE_LTS_VERSIONS) ?? 0;
+const INIT_DEFAULT_LTS_VERSION = JDT_LS_MIN_VERSION;
 const CONFIG_KEY_JAVA_RUNTIMES = 'java.configuration.runtimes';
 
 /**
@@ -34,7 +34,7 @@ export async function activate(context:vscode.ExtensionContext) {
 	try {
 		const runtimesOld = _.cloneDeep(runtimes);
 		await scanJdk(context, runtimes, downloadVersions);
-		updateConfiguration(runtimes, runtimesOld);
+		await updateConfiguration(runtimes, runtimesOld);
 
 	} catch (e:any) {
 		let message = `JDK scan failed. ${e.message ?? e}`;
@@ -54,7 +54,7 @@ export async function activate(context:vscode.ExtensionContext) {
 					);
 				}
 				await Promise.all(promiseArray);
-				updateConfiguration(runtimes, runtimesOld);
+				await updateConfiguration(runtimes, runtimesOld);
 	
 			} catch (e:any) {
 				let message = `JDK download failed. ${e.request?.path ?? ''} ${e.message ?? e}`;
@@ -71,7 +71,7 @@ export async function activate(context:vscode.ExtensionContext) {
  * @param runtimes An array of Java runtime objects to update the configuration with.
  * @param runtimesOld An array of previous Java runtime objects to compare with `runtimes`.
  */
-function updateConfiguration(
+async function updateConfiguration(
 	runtimes:jdkauto.ConfigRuntime[], 
 	runtimesOld:jdkauto.ConfigRuntime[]) {
 
@@ -81,13 +81,19 @@ function updateConfiguration(
 		jdkauto.log(`Updated ${section}`);
 	};
 
-	// VSCode LS Java Home (Always overwrite)
-	const lsRuntimePath = runtimes.find(r => r.name === jdkauto.runtime.nameOf(JDT_LS_VERSION))?.path;
+	// VSCode LS Java Home
+	const lsRuntimePath = runtimes.find(r => r.name === jdkauto.runtime.nameOf(JDT_LS_MIN_VERSION))?.path;
 	if (lsRuntimePath) {
 		for (const CONFIG_KEY_LS_JAVA_HOME of ['java.jdt.ls.java.home', 'spring-boot.ls.java.home']) {
-			if (lsRuntimePath !== config.get(CONFIG_KEY_LS_JAVA_HOME)) {
-				// JDT LS: Java Extension prompts to reload dialog
+			const currentPath = config.get(CONFIG_KEY_LS_JAVA_HOME) as string;
+			// JDT LS: Java Extension prompts to reload dialog
+			if (!currentPath) {
 				updateConfig(CONFIG_KEY_LS_JAVA_HOME, lsRuntimePath);
+			} else if (currentPath !== lsRuntimePath) {
+				const runtime = await jdkutils.getRuntime(currentPath, { checkJavac: true, withVersion: true });
+				if (!runtime || !runtime.hasJavac || !runtime.version || runtime.version.major < JDT_LS_MIN_VERSION) {
+					updateConfig(CONFIG_KEY_LS_JAVA_HOME, lsRuntimePath);
+				}
 			}
 		}
 	}
@@ -176,7 +182,7 @@ async function scanJdk(
 		redhatRuntimeNames.push(...[...downloadVersions].map(s => jdkauto.runtime.nameOf(s)));
 		jdkauto.log('Failed getExtension RedHat', redhatJava);
 	} else {
-		const latestVersion = jdkauto.runtime.versionOf(redhatRuntimeNames[redhatRuntimeNames.length - 1]);
+		const latestVersion = jdkauto.runtime.versionOf(_.last(redhatRuntimeNames) ?? '');
 		if (latestVersion) {
 			jdkauto.log('RedHat supported latest version:', latestVersion);
 			downloadVersions.add(latestVersion);
