@@ -47,7 +47,8 @@ export namespace jdkauto {
 			}
 		}
 
-		export async function isValidJdk(javaHome:string): Promise<boolean> {
+		export async function isValidJdk(javaHome:string | undefined): Promise<boolean> {
+			if (!javaHome) {return false;}
 			const runtime = await jdkutils.getRuntime(javaHome, { checkJavac: true });
 			return runtime?.hasJavac ? true : false;
 		}

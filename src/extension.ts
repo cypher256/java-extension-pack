@@ -97,6 +97,10 @@ async function updateConfiguration(
 			}
 		}
 	}
+	const CONFIG_KEY_DEPRECATED_JAVA_HOME = 'java.home';
+	if (config.get(CONFIG_KEY_DEPRECATED_JAVA_HOME) !== null) {
+		updateConfig(CONFIG_KEY_DEPRECATED_JAVA_HOME, undefined);
+	}
 
 	// Project Runtimes Default (Keep if set)
 	const initDefaultRuntime = runtimes.find(r => r.name === jdkauto.runtime.nameOf(INIT_DEFAULT_LTS_VERSION));
@@ -109,7 +113,23 @@ async function updateConfiguration(
 		updateConfig(CONFIG_KEY_JAVA_RUNTIMES, runtimes);
 	}
 
-	// Project Maven Java Home (Keep if exists)
+	// Terminal Java Home (Keep if set)
+	const isValidEnvJavaHome = await jdkauto.runtime.isValidJdk(process.env.JAVA_HOME);
+	if (initDefaultRuntime) {
+		const osName = jdkauto.os.isWindows ? 'windows' : jdkauto.os.isMac ? 'osx' : 'linux';
+		const CONFIG_KEY_TERMINAL_ENV = 'terminal.integrated.env.' + osName;
+		const terminalEnv:any = config.get(CONFIG_KEY_TERMINAL_ENV) ?? {};
+		const isValidCurrentSetting = await jdkauto.runtime.isValidJdk(terminalEnv.JAVA_HOME);
+		if (
+			(!isValidEnvJavaHome && !isValidCurrentSetting) ||
+			(terminalEnv.JAVA_HOME && !isValidCurrentSetting)
+		) {
+			terminalEnv.JAVA_HOME = initDefaultRuntime.path;
+			updateConfig(CONFIG_KEY_TERMINAL_ENV, terminalEnv);
+		}
+	}
+
+	// Project Maven Java Home (Keep if set)
 	if (initDefaultRuntime) {
 		const CONFIG_KEY_MAVEN_CUSTOM_ENV = 'maven.terminal.customEnv';
 		const customEnv:any[] = config.get(CONFIG_KEY_MAVEN_CUSTOM_ENV) ?? [];
@@ -119,18 +139,14 @@ async function updateConfiguration(
 			updateConfig(CONFIG_KEY_MAVEN_CUSTOM_ENV, customEnv);
 		};
 		if (mavenJavaHome) {
-			if (!fs.existsSync(mavenJavaHome.value)) {
+			if (!await jdkauto.runtime.isValidJdk(mavenJavaHome.value)) {
 				updateMavenJavaHome();
 			}
-		} else if (!fs.existsSync(process.env.JAVA_HOME ?? '')) {
+		} else if (!isValidEnvJavaHome) {
 			mavenJavaHome = {environmentVariable: 'JAVA_HOME'};
 			customEnv.push(mavenJavaHome);
 			updateMavenJavaHome();
 		}
-	}
-	const CONFIG_KEY_DEPRECATED_JAVA_HOME = 'java.home';
-	if (config.get(CONFIG_KEY_DEPRECATED_JAVA_HOME) !== null) {
-		updateConfig(CONFIG_KEY_DEPRECATED_JAVA_HOME, undefined);
 	}
 }
 

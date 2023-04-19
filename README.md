@@ -6,7 +6,7 @@
 ![](https://img.shields.io/visual-studio-marketplace/i/Pleiades.java-extension-pack-jdk?color=blue)
 ![](https://img.shields.io/visual-studio-marketplace/last-updated/Pleiades.java-extension-pack-jdk?color=orange)
 
-Just install the extension and you can start Java development out of the box without installing JDK or setting the JAVA_HOME environment variables. Gradle/Maven tasks can be run from the Gradle/Maven view or the Command Palette. Note that the JAVA_HOME and PATH environment variables must be set when used on the command line.
+Just install the extension and you can start Java development out of the box without installing JDK or setting the JAVA_HOME environment variables. Gradle/Maven tasks can be run from the Gradle/Maven view or the Command Palette.
 <br>
 <br>
 
@@ -26,8 +26,9 @@ The JDKs are auto-configured as follows on VSCode startup. If there are multiple
 |---|---|
 |`java.configuration.runtimes`|Set all JDKs scanned, detected, and downloaded|
 |`java.home`|Delete due to deprecated entry|
-|`java.jdt.ls.java.home`|Fix if unsupported old version (JDT)|
-|`spring-boot.ls.java.home`|Fix if unsupported old version (ST4)|
+|`java.jdt.ls.java.home`|Fix if unsupported old version|
+|`spring-boot.ls.java.home`|Fix if unsupported old version|
+|`terminal.integrated.env.*`|Set if JAVA_HOME environment variable not set|
 |`maven.terminal.customEnv`|Set if JAVA_HOME environment variable not set|
 
 <br>
@@ -48,6 +49,7 @@ Auto-download is supported on the following platforms:
 
 ### e.g. Auto-configured User settings.json
 ```json
+// Projects Runtime
 "java.configuration.runtimes": [
   {
     "name": "JavaSE-1.8", // Adoptium (Auto-download)
@@ -58,12 +60,8 @@ Auto-download is supported on the following platforms:
     "path": "c:\\Program Files\\Amazon Corretto\\jdk11.0.18_10"
   },
   {
-    "name": "JavaSE-16", // Oracle (Auto-scan)
-    "path": "c:\\Program Files\\java\\jdk-16.0.2"
-  },
-  {
-    "name": "JavaSE-17", // Adoptium (Auto-download)
-    "path": "c:\\Users\\<UserName>\\AppData\\Roaming\\Code\\User\\globalStorage\\pleiades.java-extension-pack-jdk\\17",
+    "name": "JavaSE-17", // Oracle (Auto-scan)
+    "path": "c:\\Program Files\\java\\jdk-17.0.6",
     "default": true // for No build tools
   },
   {
@@ -75,7 +73,21 @@ Auto-download is supported on the following platforms:
     "path": "c:\\Program Files\\Eclipse Adoptium\\jdk-19.0.2.7-hotspot"
   }
 ],
-"java.jdt.ls.java.home": "c:\\Users\\<UserName>\\AppData\\Roaming\\Code\\User\\globalStorage\\pleiades.java-extension-pack-jdk\\17",
+// JDT Language Server, Gradle Daemon
+"java.jdt.ls.java.home": "c:\\Program Files\\java\\jdk-17.0.6",
+// ST4 Language Server
+"spring-boot.ls.java.home": "c:\\Program Files\\java\\jdk-17.0.6",
+// VSCode integrated Terminal
+"terminal.integrated.env.windows": {
+    "JAVA_HOME": "c:\\Program Files\\java\\jdk-17.0.6"
+},
+// Maven Terminal
+"maven.terminal.customEnv": [
+    {
+        "environmentVariable": "JAVA_HOME",
+        "value": "c:\\Program Files\\java\\jdk-17.0.6"
+    }
+],
 ```
 
 The configured JDKs are available in the "Extension Pack for Java" feature below included in the extension.
