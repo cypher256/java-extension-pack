@@ -81,18 +81,18 @@ async function updateConfiguration(
 		jdkauto.log(`Updated ${section}`);
 	};
 
-	// VSCode LS Java Home
-	const lsRuntimePath = runtimes.find(r => r.name === jdkauto.runtime.nameOf(JDT_LS_MIN_VERSION))?.path;
-	if (lsRuntimePath) {
+	// VSCode LS Java Home (Change if invalid)
+	const lsMinPath = runtimes.find(r => r.name === jdkauto.runtime.nameOf(JDT_LS_MIN_VERSION))?.path;
+	if (lsMinPath) {
 		for (const CONFIG_KEY_LS_JAVA_HOME of ['java.jdt.ls.java.home', 'spring-boot.ls.java.home']) {
 			const currentPath = config.get(CONFIG_KEY_LS_JAVA_HOME) as string;
-			// JDT LS: Java Extension prompts to reload dialog
+			// Dialog will appear if JDT LS changed
 			if (!currentPath) {
-				updateConfig(CONFIG_KEY_LS_JAVA_HOME, lsRuntimePath);
-			} else if (currentPath !== lsRuntimePath) {
-				const runtime = await jdkutils.getRuntime(currentPath, { checkJavac: true, withVersion: true });
-				if (!runtime || !runtime.hasJavac || !runtime.version || runtime.version.major < JDT_LS_MIN_VERSION) {
-					updateConfig(CONFIG_KEY_LS_JAVA_HOME, lsRuntimePath);
+				updateConfig(CONFIG_KEY_LS_JAVA_HOME, lsMinPath);
+			} else if (currentPath !== lsMinPath) {
+				const rt = await jdkutils.getRuntime(currentPath, { checkJavac: true, withVersion: true });
+				if (!rt || !rt.hasJavac || !rt.version || rt.version.major < JDT_LS_MIN_VERSION) {
+					updateConfig(CONFIG_KEY_LS_JAVA_HOME, lsMinPath);
 				}
 			}
 		}
@@ -128,9 +128,9 @@ async function updateConfiguration(
 			updateMavenJavaHome();
 		}
 	}
-	const CONFIG_KEY_JAVA_DOT_HOME = 'java.home';
-	if (config.get(CONFIG_KEY_JAVA_DOT_HOME)) {
-		updateConfig(CONFIG_KEY_JAVA_DOT_HOME, undefined);
+	const CONFIG_KEY_DEPRECATED_JAVA_HOME = 'java.home';
+	if (config.get(CONFIG_KEY_DEPRECATED_JAVA_HOME) !== null) {
+		updateConfig(CONFIG_KEY_DEPRECATED_JAVA_HOME, undefined);
 	}
 }
 
@@ -238,10 +238,10 @@ async function scanJdk(
 	for (const scannedJdkInfo of latestMajorMap.values()) {
 		const matchedRuntime = runtimes.find(r => r.name === scannedJdkInfo.name);
 		if (matchedRuntime) {
-			// Update if the original path is a user-installed JDK path
+			// Update if original path is user-installed JDK path
 			if (jdkauto.runtime.isUserInstalled(matchedRuntime.path, context)) {
 				matchedRuntime.path = scannedJdkInfo.path;
-			} // else Keep if the original path is the downloaded JDK path
+			} // else Keep if the original path is downloaded JDK path
 		} else {
 			runtimes.push({name: scannedJdkInfo.name, path: scannedJdkInfo.path});
 		}

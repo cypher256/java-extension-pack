@@ -24,11 +24,11 @@ The JDKs are auto-configured as follows on VSCode startup. If there are multiple
 
 |Configuration Name|Configured Value|
 |---|---|
-|`java.configuration.runtimes`|Auto-scanned and auto-downloaded JDKs|
-|`java.home`|Delete as deprecated|
-|`java.jdt.ls.java.home`|Suitable JDK for JDT Language Server|
-|`spring-boot.ls.java.home`|Suitable JDK for ST4 Language Server|
-|`maven.terminal.customEnv`|Set `JAVA_HOME` if environment variable JAVA_HOME not set|
+|`java.configuration.runtimes`|Set all JDKs scanned, detected, and downloaded|
+|`java.home`|Delete due to deprecated entry|
+|`java.jdt.ls.java.home`|Fix if unsupported old version (JDT)|
+|`spring-boot.ls.java.home`|Fix if unsupported old version (ST4)|
+|`maven.terminal.customEnv`|Set if JAVA_HOME environment variable not set|
 
 <br>
 
