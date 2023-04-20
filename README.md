@@ -22,14 +22,15 @@ The JDKs are auto-configured as follows on VSCode startup. If there are multiple
 1. Auto-download Adoptium LTS JDKs and [available latest JDK](https://marketplace.visualstudio.com/items?itemName=redhat.java#features) if not installed
 1. Auto-update auto-downloaded JDKs
 
-|Configuration Name|Configured Value|
-|---|---|
-|`java.configuration.runtimes`|Set all JDKs scanned, detected, and downloaded|
-|`java.home`|Delete due to deprecated entry|
-|`java.jdt.ls.java.home`|Fix if unsupported old version|
-|`spring-boot.ls.java.home`|Fix if unsupported old version|
-|`terminal.integrated.env.*`|Set if JAVA_HOME environment variable not set|
-|`maven.terminal.customEnv`|Set if JAVA_HOME environment variable not set|
+|Configuration Name|Issue|Configured Value|
+|---|---|---|
+|[java.configuration.runtimes](https://code.visualstudio.com/docs/java/java-project#_configure-runtime-for-projects)|[Issue](https://github.com/redhat-developer/vscode-java/issues?q=is%3Aissue+java.configuration.runtimes)|Set all JDKs scanned, detected, and downloaded|
+|java.home||Delete due to deprecated entry|
+|[java.jdt.ls.java.home](https://github.com/redhat-developer/vscode-java/wiki/JDK-Requirements#platform-versions)|[Issue](https://github.com/redhat-developer/vscode-java/issues?q=is%3Aissue+java.jdt.ls.java.home)|Fix if unsupported old version|
+|spring-boot.ls.java.home|[Issue](https://github.com/spring-projects/sts4/issues?q=is%3Aissue+spring-boot.ls.java.home)|Fix if unsupported old version|
+|[java.import.gradle.java.home](https://marketplace.visualstudio.com/items?itemName=vscjava.vscode-gradle#java-specific-settings)|[Issue](https://github.com/microsoft/vscode-gradle/issues?q=is%3Aissue+java.import.gradle.java.home)|Set if not set|
+|[terminal.integrated.env.*](https://code.visualstudio.com/docs/terminal/profiles#_configuring-profiles)|[Issue](https://github.com/microsoft/vscode/issues?q=is%3Aissue+terminal.integrated.env+JAVA_HOME)|Set if JAVA_HOME environment variable not set|
+|[maven.terminal.customEnv](https://marketplace.visualstudio.com/items?itemName=vscjava.vscode-maven#additional-configurations)|[Issue](https://github.com/microsoft/vscode-maven/issues?q=is%3Aissue+maven.terminal.customEnv)|Set if JAVA_HOME environment variable not set|
 
 <br>
 
@@ -73,30 +74,41 @@ Auto-download is supported on the following platforms:
     "path": "c:\\Program Files\\Eclipse Adoptium\\jdk-19.0.2.7-hotspot"
   }
 ],
-// JDT Language Server, Gradle Daemon
+// JDT Language Server
 "java.jdt.ls.java.home": "c:\\Program Files\\java\\jdk-17.0.6",
 // ST4 Language Server
 "spring-boot.ls.java.home": "c:\\Program Files\\java\\jdk-17.0.6",
-// VSCode integrated Terminal
+// Gradle Daemon
+"java.import.gradle.java.home": "c:\\Program Files\\java\\jdk-17.0.6",
+// VSCode Terminal Environment Variables
 "terminal.integrated.env.windows": {
-    "JAVA_HOME": "c:\\Program Files\\java\\jdk-17.0.6"
+  "JAVA_HOME": "c:\\Program Files\\java\\jdk-17.0.6",
+  "PATH": "c:\\Program Files\\java\\jdk-17.0.6\\bin;${env:PATH}"
 },
-// Maven Terminal
+// Maven Environment Variables
 "maven.terminal.customEnv": [
-    {
-        "environmentVariable": "JAVA_HOME",
-        "value": "c:\\Program Files\\java\\jdk-17.0.6"
-    }
+  {
+    "environmentVariable": "JAVA_HOME",
+    "value": "c:\\Program Files\\java\\jdk-17.0.6"
+  }
 ],
 ```
 
-The configured JDKs are available in the "Extension Pack for Java" feature below included in the extension.
+<br>
+<br>
+
+## Terminal Auto-configuration
+Terminal profiles are defined based on the configured runtimes, so you can select a Java version and open the terminal easily.
+<br><p>
+![](https://github.com/cypher256/java-extension-pack/blob/main/image/terminal.png)
+</p>
+
 <br>
 <br>
 <br>
 
-# Java Version List for Project
-To see which JDKs are used for your projects in multi-root workspaces, you can trigger the command `Configure Java Runtime` in Command Palette.
+# Extension Pack for Java Features
+The configured JDKs are available in the "Extension Pack for Java" feature below included in this extension. To see which JDKs are used for your projects in multi-root workspaces, you can trigger the command `Configure Java Runtime` in Command Palette.
 <br>
 <p><img src="https://code.visualstudio.com/assets/docs/java/java-project/configure-project-runtime.png" style="max-width:600px"></p>
 

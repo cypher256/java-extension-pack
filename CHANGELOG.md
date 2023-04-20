@@ -13,7 +13,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Add java.jdt.ls.java.home support
 - Add spring-boot.ls.java.home support
 - Add Maven configuration support
+- Add terminal.integrated.env.* support
+- Add java.import.gradle.java.home support
 - Add Offline support
+- Add Terminal Auto-configuration
 
 ## [1.0.0] - 2023-04-01
 ### Added

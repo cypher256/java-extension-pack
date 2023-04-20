@@ -18,6 +18,8 @@ export namespace jdkauto {
 
 	export namespace runtime {
 
+		export const CONFIG_KEY = 'java.configuration.runtimes';
+
 		export function versionOf(runtimeName:string): number {
 			return Number(runtimeName.replace(/^J(ava|2)SE-(1\.|)/, ''));
 		}
@@ -29,6 +31,16 @@ export namespace jdkauto {
 				return 'JavaSE-1.' + majorVersion;
 			}
 			return 'JavaSE-' + majorVersion;
+		}
+
+		export function getRedhatNames(): string[] {
+			const redhatJava = vscode.extensions.getExtension('redhat.java');
+			const redhatProp = redhatJava?.packageJSON?.contributes?.configuration?.properties;
+			const redhatRuntimeNames:string[] = redhatProp?.[CONFIG_KEY]?.items?.properties?.name?.enum ?? [];
+			if (redhatRuntimeNames.length === 0) {
+				jdkauto.log('Failed getExtension RedHat', redhatJava);
+			}
+			return redhatRuntimeNames;
 		}
 
 		export function isUserInstalled(javaHome:string, context:vscode.ExtensionContext): boolean {
@@ -52,6 +64,22 @@ export namespace jdkauto {
 			const runtime = await jdkutils.getRuntime(javaHome, { checkJavac: true });
 			return runtime?.hasJavac ? true : false;
 		}
+
+		export async function fixPath(originPath:string, defaultPath?:string): Promise<string | undefined> {
+			const MAX_UPPER_LEVEL = 2; // e.g. /jdk/bin/java -> /jdk
+			let p = originPath;
+			for (let i = 0; i <= MAX_UPPER_LEVEL; i++) {
+				if (await jdkauto.runtime.isValidJdk(p)) {return p;};
+				p = path.resolve(p, '..');
+			}
+			if (jdkauto.os.isMac) {
+				const contentsHome = path.join(originPath, 'Contents', 'Home');
+				if (await jdkauto.runtime.isValidJdk(contentsHome)) {return contentsHome;}
+				const home = path.join(originPath, 'Home');
+				if (await jdkauto.runtime.isValidJdk(home)) {return home;}
+			}
+			return defaultPath;
+		};
 	}
 
 	export namespace os {
