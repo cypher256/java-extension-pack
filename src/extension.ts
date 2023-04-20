@@ -125,27 +125,34 @@ async function updateConfiguration(
 		env.JAVA_HOME = javaHome;
 		env.PATH = javaHome + (jdkauto.os.isWindows ? '\\bin;' : '/bin:') + '${env:PATH}';
 	};
-	if (isModifiedRuntimes) {
-		const CONFIG_KEY_TERMINAL_PROFILES = 'terminal.integrated.profiles.' + osConfigName;
-		const oldProfiles:any = config.get(CONFIG_KEY_TERMINAL_PROFILES) ?? {};
+	const CONFIG_KEY_TERMINAL_PROFILES = 'terminal.integrated.profiles.' + osConfigName;
+	const oldProfiles:any = config.get(CONFIG_KEY_TERMINAL_PROFILES) ?? {};
+	if (isModifiedRuntimes || !Object.keys(oldProfiles).find(name => jdkauto.runtime.versionOf(name))) {
 		const newProfiles:any = {};
-		const runtimeNames = runtimes.map(r => r.name);
 		for (const profileName of Object.keys(oldProfiles)) {
 			// Exclude unsupported old Redhat names
-			if (runtimeNames.includes(profileName) || !jdkauto.runtime.versionOf(profileName)) {
-				newProfiles[profileName] = Object.assign({}, oldProfiles[profileName]); // Get proxy target
+			if (!jdkauto.runtime.versionOf(profileName)) {
+				newProfiles[profileName] = oldProfiles[profileName];
 			}
 		}
 		for (const runtime of runtimes) {
-			const profile:any = newProfiles[runtime.name] ?? {};
-			profile.path ??= jdkauto.os.isWindows ? 'powershell' : 'bash';
-			profile.overrideName = true;
+			const profile:any = Object.assign({}, oldProfiles[runtime.name]); // Get proxy target
+			if (jdkauto.os.isWindows) {
+				profile.path ??= 'powershell';
+			} else {
+				profile.path ??= jdkauto.os.isMac ? 'zsh' : 'bash';
+				profile.args ??= ['-l'];
+			}
 			profile.env ??= {};
+			profile.overrideName = true;
 			setEnv(runtime.path, profile.env);
 			newProfiles[runtime.name] = profile;
 		}
-		// TODO sort newProfiles
 		updateConfig(CONFIG_KEY_TERMINAL_PROFILES, newProfiles);
+		const CONFIG_KEY_TERMINAL_DEFAULT = 'terminal.integrated.defaultProfile.' + osConfigName;
+		if (!config.get(CONFIG_KEY_TERMINAL_DEFAULT) && initDefaultRuntime) {
+			updateConfig(CONFIG_KEY_TERMINAL_DEFAULT, initDefaultRuntime.name);
+		}
 	}
 
 	// Terminal Java Home (Keep if set)

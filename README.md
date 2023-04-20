@@ -29,8 +29,9 @@ The JDKs are auto-configured as follows on VSCode startup. If there are multiple
 |[java.jdt.ls.java.home](https://github.com/redhat-developer/vscode-java/wiki/JDK-Requirements#platform-versions)|[Issue](https://github.com/redhat-developer/vscode-java/issues?q=is%3Aissue+java.jdt.ls.java.home)|Fix if unsupported old version|
 |spring-boot.ls.java.home|[Issue](https://github.com/spring-projects/sts4/issues?q=is%3Aissue+spring-boot.ls.java.home)|Fix if unsupported old version|
 |[java.import.gradle.java.home](https://marketplace.visualstudio.com/items?itemName=vscjava.vscode-gradle#java-specific-settings)|[Issue](https://github.com/microsoft/vscode-gradle/issues?q=is%3Aissue+java.import.gradle.java.home)|Set if not set|
-|[terminal.integrated.env.*](https://code.visualstudio.com/docs/terminal/profiles#_configuring-profiles)|[Issue](https://github.com/microsoft/vscode/issues?q=is%3Aissue+terminal.integrated.env+JAVA_HOME)|Set if JAVA_HOME environment variable not set|
 |[maven.terminal.customEnv](https://marketplace.visualstudio.com/items?itemName=vscjava.vscode-maven#additional-configurations)|[Issue](https://github.com/microsoft/vscode-maven/issues?q=is%3Aissue+maven.terminal.customEnv)|Set if JAVA_HOME environment variable not set|
+|[terminal.integrated.env.*](https://code.visualstudio.com/docs/terminal/profiles#_configuring-profiles)|[Issue](https://github.com/microsoft/vscode/issues?q=is%3Aissue+terminal.integrated.env+JAVA_HOME)|Set if JAVA_HOME environment variable not set|
+|[terminal.integrated.profiles.*](https://code.visualstudio.com/docs/terminal/profiles)|[Issue](https://github.com/microsoft/vscode/issues?q=is%3Aissue+terminal.integrated.profiles)|Set configured runtimes to terminal|
 
 <br>
 
@@ -80,11 +81,6 @@ Auto-download is supported on the following platforms:
 "spring-boot.ls.java.home": "c:\\Program Files\\java\\jdk-17.0.6",
 // Gradle Daemon
 "java.import.gradle.java.home": "c:\\Program Files\\java\\jdk-17.0.6",
-// VSCode Terminal Environment Variables
-"terminal.integrated.env.windows": {
-  "JAVA_HOME": "c:\\Program Files\\java\\jdk-17.0.6",
-  "PATH": "c:\\Program Files\\java\\jdk-17.0.6\\bin;${env:PATH}"
-},
 // Maven Environment Variables
 "maven.terminal.customEnv": [
   {
@@ -102,6 +98,39 @@ Terminal profiles are defined based on the configured runtimes, so you can selec
 <br><p>
 ![](https://github.com/cypher256/java-extension-pack/blob/main/image/terminal.png)
 </p>
+
+### e.g. Auto-configured User settings.json
+```json
+// Terminal Default Environment Variables
+"terminal.integrated.env.windows": {
+  "JAVA_HOME": "c:\\Program Files\\java\\jdk-17.0.6",
+  "PATH": "c:\\Program Files\\java\\jdk-17.0.6\\bin;${env:PATH}"
+},
+// Terminal Default Profile
+"terminal.integrated.defaultProfile.windows": "JavaSE-17",
+// Terminal Profiles
+"terminal.integrated.profiles.windows": {
+  "JavaSE-1.8": {
+      "path": "powershell",
+      "env": {
+          "JAVA_HOME": "c:\\Users\\<UserName>\\AppData\\Roaming\\Code\\User\\globalStorage\\pleiades.java-extension-pack-jdk\\8",
+          "PATH": "c:\\Users\\<UserName>\\AppData\\Roaming\\Code\\User\\globalStorage\\pleiades.java-extension-pack-jdk\\8\\bin;${env:PATH}"
+      },
+      "overrideName": true
+  },
+  "JavaSE-11": {
+      "path": "powershell",
+      "env": {
+          "JAVA_HOME": "c:\\Program Files\\Amazon Corretto\\jdk11.0.18_10",
+          "PATH": "c:\\Program Files\\Amazon Corretto\\jdk11.0.18_10\\bin;${env:PATH}"
+      },
+      "overrideName": true
+  },
+  "JavaSE-17": {
+  :
+  :
+}
+```
 
 <br>
 <br>
