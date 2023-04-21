@@ -92,7 +92,7 @@ Auto-download is supported on the following platforms:
 <br>
 
 ## Terminal Auto-configuration
-Terminal profiles are defined based on configured runrimes, so you can easily open a terminal by selecting the Java version from the terminal dropdown.
+Terminal profiles are defined based on configured runtimes, so you can easily open a terminal by selecting the Java version from the terminal dropdown.
 <br><p>
 ![](https://raw.githubusercontent.com/cypher256/java-extension-pack/main/image/terminal.png)
 </p>
