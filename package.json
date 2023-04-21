@@ -1,28 +1,34 @@
 {
   "name": "java-extension-pack-jdk",
   "displayName": "Java Extension Pack JDK Auto",
-  "description": "JDK Auto-configuration and Popular Java Extension Packs",
+  "description": "JDK Auto + Extension Pack for Java + Spring Boot Extension Pack",
   "icon": "README_icon.png",
   "version": "17.4.1",
   "publisher": "Pleiades",
   "repository": {
     "url": "https://github.com/cypher256/java-extension-pack.git"
   },
+  "sponsor": {
+    "url": "https://github.com/sponsors/cypher256"
+  },
   "author": {
     "name": "Shinji Kashihara"
   },
   "keywords": [
+    "adapters",
     "auto",
     "boot",
     "config",
     "gradle",
     "jakarta",
-    "JAVA_HOME",
     "java",
+    "JAVA_HOME",
     "jdk",
     "lombok",
     "maven",
     "path",
+    "runtimes",
+    "server",
     "settings",
     "spring-boot",
     "spring",
@@ -38,8 +44,8 @@
   ],
   "extensionPack": [
     "vscjava.vscode-java-pack",
-    "vscjava.vscode-gradle",
     "vmware.vscode-boot-dev-pack",
+    "vscjava.vscode-gradle",
     "redhat.vscode-community-server-connector"
   ],
   "extensionDependencies": [],

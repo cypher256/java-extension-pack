@@ -6,32 +6,30 @@
 ![](https://img.shields.io/visual-studio-marketplace/i/Pleiades.java-extension-pack-jdk?color=blue)
 ![](https://img.shields.io/visual-studio-marketplace/last-updated/Pleiades.java-extension-pack-jdk?color=orange)
 
-Just install the extension and you can start Java development out of the box without installing JDK or setting the JAVA_HOME environment variables. Gradle/Maven tasks can be run from the Gradle/Maven view or the Command Palette.
+There is no need to manually install the JDK or set the JAVA_HOME environment variables. It also includes extensions that most Java developers need, such as Maven, Gradle, Spring, Lombok, and Tomcat start/stop, and usually does not require additional Java extensions.
 <br>
 <br>
 
 # Features
 
 ## JDK Auto-configuration
-The JDKs are auto-configured as follows on VSCode startup. If there are multiple JDKs of the same version, the latest minor version among them is used. To force a configuration update, run `Reload Window` from the Command Palette (Ctrl/Cmd + Shift + P).
+The JDKs are auto-configured for the current environment on VSCode startup as follows. If there are multiple JDKs of the same version, the latest minor version among them is used. To force a configuration update, run `Reload Window` from the Command Palette (Ctrl/Cmd + Shift + P).
 
 1. Auto-fix invalid JDK configuration path (e.g. /jdk/bin/java -> /jdk)
 1. Auto-remove configuration entries when JDK uninstalled or version path changed
 1. Auto-scan JDKs from OS-specific default location, SDKMAN, jEnv, jabba, ASDF, etc...
 1. Auto-detect environment variables JAVA_HOME, JDK_HOME and PATH
 1. Auto-download Adoptium LTS JDKs and [available latest JDK](https://marketplace.visualstudio.com/items?itemName=redhat.java#features) if not installed
-1. Auto-update auto-downloaded JDKs
+1. Auto-update auto-downloaded JDKs to the latest version
 
 |Configuration Name|Issue|Configured Value|
 |---|---|---|
 |[java.configuration.runtimes](https://code.visualstudio.com/docs/java/java-project#_configure-runtime-for-projects)|[Issue](https://github.com/redhat-developer/vscode-java/issues?q=is%3Aissue+java.configuration.runtimes)|Set all JDKs scanned, detected, and downloaded|
 |java.home||Delete due to deprecated entry|
-|[java.jdt.ls.java.home](https://github.com/redhat-developer/vscode-java/wiki/JDK-Requirements#platform-versions)|[Issue](https://github.com/redhat-developer/vscode-java/issues?q=is%3Aissue+java.jdt.ls.java.home)|Fix if unsupported old version|
-|spring-boot.ls.java.home|[Issue](https://github.com/spring-projects/sts4/issues?q=is%3Aissue+spring-boot.ls.java.home)|Fix if unsupported old version|
-|[java.import.gradle.java.home](https://marketplace.visualstudio.com/items?itemName=vscjava.vscode-gradle#java-specific-settings)|[Issue](https://github.com/microsoft/vscode-gradle/issues?q=is%3Aissue+java.import.gradle.java.home)|Set if not set|
-|[maven.terminal.customEnv](https://marketplace.visualstudio.com/items?itemName=vscjava.vscode-maven#additional-configurations)|[Issue](https://github.com/microsoft/vscode-maven/issues?q=is%3Aissue+maven.terminal.customEnv)|Set if JAVA_HOME environment variable not set|
-|[terminal.integrated.env.*](https://code.visualstudio.com/docs/terminal/profiles#_configuring-profiles)|[Issue](https://github.com/microsoft/vscode/issues?q=is%3Aissue+terminal.integrated.env+JAVA_HOME)|Set if JAVA_HOME environment variable not set|
-|[terminal.integrated.profiles.*](https://code.visualstudio.com/docs/terminal/profiles)|[Issue](https://github.com/microsoft/vscode/issues?q=is%3Aissue+terminal.integrated.profiles)|Set configured runtimes to terminal|
+|[java.jdt.ls.java.home](https://github.com/redhat-developer/vscode-java/wiki/JDK-Requirements#platform-versions)|[Issue](https://github.com/redhat-developer/vscode-java/issues?q=is%3Aissue+java.jdt.ls.java.home)|Set if unset, fix old unsupported versions|
+|spring-boot.ls.java.home|[Issue](https://github.com/spring-projects/sts4/issues?q=is%3Aissue+spring-boot.ls.java.home)|Set if unset, fix old unsupported versions|
+|[java.import.gradle.java.home](https://marketplace.visualstudio.com/items?itemName=vscjava.vscode-gradle#java-specific-settings)|[Issue](https://github.com/microsoft/vscode-gradle/issues?q=is%3Aissue+java.import.gradle.java.home)|Set if unset|
+|[maven.terminal.customEnv](https://marketplace.visualstudio.com/items?itemName=vscjava.vscode-maven#additional-configurations)|[Issue](https://github.com/microsoft/vscode-maven/issues?q=is%3Aissue+maven.terminal.customEnv)|Set if JAVA_HOME environment variable unset|
 
 <br>
 
@@ -51,7 +49,7 @@ Auto-download is supported on the following platforms:
 
 ### e.g. Auto-configured User settings.json
 ```json
-// Projects Runtime
+// Project Runtimes
 "java.configuration.runtimes": [
   {
     "name": "JavaSE-1.8", // Adoptium (Auto-download)
@@ -94,10 +92,15 @@ Auto-download is supported on the following platforms:
 <br>
 
 ## Terminal Auto-configuration
-Terminal profiles are defined based on the configured runtimes, so you can select a Java version and open the terminal easily.
+Terminal profiles are defined based on configured runrimes, so you can easily open a terminal by selecting the Java version from the terminal dropdown.
 <br><p>
 ![](https://raw.githubusercontent.com/cypher256/java-extension-pack/main/image/terminal.png)
 </p>
+
+|Configuration Name|Issue|Configured Value|
+|---|---|---|
+|[terminal.integrated.env.*](https://code.visualstudio.com/docs/terminal/profiles#_configuring-profiles)|[Issue](https://github.com/microsoft/vscode/issues?q=is%3Aissue+terminal.integrated.env+JAVA_HOME)|Set if JAVA_HOME environment variable not set|
+|[terminal.integrated.profiles.*](https://code.visualstudio.com/docs/terminal/profiles)|[Issue](https://github.com/microsoft/vscode/issues?q=is%3Aissue+terminal.integrated.profiles)|Set configured runtimes to terminal|
 
 ### e.g. Auto-configured User settings.json
 ```json
@@ -106,8 +109,6 @@ Terminal profiles are defined based on the configured runtimes, so you can selec
   "JAVA_HOME": "c:\\Program Files\\java\\jdk-17.0.6",
   "PATH": "c:\\Program Files\\java\\jdk-17.0.6\\bin;${env:PATH}"
 },
-// Terminal Default Profile
-"terminal.integrated.defaultProfile.windows": "JavaSE-17",
 // Terminal Profiles
 "terminal.integrated.profiles.windows": {
   "JavaSE-1.8": {
@@ -127,7 +128,6 @@ Terminal profiles are defined based on the configured runtimes, so you can selec
       "overrideName": true
   },
   "JavaSE-17": {
-  :
   :
 }
 ```
@@ -160,12 +160,12 @@ To change the JDK for unmanaged folders (with out any build tools), you can clic
 - [📦 Extension Pack for Java](https://marketplace.visualstudio.com/items?itemName=vscjava.vscode-java-pack) (Microsoft)<br>
 IntelliSense, Refactoring, Debugger, Maven, Lombok, etc...<br>
 License: MIT
-- [📦 Gradle for Java](https://marketplace.visualstudio.com/items?itemName=vscjava.vscode-gradle) (Microsoft)<br>
-Syntax highlighting, Task Panel, Run tasks<br>
-License: MIT
 - [📦 Spring Boot Extension Pack](https://marketplace.visualstudio.com/items?itemName=vmware.vscode-boot-dev-pack) (VMWare)<br>
 Spring Initializr, Boot Dashboard, Properties Support<br>
 License: EPL-1.0
+- [📦 Gradle for Java](https://marketplace.visualstudio.com/items?itemName=vscjava.vscode-gradle) (Microsoft)<br>
+Syntax highlighting, Task Panel, Run tasks<br>
+License: MIT
 - [📦 Community Server Connectors](https://marketplace.visualstudio.com/items?itemName=redhat.vscode-community-server-connector) (Red Hat)<br>
 Servers Panel, Start/Stop (Tomcat, Glassfish, etc...), Server download and installation<br>
 License: EPL-2.0

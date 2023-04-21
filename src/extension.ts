@@ -76,7 +76,7 @@ async function updateConfiguration(
 	const config = vscode.workspace.getConfiguration();
 	const updateConfig = (section:string, value:any) => {
 		config.update(section, value, vscode.ConfigurationTarget.Global);
-		jdkauto.log(`Updated ${section}`);
+		jdkauto.log(`Updated config: ${section}`);
 	};
 	const CONFIG_KEY_DEPRECATED_JAVA_HOME = 'java.home';
 	if (config.get(CONFIG_KEY_DEPRECATED_JAVA_HOME) !== null) {
@@ -94,15 +94,15 @@ async function updateConfiguration(
 				if (fixedPath) {
 					const rt = await jdkutils.getRuntime(fixedPath, { checkJavac: true, withVersion: true });
 					if (!rt || !rt.hasJavac || !rt.version || rt.version.major < JDT_LS_MIN_VERSION) {
-						updateConfig(CONFIG_KEY_LS_JAVA_HOME, lsMinPath);
+						updateConfig(CONFIG_KEY_LS_JAVA_HOME, lsMinPath); // Unsupported Old Version
 					} else if (fixedPath !== originPath) {
-						updateConfig(CONFIG_KEY_LS_JAVA_HOME, fixedPath);
+						updateConfig(CONFIG_KEY_LS_JAVA_HOME, fixedPath); // Fix
 					}
 				} else {
-					updateConfig(CONFIG_KEY_LS_JAVA_HOME, lsMinPath);
+					updateConfig(CONFIG_KEY_LS_JAVA_HOME, lsMinPath); // Invalid
 				}
 			} else {
-				updateConfig(CONFIG_KEY_LS_JAVA_HOME, lsMinPath);
+				updateConfig(CONFIG_KEY_LS_JAVA_HOME, lsMinPath); // Unset
 			}
 		}
 	}
@@ -121,7 +121,7 @@ async function updateConfiguration(
 
 	// Terminal Profiles
 	const osConfigName = jdkauto.os.isWindows ? 'windows' : jdkauto.os.isMac ? 'osx' : 'linux';
-	const setEnv = (javaHome: string, env: any) => {
+	const setTerminalEnv = (javaHome: string, env: any) => {
 		env.JAVA_HOME = javaHome;
 		env.PATH = javaHome + (jdkauto.os.isWindows ? '\\bin;' : '/bin:') + '${env:PATH}';
 	};
@@ -130,13 +130,12 @@ async function updateConfiguration(
 	if (isModifiedRuntimes || !Object.keys(oldProfiles).find(name => jdkauto.runtime.versionOf(name))) {
 		const newProfiles:any = {};
 		for (const profileName of Object.keys(oldProfiles)) {
-			// Exclude unsupported old Redhat names
 			if (!jdkauto.runtime.versionOf(profileName)) {
-				newProfiles[profileName] = oldProfiles[profileName];
+				newProfiles[profileName] = oldProfiles[profileName]; // Keep powershell, zsh, etc...
 			}
 		}
 		for (const runtime of runtimes) {
-			const profile:any = Object.assign({}, oldProfiles[runtime.name]); // Get proxy target
+			const profile:any = Object.assign({}, oldProfiles[runtime.name]); // Proxy to POJO
 			if (jdkauto.os.isWindows) {
 				profile.path ??= 'powershell';
 			} else {
@@ -145,32 +144,29 @@ async function updateConfiguration(
 			}
 			profile.env ??= {};
 			profile.overrideName = true;
-			setEnv(runtime.path, profile.env);
+			setTerminalEnv(runtime.path, profile.env);
 			newProfiles[runtime.name] = profile;
 		}
 		updateConfig(CONFIG_KEY_TERMINAL_PROFILES, newProfiles);
-		const CONFIG_KEY_TERMINAL_DEFAULT = 'terminal.integrated.defaultProfile.' + osConfigName;
-		if (!config.get(CONFIG_KEY_TERMINAL_DEFAULT) && initDefaultRuntime) {
-			updateConfig(CONFIG_KEY_TERMINAL_DEFAULT, initDefaultRuntime.name);
-		}
+		// Don't set 'terminal.integrated.defaultProfile.*' because Terminal Default is set
 	}
 
-	// Terminal Java Home (Keep if set)
+	// Terminal Default (Keep if set)
 	const isValidEnvJavaHome = await jdkauto.runtime.isValidJdk(process.env.JAVA_HOME);
 	if (initDefaultRuntime) {
 		const CONFIG_KEY_TERMINAL_ENV = 'terminal.integrated.env.' + osConfigName;
 		const terminalDefault:any = config.get(CONFIG_KEY_TERMINAL_ENV) ?? {};
-		const updateTerminalJavaHome = (newPath: string) => {
-			setEnv(newPath, terminalDefault);
+		const updateTerminalConfig = (newPath: string) => {
+			setTerminalEnv(newPath, terminalDefault);
 			updateConfig(CONFIG_KEY_TERMINAL_ENV, terminalDefault);
 		};
 		if (terminalDefault.JAVA_HOME) {
 			const fixedPath = await jdkauto.runtime.fixPath(terminalDefault.JAVA_HOME, initDefaultRuntime.path);
 			if (fixedPath && fixedPath !== terminalDefault.JAVA_HOME) {
-				updateTerminalJavaHome(fixedPath);
+				updateTerminalConfig(fixedPath);
 			}
 		} else if (!isValidEnvJavaHome) {
-			updateTerminalJavaHome(initDefaultRuntime.path);
+			updateTerminalConfig(initDefaultRuntime.path);
 		}
 	}
 
