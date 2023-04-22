@@ -152,7 +152,7 @@ To change the JDK for unmanaged folders (with out any build tools), you can clic
 <br>
 
 # License
-- MIT (c) Shinji Kashihara
+- MIT (c) WILL Shinji Kashihara (cypher256)
 - Adoptium JDK: https://adoptium.net/docs/faq/
 
 # Extensions Included
