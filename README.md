@@ -28,12 +28,12 @@ The JDKs are auto-configured for the current environment on VSCode startup as fo
 |java.home||Delete due to deprecated entry|
 |[java.jdt.ls.java.home](https://github.com/redhat-developer/vscode-java/wiki/JDK-Requirements#platform-versions)|[Issue](https://github.com/redhat-developer/vscode-java/issues?q=is%3Aissue+java.jdt.ls.java.home)|Set if unset, fix old unsupported versions|
 |spring-boot.ls.java.home|[Issue](https://github.com/spring-projects/sts4/issues?q=is%3Aissue+spring-boot.ls.java.home)|Set if unset, fix old unsupported versions|
-|[java.import.gradle.java.home](https://marketplace.visualstudio.com/items?itemName=vscjava.vscode-gradle#java-specific-settings)|[Issue](https://github.com/microsoft/vscode-gradle/issues?q=is%3Aissue+java.import.gradle.java.home)|Set if unset|
+|[java.import.gradle.java.home](https://marketplace.visualstudio.com/items?itemName=vscjava.vscode-gradle#java-specific-settings)|[Issue](https://github.com/microsoft/vscode-gradle/issues?q=is%3Aissue+java.import.gradle.java.home)|Set if unset (If unset use java.jdt.ls.java.home)|
 |[maven.terminal.customEnv](https://marketplace.visualstudio.com/items?itemName=vscjava.vscode-maven#additional-configurations)|[Issue](https://github.com/microsoft/vscode-maven/issues?q=is%3Aissue+maven.terminal.customEnv)|Set if JAVA_HOME environment variable unset|
 
 <br>
 
-### Auto-download Support
+#### Auto-download Support
 Auto-download is supported on the following platforms:
 - Windows x64
 - macos x64, aarch64
@@ -47,7 +47,7 @@ Auto-download is supported on the following platforms:
 
 <br>
 
-### e.g. Auto-configured User settings.json
+#### e.g. Auto-configured User settings.json
 ```json
 // Project Runtimes
 "java.configuration.runtimes": [
@@ -102,14 +102,14 @@ Terminal profiles are defined based on configured runtimes, so you can easily op
 |[terminal.integrated.env.*](https://code.visualstudio.com/docs/terminal/profiles#_configuring-profiles)|[Issue](https://github.com/microsoft/vscode/issues?q=is%3Aissue+terminal.integrated.env+JAVA_HOME)|Set if JAVA_HOME environment variable not set|
 |[terminal.integrated.profiles.*](https://code.visualstudio.com/docs/terminal/profiles)|[Issue](https://github.com/microsoft/vscode/issues?q=is%3Aissue+terminal.integrated.profiles)|Set configured runtimes to terminal|
 
-### e.g. Auto-configured User settings.json
+#### e.g. Auto-configured User settings.json
 ```json
 // Terminal Default Environment Variables
 "terminal.integrated.env.windows": {
   "JAVA_HOME": "c:\\Program Files\\java\\jdk-17.0.6",
   "PATH": "c:\\Program Files\\java\\jdk-17.0.6\\bin;${env:PATH}"
 },
-// Terminal Profiles
+// Terminal Dropdown
 "terminal.integrated.profiles.windows": {
   "JavaSE-1.8": {
       "path": "powershell",
@@ -141,11 +141,11 @@ The configured JDKs are available in the "Extension Pack for Java" feature below
 <br>
 <p><img src="https://code.visualstudio.com/assets/docs/java/java-project/configure-project-runtime.png" style="max-width:600px"></p>
 
-## Change JDK for Gradle and Maven projects
+### Change JDK for Gradle and Maven projects
 If you want to change the JDK version for your Gradle or Maven projects, you need to update it in your build scripts (build.gradle or pom.xml). You can click ⓘ to see how to make such changes. Click 🖊 will navigate to the build script file of the project.
 <br>
 
-## Change JDK for unmanaged folders
+### Change JDK for unmanaged folders
 To change the JDK for unmanaged folders (with out any build tools), you can click the 🖊 button. It will list all the JDKs and you can select one for your unmanaged folders.
 <br>
 <br>

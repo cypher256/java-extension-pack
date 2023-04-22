@@ -3,7 +3,7 @@
   "displayName": "Java Extension Pack JDK Auto",
   "description": "JDK Auto + Extension Pack for Java + Spring Boot Extension Pack",
   "icon": "README_icon.png",
-  "version": "17.4.2",
+  "version": "17.5.0",
   "publisher": "Pleiades",
   "repository": {
     "url": "https://github.com/cypher256/java-extension-pack.git"
@@ -42,13 +42,15 @@
     "Snippets",
     "Extension Packs"
   ],
+  "extensionDependencies": [
+    "redhat.java"
+  ],
   "extensionPack": [
     "vscjava.vscode-java-pack",
     "vmware.vscode-boot-dev-pack",
     "vscjava.vscode-gradle",
     "redhat.vscode-community-server-connector"
   ],
-  "extensionDependencies": [],
   "activationEvents": [
     "onStartupFinished"
   ],
@@ -62,7 +64,8 @@
     "pretest": "npm run compile && npm run lint",
     "lint": "eslint src --ext ts",
     "test": "node ./out/test/runTest.js",
-    "_l10n": "npx @vscode/l10n-dev export --outDir ./l10n ./src"
+    "clean": "rimraf out",
+    "l10n": "npx @vscode/l10n-dev export --outDir ./l10n ./src"
   },
   "engines": {
     "vscode": "^1.54.0"

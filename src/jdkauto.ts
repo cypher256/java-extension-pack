@@ -34,13 +34,17 @@ export namespace jdkauto {
 		}
 
 		export function getRedhatNames(): string[] {
-			const redhatJava = vscode.extensions.getExtension('redhat.java');
+			const redhatJava = vscode.extensions.getExtension('redhat.java'); // extensionDependencies
 			const redhatProp = redhatJava?.packageJSON?.contributes?.configuration?.properties;
 			const redhatRuntimeNames:string[] = redhatProp?.[CONFIG_KEY]?.items?.properties?.name?.enum ?? [];
 			if (redhatRuntimeNames.length === 0) {
 				jdkauto.log('Failed getExtension RedHat', redhatJava);
 			}
 			return redhatRuntimeNames;
+		}
+
+		export function getRedhatVersions(): number[] {
+			return getRedhatNames().map(name => versionOf(name));
 		}
 
 		export function isUserInstalled(javaHome:string, context:vscode.ExtensionContext): boolean {
