@@ -6,7 +6,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Future Release]
 ### Changed
-- Change JDT LS version from 17 to 21
 
 ## [17.x.x] - 2023-x-x
 ### Added
