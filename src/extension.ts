@@ -196,7 +196,7 @@ async function updateConfiguration(
 		.filter(([key, profile]) => !jdkauto.runtime.versionOf(key)));
 
 	for (const runtime of runtimes) {
-		const profile:any = _.cloneDeep(profilesOld[runtime.name]);
+		const profile:any = _.cloneDeep(profilesOld[runtime.name]) ?? {};
 		if (jdkauto.os.isWindows) {
 			profile.path ??= 'powershell';
 		} else {
