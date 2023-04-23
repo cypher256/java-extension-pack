@@ -164,6 +164,10 @@ async function updateConfiguration(
 	}
 
 	// Terminal Default (Keep if set)
+	const setTerminalEnv = (javaHome: string, env: any) => {
+		env.JAVA_HOME = javaHome;
+		env.PATH = javaHome + (jdkauto.os.isWindows ? '\\bin;' : '/bin:') + '${env:PATH}';
+	};
 	const osConfigName = jdkauto.os.isWindows ? 'windows' : jdkauto.os.isMac ? 'osx' : 'linux';
 	if (initDefaultRuntime) {
 		const CONFIG_KEY_TERMINAL_ENV = 'terminal.integrated.env.' + osConfigName;
@@ -183,13 +187,6 @@ async function updateConfiguration(
 	}
 
 	// Terminal Profiles
-	const setTerminalEnv = (javaHome: string, env: any) => {
-		env.JAVA_HOME = javaHome;
-		env.PATH = javaHome + (jdkauto.os.isWindows ? '\\bin;' : '/bin:') + '${env:PATH}';
-		if (jdkauto.os.isMac) {
-			env.ZDOTDIR ??= context.globalStorageUri.fsPath;
-		}
-	};
 	const CONFIG_KEY_TERMINAL_PROFILES = 'terminal.integrated.profiles.' + osConfigName;
 	const profilesOld:any = _.cloneDeep(config.get(CONFIG_KEY_TERMINAL_PROFILES)); // Proxy to POJO
 	const profilesNew:any = Object.fromEntries(Object.entries(profilesOld)
@@ -197,14 +194,17 @@ async function updateConfiguration(
 
 	for (const runtime of runtimes) {
 		const profile:any = _.cloneDeep(profilesOld[runtime.name]) ?? {};
+		profile.overrideName = true;
+		profile.env ??= {};
 		if (jdkauto.os.isWindows) {
 			profile.path ??= 'powershell';
 		} else {
 			profile.path ??= jdkauto.os.isMac ? 'zsh' : 'bash';
 			profile.args ??= ['-l'];
 		}
-		profile.env ??= {};
-		profile.overrideName = true;
+		if (jdkauto.os.isMac) {
+			profile.env.ZDOTDIR ??= context.globalStorageUri.fsPath;
+		}
 		setTerminalEnv(runtime.path, profile.env);
 		profilesNew[runtime.name] = profile;
 	}

@@ -26,6 +26,7 @@
         "Shinji",
         "temurin",
         "unmanaged",
-        "vscjava"
+        "vscjava",
+        "ZDOTDIR"
     ]
 }
