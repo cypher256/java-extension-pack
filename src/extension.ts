@@ -21,6 +21,7 @@ import { jdkauto } from './jdkauto';
 export async function activate(context:vscode.ExtensionContext) {
 
 	jdkauto.log('activate START', context.globalStorageUri.fsPath);
+	jdkauto.log('JAVA_HOME', process.env.JAVA_HOME);
 	const redhatVersions = jdkauto.runtime.getRedhatVersions();
 	const downloadLtsVersions = redhatVersions.filter(v => [8, 11].includes(v) || (v >= 17 && (v - 17) % 4 === 0));
 	const latestLtsVersion = _.last(downloadLtsVersions) ?? 0;
@@ -33,7 +34,7 @@ export async function activate(context:vscode.ExtensionContext) {
 	try {
 		const runtimesOld = _.cloneDeep(runtimes);
 		await scanJdk(context, runtimes);
-		await updateConfiguration(runtimes, runtimesOld, latestLtsVersion);
+		await updateConfiguration(context, runtimes, runtimesOld, latestLtsVersion);
 
 	} catch (e:any) {
 		let message = `JDK scan failed. ${e.message ?? e}`;
@@ -54,7 +55,7 @@ export async function activate(context:vscode.ExtensionContext) {
 					);
 				}
 				await Promise.all(promiseArray);
-				await updateConfiguration(runtimes, runtimesOld, latestLtsVersion);
+				await updateConfiguration(context, runtimes, runtimesOld, latestLtsVersion);
 	
 			} catch (e:any) {
 				let message = `JDK download failed. ${e.request?.path ?? ''} ${e.message ?? e}`;
@@ -67,12 +68,14 @@ export async function activate(context:vscode.ExtensionContext) {
 
 /**
  * Updates the Java runtime configurations for the VSCode Java extension.
+ * @param context The VS Code extension context.
  * @param runtimes An array of Java runtime objects to update the configuration with.
  * @param runtimesOld An array of previous Java runtime objects to compare with `runtimes`.
  * @param latestLtsVersion The latest LTS version.
  * @returns A promise that resolves when the configuration has been updated.
  */
 async function updateConfiguration(
+	context:vscode.ExtensionContext, 
 	runtimes:jdkauto.ConfigRuntime[], 
 	runtimesOld:jdkauto.ConfigRuntime[],
 	latestLtsVersion:number) {
@@ -90,8 +93,7 @@ async function updateConfiguration(
 	// Project Runtimes Default (Keep if set)
 	const initDefaultRuntime = runtimes.find(r => r.name === jdkauto.runtime.nameOf(latestLtsVersion));
 	const isNoneDefault = runtimes.find(r => r.default) ? false : true;
-	const isModifiedRuntimes = !_.isEqual(runtimes, runtimesOld);
-	if (isNoneDefault || isModifiedRuntimes) {
+	if (isNoneDefault || !_.isEqual(runtimes, runtimesOld)) {
 		if (isNoneDefault && initDefaultRuntime) {
 			initDefaultRuntime.default = true;
 		}
@@ -141,7 +143,6 @@ async function updateConfiguration(
 
 	// Project Maven Java Home (Keep if set)
 	const isValidEnvJavaHome = await jdkauto.runtime.isValidJdk(process.env.JAVA_HOME);
-	jdkauto.log(`JAVA_HOME valid:${isValidEnvJavaHome} path:${process.env.JAVA_HOME}`);
 	if (initDefaultRuntime) {
 		const CONFIG_KEY_MAVEN_CUSTOM_ENV = 'maven.terminal.customEnv';
 		const customEnv:any[] = config.get(CONFIG_KEY_MAVEN_CUSTOM_ENV) ?? [];
@@ -185,30 +186,30 @@ async function updateConfiguration(
 	const setTerminalEnv = (javaHome: string, env: any) => {
 		env.JAVA_HOME = javaHome;
 		env.PATH = javaHome + (jdkauto.os.isWindows ? '\\bin;' : '/bin:') + '${env:PATH}';
+		if (jdkauto.os.isMac) {
+			env.ZDOTDIR ??= context.globalStorageUri.fsPath;
+		}
 	};
 	const CONFIG_KEY_TERMINAL_PROFILES = 'terminal.integrated.profiles.' + osConfigName;
-	const oldProfiles:any = config.get(CONFIG_KEY_TERMINAL_PROFILES) ?? {};
-	if (isModifiedRuntimes || !Object.keys(oldProfiles).find(name => jdkauto.runtime.versionOf(name))) {
-		const newProfiles:any = {};
-		for (const profileName of Object.keys(oldProfiles)) {
-			if (!jdkauto.runtime.versionOf(profileName)) {
-				newProfiles[profileName] = oldProfiles[profileName]; // Keep powershell, zsh, etc...
-			}
+	const profilesOld:any = _.cloneDeep(config.get(CONFIG_KEY_TERMINAL_PROFILES)); // Proxy to POJO
+	const profilesNew:any = Object.fromEntries(Object.entries(profilesOld)
+		.filter(([key, profile]) => !jdkauto.runtime.versionOf(key)));
+
+	for (const runtime of runtimes) {
+		const profile:any = _.cloneDeep(profilesOld[runtime.name]);
+		if (jdkauto.os.isWindows) {
+			profile.path ??= 'powershell';
+		} else {
+			profile.path ??= jdkauto.os.isMac ? 'zsh' : 'bash';
+			profile.args ??= ['-l'];
 		}
-		for (const runtime of runtimes) {
-			const profile:any = Object.assign({}, oldProfiles[runtime.name]); // Proxy to POJO
-			if (jdkauto.os.isWindows) {
-				profile.path ??= 'powershell';
-			} else {
-				profile.path ??= jdkauto.os.isMac ? 'zsh' : 'bash';
-				profile.args ??= ['-l'];
-			}
-			profile.env ??= {};
-			profile.overrideName = true;
-			setTerminalEnv(runtime.path, profile.env);
-			newProfiles[runtime.name] = profile;
-		}
-		updateConfig(CONFIG_KEY_TERMINAL_PROFILES, newProfiles);
+		profile.env ??= {};
+		profile.overrideName = true;
+		setTerminalEnv(runtime.path, profile.env);
+		profilesNew[runtime.name] = profile;
+	}
+	if (!_.isEqual(profilesNew, profilesOld) ) {
+		updateConfig(CONFIG_KEY_TERMINAL_PROFILES, profilesNew);
 		// Don't set 'terminal.integrated.defaultProfile.*' because Terminal Default is set
 	}
 }

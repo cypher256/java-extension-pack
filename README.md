@@ -92,7 +92,7 @@ Auto-download is supported on the following platforms:
 <br>
 
 ## Terminal Auto-configuration
-Terminal profiles are defined based on configured runtimes, so you can easily open a terminal by selecting the Java version from the terminal dropdown. However, as a <a href="https://github.com/microsoft/vscode/issues/98490">known issue, on macOS</a>, the JAVA_HOME setting in .zshrc (e.g. sdkman default) must be disabled in order to use terminal version switching.
+Terminal profiles are defined based on configured runtimes, so you can easily open a terminal by selecting the Java version from the terminal dropdown.
 <br><p>
 ![Switch Java Version](https://raw.githubusercontent.com/cypher256/java-extension-pack/main/image/terminal.png)
 </p>
