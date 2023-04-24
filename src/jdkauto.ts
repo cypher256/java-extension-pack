@@ -10,6 +10,22 @@ import { compare } from 'compare-versions';
 
 export namespace jdkauto {
 
+	export let context: vscode.ExtensionContext;
+	export const log: vscode.LogOutputChannel = vscode.window.createOutputChannel("JDK Auto", {log:true});
+
+	export function getGlobalStoragePath(): string {
+		if (!context) {throw new Error('context is not initialized');}
+		return context.globalStorageUri.fsPath;
+	}
+	
+	export function rmSync(path:string): void {
+		try {
+			fs.rmSync(path, {recursive: true, force: true});
+		} catch (e) {
+			jdkauto.log.info('Failed rmSync: ' + e);
+		}
+	}
+
 	export interface ConfigRuntime {
 		name: string;
 		path: string;
@@ -21,7 +37,7 @@ export namespace jdkauto {
 		export const CONFIG_KEY = 'java.configuration.runtimes';
 
 		export function versionOf(runtimeName:string): number {
-			return Number(runtimeName.replace(/^J(ava|2)SE-(1\.|)/, ''));
+			return Number(runtimeName.replace(/^J(ava|2)SE-(1\.|)/, '')); // NaN if invalid
 		}
 
 		export function nameOf(majorVersion:number): string {
@@ -38,7 +54,7 @@ export namespace jdkauto {
 			const redhatProp = redhatJava?.packageJSON?.contributes?.configuration?.properties;
 			const redhatRuntimeNames:string[] = redhatProp?.[CONFIG_KEY]?.items?.properties?.name?.enum ?? [];
 			if (redhatRuntimeNames.length === 0) {
-				jdkauto.log('Failed getExtension RedHat', redhatJava);
+				jdkauto.log.warn('Failed getExtension RedHat', redhatJava);
 			}
 			return redhatRuntimeNames;
 		}
@@ -47,10 +63,10 @@ export namespace jdkauto {
 			return getRedhatNames().map(name => versionOf(name));
 		}
 
-		export function isUserInstalled(javaHome:string, context:vscode.ExtensionContext): boolean {
+		export function isUserInstalled(javaHome:string): boolean {
 			const _javaHome = path.normalize(javaHome);
-			const _globalStorageDir = path.normalize(context.globalStorageUri.fsPath);
-			return !_javaHome.startsWith(_globalStorageDir);
+			const _globalStoragePath = path.normalize(getGlobalStoragePath());
+			return !_javaHome.startsWith(_globalStoragePath);
 		}
 
 		export function isNewLeft(leftVersion:string, rightVersion:string): boolean {
@@ -58,7 +74,7 @@ export namespace jdkauto {
 				const optimize = (s:string) => s.replace(/_/g, '.');
 				return compare(optimize(leftVersion), optimize(rightVersion), '>');
 			} catch (e) {
-				jdkauto.log('Failed compare-versions: ' + e);
+				jdkauto.log.warn('Failed compare-versions: ' + e);
 				return false;
 			}
 		}
@@ -91,12 +107,16 @@ export namespace jdkauto {
 		export const isWindows = process.platform === 'win32';
 		export const isMac = process.platform === 'darwin';
 		export const isLinux = process.platform === 'linux';
-		export const isDownloadTarget = isWindows || isMac || (isLinux && process.arch === 'x64');
+	}
+
+	export namespace download {
+
+		export const isTarget = os.isWindows || os.isMac || (os.isLinux && process.arch === 'x64');
 	
 		export function archOf(javaVersion: number): string {
-			if (isWindows) {
+			if (os.isWindows) {
 				return 'x64_windows_hotspot';
-			} else if (isMac) {
+			} else if (os.isMac) {
 				if (process.arch === 'arm64' && javaVersion >= 11) {
 					return 'aarch64_mac_hotspot';
 				} else {
@@ -106,17 +126,5 @@ export namespace jdkauto {
 				return 'x64_linux_hotspot';
 			}
 		}
-	}
-	
-	export function rmSync(path:string): void {
-		try {
-			fs.rmSync(path, {recursive: true, force: true});
-		} catch (e) {
-			jdkauto.log('Failed rmSync: ' + e);
-		}
-	}
-	
-	export function log(message?: any, ...optionalParams: any[]): void {
-		console.log(`[jdkauto]`, message, ...optionalParams);
 	}
 }

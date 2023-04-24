@@ -20,62 +20,57 @@ import { jdkauto } from './jdkauto';
  */
 export async function activate(context:vscode.ExtensionContext) {
 
-	jdkauto.log('activate START', context.globalStorageUri.fsPath);
-	jdkauto.log('JAVA_HOME', process.env.JAVA_HOME);
+	jdkauto.context = context;
+	jdkauto.log.info('activate START', jdkauto.getGlobalStoragePath());
+	jdkauto.log.info('JAVA_HOME', process.env.JAVA_HOME);
+	
 	const redhatVersions = jdkauto.runtime.getRedhatVersions();
 	const downloadLtsVersions = redhatVersions.filter(v => [8, 11].includes(v) || (v >= 17 && (v - 17) % 4 === 0));
 	const latestLtsVersion = _.last(downloadLtsVersions) ?? 0;
-	jdkauto.log('RedHat versions ' + redhatVersions);
-	jdkauto.log('Download LTS versions ' + downloadLtsVersions);
+	jdkauto.log.info('RedHat versions ' + redhatVersions);
+	jdkauto.log.info('Download Target LTS versions ' + downloadLtsVersions);
 	const config = vscode.workspace.getConfiguration();
 	const runtimes:jdkauto.ConfigRuntime[] = config.get(jdkauto.runtime.CONFIG_KEY) ?? [];
 
 	// Scan JDK
 	try {
 		const runtimesOld = _.cloneDeep(runtimes);
-		await scanJdk(context, runtimes);
-		await updateConfiguration(context, runtimes, runtimesOld, latestLtsVersion);
+		await scanJdk(runtimes);
+		await updateConfiguration(runtimes, runtimesOld, latestLtsVersion);
 
 	} catch (e:any) {
 		let message = `JDK scan failed. ${e.message ?? e}`;
 		vscode.window.showErrorMessage(message);
-		jdkauto.log(message, e);
+		jdkauto.log.warn(message, e);
 	}
 
 	// Download JDK
-	if (jdkauto.os.isDownloadTarget) {
+	if (jdkauto.download.isTarget) {
 		vscode.window.withProgress({location: vscode.ProgressLocation.Window}, async progress => {
 			try {
 				const runtimesOld = _.cloneDeep(runtimes);
-				const promiseArray: Promise<void>[] = [];
 				const downloadVersions = _.uniq([...downloadLtsVersions, _.last(redhatVersions) ?? 0]);
-				for (const majorVersion of downloadVersions) {
-					promiseArray.push(
-						downloadJdk(context, runtimes, majorVersion, progress)
-					);
-				}
+				const promiseArray = downloadVersions.map(v => downloadJdk(runtimes, v, progress));
 				await Promise.all(promiseArray);
-				await updateConfiguration(context, runtimes, runtimesOld, latestLtsVersion);
+				await updateConfiguration(runtimes, runtimesOld, latestLtsVersion);
 	
 			} catch (e:any) {
 				let message = `JDK download failed. ${e.request?.path ?? ''} ${e.message ?? e}`;
-				jdkauto.log(message, e); // Silent offline, 404 (building), etc.
+				jdkauto.log.info(message, e); // Silent offline, 404 (building), etc.
 			}
-			jdkauto.log('activate END');
+			jdkauto.log.info('activate END');
 		});
 	}
 }
 
 /**
  * Updates the Java runtime configurations for the VSCode Java extension.
- * @param context The VS Code extension context.
  * @param runtimes An array of Java runtime objects to update the configuration with.
  * @param runtimesOld An array of previous Java runtime objects to compare with `runtimes`.
  * @param latestLtsVersion The latest LTS version.
  * @returns A promise that resolves when the configuration has been updated.
  */
 async function updateConfiguration(
-	context:vscode.ExtensionContext, 
 	runtimes:jdkauto.ConfigRuntime[], 
 	runtimesOld:jdkauto.ConfigRuntime[],
 	latestLtsVersion:number) {
@@ -83,7 +78,7 @@ async function updateConfiguration(
 	const config = vscode.workspace.getConfiguration();
 	const updateConfig = (section:string, value:any) => {
 		config.update(section, value, vscode.ConfigurationTarget.Global);
-		jdkauto.log(`Updated config: ${section}`);
+		jdkauto.log.info('Updated config:', section, _.isString(value) ? value : '');
 	};
 	const CONFIG_KEY_DEPRECATED_JAVA_HOME = 'java.home';
 	if (config.get(CONFIG_KEY_DEPRECATED_JAVA_HOME) !== null) {
@@ -91,59 +86,62 @@ async function updateConfiguration(
 	}
 
 	// Project Runtimes Default (Keep if set)
-	const initDefaultRuntime = runtimes.find(r => r.name === jdkauto.runtime.nameOf(latestLtsVersion));
+	const latestLtsRuntime = runtimes.find(r => r.name === jdkauto.runtime.nameOf(latestLtsVersion));
 	const isNoneDefault = runtimes.find(r => r.default) ? false : true;
 	if (isNoneDefault || !_.isEqual(runtimes, runtimesOld)) {
-		if (isNoneDefault && initDefaultRuntime) {
-			initDefaultRuntime.default = true;
+		if (isNoneDefault && latestLtsRuntime) {
+			latestLtsRuntime.default = true;
 		}
 		runtimes.sort((a, b) => a.name.localeCompare(b.name));
 		updateConfig(jdkauto.runtime.CONFIG_KEY, runtimes);
 	}
 
 	// VSCode LS Java Home (Fix if unsupported old version)
-	const latestLtsPath = runtimes.find(r => r.name === jdkauto.runtime.nameOf(latestLtsVersion))?.path;
-	if (latestLtsPath) {
+	if (latestLtsRuntime) {
 		for (const CONFIG_KEY_LS_JAVA_HOME of ['java.jdt.ls.java.home', 'spring-boot.ls.java.home']) {
 			const originPath = config.get(CONFIG_KEY_LS_JAVA_HOME) as string;
+			const latestLtsPath = latestLtsRuntime.path;
 			// Dialog will appear if JDT LS changed
 			if (originPath) {
 				const fixedPath = await jdkauto.runtime.fixPath(originPath);
 				if (fixedPath) {
+					// RedHat LS minimum version check: REQUIRED_JDK_VERSION
+					// https://github.com/redhat-developer/vscode-java/blob/master/src/requirements.ts
 					const rt = await jdkutils.getRuntime(fixedPath, { checkJavac: true, withVersion: true });
 					if (!rt || !rt.hasJavac || !rt.version || rt.version.major < latestLtsVersion) {
-						updateConfig(CONFIG_KEY_LS_JAVA_HOME, latestLtsPath); // Unsupported Old Version
+						updateConfig(CONFIG_KEY_LS_JAVA_HOME, latestLtsPath); // Fix unsupported old version
 					} else if (fixedPath !== originPath) {
-						updateConfig(CONFIG_KEY_LS_JAVA_HOME, fixedPath); // Fix
+						updateConfig(CONFIG_KEY_LS_JAVA_HOME, fixedPath); // Fix invalid
 					} else {
 						// Keep new version
 					}
 				} else {
-					updateConfig(CONFIG_KEY_LS_JAVA_HOME, latestLtsPath); // Invalid
+					updateConfig(CONFIG_KEY_LS_JAVA_HOME, latestLtsPath); // Can't fix
 				}
 			} else {
-				updateConfig(CONFIG_KEY_LS_JAVA_HOME, latestLtsPath); // Unset
+				updateConfig(CONFIG_KEY_LS_JAVA_HOME, latestLtsPath); // if unset
 			}
 		}
 	}
 
 	// Gradle Daemon Java Home (Fix if set), Note: If unset use java.jdt.ls.java.home
-	if (initDefaultRuntime) {
+	const defaultRuntime = runtimes.find(r => r.default);
+	if (defaultRuntime) {
 		const CONFIG_KEY_GRADLE_JAVA_HOME = 'java.import.gradle.java.home';
 		const originPath = config.get(CONFIG_KEY_GRADLE_JAVA_HOME) as string;
 		if (originPath) {
-			const fixedPath = await jdkauto.runtime.fixPath(originPath, initDefaultRuntime.path);
+			const fixedPath = await jdkauto.runtime.fixPath(originPath, defaultRuntime.path);
 			if (fixedPath && fixedPath !== originPath) {
 				updateConfig(CONFIG_KEY_GRADLE_JAVA_HOME, fixedPath);
 			}
 		} else {
-			updateConfig(CONFIG_KEY_GRADLE_JAVA_HOME, initDefaultRuntime.path);
+			updateConfig(CONFIG_KEY_GRADLE_JAVA_HOME, defaultRuntime.path);
 		}
 	}
 
 	// Project Maven Java Home (Keep if set)
 	const isValidEnvJavaHome = await jdkauto.runtime.isValidJdk(process.env.JAVA_HOME);
-	if (initDefaultRuntime) {
+	if (defaultRuntime) {
 		const CONFIG_KEY_MAVEN_CUSTOM_ENV = 'maven.terminal.customEnv';
 		const customEnv:any[] = config.get(CONFIG_KEY_MAVEN_CUSTOM_ENV) ?? [];
 		let mavenJavaHome = customEnv.find(i => i.environmentVariable === 'JAVA_HOME');
@@ -152,14 +150,14 @@ async function updateConfiguration(
 			updateConfig(CONFIG_KEY_MAVEN_CUSTOM_ENV, customEnv);
 		};
 		if (mavenJavaHome) {
-			const fixedPath = await jdkauto.runtime.fixPath(mavenJavaHome.value, initDefaultRuntime.path);
+			const fixedPath = await jdkauto.runtime.fixPath(mavenJavaHome.value, defaultRuntime.path);
 			if (fixedPath && fixedPath !== mavenJavaHome.value) {
 				updateMavenJavaHome(fixedPath);
 			}
 		} else if (!isValidEnvJavaHome) {
 			mavenJavaHome = {environmentVariable: 'JAVA_HOME'};
 			customEnv.push(mavenJavaHome);
-			updateMavenJavaHome(initDefaultRuntime.path);
+			updateMavenJavaHome(defaultRuntime.path);
 		}
 	}
 
@@ -169,7 +167,7 @@ async function updateConfiguration(
 		env.PATH = javaHome + (jdkauto.os.isWindows ? '\\bin;' : '/bin:') + '${env:PATH}';
 	};
 	const osConfigName = jdkauto.os.isWindows ? 'windows' : jdkauto.os.isMac ? 'osx' : 'linux';
-	if (initDefaultRuntime) {
+	if (defaultRuntime) {
 		const CONFIG_KEY_TERMINAL_ENV = 'terminal.integrated.env.' + osConfigName;
 		const terminalDefault:any = config.get(CONFIG_KEY_TERMINAL_ENV) ?? {};
 		const updateTerminalConfig = (newPath: string) => {
@@ -177,12 +175,12 @@ async function updateConfiguration(
 			updateConfig(CONFIG_KEY_TERMINAL_ENV, terminalDefault);
 		};
 		if (terminalDefault.JAVA_HOME) {
-			const fixedPath = await jdkauto.runtime.fixPath(terminalDefault.JAVA_HOME, initDefaultRuntime.path);
+			const fixedPath = await jdkauto.runtime.fixPath(terminalDefault.JAVA_HOME, defaultRuntime.path);
 			if (fixedPath && fixedPath !== terminalDefault.JAVA_HOME) {
 				updateTerminalConfig(fixedPath);
 			}
 		} else if (!isValidEnvJavaHome) {
-			updateTerminalConfig(initDefaultRuntime.path);
+			updateTerminalConfig(defaultRuntime.path);
 		}
 	}
 
@@ -190,20 +188,22 @@ async function updateConfiguration(
 	const CONFIG_KEY_TERMINAL_PROFILES = 'terminal.integrated.profiles.' + osConfigName;
 	const profilesOld:any = _.cloneDeep(config.get(CONFIG_KEY_TERMINAL_PROFILES)); // Proxy to POJO
 	const profilesNew:any = Object.fromEntries(Object.entries(profilesOld)
-		.filter(([key, profile]) => !jdkauto.runtime.versionOf(key)));
+		.filter(([key, profile]) => !jdkauto.runtime.versionOf(key))); // Copy unmanaged profile
 
 	for (const runtime of runtimes) {
-		const profile:any = _.cloneDeep(profilesOld[runtime.name]) ?? {};
+		const profile:any = _.cloneDeep(profilesOld[runtime.name]) ?? {}; // for isEqual
 		profile.overrideName = true;
 		profile.env ??= {};
 		if (jdkauto.os.isWindows) {
 			profile.path ??= 'powershell';
 		} else {
-			profile.path ??= jdkauto.os.isMac ? 'zsh' : 'bash';
+			if (jdkauto.os.isMac) {
+				profile.env.ZDOTDIR ??= jdkauto.getGlobalStoragePath(); // Disable .zshrc JAVA_HOME
+				profile.path ??= 'zsh';
+			} else {
+				profile.path ??= 'bash';
+			}
 			profile.args ??= ['-l'];
-		}
-		if (jdkauto.os.isMac) {
-			profile.env.ZDOTDIR ??= context.globalStorageUri.fsPath;
 		}
 		setTerminalEnv(runtime.path, profile.env);
 		profilesNew[runtime.name] = profile;
@@ -216,12 +216,10 @@ async function updateConfiguration(
 
 /**
  * Scan installed JDK on the system and updates the given list of Java runtimes.
- * @param context The VS Code extension context.
  * @param runtimes The list of Java runtimes to update.
  * @returns Promise that resolves when the JDK scan and runtime update is complete.
  */
 async function scanJdk(
-	context:vscode.ExtensionContext, 
 	runtimes:jdkauto.ConfigRuntime[]) {
 
 	// Fix JDK path
@@ -229,10 +227,10 @@ async function scanJdk(
 		const originPath = runtimes[i].path;
 		const fixedPath = await jdkauto.runtime.fixPath(originPath);
 		if (!fixedPath) {
-			jdkauto.log(`Remove ${originPath}`);
+			jdkauto.log.info(`Remove ${originPath}`);
 			runtimes.splice(i, 1);
 		} else if (fixedPath !== originPath) {
-			jdkauto.log(`Fix\n   ${originPath}\n-> ${fixedPath}`);
+			jdkauto.log.info(`Fix\n   ${originPath}\n-> ${fixedPath}`);
 			runtimes[i].path = fixedPath;
 		}
 	}
@@ -248,7 +246,7 @@ async function scanJdk(
 	for (const scannedJava of scannedJavas) {
 		const version = scannedJava.version;
 		const jreMessage = scannedJava.hasJavac ? '' : 'JRE ';
-		jdkauto.log(`Detected ${jreMessage}${version?.major} (${version?.java_version}) ${scannedJava.homedir}`);
+		jdkauto.log.info(`Detected ${jreMessage}${version?.major} (${version?.java_version}) ${scannedJava.homedir}`);
 		if (!version || !scannedJava.hasJavac) {
 			continue;
 		}
@@ -270,9 +268,9 @@ async function scanJdk(
 		if (latestMajorMap.has(major)) {
 			continue; // Prefer user-installed JDK
 		}
-		let downloadJdkDir = path.join(context.globalStorageUri.fsPath, String(major));
+		let downloadJdkDir = path.join(jdkauto.getGlobalStoragePath(), String(major));
 		if (await jdkauto.runtime.isValidJdk(downloadJdkDir)) {
-			jdkauto.log(`Detected ${major} Auto-downloaded JDK`);
+			jdkauto.log.info(`Detected ${major} Auto-downloaded JDK`);
 			latestMajorMap.set(major, {
 				fullVersion: '',
 				name: jdkauto.runtime.nameOf(major),
@@ -286,7 +284,7 @@ async function scanJdk(
 		const matchedRuntime = runtimes.find(r => r.name === scannedJdkInfo.name);
 		if (matchedRuntime) {
 			// Update if original path is user-installed JDK path
-			if (jdkauto.runtime.isUserInstalled(matchedRuntime.path, context)) {
+			if (jdkauto.runtime.isUserInstalled(matchedRuntime.path)) {
 				matchedRuntime.path = scannedJdkInfo.path;
 			} // else Keep if the original path is downloaded JDK path
 		} else {
@@ -297,22 +295,20 @@ async function scanJdk(
 
 /**
  * Downloads and installs a specific version of the JDK if it is not already installed.
- * @param context The extension context.
  * @param runtimes An array of installed Java runtimes.
  * @param majorVersion The major version of the JDK to download.
  * @param progress A progress object used to report the download and installation progress.
  * @returns A promise that resolves when the JDK is downloaded and installed.
  */
 async function downloadJdk(
-	context:vscode.ExtensionContext, 
 	runtimes:jdkauto.ConfigRuntime[],
 	majorVersion:number, 
 	progress:vscode.Progress<any>): Promise<void> {
 
 	const runtimeName = jdkauto.runtime.nameOf(majorVersion);
 	const matchedRuntime = runtimes.find(r => r.name === runtimeName);
-	if (matchedRuntime && jdkauto.runtime.isUserInstalled(matchedRuntime.path, context)) {
-		jdkauto.log(`No download ${majorVersion} (User installed)`);
+	if (matchedRuntime && jdkauto.runtime.isUserInstalled(matchedRuntime.path)) {
+		jdkauto.log.info(`No download ${majorVersion} (User installed)`);
 		return;
 	}
 
@@ -321,29 +317,29 @@ async function downloadJdk(
 	const response = await axios.get(`${URL_PREFIX}/latest`);
 	const redirectedUrl:string = response.request.res.responseUrl;
 	const fullVersion = redirectedUrl.replace(/.+tag\//, '');
-	const globalStorageDir = context.globalStorageUri.fsPath;
-	const downloadJdkDir = path.join(globalStorageDir, String(majorVersion));
+	const globalStoragePath = jdkauto.getGlobalStoragePath();
+	const downloadJdkDir = path.join(globalStoragePath, String(majorVersion));
 
 	// Check Version File
 	const versionFile = path.join(downloadJdkDir, 'version.txt');
 	const fullVersionOld = fs.existsSync(versionFile) ? fs.readFileSync(versionFile).toString() : null;
 	if (fullVersion === fullVersionOld && await jdkauto.runtime.isValidJdk(downloadJdkDir)) {
-		jdkauto.log(`No download ${majorVersion} (No updates)`);
+		jdkauto.log.info(`No download ${majorVersion} (No updates)`);
 		return;
 	}
 	const p1 = fullVersion.replace('+', '%2B');
 	const p2 = fullVersion.replace('+', '_').replace(/(jdk|-)/g, '');
 	const downloadUrlPrefix = `${URL_PREFIX}/download/${p1}/`;
-	const arch = jdkauto.os.archOf(majorVersion);
+	const arch = jdkauto.download.archOf(majorVersion);
 	const fileExt = jdkauto.os.isWindows ? 'zip' : 'tar.gz';
 	const fileName = `OpenJDK${majorVersion}U-jdk_${arch}_${p2}.${fileExt}`;
 	const downloadUrl = downloadUrlPrefix + fileName;
 	
 	// Download JDK
-	jdkauto.log('Downloading...', downloadUrl);
+	jdkauto.log.info('Downloading...', downloadUrl);
 	progress.report({ message: `JDK Auto: ${l10n.t('Downloading')} ${fullVersion}` });
-	if (!fs.existsSync(globalStorageDir)) {
-		fs.mkdirSync(globalStorageDir);
+	if (!fs.existsSync(globalStoragePath)) {
+		fs.mkdirSync(globalStoragePath);
 	}
 	const downloadedFile = downloadJdkDir + '_download_tmp.' + fileExt;
 	const writer = fs.createWriteStream(downloadedFile);
@@ -352,11 +348,11 @@ async function downloadJdk(
 	await promisify(stream.finished)(writer);
 
 	// Decompress JDK
-	jdkauto.log('Installing...', downloadedFile);
+	jdkauto.log.info('Installing...', downloadedFile);
 	progress.report({ message: `JDK Auto: ${l10n.t('Installing')} ${fullVersion}` });
 	jdkauto.rmSync(downloadJdkDir);
 	try {
-		await decompress(downloadedFile, globalStorageDir, {
+		await decompress(downloadedFile, globalStoragePath, {
 			map: file => {
 				file.path = file.path.replace(/^[^\/]+/, String(majorVersion));
 				if (jdkauto.os.isMac) {
@@ -366,10 +362,10 @@ async function downloadJdk(
 			}
 		});
 	} catch (e) {
-		jdkauto.log('Failed decompress: ' + e); // Validate below
+		jdkauto.log.info('Failed decompress: ' + e); // Validate below
 	}
 	if (!await jdkauto.runtime.isValidJdk(downloadJdkDir)) {
-		jdkauto.log('Invalid jdk directory:', downloadJdkDir);
+		jdkauto.log.info('Invalid jdk directory:', downloadJdkDir);
 		_.remove(runtimes, r => r.name === runtimeName);
 		return; // Silent
 	}
