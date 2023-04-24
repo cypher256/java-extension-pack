@@ -24,8 +24,8 @@ The JDKs are auto-configured for the current environment on VSCode startup as fo
 
 |Configuration Name|Issue|Configured Value|
 |---|---|---|
-|[java.jdt.ls.java.home](https://github.com/redhat-developer/vscode-java/wiki/JDK-Requirements#platform-versions)|[Issue](https://github.com/redhat-developer/vscode-java/issues?q=is%3Aissue+java.jdt.ls.java.home)|Set latest LTS if unset, Fix if unsupported old versions|
-|spring-boot.ls.java.home|[Issue](https://github.com/spring-projects/sts4/issues?q=is%3Aissue+spring-boot.ls.java.home)|Set latest LTS if unset, Fix if unsupported old versions|
+|[java.jdt.ls.java.home](https://github.com/redhat-developer/vscode-java/wiki/JDK-Requirements#platform-versions)|[Issue](https://github.com/redhat-developer/vscode-java/issues?q=is%3Aissue+java.jdt.ls.java.home)|Set latest LTS if unset, Fix if unsupported older version|
+|spring-boot.ls.java.home|[Issue](https://github.com/spring-projects/sts4/issues?q=is%3Aissue+spring-boot.ls.java.home)|Set latest LTS if unset, Fix if unsupported older version|
 |java.home||Delete due to deprecated entry|
 |[java.configuration.runtimes](https://code.visualstudio.com/docs/java/java-project#_configure-runtime-for-projects)|[Issue](https://github.com/redhat-developer/vscode-java/issues?q=is%3Aissue+java.configuration.runtimes)|Set all major JDKs scanned, detected, and downloaded|
 |[java.import.gradle.java.home](https://marketplace.visualstudio.com/items?itemName=vscjava.vscode-gradle#java-specific-settings)|[Issue](https://github.com/microsoft/vscode-gradle/issues?q=is%3Aissue+java.import.gradle.java.home)|Set default if unset (If not set java.jdt.ls.java.home)|
