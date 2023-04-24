@@ -25,7 +25,8 @@ export async function activate(context:vscode.ExtensionContext) {
 	jdkauto.log.info('JAVA_HOME', process.env.JAVA_HOME);
 	
 	const redhatVersions = jdkauto.runtime.getRedhatVersions();
-	const downloadLtsVersions = redhatVersions.filter(v => [8, 11].includes(v) || (v >= 17 && (v - 17) % 4 === 0));
+	const ltsFilter = (ver:number) => [8, 11].includes(ver) || (ver >= 17 && (ver - 17) % 4 === 0);
+	const downloadLtsVersions = redhatVersions.filter(ltsFilter).slice(-4);
 	const latestLtsVersion = _.last(downloadLtsVersions) ?? 0;
 	jdkauto.log.info('RedHat versions ' + redhatVersions);
 	jdkauto.log.info('Download Target LTS versions ' + downloadLtsVersions);
