@@ -90,6 +90,7 @@
     "axios": "1.x",
     "compare-versions": "^6.0.0-rc.1",
     "decompress": "^4.2.1",
+    "globby": "^11.1.0",
     "jdk-utils": "0.4.x",
     "lodash": "^4.17.21"
   }

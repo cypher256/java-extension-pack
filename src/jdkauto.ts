@@ -3,15 +3,21 @@
  * Copyright (c) Shinji Kashihara.
  */
 import * as vscode from 'vscode';
+import * as os from "os";
 import * as fs from 'fs';
 import * as path from 'path';
 import * as jdkutils from 'jdk-utils';
 import { compare } from 'compare-versions';
+//import { globby } from 'globby';
+import * as globby from 'globby';
 
 export namespace jdkauto {
 
 	export let context: vscode.ExtensionContext;
 	export const log: vscode.LogOutputChannel = vscode.window.createOutputChannel("JDK Auto", {log:true});
+	export const isWindows = process.platform === 'win32';
+	export const isMac = process.platform === 'darwin';
+	export const isLinux = process.platform === 'linux';
 
 	export function getGlobalStoragePath(): string {
 		if (!context) {throw new Error('context is not initialized');}
@@ -23,6 +29,25 @@ export namespace jdkauto {
 			fs.rmSync(path, {recursive: true, force: true});
 		} catch (e) {
 			jdkauto.log.info('Failed rmSync: ' + e);
+		}
+	}
+
+	export namespace download {
+
+		export const isTarget = isWindows || isMac || (isLinux && process.arch === 'x64');
+	
+		export function archOf(javaVersion: number): string {
+			if (isWindows) {
+				return 'x64_windows_hotspot';
+			} else if (isMac) {
+				if (process.arch === 'arm64' && javaVersion >= 11) {
+					return 'aarch64_mac_hotspot';
+				} else {
+					return 'x64_mac_hotspot';
+				}
+			} else {
+				return 'x64_linux_hotspot';
+			}
 		}
 	}
 
@@ -79,6 +104,25 @@ export namespace jdkauto {
 			}
 		}
 
+		export async function findRuntimes(): Promise<jdkutils.IJavaRuntime[]> {
+			const runtimes = await jdkutils.findRuntimes({ checkJavac: true, withVersion: true });
+			if (jdkauto.isWindows) {
+				log.info('1110');
+				// scoop e.g. C:\Users\<UserName>\scoop\apps\sapmachine18-jdk\18.0.2.1\bin
+				const SCOOP = process.env.SCOOP ?? path.join(os.homedir(), "scoop");
+				const SCOOP_APPS_DIR = path.posix.join(SCOOP, "apps");
+				log.info('1110', SCOOP_APPS_DIR);
+				for (const dir of await globby(path.posix.join(SCOOP_APPS_DIR, '*/*/bin/java.exe'))) {
+					log.info('1111', dir);
+				}
+			}
+			return runtimes;
+		}
+
+		export async function getRuntime(homedir: string): Promise<jdkutils.IJavaRuntime | undefined> {
+			return await jdkutils.getRuntime(homedir, { checkJavac: true, withVersion: true });
+		}
+
 		export async function isValidJdk(javaHome:string | undefined): Promise<boolean> {
 			if (!javaHome) {return false;}
 			const runtime = await jdkutils.getRuntime(javaHome, { checkJavac: true });
@@ -92,7 +136,7 @@ export namespace jdkauto {
 				if (await jdkauto.runtime.isValidJdk(p)) {return p;};
 				p = path.resolve(p, '..');
 			}
-			if (jdkauto.os.isMac) {
+			if (jdkauto.isMac) {
 				const contentsHome = path.join(originPath, 'Contents', 'Home');
 				if (await jdkauto.runtime.isValidJdk(contentsHome)) {return contentsHome;}
 				const home = path.join(originPath, 'Home');
@@ -100,31 +144,5 @@ export namespace jdkauto {
 			}
 			return defaultPath;
 		};
-	}
-
-	export namespace os {
-
-		export const isWindows = process.platform === 'win32';
-		export const isMac = process.platform === 'darwin';
-		export const isLinux = process.platform === 'linux';
-	}
-
-	export namespace download {
-
-		export const isTarget = os.isWindows || os.isMac || (os.isLinux && process.arch === 'x64');
-	
-		export function archOf(javaVersion: number): string {
-			if (os.isWindows) {
-				return 'x64_windows_hotspot';
-			} else if (os.isMac) {
-				if (process.arch === 'arm64' && javaVersion >= 11) {
-					return 'aarch64_mac_hotspot';
-				} else {
-					return 'x64_mac_hotspot';
-				}
-			} else {
-				return 'x64_linux_hotspot';
-			}
-		}
 	}
 }

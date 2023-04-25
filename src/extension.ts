@@ -7,7 +7,6 @@ import { l10n } from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as stream from 'stream';
-import * as jdkutils from 'jdk-utils';
 import * as _ from "lodash";
 import * as decompress from 'decompress';
 import axios from 'axios';
@@ -86,18 +85,8 @@ async function updateConfiguration(
 		updateConfig(CONFIG_KEY_DEPRECATED_JAVA_HOME, undefined);
 	}
 
-	// Project Runtimes Default (Keep if set)
-	const latestLtsRuntime = runtimes.find(r => r.name === jdkauto.runtime.nameOf(latestLtsVersion));
-	const isNoneDefault = runtimes.find(r => r.default) ? false : true;
-	if (isNoneDefault || !_.isEqual(runtimes, runtimesOld)) {
-		if (isNoneDefault && latestLtsRuntime) {
-			latestLtsRuntime.default = true;
-		}
-		runtimes.sort((a, b) => a.name.localeCompare(b.name));
-		updateConfig(jdkauto.runtime.CONFIG_KEY, runtimes);
-	}
-
 	// VSCode LS Java Home (Fix if unsupported old version)
+	const latestLtsRuntime = runtimes.find(r => r.name === jdkauto.runtime.nameOf(latestLtsVersion));
 	if (latestLtsRuntime) {
 		for (const CONFIG_KEY_LS_JAVA_HOME of ['java.jdt.ls.java.home', 'spring-boot.ls.java.home']) {
 			const originPath = config.get(CONFIG_KEY_LS_JAVA_HOME) as string;
@@ -108,7 +97,7 @@ async function updateConfiguration(
 				if (fixedPath) {
 					// RedHat LS minimum version check: REQUIRED_JDK_VERSION
 					// https://github.com/redhat-developer/vscode-java/blob/master/src/requirements.ts
-					const rt = await jdkutils.getRuntime(fixedPath, { checkJavac: true, withVersion: true });
+					const rt = await jdkauto.runtime.getRuntime(fixedPath);
 					if (!rt || !rt.hasJavac || !rt.version || rt.version.major < latestLtsVersion) {
 						updateConfig(CONFIG_KEY_LS_JAVA_HOME, latestLtsPath); // Fix unsupported old version
 					} else if (fixedPath !== originPath) {
@@ -123,6 +112,16 @@ async function updateConfiguration(
 				updateConfig(CONFIG_KEY_LS_JAVA_HOME, latestLtsPath); // if unset
 			}
 		}
+	}
+
+	// Project Runtimes Default (Keep if set)
+	const isNoneDefault = runtimes.find(r => r.default) ? false : true;
+	if (isNoneDefault || !_.isEqual(runtimes, runtimesOld)) {
+		if (isNoneDefault && latestLtsRuntime) {
+			latestLtsRuntime.default = true;
+		}
+		runtimes.sort((a, b) => a.name.localeCompare(b.name));
+		updateConfig(jdkauto.runtime.CONFIG_KEY, runtimes);
 	}
 
 	// Gradle Daemon Java Home (Fix if set), Note: If unset use java.jdt.ls.java.home
@@ -165,9 +164,9 @@ async function updateConfiguration(
 	// Terminal Default (Keep if set)
 	const setTerminalEnv = (javaHome: string, env: any) => {
 		env.JAVA_HOME = javaHome;
-		env.PATH = javaHome + (jdkauto.os.isWindows ? '\\bin;' : '/bin:') + '${env:PATH}';
+		env.PATH = javaHome + (jdkauto.isWindows ? '\\bin;' : '/bin:') + '${env:PATH}';
 	};
-	const osConfigName = jdkauto.os.isWindows ? 'windows' : jdkauto.os.isMac ? 'osx' : 'linux';
+	const osConfigName = jdkauto.isWindows ? 'windows' : jdkauto.isMac ? 'osx' : 'linux';
 	if (defaultRuntime) {
 		const CONFIG_KEY_TERMINAL_ENV = 'terminal.integrated.env.' + osConfigName;
 		const terminalDefault:any = config.get(CONFIG_KEY_TERMINAL_ENV) ?? {};
@@ -195,10 +194,10 @@ async function updateConfiguration(
 		const profile:any = _.cloneDeep(profilesOld[runtime.name]) ?? {}; // for isEqual
 		profile.overrideName = true;
 		profile.env ??= {};
-		if (jdkauto.os.isWindows) {
+		if (jdkauto.isWindows) {
 			profile.path ??= 'powershell';
 		} else {
-			if (jdkauto.os.isMac) {
+			if (jdkauto.isMac) {
 				profile.env.ZDOTDIR ??= jdkauto.getGlobalStoragePath(); // Disable .zshrc JAVA_HOME
 				profile.path ??= 'zsh';
 			} else {
@@ -242,9 +241,8 @@ async function scanJdk(
 	}
 	const latestMajorMap = new Map<number, JdkInfo>();
 	const redhatVersions = jdkauto.runtime.getRedhatVersions();
-	const scannedJavas = await jdkutils.findRuntimes({ checkJavac: true, withVersion: true });
 
-	for (const scannedJava of scannedJavas) {
+	for (const scannedJava of await jdkauto.runtime.findRuntimes()) {
 		const version = scannedJava.version;
 		const jreMessage = scannedJava.hasJavac ? '' : 'JRE ';
 		jdkauto.log.info(`Detected ${jreMessage}${version?.major} (${version?.java_version}) ${scannedJava.homedir}`);
@@ -332,7 +330,7 @@ async function downloadJdk(
 	const p2 = fullVersion.replace('+', '_').replace(/(jdk|-)/g, '');
 	const downloadUrlPrefix = `${URL_PREFIX}/download/${p1}/`;
 	const arch = jdkauto.download.archOf(majorVersion);
-	const fileExt = jdkauto.os.isWindows ? 'zip' : 'tar.gz';
+	const fileExt = jdkauto.isWindows ? 'zip' : 'tar.gz';
 	const fileName = `OpenJDK${majorVersion}U-jdk_${arch}_${p2}.${fileExt}`;
 	const downloadUrl = downloadUrlPrefix + fileName;
 	
@@ -356,7 +354,7 @@ async function downloadJdk(
 		await decompress(downloadedFile, globalStoragePath, {
 			map: file => {
 				file.path = file.path.replace(/^[^\/]+/, String(majorVersion));
-				if (jdkauto.os.isMac) {
+				if (jdkauto.isMac) {
 					file.path = file.path.replace(/^([0-9]+\/)Contents\/Home\//, '$1');
 				}
 				return file;
