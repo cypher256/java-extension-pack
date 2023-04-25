@@ -8,8 +8,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as jdkutils from 'jdk-utils';
 import { compare } from 'compare-versions';
-//import { globby } from 'globby';
-import * as globby from 'globby';
+import { glob } from 'glob-latest';
 
 export namespace jdkauto {
 
@@ -107,13 +106,17 @@ export namespace jdkauto {
 		export async function findRuntimes(): Promise<jdkutils.IJavaRuntime[]> {
 			const runtimes = await jdkutils.findRuntimes({ checkJavac: true, withVersion: true });
 			if (jdkauto.isWindows) {
-				log.info('1110');
-				// scoop e.g. C:\Users\<UserName>\scoop\apps\sapmachine18-jdk\18.0.2.1\bin
+				// scoop e.g.
+				// C:\Users\<UserName>\scoop\apps\sapmachine18-jdk\18.0.2.1\bin
+				//      C:\ProgramData\scoop\apps\sapmachine18-jdk\18.0.2.1\bin
 				const SCOOP = process.env.SCOOP ?? path.join(os.homedir(), "scoop");
-				const SCOOP_APPS_DIR = path.posix.join(SCOOP, "apps");
-				log.info('1110', SCOOP_APPS_DIR);
-				for (const dir of await globby(path.posix.join(SCOOP_APPS_DIR, '*/*/bin/java.exe'))) {
-					log.info('1111', dir);
+				const SCOOP_GLOBAL = process.env.SCOOP_GLOBAL ?? path.join(process.env.ProgramData ?? '', "scoop");
+				const dirs = [SCOOP, SCOOP_GLOBAL].map(s => path.join(s, 'apps/*/*/bin/java.exe').replace(/\\/g, '/'));
+				for (const dir of await glob(dirs)) {
+					const runtime = await getRuntime(path.join(dir, '..', '..'));
+					if (runtime) {
+						runtimes.push(runtime);
+					}
 				}
 			}
 			return runtimes;
