@@ -106,13 +106,13 @@ export namespace jdkauto {
 		export async function findRuntimes(): Promise<jdkutils.IJavaRuntime[]> {
 			const runtimes = await jdkutils.findRuntimes({ checkJavac: true, withVersion: true });
 			if (jdkauto.isWindows) {
-				// scoop e.g.
+				// Scoop e.g.
 				// C:\Users\<UserName>\scoop\apps\sapmachine18-jdk\18.0.2.1\bin
 				//      C:\ProgramData\scoop\apps\sapmachine18-jdk\18.0.2.1\bin
 				const SCOOP = process.env.SCOOP ?? path.join(os.homedir(), "scoop");
 				const SCOOP_GLOBAL = process.env.SCOOP_GLOBAL ?? path.join(process.env.ProgramData ?? '', "scoop");
 				const dirs = [SCOOP, SCOOP_GLOBAL].map(s => path.join(s, 'apps/*/*/bin/java.exe').replace(/\\/g, '/'));
-				for (const dir of await glob(dirs)) {
+				for (const dir of await glob(dirs, {ignore: '**/current/**'})) {
 					const runtime = await getRuntime(path.join(dir, '..', '..'));
 					if (runtime) {
 						runtimes.push(runtime);

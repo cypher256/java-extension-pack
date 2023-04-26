@@ -56,7 +56,7 @@ export async function activate(context:vscode.ExtensionContext) {
 	
 			} catch (e:any) {
 				let message = `JDK download failed. ${e.request?.path ?? ''} ${e.message ?? e}`;
-				jdkauto.log.info(message, e); // Silent offline, 404 (building), etc.
+				jdkauto.log.info(message, e); // Silent: offline, 404 building, 503 proxy auth error, etc.
 			}
 			jdkauto.log.info('activate END');
 		});

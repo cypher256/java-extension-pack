@@ -6,7 +6,7 @@
 ![](https://img.shields.io/visual-studio-marketplace/i/Pleiades.java-extension-pack-jdk?color=blue)
 ![](https://img.shields.io/visual-studio-marketplace/last-updated/Pleiades.java-extension-pack-jdk?color=orange)
 
-There is no need to manually install the JDK or set the JAVA_HOME environment variables. It also includes extensions that most Java developers need, such as Maven, Gradle, Spring, Lombok, and Tomcat start/stop, and usually does not require additional Java extensions.
+There is no need to manually install the JDK or set the JAVA_HOME environment variables. It also comes pre-included with extensions that most Java developers need, such as Maven, Gradle, Spring, Lombok, and Tomcat start/stop, so you can start developing right out of the box with zero configuration.
 <br>
 <br>
 
@@ -31,7 +31,7 @@ The JDKs are auto-configured for the current environment on VSCode startup as fo
 |[java.import.gradle.java.home](https://marketplace.visualstudio.com/items?itemName=vscjava.vscode-gradle#java-specific-settings)|[Issues](https://github.com/microsoft/vscode-gradle/issues?q=is%3Aissue+java.import.gradle.java.home)|Set default if unset (This > java.jdt.ls.java.home)|
 |[maven.terminal.customEnv](https://marketplace.visualstudio.com/items?itemName=vscjava.vscode-maven#additional-configurations)|[Issues](https://github.com/microsoft/vscode-maven/issues?q=is%3Aissue+maven.terminal.customEnv)|Set default if JAVA_HOME environment variable unset (This > JAVA_HOME)|
 
-(*) A runtime for VSCode extensions. Not for building and running projects.
+(*) The language server runtime used by VSCode extensions. Not for building and running projects.
 <br>
 <br>
 
@@ -49,7 +49,7 @@ Auto-download is supported on the following platforms:
 
 <br>
 
-#### e.g. Auto-configured User settings.json (Runtime for VSCode extension)
+#### e.g. Auto-configured User settings.json (For VSCode extensions)
 ```json
 // JDT Language Server
 "java.jdt.ls.java.home": "c:\\Program Files\\java\\jdk-17.0.6",
@@ -97,7 +97,7 @@ Auto-download is supported on the following platforms:
 <br>
 
 ## Terminal Auto-configuration
-Terminal profiles are defined based on configured runtimes, so you can easily open a terminal by selecting the Java version from the terminal dropdown.
+Terminal profiles are defined based on configured runtimes, so you can easily open a terminal by selecting the Java version from the terminal dropdown. The configured environment variables do not affect the OS, so the OS environment remains clean.
 <br><p>
 ![Switch Java Version](https://raw.githubusercontent.com/cypher256/java-extension-pack/main/image/terminal.png)
 </p>
@@ -143,15 +143,25 @@ Terminal profiles are defined based on configured runtimes, so you can easily op
 
 # Extension Pack for Java Features
 The configured JDKs are available in the "Extension Pack for Java" feature below included in this extension. To see which JDKs are used for your projects in multi-root workspaces, you can trigger the command `Configure Java Runtime` in Command Palette.
-<br>
-<p><img src="https://code.visualstudio.com/assets/docs/java/java-project/configure-project-runtime.png" style="max-width:600px"></p>
+<br><p>
+![xConfigure Java Runtimexx](https://code.visualstudio.com/assets/docs/java/java-project/configure-project-runtime.png)
+</p>
 
 ### Change JDK for Gradle and Maven projects
 If you want to change the JDK version for your Gradle or Maven projects, you need to update it in your build scripts (build.gradle or pom.xml). You can click ⓘ to see how to make such changes. Click 🖊 will navigate to the build script file of the project.
 <br>
 
 ### Change JDK for unmanaged folders
-To change the JDK for unmanaged folders (with out any build tools), you can click the 🖊 button. It will list all the JDKs and you can select one for your unmanaged folders.
+To change the JDK for unmanaged folders (with out any build tools), you can click the 🖊 button. It will list all the JDKs and you can select one for your unmanaged folders. This changes the default for "java.configuration.runtimes". It is not possible to use different Java versions in multiple unmanaged folders within the same workspace.
+<br>
+<br>
+
+## Servers View
+Community Server Connectors features.
+<p>
+
+![Servers View](https://raw.githubusercontent.com/cypher256/java-extension-pack/main/image/servers.jpg)
+</p>
 <br>
 <br>
 <br>
