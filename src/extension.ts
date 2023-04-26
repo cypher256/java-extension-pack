@@ -11,7 +11,8 @@ import * as _ from "lodash";
 import * as decompress from 'decompress';
 import axios from 'axios';
 import { promisify } from 'util';
-import { jdkauto } from './jdkauto';
+import * as jdkauto from './jdkauto';
+import { log } from './jdkauto';
 
 /**
  * Activates the extension.
@@ -19,16 +20,16 @@ import { jdkauto } from './jdkauto';
  */
 export async function activate(context:vscode.ExtensionContext) {
 
-	jdkauto.context = context;
-	jdkauto.log.info('activate START', jdkauto.getGlobalStoragePath());
-	jdkauto.log.info('JAVA_HOME', process.env.JAVA_HOME);
+	jdkauto.init(context);
+	log.info('activate START', jdkauto.getGlobalStoragePath());
+	log.info('JAVA_HOME', process.env.JAVA_HOME);
 	
 	const redhatVersions = jdkauto.runtime.getRedhatVersions();
 	const ltsFilter = (ver:number) => [8, 11].includes(ver) || (ver >= 17 && (ver - 17) % 4 === 0);
 	const downloadLtsVersions = redhatVersions.filter(ltsFilter).slice(-4);
 	const latestLtsVersion = _.last(downloadLtsVersions) ?? 0;
-	jdkauto.log.info('RedHat versions ' + redhatVersions);
-	jdkauto.log.info('Download Target LTS versions ' + downloadLtsVersions);
+	log.info('RedHat versions ' + redhatVersions);
+	log.info('Download Target LTS versions ' + downloadLtsVersions);
 	const config = vscode.workspace.getConfiguration();
 	const runtimes:jdkauto.ConfigRuntime[] = config.get(jdkauto.runtime.CONFIG_KEY) ?? [];
 
@@ -41,7 +42,7 @@ export async function activate(context:vscode.ExtensionContext) {
 	} catch (e:any) {
 		let message = `JDK scan failed. ${e.message ?? e}`;
 		vscode.window.showErrorMessage(message);
-		jdkauto.log.warn(message, e);
+		log.warn(message, e);
 	}
 
 	// Download JDK
@@ -56,9 +57,9 @@ export async function activate(context:vscode.ExtensionContext) {
 	
 			} catch (e:any) {
 				let message = `JDK download failed. ${e.request?.path ?? ''} ${e.message ?? e}`;
-				jdkauto.log.info(message, e); // Silent: offline, 404 building, 503 proxy auth error, etc.
+				log.info(message, e); // Silent: offline, 404 building, 503 proxy auth error, etc.
 			}
-			jdkauto.log.info('activate END');
+			log.info('activate END');
 		});
 	}
 }
@@ -78,7 +79,7 @@ async function updateConfiguration(
 	const config = vscode.workspace.getConfiguration();
 	const updateConfig = (section:string, value:any) => {
 		config.update(section, value, vscode.ConfigurationTarget.Global);
-		jdkauto.log.info('Updated config:', section, _.isString(value) ? value : '');
+		log.info('Updated config:', section, _.isString(value) ? value : '');
 	};
 	const CONFIG_KEY_DEPRECATED_JAVA_HOME = 'java.home';
 	if (config.get(CONFIG_KEY_DEPRECATED_JAVA_HOME) !== null) {
@@ -227,10 +228,10 @@ async function scanJdk(
 		const originPath = runtimes[i].path;
 		const fixedPath = await jdkauto.runtime.fixPath(originPath);
 		if (!fixedPath) {
-			jdkauto.log.info(`Remove ${originPath}`);
+			log.info(`Remove ${originPath}`);
 			runtimes.splice(i, 1);
 		} else if (fixedPath !== originPath) {
-			jdkauto.log.info(`Fix\n   ${originPath}\n-> ${fixedPath}`);
+			log.info(`Fix\n   ${originPath}\n-> ${fixedPath}`);
 			runtimes[i].path = fixedPath;
 		}
 	}
@@ -245,7 +246,7 @@ async function scanJdk(
 	for (const scannedJava of await jdkauto.runtime.findRuntimes()) {
 		const version = scannedJava.version;
 		const jreMessage = scannedJava.hasJavac ? '' : 'JRE ';
-		jdkauto.log.info(`Detected ${jreMessage}${version?.major} (${version?.java_version}) ${scannedJava.homedir}`);
+		log.info(`Detected ${jreMessage}${version?.major} (${version?.java_version}) ${scannedJava.homedir}`);
 		if (!version || !scannedJava.hasJavac) {
 			continue;
 		}
@@ -269,7 +270,7 @@ async function scanJdk(
 		}
 		let downloadJdkDir = path.join(jdkauto.getGlobalStoragePath(), String(major));
 		if (await jdkauto.runtime.isValidJdk(downloadJdkDir)) {
-			jdkauto.log.info(`Detected ${major} Auto-downloaded JDK`);
+			log.info(`Detected ${major} Auto-downloaded JDK`);
 			latestMajorMap.set(major, {
 				fullVersion: '',
 				name: jdkauto.runtime.nameOf(major),
@@ -307,7 +308,7 @@ async function downloadJdk(
 	const runtimeName = jdkauto.runtime.nameOf(majorVersion);
 	const matchedRuntime = runtimes.find(r => r.name === runtimeName);
 	if (matchedRuntime && jdkauto.runtime.isUserInstalled(matchedRuntime.path)) {
-		jdkauto.log.info(`No download ${majorVersion} (User installed)`);
+		log.info(`No download ${majorVersion} (User installed)`);
 		return;
 	}
 
@@ -323,7 +324,7 @@ async function downloadJdk(
 	const versionFile = path.join(downloadJdkDir, 'version.txt');
 	const fullVersionOld = fs.existsSync(versionFile) ? fs.readFileSync(versionFile).toString() : null;
 	if (fullVersion === fullVersionOld && await jdkauto.runtime.isValidJdk(downloadJdkDir)) {
-		jdkauto.log.info(`No download ${majorVersion} (No updates)`);
+		log.info(`No download ${majorVersion} (No updates)`);
 		return;
 	}
 	const p1 = fullVersion.replace('+', '%2B');
@@ -335,7 +336,7 @@ async function downloadJdk(
 	const downloadUrl = downloadUrlPrefix + fileName;
 	
 	// Download JDK
-	jdkauto.log.info('Downloading...', downloadUrl);
+	log.info('Downloading...', downloadUrl);
 	progress.report({ message: `JDK Auto: ${l10n.t('Downloading')} ${fullVersion}` });
 	if (!fs.existsSync(globalStoragePath)) {
 		fs.mkdirSync(globalStoragePath);
@@ -347,7 +348,7 @@ async function downloadJdk(
 	await promisify(stream.finished)(writer);
 
 	// Decompress JDK
-	jdkauto.log.info('Installing...', downloadedFile);
+	log.info('Installing...', downloadedFile);
 	progress.report({ message: `JDK Auto: ${l10n.t('Installing')} ${fullVersion}` });
 	jdkauto.rmSync(downloadJdkDir);
 	try {
@@ -361,10 +362,10 @@ async function downloadJdk(
 			}
 		});
 	} catch (e) {
-		jdkauto.log.info('Failed decompress: ' + e); // Validate below
+		log.info('Failed decompress: ' + e); // Validate below
 	}
 	if (!await jdkauto.runtime.isValidJdk(downloadJdkDir)) {
-		jdkauto.log.info('Invalid jdk directory:', downloadJdkDir);
+		log.info('Invalid jdk directory:', downloadJdkDir);
 		_.remove(runtimes, r => r.name === runtimeName);
 		return; // Silent
 	}

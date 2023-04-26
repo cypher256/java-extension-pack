@@ -169,6 +169,8 @@ Community Server Connectors features.
 # License
 - MIT (c) WILL Shinji Kashihara (cypher256)
 - Adoptium JDK: https://adoptium.net/docs/faq/
+<br>
+<br>
 
 # Extensions Included
 
