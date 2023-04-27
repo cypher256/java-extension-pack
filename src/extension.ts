@@ -92,7 +92,6 @@ async function updateConfiguration(
 		for (const CONFIG_KEY_LS_JAVA_HOME of [
 			// Reload dialog appears when changes
 			'java.jdt.ls.java.home',
-			'xml.java.home',
 			// No dialog
 			'spring-boot.ls.java.home',
 			'rsp-ui.rsp.java.home',
