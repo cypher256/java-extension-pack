@@ -98,7 +98,6 @@ async function updateConfiguration(
 		]) {
 			const originPath = config.get<string>(CONFIG_KEY_LS_JAVA_HOME);
 			const latestLtsPath = latestLtsRuntime.path;
-			// Dialog will appear if JDT LS changed
 			if (originPath) {
 				const fixedPath = await jdkauto.runtime.fixPath(originPath);
 				if (fixedPath) {
