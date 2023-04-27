@@ -26,12 +26,12 @@ export async function activate(context:vscode.ExtensionContext) {
 	
 	const redhatVersions = jdkauto.runtime.getRedhatVersions();
 	const ltsFilter = (ver:number) => [8, 11].includes(ver) || (ver >= 17 && (ver - 17) % 4 === 0);
-	const downloadLtsVersions = redhatVersions.filter(ltsFilter).slice(-4);
-	const latestLtsVersion = _.last(downloadLtsVersions) ?? 0;
+	const targetLtsVersions = redhatVersions.filter(ltsFilter).slice(-4);
+	const latestLtsVersion = _.last(targetLtsVersions) ?? 0;
 	log.info('RedHat versions ' + redhatVersions);
-	log.info('Download Target LTS versions ' + downloadLtsVersions);
+	log.info('Target LTS versions ' + targetLtsVersions);
 	const config = vscode.workspace.getConfiguration();
-	const runtimes:jdkauto.ConfigRuntime[] = config.get(jdkauto.runtime.CONFIG_KEY) ?? [];
+	const runtimes:jdkauto.ConfigRuntime[] = config.get(jdkauto.runtime.CONFIG_KEY, []);
 
 	// Scan JDK
 	try {
@@ -46,11 +46,11 @@ export async function activate(context:vscode.ExtensionContext) {
 	}
 
 	// Download JDK
-	if (jdkauto.download.isTarget) {
+	if (jdkauto.download.isTarget && targetLtsVersions.length > 0) {
 		vscode.window.withProgress({location: vscode.ProgressLocation.Window}, async progress => {
 			try {
 				const runtimesOld = _.cloneDeep(runtimes);
-				const downloadVersions = _.uniq([...downloadLtsVersions, _.last(redhatVersions) ?? 0]);
+				const downloadVersions = _.uniq([...targetLtsVersions, _.last(redhatVersions) ?? 0]);
 				const promiseArray = downloadVersions.map(v => downloadJdk(runtimes, v, progress));
 				await Promise.all(promiseArray);
 				await updateConfiguration(runtimes, runtimesOld, latestLtsVersion);
@@ -89,8 +89,15 @@ async function updateConfiguration(
 	// VSCode LS Java Home (Fix if unsupported old version)
 	const latestLtsRuntime = runtimes.find(r => r.name === jdkauto.runtime.nameOf(latestLtsVersion));
 	if (latestLtsRuntime) {
-		for (const CONFIG_KEY_LS_JAVA_HOME of ['java.jdt.ls.java.home', 'spring-boot.ls.java.home']) {
-			const originPath = config.get(CONFIG_KEY_LS_JAVA_HOME) as string;
+		for (const CONFIG_KEY_LS_JAVA_HOME of [
+			// Reload dialog appears when changes
+			'java.jdt.ls.java.home',
+			'xml.java.home',
+			// No dialog
+			'spring-boot.ls.java.home',
+			'rsp-ui.rsp.java.home',
+		]) {
+			const originPath = config.get<string>(CONFIG_KEY_LS_JAVA_HOME);
 			const latestLtsPath = latestLtsRuntime.path;
 			// Dialog will appear if JDT LS changed
 			if (originPath) {
@@ -129,7 +136,7 @@ async function updateConfiguration(
 	const defaultRuntime = runtimes.find(r => r.default);
 	if (defaultRuntime) {
 		const CONFIG_KEY_GRADLE_JAVA_HOME = 'java.import.gradle.java.home';
-		const originPath = config.get(CONFIG_KEY_GRADLE_JAVA_HOME) as string;
+		const originPath = config.get<string>(CONFIG_KEY_GRADLE_JAVA_HOME);
 		if (originPath) {
 			const fixedPath = await jdkauto.runtime.fixPath(originPath, defaultRuntime.path);
 			if (fixedPath && fixedPath !== originPath) {
@@ -144,7 +151,7 @@ async function updateConfiguration(
 	const isValidEnvJavaHome = await jdkauto.runtime.isValidJdk(process.env.JAVA_HOME);
 	if (defaultRuntime) {
 		const CONFIG_KEY_MAVEN_CUSTOM_ENV = 'maven.terminal.customEnv';
-		const customEnv:any[] = config.get(CONFIG_KEY_MAVEN_CUSTOM_ENV) ?? [];
+		const customEnv:any[] = config.get(CONFIG_KEY_MAVEN_CUSTOM_ENV, []);
 		let mavenJavaHome = customEnv.find(i => i.environmentVariable === 'JAVA_HOME');
 		const updateMavenJavaHome = (newPath: string) => {
 			mavenJavaHome.value = newPath;
@@ -166,11 +173,14 @@ async function updateConfiguration(
 	const setTerminalEnv = (javaHome: string, env: any) => {
 		env.JAVA_HOME = javaHome;
 		env.PATH = javaHome + (jdkauto.isWindows ? '\\bin;' : '/bin:') + '${env:PATH}';
+		if (jdkauto.isMac) {
+			env.ZDOTDIR ??= jdkauto.getGlobalStoragePath(); // Disable .zshrc JAVA_HOME
+		}
 	};
 	const osConfigName = jdkauto.isWindows ? 'windows' : jdkauto.isMac ? 'osx' : 'linux';
 	if (defaultRuntime) {
 		const CONFIG_KEY_TERMINAL_ENV = 'terminal.integrated.env.' + osConfigName;
-		const terminalDefault:any = config.get(CONFIG_KEY_TERMINAL_ENV) ?? {};
+		const terminalDefault:any = config.get(CONFIG_KEY_TERMINAL_ENV, {});
 		const updateTerminalConfig = (newPath: string) => {
 			setTerminalEnv(newPath, terminalDefault);
 			updateConfig(CONFIG_KEY_TERMINAL_ENV, terminalDefault);
@@ -194,18 +204,13 @@ async function updateConfiguration(
 	for (const runtime of runtimes) {
 		const profile:any = _.cloneDeep(profilesOld[runtime.name]) ?? {}; // for isEqual
 		profile.overrideName = true;
-		profile.env ??= {};
 		if (jdkauto.isWindows) {
 			profile.path ??= 'powershell';
 		} else {
-			if (jdkauto.isMac) {
-				profile.env.ZDOTDIR ??= jdkauto.getGlobalStoragePath(); // Disable .zshrc JAVA_HOME
-				profile.path ??= 'zsh';
-			} else {
-				profile.path ??= 'bash';
-			}
+			profile.path ??= jdkauto.isMac ? 'zsh' : 'bash';
 			profile.args ??= ['-l'];
 		}
+		profile.env ??= {};
 		setTerminalEnv(runtime.path, profile.env);
 		profilesNew[runtime.name] = profile;
 	}
@@ -224,8 +229,15 @@ async function scanJdk(
 	runtimes:jdkauto.ConfigRuntime[]) {
 
 	// Fix JDK path
+	const redhatNames = jdkauto.runtime.getRedhatNames();
 	for (let i = runtimes.length - 1; i >= 0; i--) { // Decrement for splice
-		const originPath = runtimes[i].path;
+		const runtime = runtimes[i];
+		if (redhatNames.length > 0 && !redhatNames.includes(runtime.name)) {
+			log.info(`Remove unsupported name ${runtime.name}`);
+			runtimes.splice(i, 1);
+			continue;
+		}
+		const originPath = runtime.path;
 		const fixedPath = await jdkauto.runtime.fixPath(originPath);
 		if (!fixedPath) {
 			log.info(`Remove ${originPath}`);
