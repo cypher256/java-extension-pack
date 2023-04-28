@@ -24,13 +24,13 @@ The JDKs are auto-configured for the current environment on VSCode startup as fo
 
 |Configuration Name|Issues|Configured Value|
 |---|---|---|
-|(*1) [java.jdt.ls.java.home](https://github.com/redhat-developer/vscode-java/wiki/JDK-Requirements#platform-versions)|[Issues](https://github.com/redhat-developer/vscode-java/issues?q=is%3Aissue+java.jdt.ls.java.home)|Latest LTS (*2) (This > JDK_HOME > JAVA_HOME > PATH)|
-|(*1) [spring-boot.ls.java.home](https://github.com/spring-projects/sts4/blob/main/vscode-extensions/vscode-spring-boot/lib/Main.ts#L30)|[Issues](https://github.com/spring-projects/sts4/issues?q=is%3Aissue+spring-boot.ls.java.home)|Latest LTS (*2) (This > JAVA_HOME > PATH)|
-|(*1) [rsp-ui.rsp.java.home](https://github.com/redhat-developer/vscode-rsp-ui#extension-settings)|[Issues](https://github.com/redhat-developer/vscode-rsp-ui/issues?q=is%3Aissue+rsp-ui.rsp.java.home)|Latest LTS (*2) (This > JDK_HOME > JAVA_HOME> Windows Registry > PATH)|
+|(*1) [java.jdt.ls.java.home](https://github.com/redhat-developer/vscode-java/wiki/JDK-Requirements#platform-versions)|[Issues](https://github.com/redhat-developer/vscode-java/issues?q=is%3Aissue+java.jdt.ls.java.home)|Latest LTS (*2)<br>(Setting > JDK_HOME > JAVA_HOME > PATH)|
+|(*1) [spring-boot.ls.java.home](https://github.com/spring-projects/sts4/blob/main/vscode-extensions/vscode-spring-boot/lib/Main.ts#L30)|[Issues](https://github.com/spring-projects/sts4/issues?q=is%3Aissue+spring-boot.ls.java.home)|Latest LTS (*2)<br>(Setting > JAVA_HOME > PATH)|
+|(*1) [rsp-ui.rsp.java.home](https://github.com/redhat-developer/vscode-rsp-ui#extension-settings)|[Issues](https://github.com/redhat-developer/vscode-rsp-ui/issues?q=is%3Aissue+rsp-ui.rsp.java.home)|Latest LTS (*2)<br>(Setting > JDK_HOME > JAVA_HOME> Windows Registry > PATH)|
 |[java.home](https://github.com/redhat-developer/vscode-java/wiki/JDK-Requirements#universal-version)||Delete due to deprecated entry|
-|[java.configuration.runtimes](https://code.visualstudio.com/docs/java/java-project#_configure-runtime-for-projects)|[Issues](https://github.com/redhat-developer/vscode-java/issues?q=is%3Aissue+java.configuration.runtimes)|Set all major JDKs scanned, detected, and downloaded (This > JAVA_HOME)|
-|[java.import.gradle.java.home](https://marketplace.visualstudio.com/items?itemName=vscjava.vscode-gradle#java-specific-settings)|[Issues](https://github.com/microsoft/vscode-gradle/issues?q=is%3Aissue+java.import.gradle.java.home)|Set default if unset (This > java.jdt.ls.java.home)|
-|[maven.terminal.customEnv](https://marketplace.visualstudio.com/items?itemName=vscjava.vscode-maven#additional-configurations)|[Issues](https://github.com/microsoft/vscode-maven/issues?q=is%3Aissue+maven.terminal.customEnv)|Set default if JAVA_HOME environment variable unset (This > JAVA_HOME)|
+|[java.configuration.runtimes](https://code.visualstudio.com/docs/java/java-project#_configure-runtime-for-projects)|[Issues](https://github.com/redhat-developer/vscode-java/issues?q=is%3Aissue+java.configuration.runtimes)|Set all major JDKs scanned, detected, and downloaded<br>(Setting > JAVA_HOME)|
+|[java.import.gradle.java.home](https://marketplace.visualstudio.com/items?itemName=vscjava.vscode-gradle#java-specific-settings)|[Issues](https://github.com/microsoft/vscode-gradle/issues?q=is%3Aissue+java.import.gradle.java.home)|Set default if unset<br>(Setting > java.jdt.ls.java.home)|
+|[maven.terminal.customEnv](https://marketplace.visualstudio.com/items?itemName=vscjava.vscode-maven#additional-configurations)|[Issues](https://github.com/microsoft/vscode-maven/issues?q=is%3Aissue+maven.terminal.customEnv)|Set default if JAVA_HOME environment variable unset<br>(Setting > JAVA_HOME)|
 
 (*1) The language server runtime used by VSCode extensions. Not for building and running projects.<br>
 (*2) Set latest LTS if unset, Fix if unsupported older version.
@@ -51,7 +51,8 @@ Up to 4 LTSs and the [latest available non-LTS](https://marketplace.visualstudio
 
 <br>
 
-#### e.g. Auto-configured User settings.json (For VSCode extensions)
+#### e.g. Auto-configured User settings.json
+Command Palette: `Open User Settings (JSON)`
 ```json
 // JDT Language Server
 "java.jdt.ls.java.home": "c:\\Program Files\\java\\jdk-17.0.6",
@@ -60,7 +61,6 @@ Up to 4 LTSs and the [latest available non-LTS](https://marketplace.visualstudio
 // Runtime Server Protocol Server (Not AP server VM)
 "rsp-ui.rsp.java.home": "c:\\Program Files\\java\\jdk-17.0.6",
 ```
-#### e.g. Auto-configured User settings.json (For building and running projects)
 ```json
 // Project Runtimes
 "java.configuration.runtimes": [
@@ -108,10 +108,11 @@ Terminal profiles are defined based on configured runtimes, so you can easily op
 
 |Configuration Name|Issues|Configured Value|
 |---|---|---|
-|[terminal.integrated.env.*](https://code.visualstudio.com/docs/terminal/profiles#_configuring-profiles)|[Issues](https://github.com/microsoft/vscode/issues?q=is%3Aissue+terminal.integrated.env+JAVA_HOME)|Set default if JAVA_HOME environment variable unset (This > JAVA_HOME)|
+|[terminal.integrated.env.*](https://code.visualstudio.com/docs/terminal/profiles#_configuring-profiles)|[Issues](https://github.com/microsoft/vscode/issues?q=is%3Aissue+terminal.integrated.env+JAVA_HOME)|Set default if JAVA_HOME environment variable unset<br>(Setting > JAVA_HOME)|
 |[terminal.integrated.profiles.*](https://code.visualstudio.com/docs/terminal/profiles)|[Issues](https://github.com/microsoft/vscode/issues?q=is%3Aissue+terminal.integrated.profiles)|Set configured runtimes to terminal|
 
 #### e.g. Auto-configured User settings.json
+Command Palette: `Open User Settings (JSON)`
 ```json
 // Terminal Default Environment Variables
 "terminal.integrated.env.windows": {
