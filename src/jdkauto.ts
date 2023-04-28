@@ -49,7 +49,7 @@ export namespace download {
 	}
 }
 
-export interface ConfigRuntime {
+export interface IConfigRuntime {
 	name: string;
 	path: string;
 	default?: boolean;

@@ -33,7 +33,7 @@ export async function activate(context:vscode.ExtensionContext) {
 	log.info('RedHat versions ' + redhatVersions);
 	log.info('Target LTS versions ' + targetLtsVersions);
 	const config = vscode.workspace.getConfiguration();
-	const runtimes:jdkauto.ConfigRuntime[] = config.get(jdkauto.runtime.CONFIG_KEY, []);
+	const runtimes:jdkauto.IConfigRuntime[] = config.get(jdkauto.runtime.CONFIG_KEY, []);
 
 	// Scan JDK
 	try {
@@ -74,8 +74,8 @@ export async function activate(context:vscode.ExtensionContext) {
  * @returns A promise that resolves when the configuration has been updated.
  */
 async function updateConfiguration(
-	runtimes:jdkauto.ConfigRuntime[], 
-	runtimesOld:jdkauto.ConfigRuntime[],
+	runtimes:jdkauto.IConfigRuntime[], 
+	runtimesOld:jdkauto.IConfigRuntime[],
 	latestLtsVersion:number) {
 
 	const config = vscode.workspace.getConfiguration();
@@ -105,8 +105,8 @@ async function updateConfiguration(
 				if (fixedPath) {
 					// RedHat LS minimum version check: REQUIRED_JDK_VERSION
 					// https://github.com/redhat-developer/vscode-java/blob/master/src/requirements.ts
-					const rt = await jdkstore.getRuntime(fixedPath);
-					if (!rt || !rt.hasJavac || !rt.version || rt.version.major < latestLtsVersion) {
+					const jdk = await jdkstore.getJdk(fixedPath);
+					if (!jdk || jdk.majorVersion < latestLtsVersion) {
 						updateConfig(CONFIG_KEY_LS_JAVA_HOME, latestLtsPath); // Fix unsupported old version
 					} else if (fixedPath !== originPath) {
 						updateConfig(CONFIG_KEY_LS_JAVA_HOME, fixedPath); // Fix invalid
@@ -226,7 +226,7 @@ async function updateConfiguration(
  * @returns Promise that resolves when the JDK scan and runtime update is complete.
  */
 async function scanJdk(
-	runtimes:jdkauto.ConfigRuntime[]) {
+	runtimes:jdkauto.IConfigRuntime[]) {
 
 	// Fix JDK path
 	const redhatNames = jdkauto.runtime.getRedhatNames();
@@ -249,29 +249,17 @@ async function scanJdk(
 	}
 
 	// Scan User Installed JDK
-	interface JdkInfo extends jdkauto.ConfigRuntime {
-		fullVersion: string;
-	}
-	const latestMajorMap = new Map<number, JdkInfo>();
+	const latestMajorMap = new Map<number, jdkstore.IJdk>();
 	const redhatVersions = jdkauto.runtime.getRedhatVersions();
 
-	for (const scannedJava of await jdkstore.findRuntimes()) {
-		const version = scannedJava.version;
-		const jreMessage = scannedJava.hasJavac ? '' : 'JRE ';
-		log.info(`Detected ${jreMessage}${version?.major} (${version?.java_version}) ${scannedJava.homedir}`);
-		if (!version || !scannedJava.hasJavac) {
+	for (const scannedJdk of await jdkstore.findJdks()) {
+		log.info(`Detected ${scannedJdk.majorVersion} (${scannedJdk.fullVersion}) ${scannedJdk.homePath}`);
+		if (!redhatVersions.includes(scannedJdk.majorVersion)) {
 			continue;
 		}
-		if (!redhatVersions.includes(version.major)) {
-			continue;
-		}
-		const latestJdk = latestMajorMap.get(version.major);
-		if (!latestJdk || jdkauto.runtime.isNewLeft(version.java_version, latestJdk.fullVersion)) {
-			latestMajorMap.set(version.major, {
-				fullVersion: version.java_version,
-				name: jdkauto.runtime.nameOf(version.major),
-				path: scannedJava.homedir,
-			});
+		const latestJdk = latestMajorMap.get(scannedJdk.majorVersion);
+		if (!latestJdk || jdkauto.runtime.isNewLeft(scannedJdk.fullVersion, latestJdk.fullVersion)) {
+			latestMajorMap.set(scannedJdk.majorVersion, scannedJdk);
 		}
 	}
 
@@ -284,23 +272,24 @@ async function scanJdk(
 		if (await jdkstore.isValidJdk(downloadJdkDir)) {
 			log.info(`Detected ${major} Auto-downloaded JDK`);
 			latestMajorMap.set(major, {
+				majorVersion: major,
 				fullVersion: '',
-				name: jdkauto.runtime.nameOf(major),
-				path: downloadJdkDir,
+				homePath: downloadJdkDir,
 			});
 		}
 	}
 
 	// Set Runtimes Configuration
-	for (const scannedJdkInfo of latestMajorMap.values()) {
-		const matchedRuntime = runtimes.find(r => r.name === scannedJdkInfo.name);
+	for (const scannedJdk of latestMajorMap.values()) {
+		const scannedName = jdkauto.runtime.nameOf(scannedJdk.majorVersion);
+		const matchedRuntime = runtimes.find(r => r.name === scannedName);
 		if (matchedRuntime) {
 			// Update if original path is user-installed JDK path
 			if (jdkauto.runtime.isUserInstalled(matchedRuntime.path)) {
-				matchedRuntime.path = scannedJdkInfo.path;
+				matchedRuntime.path = scannedJdk.homePath;
 			} // else Keep if the original path is downloaded JDK path
 		} else {
-			runtimes.push({name: scannedJdkInfo.name, path: scannedJdkInfo.path});
+			runtimes.push({name: scannedName, path: scannedJdk.homePath});
 		}
 	}
 }
@@ -313,7 +302,7 @@ async function scanJdk(
  * @returns A promise that resolves when the JDK is downloaded and installed.
  */
 async function downloadJdk(
-	runtimes:jdkauto.ConfigRuntime[],
+	runtimes:jdkauto.IConfigRuntime[],
 	majorVersion:number, 
 	progress:vscode.Progress<any>) {
 
