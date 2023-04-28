@@ -13,11 +13,11 @@ There is no need to manually install the JDK or set the JAVA_HOME environment va
 # Features
 
 ## JDK Auto-configuration
-The JDKs are auto-configured for the current environment on VSCode startup as follows. If there are multiple JDKs of the same version, the latest minor version among them is used. To force a configuration update, run `Reload Window` from the Command Palette (Ctrl/Cmd + Shift + P). These are applied as user (VSCode global) settings. Override settings at the [workspace or folder level](https://code.visualstudio.com/docs/getstarted/settings) as needed.
+The JDKs are auto-configured for the current environment on VSCode startup as follows. If there are multiple JDKs of the same version, the latest minor version among them is used. To force a configuration update, run `Reload Window` from the Command Palette (Ctrl/Cmd + Shift + P). These are applied as user (VSCode global) settings. If you want to customize by workspace, override the [workspace or folder settings](https://code.visualstudio.com/docs/getstarted/settings).
 
 1. Auto-fix invalid JDK configuration path (e.g. /jdk/bin/java -> /jdk)
 1. Auto-remove configuration entries when JDK uninstalled or version path changed
-1. Auto-scan JDKs from OS-specific location, SDKMAN, jEnv, jabba, ASDF, Gradle, Scoop, etc...
+1. Auto-scan from OS-specific location, SDKMAN, jEnv, jabba, ASDF, Gradle, Scoop, IntelliJ etc...
 1. Auto-detect environment variables JAVA_HOME, JDK_HOME and PATH
 1. Auto-download Adoptium LTS JDKs and available latest non-LTS JDK if not installed
 1. Auto-update auto-downloaded JDKs to the latest version
@@ -26,7 +26,7 @@ The JDKs are auto-configured for the current environment on VSCode startup as fo
 |---|---|---|
 |(*1) [java.jdt.ls.java.home](https://github.com/redhat-developer/vscode-java/wiki/JDK-Requirements#platform-versions)|[Issues](https://github.com/redhat-developer/vscode-java/issues?q=is%3Aissue+java.jdt.ls.java.home)|Latest LTS (*2) (This > JDK_HOME > JAVA_HOME > PATH)|
 |(*1) [spring-boot.ls.java.home](https://github.com/spring-projects/sts4/blob/main/vscode-extensions/vscode-spring-boot/lib/Main.ts#L30)|[Issues](https://github.com/spring-projects/sts4/issues?q=is%3Aissue+spring-boot.ls.java.home)|Latest LTS (*2) (This > JAVA_HOME > PATH)|
-|(*1) [rsp-ui.rsp.java.home](https://github.com/redhat-developer/vscode-rsp-ui#extension-settings)|[Issues](https://github.com/redhat-developer/vscode-rsp-ui/issues?q=is%3Aissue+rsp-ui.rsp.java.home)|Latest LTS (*2) (This > JDK_HOME > JAVA_HOME> Registry > PATH)|
+|(*1) [rsp-ui.rsp.java.home](https://github.com/redhat-developer/vscode-rsp-ui#extension-settings)|[Issues](https://github.com/redhat-developer/vscode-rsp-ui/issues?q=is%3Aissue+rsp-ui.rsp.java.home)|Latest LTS (*2) (This > JDK_HOME > JAVA_HOME> Windows Registry > PATH)|
 |[java.home](https://github.com/redhat-developer/vscode-java/wiki/JDK-Requirements#universal-version)||Delete due to deprecated entry|
 |[java.configuration.runtimes](https://code.visualstudio.com/docs/java/java-project#_configure-runtime-for-projects)|[Issues](https://github.com/redhat-developer/vscode-java/issues?q=is%3Aissue+java.configuration.runtimes)|Set all major JDKs scanned, detected, and downloaded (This > JAVA_HOME)|
 |[java.import.gradle.java.home](https://marketplace.visualstudio.com/items?itemName=vscjava.vscode-gradle#java-specific-settings)|[Issues](https://github.com/microsoft/vscode-gradle/issues?q=is%3Aissue+java.import.gradle.java.home)|Set default if unset (This > java.jdt.ls.java.home)|
@@ -156,7 +156,7 @@ If you want to change the JDK version for your Gradle or Maven projects, you nee
 <br>
 
 ### Change JDK for unmanaged folders
-To change the JDK for unmanaged folders (with out any build tools), you can click the 🖊 button. It will list all the JDKs and you can select one for your unmanaged folders. This changes the `default` for `java.configuration.runtimes`. It is not possible to use different Java versions in multiple unmanaged folders within the same workspace.
+To change the JDK for unmanaged folders (with out any build tools), you can click the 🖊 button. It will list all the JDKs and you can select one for your unmanaged folders. This changes the `default` for `java.configuration.runtimes`. It is <a href="https://github.com/redhat-developer/vscode-java/issues/2543">not possible to use different Java versions</a> in multiple unmanaged folders within the same workspace.
 <br>
 <br>
 
