@@ -2,6 +2,7 @@
 # Publish
 #---------------------------------------
 
+npx vsce package
 npx vsce login Pleiades
 npx vsce publish
 
