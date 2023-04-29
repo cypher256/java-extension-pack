@@ -3,7 +3,6 @@
  * Copyright (c) Shinji Kashihara.
  */
 import * as vscode from 'vscode';
-import * as fs from 'fs';
 import * as path from 'path';
 import { compare } from 'compare-versions';
 
@@ -20,33 +19,6 @@ export function init(_context: vscode.ExtensionContext): void {
 export function getGlobalStoragePath(): string {
 	if (!context) {throw new Error('context is not initialized');}
 	return context.globalStorageUri.fsPath;
-}
-
-export function rmSync(path:string): void {
-	try {
-		fs.rmSync(path, {recursive: true, force: true});
-	} catch (e) {
-		log.info('Failed rmSync: ' + e);
-	}
-}
-
-export namespace download {
-
-	export const isTarget = isWindows || isMac || (isLinux && process.arch === 'x64');
-
-	export function archOf(javaVersion: number): string {
-		if (isWindows) {
-			return 'x64_windows_hotspot';
-		} else if (isMac) {
-			if (process.arch === 'arm64' && javaVersion >= 11) {
-				return 'aarch64_mac_hotspot';
-			} else {
-				return 'x64_mac_hotspot';
-			}
-		} else {
-			return 'x64_linux_hotspot';
-		}
-	}
 }
 
 export interface IConfigRuntime {
