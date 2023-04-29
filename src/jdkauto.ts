@@ -12,7 +12,7 @@ export const isWindows = process.platform === 'win32';
 export const isMac = process.platform === 'darwin';
 export const isLinux = process.platform === 'linux';
 
-let context: vscode.ExtensionContext;
+export let context: vscode.ExtensionContext;
 export function init(_context: vscode.ExtensionContext): void {
 	context = _context;
 }

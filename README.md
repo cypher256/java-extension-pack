@@ -144,6 +144,13 @@ Command Palette: `Open User Settings (JSON)`
 
 <br>
 <br>
+
+## Language Pack Support
+The language pack corresponding to the OS locale is installed at the first startup.
+* de, es, fr, ja, ko, ru
+
+<br>
+<br>
 <br>
 
 # Extension Pack for Java

@@ -4,6 +4,7 @@
  */
 import * as vscode from 'vscode';
 const l10n = vscode.l10n.t;
+import * as os from "os";
 import * as fs from 'fs';
 import * as path from 'path';
 import * as stream from 'stream';
@@ -18,13 +19,13 @@ const log = jdkauto.log;
 /**
  * Activates the extension.
  * @param context The extension context.
- * @returns A promise that resolves when the extension has been activated.
  */
 export async function activate(context:vscode.ExtensionContext) {
 
 	jdkauto.init(context);
 	log.info('activate START', jdkauto.getGlobalStoragePath());
 	log.info('JAVA_HOME', process.env.JAVA_HOME);
+	await installLanguagePack();
 	
 	const redhatVersions = jdkauto.runtime.getRedhatVersions();
 	const ltsFilter = (ver:number) => [8, 11].includes(ver) || (ver >= 17 && (ver - 17) % 4 === 0);
@@ -67,11 +68,32 @@ export async function activate(context:vscode.ExtensionContext) {
 }
 
 /**
+ * Install the language pack corresponding to the OS locale at the first startup.
+ */
+async function installLanguagePack() {
+	try {
+		const STATE_KEY_ACTIVATED = 'activated';
+		if (jdkauto.context.globalState.get(STATE_KEY_ACTIVATED)) {
+			return;
+		}
+		const lang = JSON.parse(process.env.VSCODE_NLS_CONFIG!).osLocale.toLowerCase().substr(0, 2);
+		if (!lang.match(/^(de|es|fr|ja|ko|ru)$/)) {
+			return;
+		}
+		await vscode.commands.executeCommand( // Silent if already installed
+			'workbench.extensions.installExtension', 'ms-ceintl.vscode-language-pack-' + lang);
+		jdkauto.context.globalState.update(STATE_KEY_ACTIVATED, true);
+		log.info('Installed language pack.', lang);
+	} catch (error) {
+		log.info('Failed to install language pack.', error);
+	}
+}
+
+/**
  * Updates the Java runtime configurations for the VSCode Java extension.
  * @param runtimes An array of Java runtime objects to update the configuration with.
  * @param runtimesOld An array of previous Java runtime objects to compare with `runtimes`.
  * @param latestLtsVersion The latest LTS version.
- * @returns A promise that resolves when the configuration has been updated.
  */
 async function updateConfiguration(
 	runtimes:jdkauto.IConfigRuntime[], 
@@ -223,7 +245,6 @@ async function updateConfiguration(
 /**
  * Scan installed JDK on the system and updates the given list of Java runtimes.
  * @param runtimes The list of Java runtimes to update.
- * @returns Promise that resolves when the JDK scan and runtime update is complete.
  */
 async function scanJdk(
 	runtimes:jdkauto.IConfigRuntime[]) {
@@ -299,7 +320,6 @@ async function scanJdk(
  * @param runtimes An array of installed Java runtimes.
  * @param majorVersion The major version of the JDK to download.
  * @param progress A progress object used to report the download and installation progress.
- * @returns A promise that resolves when the JDK is downloaded and installed.
  */
 async function downloadJdk(
 	runtimes:jdkauto.IConfigRuntime[],
