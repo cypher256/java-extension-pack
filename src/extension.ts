@@ -76,13 +76,13 @@ async function installLanguagePack() {
 		if (jdkauto.context.globalState.get(STATE_KEY_ACTIVATED)) {
 			return;
 		}
+		jdkauto.context.globalState.update(STATE_KEY_ACTIVATED, true);
 		const lang = JSON.parse(process.env.VSCODE_NLS_CONFIG!).osLocale.toLowerCase().substr(0, 2);
 		if (!lang.match(/^(de|es|fr|ja|ko|ru)$/)) {
 			return;
 		}
 		await vscode.commands.executeCommand( // Silent if already installed
 			'workbench.extensions.installExtension', 'ms-ceintl.vscode-language-pack-' + lang);
-		jdkauto.context.globalState.update(STATE_KEY_ACTIVATED, true);
 		log.info('Installed language pack.', lang);
 	} catch (error) {
 		log.info('Failed to install language pack.', error);

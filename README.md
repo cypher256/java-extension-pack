@@ -144,13 +144,6 @@ Command Palette: `Open User Settings (JSON)`
 
 <br>
 <br>
-
-## Language Pack Support
-The language pack corresponding to the OS locale is installed at the first startup.
-* de, es, fr, ja, ko, ru
-
-<br>
-<br>
 <br>
 
 # Extension Pack for Java
@@ -206,3 +199,6 @@ License: MIT
 - [📦 Community Server Connectors](https://marketplace.visualstudio.com/items?itemName=redhat.vscode-community-server-connector) (Red Hat)<br>
 Servers Panel, Start/Stop (Tomcat, Glassfish, etc...), Server download and installation<br>
 License: EPL-2.0
+- [📦 Language Pack](https://marketplace.visualstudio.com/search?term=Language%20Pack&target=VSCode) / de, es, fr, ja, ko, ru<br>
+The language pack corresponding to the OS locale is installed at the first startup<br>
+License: MIT
