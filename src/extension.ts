@@ -105,7 +105,7 @@ async function updateConfiguration(
 				if (fixedPath) {
 					// RedHat LS minimum version check: REQUIRED_JDK_VERSION
 					// https://github.com/redhat-developer/vscode-java/blob/master/src/requirements.ts
-					const jdk = await jdkstore.getJdk(fixedPath);
+					const jdk = await jdkstore.findByPath(fixedPath);
 					if (!jdk || jdk.majorVersion < latestLtsVersion) {
 						updateConfig(CONFIG_KEY_LS_JAVA_HOME, latestLtsPath); // Fix unsupported old version
 					} else if (fixedPath !== originPath) {
@@ -148,7 +148,7 @@ async function updateConfiguration(
 	}
 
 	// Project Maven Java Home (Keep if set)
-	const isValidEnvJavaHome = await jdkstore.isValidJdk(process.env.JAVA_HOME);
+	const isValidEnvJavaHome = await jdkstore.isValidPath(process.env.JAVA_HOME);
 	if (defaultRuntime) {
 		const CONFIG_KEY_MAVEN_CUSTOM_ENV = 'maven.terminal.customEnv';
 		const customEnv:any[] = config.get(CONFIG_KEY_MAVEN_CUSTOM_ENV, []);
@@ -252,14 +252,14 @@ async function scanJdk(
 	const latestMajorMap = new Map<number, jdkstore.IJdk>();
 	const redhatVersions = jdkauto.runtime.getRedhatVersions();
 
-	for (const scannedJdk of await jdkstore.findJdks()) {
-		log.info(`Detected ${scannedJdk.majorVersion} (${scannedJdk.fullVersion}) ${scannedJdk.homePath}`);
-		if (!redhatVersions.includes(scannedJdk.majorVersion)) {
+	for (const jdk of await jdkstore.findAll()) {
+		log.info(`Detected ${jdk.majorVersion} (${jdk.fullVersion}) ${jdk.homePath}`);
+		if (!redhatVersions.includes(jdk.majorVersion)) {
 			continue;
 		}
-		const latestJdk = latestMajorMap.get(scannedJdk.majorVersion);
-		if (!latestJdk || jdkauto.runtime.isNewLeft(scannedJdk.fullVersion, latestJdk.fullVersion)) {
-			latestMajorMap.set(scannedJdk.majorVersion, scannedJdk);
+		const latestJdk = latestMajorMap.get(jdk.majorVersion);
+		if (!latestJdk || jdkauto.runtime.isNewLeft(jdk.fullVersion, latestJdk.fullVersion)) {
+			latestMajorMap.set(jdk.majorVersion, jdk);
 		}
 	}
 
@@ -269,7 +269,7 @@ async function scanJdk(
 			continue; // Prefer user-installed JDK
 		}
 		let downloadJdkDir = path.join(jdkauto.getGlobalStoragePath(), String(major));
-		if (await jdkstore.isValidJdk(downloadJdkDir)) {
+		if (await jdkstore.isValidPath(downloadJdkDir)) {
 			log.info(`Detected ${major} Auto-downloaded JDK`);
 			latestMajorMap.set(major, {
 				majorVersion: major,
@@ -324,7 +324,7 @@ async function downloadJdk(
 	// Check Version File
 	const versionFile = path.join(downloadJdkDir, 'version.txt');
 	const fullVersionOld = fs.existsSync(versionFile) ? fs.readFileSync(versionFile).toString() : null;
-	if (fullVersion === fullVersionOld && await jdkstore.isValidJdk(downloadJdkDir)) {
+	if (fullVersion === fullVersionOld && await jdkstore.isValidPath(downloadJdkDir)) {
 		log.info(`No download ${majorVersion} (No updates)`);
 		return;
 	}
@@ -365,7 +365,7 @@ async function downloadJdk(
 	} catch (e) {
 		log.info('Failed decompress: ' + e); // Validate below
 	}
-	if (!await jdkstore.isValidJdk(downloadJdkDir)) {
+	if (!await jdkstore.isValidPath(downloadJdkDir)) {
 		log.info('Invalid jdk directory:', downloadJdkDir);
 		_.remove(runtimes, r => r.name === runtimeName);
 		return; // Silent
