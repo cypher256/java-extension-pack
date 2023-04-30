@@ -19,7 +19,7 @@ export async function activate(context:vscode.ExtensionContext) {
 	jdkauto.init(context);
 	log.info('activate START', jdkauto.getGlobalStoragePath());
 	log.info('JAVA_HOME', process.env.JAVA_HOME);
-	await installLanguagePack();
+	installLanguagePack();
 	
 	const redhatVersions = jdkauto.runtime.getRedhatVersions();
 	const ltsFilter = (ver:number) => [8, 11].includes(ver) || (ver >= 17 && (ver - 17) % 4 === 0);
@@ -71,8 +71,17 @@ async function installLanguagePack() {
 			return;
 		}
 		jdkauto.context.globalState.update(STATE_KEY_ACTIVATED, true);
-		const lang = JSON.parse(process.env.VSCODE_NLS_CONFIG!).osLocale.toLowerCase().substr(0, 2);
-		if (!lang.match(/^(de|es|fr|ja|ko|ru)$/)) {
+		const osLocale = JSON.parse(process.env.VSCODE_NLS_CONFIG!).osLocale.toLowerCase();
+		let lang = null;
+		if (osLocale.match(/^(de|es|fr|ja|ko|ru)/)) {
+			lang = osLocale.substr(0, 2);
+		} else if (osLocale.startsWith('pt-br')) {
+			lang = 'pt-BR'; // Portuguese (Brazil)
+		} else if (osLocale.match(/^zh-(hk|tw)/)) {
+			lang = 'zh-hant'; // Chinese (Traditional)
+		} else if (osLocale.startsWith('zh')) {
+			lang = 'zh-hans'; // Chinese (Simplified)
+		} else {
 			return;
 		}
 		await vscode.commands.executeCommand( // Silent if already installed
