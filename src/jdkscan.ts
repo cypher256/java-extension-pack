@@ -6,18 +6,19 @@ import * as os from "os";
 import * as path from 'path';
 import { GlobOptionsWithFileTypesUnset, glob } from 'glob-latest';
 import * as jdkutils from 'jdk-utils';
-import * as jdkauto from './jdkauto';
-const log = jdkauto.log;
+import * as jdkconfig from './jdkconfig';
+import * as jdkcontext from './jdkcontext';
+const log = jdkcontext.log;
 
 /**
  * Scan installed JDK on the system and updates the given list of Java runtimes.
  * @param runtimes The list of Java runtimes to update.
  */
 export async function scan(
-	runtimes:jdkauto.IConfigRuntime[]) {
+	runtimes:jdkconfig.IConfigRuntime[]) {
 
 	// Fix JDK path
-	const redhatNames = jdkauto.runtime.getRedhatNames();
+	const redhatNames = jdkconfig.runtime.getRedhatNames();
 	for (let i = runtimes.length - 1; i >= 0; i--) { // Decrement for splice
 		const runtime = runtimes[i];
 		if (redhatNames.length > 0 && !redhatNames.includes(runtime.name)) {
@@ -38,7 +39,7 @@ export async function scan(
 
 	// Scan User Installed JDK
 	const latestMajorMap = new Map<number, IJdk>();
-	const redhatVersions = jdkauto.runtime.getRedhatVersions();
+	const redhatVersions = jdkconfig.runtime.getRedhatVersions();
 
 	for (const jdk of await findAll()) {
 		log.info(`Detected ${jdk.majorVersion} (${jdk.fullVersion}) ${jdk.homePath}`);
@@ -46,7 +47,7 @@ export async function scan(
 			continue;
 		}
 		const latestJdk = latestMajorMap.get(jdk.majorVersion);
-		if (!latestJdk || jdkauto.runtime.isNewLeft(jdk.fullVersion, latestJdk.fullVersion)) {
+		if (!latestJdk || jdkconfig.runtime.isNewLeft(jdk.fullVersion, latestJdk.fullVersion)) {
 			latestMajorMap.set(jdk.majorVersion, jdk);
 		}
 	}
@@ -56,7 +57,7 @@ export async function scan(
 		if (latestMajorMap.has(major)) {
 			continue; // Prefer user-installed JDK
 		}
-		let downloadJdkDir = path.join(jdkauto.getGlobalStoragePath(), String(major));
+		let downloadJdkDir = path.join(jdkcontext.getGlobalStoragePath(), String(major));
 		if (await isValidPath(downloadJdkDir)) {
 			log.info(`Detected ${major} Auto-downloaded JDK`);
 			latestMajorMap.set(major, {
@@ -69,11 +70,11 @@ export async function scan(
 
 	// Set Runtimes Configuration
 	for (const scannedJdk of latestMajorMap.values()) {
-		const scannedName = jdkauto.runtime.nameOf(scannedJdk.majorVersion);
+		const scannedName = jdkconfig.runtime.nameOf(scannedJdk.majorVersion);
 		const matchedRuntime = runtimes.find(r => r.name === scannedName);
 		if (matchedRuntime) {
 			// Update if original path is user-installed JDK path
-			if (jdkauto.runtime.isUserInstalled(matchedRuntime.path)) {
+			if (jdkconfig.runtime.isUserInstalled(matchedRuntime.path)) {
 				matchedRuntime.path = scannedJdk.homePath;
 			} // else Keep if the original path is downloaded JDK path
 		} else {
@@ -106,7 +107,7 @@ export async function fixPath(homePath:string, defaultPath?:string): Promise<str
 		if (await isValidPath(p)) {return p;};
 		p = path.join(p, '..');
 	}
-	if (jdkauto.isMac) {
+	if (jdkcontext.isMac) {
 		const contentsHome = path.join(homePath, 'Contents', 'Home');
 		if (await isValidPath(contentsHome)) {return contentsHome;}
 		const home = path.join(homePath, 'Home');
@@ -180,7 +181,7 @@ async function findByJdkUtils(jdks: IJdk[]) {
 // C:\Users\<UserName>\scoop\apps\sapmachine18-jdk\18.0.2.1\bin
 //      C:\ProgramData\scoop\apps\sapmachine18-jdk\18.0.2.1\bin
 async function findScoop(jdks: IJdk[]) {
-	if (!jdkauto.isWindows) {return;}
+	if (!jdkcontext.isWindows) {return;}
 	const SCOOP = process.env.SCOOP ?? path.join(os.homedir(), "scoop");
 	const SCOOP_GLOBAL = process.env.SCOOP_GLOBAL ?? path.join(process.env.ProgramData ?? '', "scoop");
 	const patterns = [SCOOP, SCOOP_GLOBAL].map(s => path.join(s, 'apps/*/*/bin/java.exe'));
@@ -190,15 +191,15 @@ async function findScoop(jdks: IJdk[]) {
 // Find IntelliJ (Windows, Linux) e.g.
 // C:\Users\<UserName>\.jdks\openjdk-20.0.1\bin
 async function findIntelliJ(jdks: IJdk[]) {
-	if (jdkauto.isMac) {return;} // Supported jdk-utils macOS.ts
-	const pattern = path.join(os.homedir(), '.jdks/*/bin/java' + (jdkauto.isWindows ? '.exe' : ''));
+	if (jdkcontext.isMac) {return;} // Supported jdk-utils macOS.ts
+	const pattern = path.join(os.homedir(), '.jdks/*/bin/java' + (jdkcontext.isWindows ? '.exe' : ''));
 	await tryGlob(jdks, pattern);
 }
 
 // Find Pleiades (Windows) e.g.
 // C:\pleiades\2023-03\java\17\bin
 async function findPleiades(jdks: IJdk[]) {
-	if (!jdkauto.isWindows) {return;} // Windows only (macos JDK 32bit)
+	if (!jdkcontext.isWindows) {return;} // Windows only (macos JDK 32bit)
 	const patterns = [...'cd'].map(c => `${c}:/pleiades/20*/java/*/bin/java.exe`);
 	await tryGlob(jdks, patterns);
 }

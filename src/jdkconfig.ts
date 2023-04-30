@@ -3,10 +3,72 @@
  * Copyright (c) Shinji Kashihara.
  */
 import * as vscode from 'vscode';
+import * as path from 'path';
 import * as _ from "lodash";
+import { compare } from 'compare-versions';
 import * as jdkscan from './jdkscan';
-import * as jdkauto from './jdkauto';
-const log = jdkauto.log;
+import * as jdkcontext from './jdkcontext';
+const log = jdkcontext.log;
+
+/**
+ * An interface for the Java configuration runtime.
+ */
+export interface IConfigRuntime {
+	name: string;
+	path: string;
+	default?: boolean;
+}
+
+/**
+ * The namespace for the Java configuration runtime.
+ */
+export namespace runtime {
+
+	export const CONFIG_KEY = 'java.configuration.runtimes';
+
+	export function versionOf(runtimeName:string): number {
+		return Number(runtimeName.replace(/^J(ava|2)SE-(1\.|)/, '')); // NaN if invalid
+	}
+
+	export function nameOf(majorVersion:number): string {
+		if (majorVersion <= 5) {
+			return 'J2SE-1.' + majorVersion;
+		} else if (majorVersion <= 8) {
+			return 'JavaSE-1.' + majorVersion;
+		}
+		return 'JavaSE-' + majorVersion;
+	}
+
+	export function getRedhatNames(): string[] {
+		const redhatJava = vscode.extensions.getExtension('redhat.java'); // extensionDependencies
+		const redhatProp = redhatJava?.packageJSON?.contributes?.configuration?.properties;
+		const redhatRuntimeNames:string[] = redhatProp?.[CONFIG_KEY]?.items?.properties?.name?.enum ?? [];
+		if (redhatRuntimeNames.length === 0) {
+			log.warn('Failed getExtension RedHat', redhatJava);
+		}
+		return redhatRuntimeNames;
+	}
+
+	export function getRedhatVersions(): number[] {
+		return getRedhatNames().map(name => versionOf(name));
+	}
+
+	export function isUserInstalled(javaHome:string): boolean {
+		const _javaHome = path.normalize(javaHome);
+		const _globalStoragePath = path.normalize(jdkcontext.getGlobalStoragePath());
+		return !_javaHome.startsWith(_globalStoragePath);
+	}
+
+	export function isNewLeft(leftVersion:string, rightVersion:string): boolean {
+		try {
+			const optimize = (s:string) => s.replace(/_/g, '.');
+			return compare(optimize(leftVersion), optimize(rightVersion), '>');
+		} catch (e) {
+			log.warn('Failed compare-versions: ' + e);
+			return false;
+		}
+	}
+}
 
 /**
  * Updates the Java runtime configurations for the VSCode Java extension.
@@ -15,8 +77,8 @@ const log = jdkauto.log;
  * @param latestLtsVersion The latest LTS version.
  */
 export async function update(
-	runtimes:jdkauto.IConfigRuntime[], 
-	runtimesOld:jdkauto.IConfigRuntime[],
+	runtimes:IConfigRuntime[], 
+	runtimesOld:IConfigRuntime[],
 	latestLtsVersion:number) {
 
 	const config = vscode.workspace.getConfiguration();
@@ -30,7 +92,7 @@ export async function update(
 	}
 
 	// VSCode LS Java Home (Fix if unsupported old version)
-	const latestLtsRuntime = runtimes.find(r => r.name === jdkauto.runtime.nameOf(latestLtsVersion));
+	const latestLtsRuntime = runtimes.find(r => r.name === runtime.nameOf(latestLtsVersion));
 	if (latestLtsRuntime) {
 		for (const CONFIG_KEY_LS_JAVA_HOME of [
 			// Reload dialog appears when changes
@@ -70,7 +132,7 @@ export async function update(
 			latestLtsRuntime.default = true;
 		}
 		runtimes.sort((a, b) => a.name.localeCompare(b.name));
-		updateConfig(jdkauto.runtime.CONFIG_KEY, runtimes);
+		updateConfig(runtime.CONFIG_KEY, runtimes);
 	}
 
 	// Gradle Daemon Java Home (Fix if set), Note: If unset use java.jdt.ls.java.home
@@ -113,12 +175,12 @@ export async function update(
 	// Terminal Default (Keep if set)
 	const setTerminalEnv = (javaHome: string, env: any) => {
 		env.JAVA_HOME = javaHome;
-		env.PATH = javaHome + (jdkauto.isWindows ? '\\bin;' : '/bin:') + '${env:PATH}';
-		if (jdkauto.isMac) {
-			env.ZDOTDIR ??= jdkauto.getGlobalStoragePath(); // Disable .zshrc JAVA_HOME
+		env.PATH = javaHome + (jdkcontext.isWindows ? '\\bin;' : '/bin:') + '${env:PATH}';
+		if (jdkcontext.isMac) {
+			env.ZDOTDIR ??= jdkcontext.getGlobalStoragePath(); // Disable .zshrc JAVA_HOME
 		}
 	};
-	const osConfigName = jdkauto.isWindows ? 'windows' : jdkauto.isMac ? 'osx' : 'linux';
+	const osConfigName = jdkcontext.isWindows ? 'windows' : jdkcontext.isMac ? 'osx' : 'linux';
 	if (defaultRuntime) {
 		const CONFIG_KEY_TERMINAL_ENV = 'terminal.integrated.env.' + osConfigName;
 		const terminalDefault:any = config.get(CONFIG_KEY_TERMINAL_ENV, {});
@@ -140,15 +202,15 @@ export async function update(
 	const CONFIG_KEY_TERMINAL_PROFILES = 'terminal.integrated.profiles.' + osConfigName;
 	const profilesOld:any = _.cloneDeep(config.get(CONFIG_KEY_TERMINAL_PROFILES)); // Proxy to POJO
 	const profilesNew:any = Object.fromEntries(Object.entries(profilesOld)
-		.filter(([key, profile]) => !jdkauto.runtime.versionOf(key))); // Copy unmanaged profile
+		.filter(([key, profile]) => !runtime.versionOf(key))); // Copy unmanaged profile
 
 	for (const runtime of runtimes) {
 		const profile:any = _.cloneDeep(profilesOld[runtime.name]) ?? {}; // for isEqual
 		profile.overrideName = true;
-		if (jdkauto.isWindows) {
+		if (jdkcontext.isWindows) {
 			profile.path ??= 'powershell';
 		} else {
-			profile.path ??= jdkauto.isMac ? 'zsh' : 'bash';
+			profile.path ??= jdkcontext.isMac ? 'zsh' : 'bash';
 			profile.args ??= ['-l'];
 		}
 		profile.env ??= {};

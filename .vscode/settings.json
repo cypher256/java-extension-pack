@@ -23,6 +23,7 @@
         "Javac",
         "jdkauto",
         "jdkconfig",
+        "jdkcontext",
         "jdkdownload",
         "jdkscan",
         "jdkutils",

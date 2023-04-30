@@ -11,14 +11,15 @@ import * as stream from 'stream';
 import * as _ from "lodash";
 import axios from 'axios';
 import { promisify } from 'util';
+import * as jdkconfig from './jdkconfig';
 import * as jdkscan from './jdkscan';
-import * as jdkauto from './jdkauto';
-const log = jdkauto.log;
+import * as jdkcontext from './jdkcontext';
+const log = jdkcontext.log;
 
 /**
  * Returns true if the current platform is the target platform.
  */
-export const isTarget = jdkauto.isWindows || jdkauto.isMac || (jdkauto.isLinux && process.arch === 'x64');
+export const isTarget = jdkcontext.isWindows || jdkcontext.isMac || (jdkcontext.isLinux && process.arch === 'x64');
 
 /*+
  * Returns the architecture name of the JDK.
@@ -26,9 +27,9 @@ export const isTarget = jdkauto.isWindows || jdkauto.isMac || (jdkauto.isLinux &
  * @returns The architecture name of the JDK.
  */
 function archOf(javaVersion: number): string {
-	if (jdkauto.isWindows) {
+	if (jdkcontext.isWindows) {
 		return 'x64_windows_hotspot';
-	} else if (jdkauto.isMac) {
+	} else if (jdkcontext.isMac) {
 		if (process.arch === 'arm64' && javaVersion >= 11) {
 			return 'aarch64_mac_hotspot';
 		} else {
@@ -46,13 +47,13 @@ function archOf(javaVersion: number): string {
  * @param progress A progress object used to report the download and installation progress.
  */
 export async function download(
-	runtimes:jdkauto.IConfigRuntime[],
+	runtimes:jdkconfig.IConfigRuntime[],
 	majorVersion:number, 
 	progress:vscode.Progress<any>) {
 
-	const runtimeName = jdkauto.runtime.nameOf(majorVersion);
+	const runtimeName = jdkconfig.runtime.nameOf(majorVersion);
 	const matchedRuntime = runtimes.find(r => r.name === runtimeName);
-	if (matchedRuntime && jdkauto.runtime.isUserInstalled(matchedRuntime.path)) {
+	if (matchedRuntime && jdkconfig.runtime.isUserInstalled(matchedRuntime.path)) {
 		log.info(`No download ${majorVersion} (User installed)`);
 		return;
 	}
@@ -62,7 +63,7 @@ export async function download(
 	const response = await axios.get(`${URL_PREFIX}/latest`);
 	const redirectedUrl:string = response.request.res.responseUrl;
 	const fullVersion = redirectedUrl.replace(/.+tag\//, '');
-	const globalStoragePath = jdkauto.getGlobalStoragePath();
+	const globalStoragePath = jdkcontext.getGlobalStoragePath();
 	const downloadJdkDir = path.join(globalStoragePath, String(majorVersion));
 
 	// Check Version File
@@ -76,7 +77,7 @@ export async function download(
 	const p2 = fullVersion.replace('+', '_').replace(/(jdk|-)/g, '');
 	const downloadUrlPrefix = `${URL_PREFIX}/download/${p1}/`;
 	const arch = archOf(majorVersion);
-	const fileExt = jdkauto.isWindows ? 'zip' : 'tar.gz';
+	const fileExt = jdkcontext.isWindows ? 'zip' : 'tar.gz';
 	const fileName = `OpenJDK${majorVersion}U-jdk_${arch}_${p2}.${fileExt}`;
 	const downloadUrl = downloadUrlPrefix + fileName;
 	
@@ -100,7 +101,7 @@ export async function download(
 		await decompress(downloadedFile, globalStoragePath, {
 			map: file => {
 				file.path = file.path.replace(/^[^\/]+/, String(majorVersion));
-				if (jdkauto.isMac) {
+				if (jdkcontext.isMac) {
 					file.path = file.path.replace(/^([0-9]+\/)Contents\/Home\//, '$1');
 				}
 				return file;

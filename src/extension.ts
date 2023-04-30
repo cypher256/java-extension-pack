@@ -7,8 +7,8 @@ import * as _ from "lodash";
 import * as jdkconfig from './jdkconfig';
 import * as jdkscan from './jdkscan';
 import * as jdkdownload from './jdkdownload';
-import * as jdkauto from './jdkauto';
-const log = jdkauto.log;
+import * as jdkcontext from './jdkcontext';
+const log = jdkcontext.log;
 
 /**
  * Activates the extension.
@@ -16,19 +16,19 @@ const log = jdkauto.log;
  */
 export async function activate(context:vscode.ExtensionContext) {
 
-	jdkauto.init(context);
-	log.info('activate START', jdkauto.getGlobalStoragePath());
+	jdkcontext.init(context);
+	log.info('activate START', jdkcontext.getGlobalStoragePath());
 	log.info('JAVA_HOME', process.env.JAVA_HOME);
 	installLanguagePack();
 	
-	const redhatVersions = jdkauto.runtime.getRedhatVersions();
+	const redhatVersions = jdkconfig.runtime.getRedhatVersions();
 	const ltsFilter = (ver:number) => [8, 11].includes(ver) || (ver >= 17 && (ver - 17) % 4 === 0);
 	const targetLtsVersions = redhatVersions.filter(ltsFilter).slice(-4);
 	const latestLtsVersion = _.last(targetLtsVersions) ?? 0;
 	log.info('RedHat versions ' + redhatVersions);
 	log.info('Target LTS versions ' + targetLtsVersions);
 	const config = vscode.workspace.getConfiguration();
-	const runtimes:jdkauto.IConfigRuntime[] = config.get(jdkauto.runtime.CONFIG_KEY, []);
+	const runtimes:jdkconfig.IConfigRuntime[] = config.get(jdkconfig.runtime.CONFIG_KEY, []);
 
 	// Scan JDK
 	try {
@@ -67,10 +67,10 @@ export async function activate(context:vscode.ExtensionContext) {
 async function installLanguagePack() {
 	try {
 		const STATE_KEY_ACTIVATED = 'activated';
-		if (jdkauto.context.globalState.get(STATE_KEY_ACTIVATED)) {
+		if (jdkcontext.context.globalState.get(STATE_KEY_ACTIVATED)) {
 			return;
 		}
-		jdkauto.context.globalState.update(STATE_KEY_ACTIVATED, true);
+		jdkcontext.context.globalState.update(STATE_KEY_ACTIVATED, true);
 		const osLocale = JSON.parse(process.env.VSCODE_NLS_CONFIG!).osLocale.toLowerCase();
 		let lang = null;
 		if (osLocale.match(/^(de|es|fr|ja|ko|ru)/)) {
