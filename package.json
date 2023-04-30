@@ -3,7 +3,7 @@
   "displayName": "Java Extension Pack JDK Auto",
   "description": "JDK Auto + Extension Pack for Java + Spring Boot Extension Pack",
   "icon": "README_icon.png",
-  "version": "17.6.6",
+  "version": "17.6.7",
   "publisher": "Pleiades",
   "repository": {
     "url": "https://github.com/cypher256/java-extension-pack.git"
