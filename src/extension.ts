@@ -1,5 +1,5 @@
 /**
- * Java Extension Pack JDK Auto
+ * VSCode Java Extension Pack JDK Auto
  * Copyright (c) Shinji Kashihara.
  */
 import * as vscode from 'vscode';
@@ -8,7 +8,7 @@ import * as jdkconfig from './jdkconfig';
 import * as jdkscan from './jdkscan';
 import * as jdkdownload from './jdkdownload';
 import * as jdkcontext from './jdkcontext';
-const log = jdkcontext.log;
+const { log } = jdkcontext;
 
 /**
  * Activates the extension.
@@ -17,8 +17,9 @@ const log = jdkcontext.log;
 export async function activate(context:vscode.ExtensionContext) {
 
 	jdkcontext.init(context);
-	log.info('activate START', jdkcontext.getGlobalStoragePath());
+	log.info('activate START --------------------');
 	log.info('JAVA_HOME', process.env.JAVA_HOME);
+	log.info('Download location', jdkcontext.getGlobalStoragePath());
 	installLanguagePack();
 	
 	const redhatVersions = jdkconfig.runtime.getRedhatVersions();
@@ -27,8 +28,7 @@ export async function activate(context:vscode.ExtensionContext) {
 	const latestLtsVersion = _.last(targetLtsVersions) ?? 0;
 	log.info('RedHat versions ' + redhatVersions);
 	log.info('Target LTS versions ' + targetLtsVersions);
-	const config = vscode.workspace.getConfiguration();
-	const runtimes:jdkconfig.IConfigRuntime[] = config.get(jdkconfig.runtime.CONFIG_KEY, []);
+	const runtimes = jdkconfig.getRuntimes();
 
 	// Scan JDK
 	try {
@@ -73,7 +73,7 @@ async function installLanguagePack() {
 		jdkcontext.context.globalState.update(STATE_KEY_ACTIVATED, true);
 		const osLocale = JSON.parse(process.env.VSCODE_NLS_CONFIG!).osLocale.toLowerCase();
 		let lang = null;
-		if (osLocale.match(/^(de|es|fr|ja|ko|ru)/)) {
+		if (osLocale.match(/^(de|es|fr|it|ja|ko|pl|ru|tr)/)) {
 			lang = osLocale.substr(0, 2);
 		} else if (osLocale.startsWith('pt-br')) {
 			lang = 'pt-BR'; // Portuguese (Brazil)
@@ -86,7 +86,7 @@ async function installLanguagePack() {
 		}
 		await vscode.commands.executeCommand( // Silent if already installed
 			'workbench.extensions.installExtension', 'ms-ceintl.vscode-language-pack-' + lang);
-		log.info('Installed language pack.', lang);
+		log.info('Installed language pack', lang);
 	} catch (error) {
 		log.info('Failed to install language pack.', error); // Silent
 	}

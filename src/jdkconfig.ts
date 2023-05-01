@@ -1,5 +1,5 @@
 /**
- * Java Extension Pack JDK Auto
+ * VSCode Java Extension Pack JDK Auto
  * Copyright (c) Shinji Kashihara.
  */
 import * as vscode from 'vscode';
@@ -8,10 +8,10 @@ import * as _ from "lodash";
 import { compare } from 'compare-versions';
 import * as jdkscan from './jdkscan';
 import * as jdkcontext from './jdkcontext';
-const log = jdkcontext.log;
+const { log, OS } = jdkcontext;
 
 /**
- * An interface for the Java configuration runtime.
+ * An interface for the VSCode Java configuration runtime.
  */
 export interface IConfigRuntime {
 	name: string;
@@ -68,6 +68,15 @@ export namespace runtime {
 			return false;
 		}
 	}
+}
+
+/**
+ * Gets the Java runtime configurations for the VSCode Java extension.
+ * @returns An array of Java runtime objects.
+ */
+export function getRuntimes(): IConfigRuntime[] {
+	const config = vscode.workspace.getConfiguration();
+	return config.get(runtime.CONFIG_KEY, []);
 }
 
 /**
@@ -175,12 +184,12 @@ export async function update(
 	// Terminal Default (Keep if set)
 	const setTerminalEnv = (javaHome: string, env: any) => {
 		env.JAVA_HOME = javaHome;
-		env.PATH = javaHome + (jdkcontext.isWindows ? '\\bin;' : '/bin:') + '${env:PATH}';
-		if (jdkcontext.isMac) {
+		env.PATH = javaHome + (OS.isWindows ? '\\bin;' : '/bin:') + '${env:PATH}';
+		if (OS.isMac) {
 			env.ZDOTDIR ??= jdkcontext.getGlobalStoragePath(); // Disable .zshrc JAVA_HOME
 		}
 	};
-	const osConfigName = jdkcontext.isWindows ? 'windows' : jdkcontext.isMac ? 'osx' : 'linux';
+	const osConfigName = OS.isWindows ? 'windows' : OS.isMac ? 'osx' : 'linux';
 	if (defaultRuntime) {
 		const CONFIG_KEY_TERMINAL_ENV = 'terminal.integrated.env.' + osConfigName;
 		const terminalDefault:any = config.get(CONFIG_KEY_TERMINAL_ENV, {});
@@ -207,10 +216,10 @@ export async function update(
 	for (const runtime of runtimes) {
 		const profile:any = _.cloneDeep(profilesOld[runtime.name]) ?? {}; // for isEqual
 		profile.overrideName = true;
-		if (jdkcontext.isWindows) {
+		if (OS.isWindows) {
 			profile.path ??= 'powershell';
 		} else {
-			profile.path ??= jdkcontext.isMac ? 'zsh' : 'bash';
+			profile.path ??= OS.isMac ? 'zsh' : 'bash';
 			profile.args ??= ['-l'];
 		}
 		profile.env ??= {};

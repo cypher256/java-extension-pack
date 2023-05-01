@@ -1,5 +1,5 @@
 /**
- * Java Extension Pack JDK Auto
+ * VSCode Java Extension Pack JDK Auto
  * Copyright (c) Shinji Kashihara.
  */
 import * as vscode from 'vscode';
@@ -14,22 +14,22 @@ import { promisify } from 'util';
 import * as jdkconfig from './jdkconfig';
 import * as jdkscan from './jdkscan';
 import * as jdkcontext from './jdkcontext';
-const log = jdkcontext.log;
+const { log, OS } = jdkcontext;
 
 /**
- * Returns true if the current platform is the target platform.
+ * true if the current platform is JDK downloadable.
  */
-export const isTarget = jdkcontext.isWindows || jdkcontext.isMac || (jdkcontext.isLinux && process.arch === 'x64');
+export const isTarget = OS.isWindows || OS.isMac || (OS.isLinux && process.arch === 'x64');
 
 /*+
- * Returns the architecture name of the JDK.
+ * Get the architecture name used as part of the download URL.
  * @param javaVersion The major version of the JDK.
- * @returns The architecture name of the JDK.
+ * @returns The architecture name.
  */
 function archOf(javaVersion: number): string {
-	if (jdkcontext.isWindows) {
+	if (OS.isWindows) {
 		return 'x64_windows_hotspot';
-	} else if (jdkcontext.isMac) {
+	} else if (OS.isMac) {
 		if (process.arch === 'arm64' && javaVersion >= 11) {
 			return 'aarch64_mac_hotspot';
 		} else {
@@ -77,7 +77,7 @@ export async function download(
 	const p2 = fullVersion.replace('+', '_').replace(/(jdk|-)/g, '');
 	const downloadUrlPrefix = `${URL_PREFIX}/download/${p1}/`;
 	const arch = archOf(majorVersion);
-	const fileExt = jdkcontext.isWindows ? 'zip' : 'tar.gz';
+	const fileExt = OS.isWindows ? 'zip' : 'tar.gz';
 	const fileName = `OpenJDK${majorVersion}U-jdk_${arch}_${p2}.${fileExt}`;
 	const downloadUrl = downloadUrlPrefix + fileName;
 	
@@ -101,7 +101,7 @@ export async function download(
 		await decompress(downloadedFile, globalStoragePath, {
 			map: file => {
 				file.path = file.path.replace(/^[^\/]+/, String(majorVersion));
-				if (jdkcontext.isMac) {
+				if (OS.isMac) {
 					file.path = file.path.replace(/^([0-9]+\/)Contents\/Home\//, '$1');
 				}
 				return file;
@@ -130,7 +130,7 @@ export async function download(
 	vscode.window.setStatusBarMessage(`JDK Auto: ${message}`, 15_000);
 }
 
-export function rmSync(path:string): void {
+function rmSync(path:string): void {
 	try {
 		fs.rmSync(path, {recursive: true, force: true});
 	} catch (e) {
