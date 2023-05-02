@@ -22,7 +22,7 @@ The JDKs are auto-configured for the current environment on VSCode startup as fo
 1. Auto-download Adoptium LTS JDKs and available latest non-LTS JDK if not installed
 1. Auto-update auto-downloaded JDKs to the latest version
 
-|Configuration Name|Configured Value (Order of priority)|
+|Configuration Name|Configured Value (Priority Order)|
 |---|---|
 |(*1) [java.jdt.ls.java.home](https://github.com/redhat-developer/vscode-java/wiki/JDK-Requirements#platform-versions)<br>([Issues](https://github.com/redhat-developer/vscode-java/issues?q=is%3Aissue+java.jdt.ls.java.home))|Latest LTS (*2)<br>(Setting > JDK_HOME > JAVA_HOME > PATH)|
 |(*1) [spring-boot.ls.java.home](https://github.com/spring-projects/sts4/blob/main/vscode-extensions/vscode-spring-boot/lib/Main.ts#L30)<br>([Issues](https://github.com/spring-projects/sts4/issues?q=is%3Aissue+spring-boot.ls.java.home))|Latest LTS (*2)<br>(Setting > JAVA_HOME > PATH)|
