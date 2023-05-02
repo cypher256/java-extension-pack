@@ -63,13 +63,13 @@ export async function download(
 	const response = await axios.get(`${URL_PREFIX}/latest`);
 	const redirectedUrl:string = response.request.res.responseUrl;
 	const fullVersion = redirectedUrl.replace(/.+tag\//, '');
-	const globalStoragePath = jdkcontext.getGlobalStoragePath();
-	const downloadJdkDir = path.join(globalStoragePath, String(majorVersion));
+	const storageJavaDir = path.join(jdkcontext.getGlobalStoragePath(), 'java');
+	const versionDir = path.join(storageJavaDir, String(majorVersion));
 
 	// Check Version File
-	const versionFile = path.join(downloadJdkDir, 'version.txt');
+	const versionFile = path.join(versionDir, 'version.txt');
 	const fullVersionOld = fs.existsSync(versionFile) ? fs.readFileSync(versionFile).toString() : null;
-	if (fullVersion === fullVersionOld && await jdkscan.isValidPath(downloadJdkDir)) {
+	if (fullVersion === fullVersionOld && await jdkscan.isValidPath(versionDir)) {
 		log.info(`No download ${majorVersion} (No updates)`);
 		return;
 	}
@@ -84,10 +84,8 @@ export async function download(
 	// Download JDK
 	log.info('Downloading...', downloadUrl);
 	progress.report({ message: `JDK Auto: ${l10n('Downloading')} ${fullVersion}` });
-	if (!fs.existsSync(globalStoragePath)) {
-		fs.mkdirSync(globalStoragePath);
-	}
-	const downloadedFile = downloadJdkDir + '_download_tmp.' + fileExt;
+	jdkcontext.mkdirSync(storageJavaDir);
+	const downloadedFile = versionDir + '_download_tmp.' + fileExt;
 	const writer = fs.createWriteStream(downloadedFile);
 	const res = await axios.get(downloadUrl, {responseType: 'stream'});
 	res.data.pipe(writer);
@@ -96,9 +94,9 @@ export async function download(
 	// Decompress JDK
 	log.info('Installing...', downloadedFile);
 	progress.report({ message: `JDK Auto: ${l10n('Installing')} ${fullVersion}` });
-	rmSync(downloadJdkDir);
+	jdkcontext.rmSync(versionDir);
 	try {
-		await decompress(downloadedFile, globalStoragePath, {
+		await decompress(downloadedFile, storageJavaDir, {
 			map: file => {
 				file.path = file.path.replace(/^[^\/]+/, String(majorVersion));
 				if (OS.isMac) {
@@ -110,30 +108,22 @@ export async function download(
 	} catch (e) {
 		log.info('Failed decompress: ' + e); // Validate below
 	}
-	if (!await jdkscan.isValidPath(downloadJdkDir)) {
-		log.info('Invalid jdk directory:', downloadJdkDir);
+	if (!await jdkscan.isValidPath(versionDir)) {
+		log.info('Invalid jdk directory:', versionDir);
 		_.remove(runtimes, r => r.name === runtimeName);
 		return; // Silent
 	}
-	rmSync(downloadedFile);
+	jdkcontext.rmSync(downloadedFile);
 	fs.writeFileSync(versionFile, fullVersion);
 
 	// Set Runtimes Configuration
 	if (matchedRuntime) {
-		matchedRuntime.path = downloadJdkDir;
+		matchedRuntime.path = versionDir;
 	} else {
-		runtimes.push({name: runtimeName, path: downloadJdkDir});
+		runtimes.push({name: runtimeName, path: versionDir});
 	}
 	const message = fullVersionOld 
 		? `${l10n('UPDATE SUCCESS')} ${runtimeName}: ${fullVersionOld} -> ${fullVersion}`
 		: `${l10n('INSTALL SUCCESS')} ${runtimeName}: ${fullVersion}`;
 	vscode.window.setStatusBarMessage(`JDK Auto: ${message}`, 15_000);
-}
-
-function rmSync(path:string): void {
-	try {
-		fs.rmSync(path, {recursive: true, force: true});
-	} catch (e) {
-		log.info('Failed rmSync: ' + e);
-	}
 }

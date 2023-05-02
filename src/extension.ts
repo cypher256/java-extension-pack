@@ -20,8 +20,13 @@ export async function activate(context:vscode.ExtensionContext) {
 	log.info('activate START --------------------');
 	log.info('JAVA_HOME', process.env.JAVA_HOME);
 	log.info('Download location', jdkcontext.getGlobalStoragePath());
-	installLanguagePack();
-	
+
+	jdkconfig.setDefault();
+	const STATE_KEY_ACTIVATED = 'activated';
+	if (!jdkcontext.context.globalState.get(STATE_KEY_ACTIVATED)) {
+		jdkcontext.context.globalState.update(STATE_KEY_ACTIVATED, true);
+		installLanguagePack();
+	}
 	const redhatVersions = jdkconfig.runtime.getRedhatVersions();
 	const ltsFilter = (ver:number) => [8, 11].includes(ver) || (ver >= 17 && (ver - 17) % 4 === 0);
 	const targetLtsVersions = redhatVersions.filter(ltsFilter).slice(-4);
@@ -66,11 +71,6 @@ export async function activate(context:vscode.ExtensionContext) {
  */
 async function installLanguagePack() {
 	try {
-		const STATE_KEY_ACTIVATED = 'activated';
-		if (jdkcontext.context.globalState.get(STATE_KEY_ACTIVATED)) {
-			return;
-		}
-		jdkcontext.context.globalState.update(STATE_KEY_ACTIVATED, true);
 		const osLocale = JSON.parse(process.env.VSCODE_NLS_CONFIG!).osLocale.toLowerCase();
 		let lang = null;
 		if (osLocale.match(/^(de|es|fr|it|ja|ko|pl|ru|tr)/)) {

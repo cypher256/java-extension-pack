@@ -2,6 +2,7 @@
  * VSCode Java Extension Pack JDK Auto
  * Copyright (c) Shinji Kashihara.
  */
+import * as fs from 'fs';
 import * as os from "os";
 import * as path from 'path';
 import { GlobOptionsWithFileTypesUnset, glob } from 'glob-latest';
@@ -31,10 +32,13 @@ export async function scan(
 		if (!fixedPath) {
 			log.info(`Remove invalid path ${originPath}`);
 			runtimes.splice(i, 1);
-		} else if (fixedPath !== originPath) {
-			log.info(`Fix\n   ${originPath}\n-> ${fixedPath}`);
-			runtimes[i].path = fixedPath;
+			continue;
 		}
+		if (fixedPath !== originPath) {
+			log.info(`Fix\n   ${originPath}\n-> ${fixedPath}`);
+			runtime.path = fixedPath;
+		}
+		// Don't check mismatches between manually set name and path
 	}
 
 	// Scan User Installed JDK
@@ -51,18 +55,42 @@ export async function scan(
 		}
 	}
 
+	// Migrate old download location from / to /java (To be removed in 2024)
+	const oldStorageDir = jdkcontext.getGlobalStoragePath();
+	const newStorageDir = path.join(oldStorageDir, 'java');
+	jdkcontext.mkdirSync(newStorageDir);
+	for (const name of await fs.promises.readdir(oldStorageDir)) {
+		if (name.match(/\.(zip|gz)$/) || name.match(/^[0-9]+$/)) {
+			try {
+				const oldPath = path.join(oldStorageDir, name);
+				const newPath = path.join(newStorageDir, name);
+				if (fs.existsSync(newPath)) {
+					jdkcontext.rmSync(oldPath);
+				} else {
+					fs.renameSync(oldPath, newPath);
+				}
+				const configRuntime = runtimes.find(r => r.path.toLowerCase() === oldPath.toLowerCase());
+				if (configRuntime) {
+					configRuntime.path = newPath;
+				}
+			} catch (error) {
+				log.info('Failed move', error);
+			}
+		}
+	}
+
 	// Scan Auto-Downloaded JDK (Old Java Version Support)
 	for (const major of redhatVersions) {
 		if (latestMajorMap.has(major)) {
 			continue; // Prefer user-installed JDK
 		}
-		let downloadJdkDir = path.join(jdkcontext.getGlobalStoragePath(), String(major));
-		if (await isValidPath(downloadJdkDir)) {
+		let versionDir = path.join(jdkcontext.getGlobalStoragePath(), 'java', String(major));
+		if (await isValidPath(versionDir)) {
 			log.info(`Detected ${major} Auto-downloaded JDK`);
 			latestMajorMap.set(major, {
 				majorVersion: major,
 				fullVersion: '',
-				homePath: downloadJdkDir,
+				homePath: versionDir,
 			});
 		}
 	}
@@ -156,8 +184,8 @@ async function tryGlob(
 			pattern = [pattern];
 		}
 		pattern = pattern.map(p => p.replace(/\\/g, '/'));
-		for (const javaExe of await glob(pattern, options)) {
-			const jdk = await findByPath(path.join(javaExe, '..', '..'));
+		for (const javaExeFile of await glob(pattern, options)) {
+			const jdk = await findByPath(path.join(javaExeFile, '..', '..'));
 			pushJdk(managerName, jdk, jdks);
 		}
 	} catch (error) {
@@ -174,7 +202,7 @@ function pushJdk(managerName: string, jdk: IJdk | undefined, jdks: IJdk[]) {
 
 async function findAll(): Promise<IJdk[]> {
 	const jdks: IJdk[] = [];
-	const scanAsyncs = [
+	const scanStrategies = [
 		async () => {
 			// Find by jdk-utils
 			const runtimes = await jdkutils.findRuntimes({ checkJavac: true, withVersion: true });
@@ -205,6 +233,6 @@ async function findAll(): Promise<IJdk[]> {
 			await tryGlob('Pleiades', jdks, patterns);
 		},
 	];
-	await Promise.all(scanAsyncs.map(f => f()));
+	await Promise.all(scanStrategies.map(f => f()));
 	return jdks;
 }

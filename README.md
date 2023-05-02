@@ -147,7 +147,7 @@ Command Palette: `Open User Settings (JSON)`
 <br>
 
 # Extension Pack for Java
-The configured JDKs are available in the "Extension Pack for Java" feature below included in this extension. To see which JDKs are used for your projects in multi-root workspaces, you can trigger the command `Configure Java Runtime` in Command Palette.
+It is recommended to specify the Java version for each project instead of JAVA_HOME so as not to affect the entire environment. To see which JDKs are used for your projects in multi-root workspaces, you can trigger the command `Configure Java Runtime` in Command Palette.
 <br><p>
 ![Configure Java Runtime](https://code.visualstudio.com/assets/docs/java/java-project/configure-project-runtime.png)
 </p>
@@ -170,7 +170,7 @@ The JDK used to run Spring Boot uses the Gradle and Maven settings.
 <br>
 
 ## Community Server Connectors
-The JDK used to run the server for Servlet and Jakarta EE applications can be specified from the `Edit Server` context menu.
+The JDK used to run the server for Servlet and Jakarta EE applications can be specified from the context menu > `Edit Server` > `vm.install.path`.
 <p>
 
 ![Servers View](https://raw.githubusercontent.com/cypher256/java-extension-pack/main/image/servers.jpg)
