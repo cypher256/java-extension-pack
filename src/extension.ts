@@ -73,7 +73,7 @@ async function installLanguagePack() {
 	try {
 		const osLocale = JSON.parse(process.env.VSCODE_NLS_CONFIG!).osLocale.toLowerCase();
 		let lang = null;
-		if (osLocale.match(/^(de|es|fr|it|ja|ko|pl|ru|tr)/)) {
+		if (osLocale.match(/^(cs|de|es|fr|it|ja|ko|pl|ru|tr)/)) {
 			lang = osLocale.substr(0, 2);
 		} else if (osLocale.startsWith('pt-br')) {
 			lang = 'pt-BR'; // Portuguese (Brazil)

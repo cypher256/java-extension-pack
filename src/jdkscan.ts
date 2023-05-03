@@ -44,7 +44,6 @@ export async function scan(
 	// Scan User Installed JDK
 	const latestMajorMap = new Map<number, IJdk>();
 	const redhatVersions = jdkconfig.runtime.getRedhatVersions();
-
 	for (const jdk of await findAll()) {
 		if (!redhatVersions.includes(jdk.majorVersion)) {
 			continue;
@@ -183,8 +182,8 @@ async function tryGlob(
 		if (typeof pattern === 'string') {
 			pattern = [pattern];
 		}
-		pattern = pattern.map(p => p.replace(/\\/g, '/'));
-		for (const javaExeFile of await glob(pattern, options)) {
+		const globPatterns = pattern.map(p => p.replace(/\\/g, '/'));
+		for (const javaExeFile of await glob(globPatterns, options)) {
 			const jdk = await findByPath(path.join(javaExeFile, '..', '..'));
 			pushJdk(managerName, jdk, jdks);
 		}

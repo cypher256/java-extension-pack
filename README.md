@@ -45,7 +45,7 @@ Up to 4 LTSs and the [latest available non-LTS](https://marketplace.visualstudio
 
 |OS|Auto-downloaded JDK Location|
 |---|---|
-|Windows|%APPDATA%\Code\User\globalStorage\pleiades.java-extension-pack-jdk\ |
+|Windows|%APPDATA%\Code\User\globalStorage\pleiades.java-extension-pack-jdk\|
 |macos|$HOME/Library/Application Support/Code/User/globalStorage/pleiades.java-extension-pack-jdk/|
 |Linux|$HOME/.config/Code/User/globalStorage/pleiades.java-extension-pack-jdk/|
 
@@ -101,7 +101,7 @@ Command Palette: `Open User Settings (JSON)`
 <br>
 
 ## Terminal Auto-configuration
-Terminal profiles are defined based on configured runtimes, so you can easily open a terminal by selecting the Java version from the terminal dropdown. The configured environment variables do not affect the OS, so the OS environment remains clean.
+Terminal profiles are defined based on configured runtimes, so you can easily open a terminal by selecting the Java version from the terminal dropdown. The configured environment variables have no effect outside the terminal, so the system and OS user environment remain clean. The `JAVA_HOME` and `PATH` in the auto-configured terminal configuration will always be overridden from the configured runtimes, so if you want to customize it, copy the terminal configuration entry and create a new one.
 <br><p>
 ![Switch Java Version](https://raw.githubusercontent.com/cypher256/java-extension-pack/main/image/terminal.png)
 </p>
@@ -147,17 +147,17 @@ Command Palette: `Open User Settings (JSON)`
 <br>
 
 # Extension Pack for Java
-It is recommended to specify the Java version for each project instead of JAVA_HOME so as not to affect the entire environment. To see which JDKs are used for your projects in multi-root workspaces, you can trigger the command `Configure Java Runtime` in Command Palette.
+Since many projects are nowadays using different Java versions in development, it is recommended to specify the Java version for each project instead of the `JAVA_HOME` environment variable so as not to affect the OS and OS user environment. To see which JDKs are used for your projects in multi-root workspaces, you can trigger the command `Configure Java Runtime` in Command Palette.
 <br><p>
 ![Configure Java Runtime](https://code.visualstudio.com/assets/docs/java/java-project/configure-project-runtime.png)
 </p>
 
 ### Change JDK for Gradle and Maven projects
-If you want to change the JDK version for your Gradle or Maven projects, you need to update it in your build scripts (build.gradle or pom.xml). You can click ⓘ to see how to make such changes. Click 🖊 will navigate to the build script file of the project.
+If you want to change the JDK version for your Gradle or Maven projects, you need to update it in your build scripts (build.gradle or pom.xml). You can click ⓘ to see how to make such changes. Click 🖊 will navigate to the build script file of the project. It is recommended that the Maven/Gradle version be set by project using `gradlew`/`mvnw` properties.
 <br>
 
 ### Change JDK for unmanaged folders
-To change the JDK for unmanaged folders (with out any build tools), you can click the 🖊 button. It will list all the JDKs and you can select one for your unmanaged folders. This changes the `default` for `java.configuration.runtimes`. It is <a href="https://github.com/redhat-developer/vscode-java/issues/2543">not possible to use different Java versions</a> in multiple unmanaged folders within the same workspace.
+To change the JDK for unmanaged folders (with out any build tools), you can click the 🖊 button. It will list all the JDKs and you can select one for your unmanaged folders. This changes the `"default": true` for `java.configuration.runtimes`. Currently, it is <a href="https://github.com/redhat-developer/vscode-java/issues/2543">not possible to use different Java versions</a> in multiple unmanaged folders within the same workspace.
 <br>
 <br>
 
@@ -170,7 +170,7 @@ The JDK used to run Spring Boot uses the Gradle and Maven settings.
 <br>
 
 ## Community Server Connectors
-The JDK used to run the server for Servlet and Jakarta EE applications can be specified from the context menu > `Edit Server` > `vm.install.path`.
+The JDK used to run the server for Servlet and Jakarta EE applications can be specified from the context menu > `Edit Server` > `vm.install.path`. [#137 Hot Code Replace](https://github.com/redhat-developer/rsp-server-community/issues/137) (Hot Deploy) is [provisional supported](https://github.com/redhat-developer/vscode-rsp-ui/#provisional-project-structure-details) by manual mapping.
 <p>
 
 ![Servers View](https://raw.githubusercontent.com/cypher256/java-extension-pack/main/image/servers.jpg)
@@ -199,6 +199,6 @@ License: MIT
 - [📦 Community Server Connectors](https://marketplace.visualstudio.com/items?itemName=redhat.vscode-community-server-connector) (Red Hat)<br>
 Servers Panel, Start/Stop (Tomcat, Glassfish, etc...), Server download and installation<br>
 License: EPL-2.0
-- [📦 Language Pack](https://marketplace.visualstudio.com/search?term=Language%20Pack&target=VSCode) / de, es, fr, it, ja, ko, pl, ru, tr, zh-hans or zh-hant<br>
+- [📦 Language Pack](https://marketplace.visualstudio.com/search?term=Language%20Pack&target=VSCode) / cs, de, es, fr, it, ja, ko, pl, ru, tr, zh-hans or zh-hant<br>
 The language pack corresponding to the OS locale is installed at the first startup<br>
 License: MIT

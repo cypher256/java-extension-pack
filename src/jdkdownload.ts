@@ -73,6 +73,8 @@ export async function download(
 		log.info(`No download ${majorVersion} (No updates)`);
 		return;
 	}
+
+	// Resolve Download URL
 	const p1 = fullVersion.replace('+', '%2B');
 	const p2 = fullVersion.replace('+', '_').replace(/(jdk|-)/g, '');
 	const downloadUrlPrefix = `${URL_PREFIX}/download/${p1}/`;
@@ -109,7 +111,7 @@ export async function download(
 		log.info('Failed decompress: ' + e); // Validate below
 	}
 	if (!await jdkscan.isValidPath(versionDir)) {
-		log.info('Invalid jdk directory:', versionDir);
+		log.info('Invalid JDK:', versionDir);
 		_.remove(runtimes, r => r.name === runtimeName);
 		return; // Silent
 	}
