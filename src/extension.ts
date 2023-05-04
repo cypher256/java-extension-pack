@@ -17,7 +17,7 @@ const { log } = jdkcontext;
 export async function activate(context:vscode.ExtensionContext) {
 
 	jdkcontext.init(context);
-	log.info('activate START --------------------');
+	log.info(`activate START ${context.extension?.packageJSON?.version} --------------------`);
 	log.info('JAVA_HOME', process.env.JAVA_HOME);
 	log.info('Download location', jdkcontext.getGlobalStoragePath());
 
@@ -25,7 +25,7 @@ export async function activate(context:vscode.ExtensionContext) {
 	const STATE_KEY_ACTIVATED = 'activated';
 	if (!jdkcontext.context.globalState.get(STATE_KEY_ACTIVATED)) {
 		jdkcontext.context.globalState.update(STATE_KEY_ACTIVATED, true);
-		installLanguagePack();
+		installLanguagePack(); // async
 	}
 	const redhatVersions = jdkconfig.runtime.getRedhatVersions();
 	const ltsFilter = (ver:number) => [8, 11].includes(ver) || (ver >= 17 && (ver - 17) % 4 === 0);
@@ -68,6 +68,7 @@ export async function activate(context:vscode.ExtensionContext) {
 
 /**
  * Install the language pack corresponding to the OS locale at the first startup.
+ * @see https://marketplace.visualstudio.com/search?target=VSCode&category=Language%20Packs
  */
 async function installLanguagePack() {
 	try {

@@ -143,17 +143,24 @@ Command Palette: `Open User Settings (JSON)`
 ```
 
 <br>
+
+## Install language pack
+The language pack corresponding to the OS locale is installed at the first startup.
+* cs, de, es, fr, it, ja, ko, pl, ru, tr, zh-hans or zh-hant
+
+<br>
 <br>
 <br>
 
-# Extension Pack for Java
-Since many projects are nowadays using different Java versions in development, it is recommended to specify the Java version for each project instead of the `JAVA_HOME` environment variable so as not to affect the OS and OS user environment. To see which JDKs are used for your projects in multi-root workspaces, you can trigger the command `Configure Java Runtime` in Command Palette.
+# Included Extension Features
+## Extension Pack for Java
+Since many projects are nowadays using different Java versions in development, it is recommended to specify the Java version for each project instead of the `JAVA_HOME` environment variable so as not to affect the OS and OS user environment. To see which JDKs are used for your projects in multi-root workspaces, you can trigger the command `Configure Java Runtime` in Command Palette. The [Configure Runtime for Projects](https://code.visualstudio.com/docs/java/java-project) view is a feature of the Extension Pack for Java (Microsoft).
 <br><p>
 ![Configure Java Runtime](https://code.visualstudio.com/assets/docs/java/java-project/configure-project-runtime.png)
 </p>
 
 ### Change JDK for Gradle and Maven projects
-If you want to change the JDK version for your Gradle or Maven projects, you need to update it in your build scripts (build.gradle or pom.xml). You can click ⓘ to see how to make such changes. Click 🖊 will navigate to the build script file of the project. It is recommended that the Maven/Gradle version be set by project using `gradlew`/`mvnw` properties.
+If you want to change the JDK version for your Gradle or Maven projects, you need to update it in your build scripts (build.gradle or pom.xml). You can click ⓘ to see how to make such changes. Click 🖊 will navigate to the build script file of the project. It is recommended that the Maven/Gradle version be set by project using `gradlew`/`mvnw` properties. For Spring Boot Gradle/Maven projects and general Gradle projects, these wrappers are included by default, so you don't need to install Gradle or Maven.
 <br>
 
 ### Change JDK for unmanaged folders
@@ -162,7 +169,7 @@ To change the JDK for unmanaged folders (with out any build tools), you can clic
 <br>
 
 ## Spring Boot Extension Pack
-The JDK used to run Spring Boot uses the Gradle and Maven settings.
+Set the JDK version when [creating a Spring Boot project](https://code.visualstudio.com/docs/java/java-spring-boot#_create-the-project) or in build.gradle/pom.xml.
 <p>
 
 ![Spring Boot Dashboard](https://raw.githubusercontent.com/cypher256/java-extension-pack/main/image/spring.jpg)
@@ -170,11 +177,25 @@ The JDK used to run Spring Boot uses the Gradle and Maven settings.
 <br>
 
 ## Community Server Connectors
-The JDK used to run the server for Servlet and Jakarta EE applications can be specified from the context menu > `Edit Server` > `vm.install.path`. [#137 Hot Code Replace](https://github.com/redhat-developer/rsp-server-community/issues/137) (Hot Deploy) is [provisional supported](https://github.com/redhat-developer/vscode-rsp-ui/#provisional-project-structure-details) by manual mapping.
+The JDK used to run the server for Servlet and Jakarta EE applications can be specified from the context menu > `Edit Server` > `vm.install.path`. [Hot Code Replace #137](https://github.com/redhat-developer/rsp-server-community/issues/137) (Hot Deploy) is [provisional supported](https://github.com/redhat-developer/vscode-rsp-ui/#provisional-project-structure-details) by manual mapping.
 <p>
 
 ![Servers View](https://raw.githubusercontent.com/cypher256/java-extension-pack/main/image/servers.jpg)
 </p>
+<br>
+
+## Included Extensions List
+
+- [📦 Extension Pack for Java](https://marketplace.visualstudio.com/items?itemName=vscjava.vscode-java-pack) (Microsoft: MIT)<br>
+IntelliSense, Refactoring, Debugger, Maven, Lombok, etc...<br>
+- [📦 Spring Boot Extension Pack](https://marketplace.visualstudio.com/items?itemName=vmware.vscode-boot-dev-pack) (VMWare: EPL-1.0)<br>
+Spring Initializr, Boot Dashboard, Properties Support<br>
+- [📦 Gradle for Java](https://marketplace.visualstudio.com/items?itemName=vscjava.vscode-gradle) (Microsoft: MIT)<br>
+Syntax highlighting, Task Panel, Run tasks<br>
+- [📦 Community Server Connectors](https://marketplace.visualstudio.com/items?itemName=redhat.vscode-community-server-connector) (Red Hat: EPL-2.0)<br>
+Servers Panel, Start/Stop (Tomcat, Glassfish, etc...), Server download and installation<br>
+- [📦 Language Pack](https://marketplace.visualstudio.com/search?target=VSCode&category=Language%20Packs) (Microsoft: MIT)<br>
+A language pack that matches the OS Locale<br>
 <br>
 <br>
 <br>
@@ -182,23 +203,3 @@ The JDK used to run the server for Servlet and Jakarta EE applications can be sp
 # License
 - MIT (c) WILL Shinji Kashihara (cypher256)
 - Adoptium JDK: https://adoptium.net/docs/faq/
-<br>
-<br>
-
-# Extensions Included
-
-- [📦 Extension Pack for Java](https://marketplace.visualstudio.com/items?itemName=vscjava.vscode-java-pack) (Microsoft)<br>
-IntelliSense, Refactoring, Debugger, Maven, Lombok, etc...<br>
-License: MIT
-- [📦 Spring Boot Extension Pack](https://marketplace.visualstudio.com/items?itemName=vmware.vscode-boot-dev-pack) (VMWare)<br>
-Spring Initializr, Boot Dashboard, Properties Support<br>
-License: EPL-1.0
-- [📦 Gradle for Java](https://marketplace.visualstudio.com/items?itemName=vscjava.vscode-gradle) (Microsoft)<br>
-Syntax highlighting, Task Panel, Run tasks<br>
-License: MIT
-- [📦 Community Server Connectors](https://marketplace.visualstudio.com/items?itemName=redhat.vscode-community-server-connector) (Red Hat)<br>
-Servers Panel, Start/Stop (Tomcat, Glassfish, etc...), Server download and installation<br>
-License: EPL-2.0
-- [📦 Language Pack](https://marketplace.visualstudio.com/search?term=Language%20Pack&target=VSCode) / cs, de, es, fr, it, ja, ko, pl, ru, tr, zh-hans or zh-hant<br>
-The language pack corresponding to the OS locale is installed at the first startup<br>
-License: MIT

@@ -228,16 +228,16 @@ export async function update(
 	}
 }
 
+function updateEntry(section:string, value:any) {
+	const config = vscode.workspace.getConfiguration();
+	config.update(section, value, vscode.ConfigurationTarget.Global);
+	log.info('Updated config:', section, _.isObject(value) ? '' : value);
+}
+
 export function setDefault() {
 	const config = vscode.workspace.getConfiguration();
 	const CONFIG_KEY_TREE_INDENT = 'workbench.tree.indent';
 	if (!config.inspect(CONFIG_KEY_TREE_INDENT)?.globalValue) {
 		updateEntry(CONFIG_KEY_TREE_INDENT, 20);
 	}
-}
-
-function updateEntry(section:string, value:any) {
-	const config = vscode.workspace.getConfiguration();
-	config.update(section, value, vscode.ConfigurationTarget.Global);
-	log.info('Updated config:', section, _.isObject(value) ? '' : value);
 }
