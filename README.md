@@ -9,6 +9,7 @@
 There is no need to manually install the JDK or set the JAVA_HOME environment variables. It also comes pre-included with extensions that most Java developers need, such as Maven, Gradle, Spring, Lombok, and Tomcat start/stop, so you can start developing right out of the box with zero configuration.
 <br>
 <br>
+<br>
 
 # Features
 
@@ -144,9 +145,15 @@ Command Palette: `Open User Settings (JSON)`
 
 <br>
 
-## Install language pack
+## language pack
 The language pack corresponding to the OS locale is installed at the first startup.
 * cs, de, es, fr, it, ja, ko, pl, ru, tr, zh-hans or zh-hant
+
+<br>
+
+## License
+- MIT (c) WILL Shinji Kashihara (cypher256)
+- Adoptium JDK: https://adoptium.net/docs/faq/
 
 <br>
 <br>
@@ -196,10 +203,3 @@ Syntax highlighting, Task Panel, Run tasks<br>
 Servers Panel, Start/Stop (Tomcat, Glassfish, etc...), Server download and installation<br>
 - [📦 Language Pack](https://marketplace.visualstudio.com/search?target=VSCode&category=Language%20Packs) (Microsoft: MIT)<br>
 A language pack that matches the OS Locale<br>
-<br>
-<br>
-<br>
-
-# License
-- MIT (c) WILL Shinji Kashihara (cypher256)
-- Adoptium JDK: https://adoptium.net/docs/faq/
