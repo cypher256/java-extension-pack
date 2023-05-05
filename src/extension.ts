@@ -4,7 +4,7 @@
  */
 import * as vscode from 'vscode';
 import * as _ from "lodash";
-import * as jdkconfig from './jdkconfig';
+import * as jdksettings from './jdksettings';
 import * as jdkscan from './jdkscan';
 import * as jdkdownload from './jdkdownload';
 import * as jdkcontext from './jdkcontext';
@@ -21,25 +21,25 @@ export async function activate(context:vscode.ExtensionContext) {
 	log.info('JAVA_HOME', process.env.JAVA_HOME);
 	log.info('Download location', jdkcontext.getGlobalStoragePath());
 
-	jdkconfig.setDefault();
+	jdksettings.setDefault();
 	const STATE_KEY_ACTIVATED = 'activated';
 	if (!jdkcontext.context.globalState.get(STATE_KEY_ACTIVATED)) {
 		jdkcontext.context.globalState.update(STATE_KEY_ACTIVATED, true);
 		installLanguagePack(); // async
 	}
-	const redhatVersions = jdkconfig.runtime.getRedhatVersions();
+	const redhatVersions = jdksettings.runtime.getRedhatVersions();
 	const ltsFilter = (ver:number) => [8, 11].includes(ver) || (ver >= 17 && (ver - 17) % 4 === 0);
 	const targetLtsVersions = redhatVersions.filter(ltsFilter).slice(-4);
 	const latestLtsVersion = _.last(targetLtsVersions) ?? 0;
 	log.info('RedHat versions ' + redhatVersions);
 	log.info('Target LTS versions ' + targetLtsVersions);
-	const runtimes = jdkconfig.getRuntimes();
+	const runtimes = jdksettings.getConfigRuntimes();
 
 	// Scan JDK
 	try {
 		const runtimesOld = _.cloneDeep(runtimes);
 		await jdkscan.scan(runtimes);
-		await jdkconfig.update(runtimes, runtimesOld, latestLtsVersion);
+		await jdksettings.update(runtimes, runtimesOld, latestLtsVersion);
 
 	} catch (e:any) {
 		let message = `JDK scan failed. ${e.message ?? e}`;
@@ -55,7 +55,7 @@ export async function activate(context:vscode.ExtensionContext) {
 				const downloadVersions = _.uniq([...targetLtsVersions, _.last(redhatVersions) ?? 0]);
 				const promiseArray = downloadVersions.map(v => jdkdownload.download(runtimes, v, progress));
 				await Promise.all(promiseArray);
-				await jdkconfig.update(runtimes, runtimesOld, latestLtsVersion);
+				await jdksettings.update(runtimes, runtimesOld, latestLtsVersion);
 	
 			} catch (e:any) {
 				let message = `JDK download failed. ${e.request?.path ?? ''} ${e.message ?? e}`;

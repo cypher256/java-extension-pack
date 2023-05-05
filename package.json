@@ -3,7 +3,6 @@
   "displayName": "Java Extension Pack JDK Auto",
   "description": "JDK Auto + Extension Pack for Java + Spring Boot Extension Pack",
   "icon": "README_icon.png",
-  "version": "2023.504.1",
   "publisher": "Pleiades",
   "repository": {
     "url": "https://github.com/cypher256/java-extension-pack.git"
@@ -77,15 +76,15 @@
     "vscode": "^1.54.0"
   },
   "devDependencies": {
+    "@types/vscode": "^1.54.0",
     "@types/decompress": "^4.2.4",
     "@types/glob": "^8.1.0",
     "@types/lodash": "^4.14.194",
     "@types/mocha": "^10.0.1",
     "@types/node": "18.x",
-    "@types/vscode": "^1.54.0",
     "@typescript-eslint/eslint-plugin": "5.x",
     "@typescript-eslint/parser": "5.x",
-    "@vscode/l10n-dev": "^0.0.25",
+    "@vscode/l10n-dev": "0.x",
     "@vscode/test-electron": "^2.3.0",
     "eslint": "8.x",
     "glob": "^8.1.0",
@@ -97,7 +96,8 @@
     "compare-versions": "^6.0.0-rc.1",
     "decompress": "^4.2.1",
     "glob-latest": "npm:glob@^10.2.2",
-    "jdk-utils": "0.4.x",
+    "jdk-utils": "0.x",
     "lodash": "^4.17.21"
-  }
+  },
+  "version": "2023.505.0"
 }

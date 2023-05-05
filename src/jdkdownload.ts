@@ -11,7 +11,7 @@ import * as stream from 'stream';
 import * as _ from "lodash";
 import axios from 'axios';
 import { promisify } from 'util';
-import * as jdkconfig from './jdkconfig';
+import * as jdksettings from './jdksettings';
 import * as jdkscan from './jdkscan';
 import * as jdkcontext from './jdkcontext';
 const { log, OS } = jdkcontext;
@@ -47,13 +47,13 @@ function archOf(javaVersion: number): string {
  * @param progress A progress object used to report the download and installation progress.
  */
 export async function download(
-	runtimes:jdkconfig.IConfigRuntime[],
+	runtimes:jdksettings.IConfigRuntime[],
 	majorVersion:number, 
 	progress:vscode.Progress<any>) {
 
-	const runtimeName = jdkconfig.runtime.nameOf(majorVersion);
+	const runtimeName = jdksettings.runtime.nameOf(majorVersion);
 	const matchedRuntime = runtimes.find(r => r.name === runtimeName);
-	if (matchedRuntime && jdkconfig.runtime.isUserInstalled(matchedRuntime.path)) {
+	if (matchedRuntime && jdksettings.runtime.isUserInstalled(matchedRuntime.path)) {
 		log.info(`No download ${majorVersion} (User installed)`);
 		return;
 	}

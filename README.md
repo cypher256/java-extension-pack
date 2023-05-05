@@ -6,7 +6,7 @@
 ![](https://img.shields.io/visual-studio-marketplace/i/Pleiades.java-extension-pack-jdk?color=blue)
 ![](https://img.shields.io/visual-studio-marketplace/last-updated/Pleiades.java-extension-pack-jdk?color=orange)
 
-There is no need to manually install the JDK or set the JAVA_HOME environment variables. It also comes pre-included with extensions that most Java developers need, such as Maven, Gradle, Spring, Lombok, and Tomcat start/stop, so you can start developing right out of the box with zero configuration.
+The extension greatly reduces the installation, configuration effort, and [configuration errors](https://stackoverflow.com/search?q=vscode+jdk) for general Java developers. There is no need to manually install the JDK or set the JAVA_HOME environment variables. It also comes pre-included with extensions that most Java developers need, such as Maven, Gradle, Spring, Lombok, and Tomcat start/stop, so you can start developing right out of the box with zero configuration.
 <br>
 <br>
 <br>
@@ -14,9 +14,9 @@ There is no need to manually install the JDK or set the JAVA_HOME environment va
 # Features
 
 ## JDK Auto-configuration
-The JDKs are auto-configured for the current environment on VSCode startup as follows. If there are multiple JDKs of the same version, the latest minor version among them is used. To force a configuration update, run `Reload Window` from the Command Palette (Ctrl/Cmd + Shift + P). These are applied as user (VSCode global) settings. You can manually change user settings, but if you want to customize your settings even further, consider using [workspace settings](https://code.visualstudio.com/docs/getstarted/settings) or [profiles](https://code.visualstudio.com/docs/editor/profiles).
+The JDKs are auto-configured for the current environment on VSCode startup as follows. If there are multiple JDKs of the same version, the latest minor version among them is used. If you manually install or update the JDK and want to force update the configuration of VSCode, restart VSCode or execute `Reload Window` from the command palette (Ctrl/Cmd + Shift + P). These are applied as user (VSCode global) settings. You can manually change user settings, but if you want to customize your settings even further, consider using [workspace settings](https://code.visualstudio.com/docs/getstarted/settings) or [profiles](https://code.visualstudio.com/docs/editor/profiles).
 
-1. Auto-fix invalid JDK configuration path (e.g. /jdk/bin/java -> /jdk)
+1. Auto-fix invalid JDK configuration path (e.g. /jdk17/bin/java -> /jdk17)
 1. Auto-remove configuration entries when JDK uninstalled or version path changed
 1. Auto-scan from OS-specific location, SDKMAN, jEnv, jabba, ASDF, Gradle, Scoop, IntelliJ etc...
 1. Auto-detect environment variables JAVA_HOME, JDK_HOME and PATH
@@ -46,7 +46,7 @@ Up to 4 LTSs and the [latest available non-LTS](https://marketplace.visualstudio
 
 |OS|Auto-downloaded JDK Location|
 |---|---|
-|Windows|%APPDATA%\Code\User\globalStorage\pleiades.java-extension-pack-jdk\|
+|Windows|%APPDATA%\Code\User\globalStorage\pleiades.java-extension-pack-jdk\ |
 |macos|$HOME/Library/Application Support/Code/User/globalStorage/pleiades.java-extension-pack-jdk/|
 |Linux|$HOME/.config/Code/User/globalStorage/pleiades.java-extension-pack-jdk/|
 
@@ -145,10 +145,19 @@ Command Palette: `Open User Settings (JSON)`
 
 <br>
 
-## language pack
+## Language Pack Auto-installation
 The language pack corresponding to the OS locale is installed at the first startup.
 * cs, de, es, fr, it, ja, ko, pl, ru, tr, zh-hans or zh-hant
 
+<br>
+
+## Auto-default Settings
+If the user settings is not set, it will auto-set the JDT Auto default value. Note that a debug run is required to enable Hot Code Replace (Hot Deploy).
+
+|Configuration Name|VSCode default|JDT Auto default|
+|---|---|---|
+|[workbench.tree.indent](https://code.visualstudio.com/docs/getstarted/settings#:~:text=in%20pixels.%0A%20%20%22-,workbench.tree.indent,-%22%3A%208)|8|20|
+|[java.debug.settings.hotCodeReplace](https://code.visualstudio.com/docs/java/java-debugging#_hot-code-replace)|manual|auto|
 <br>
 
 ## License
@@ -184,7 +193,7 @@ Set the JDK version when [creating a Spring Boot project](https://code.visualstu
 <br>
 
 ## Community Server Connectors
-The JDK used to run the server for Servlet and Jakarta EE applications can be specified from the context menu > `Edit Server` > `vm.install.path`. [Hot Code Replace #137](https://github.com/redhat-developer/rsp-server-community/issues/137) (Hot Deploy) is [provisional supported](https://github.com/redhat-developer/vscode-rsp-ui/#provisional-project-structure-details) by manual mapping.
+The JDK used to run the server for Servlet and Jakarta EE applications can be specified from the context menu > `Edit Server` > `vm.install.path`.
 <p>
 
 ![Servers View](https://raw.githubusercontent.com/cypher256/java-extension-pack/main/image/servers.jpg)

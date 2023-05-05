@@ -7,7 +7,7 @@ import * as os from "os";
 import * as path from 'path';
 import { GlobOptionsWithFileTypesUnset, glob } from 'glob-latest';
 import * as jdkutils from 'jdk-utils';
-import * as jdkconfig from './jdkconfig';
+import * as jdksettings from './jdksettings';
 import * as jdkcontext from './jdkcontext';
 const { log, OS } = jdkcontext;
 
@@ -16,10 +16,10 @@ const { log, OS } = jdkcontext;
  * @param runtimes An array of installed Java runtimes.
  */
 export async function scan(
-	runtimes:jdkconfig.IConfigRuntime[]) {
+	runtimes:jdksettings.IConfigRuntime[]) {
 
 	// Fix JDK path
-	const redhatNames = jdkconfig.runtime.getRedhatNames();
+	const redhatNames = jdksettings.runtime.getRedhatNames();
 	for (let i = runtimes.length - 1; i >= 0; i--) { // Decrement for splice
 		const runtime = runtimes[i];
 		if (redhatNames.length > 0 && !redhatNames.includes(runtime.name)) {
@@ -43,13 +43,13 @@ export async function scan(
 
 	// Scan User Installed JDK
 	const latestMajorMap = new Map<number, IJdk>();
-	const redhatVersions = jdkconfig.runtime.getRedhatVersions();
+	const redhatVersions = jdksettings.runtime.getRedhatVersions();
 	for (const jdk of await findAll()) {
 		if (!redhatVersions.includes(jdk.majorVersion)) {
 			continue;
 		}
 		const latestJdk = latestMajorMap.get(jdk.majorVersion);
-		if (!latestJdk || jdkconfig.runtime.isNewLeft(jdk.fullVersion, latestJdk.fullVersion)) {
+		if (!latestJdk || jdksettings.runtime.isNewLeft(jdk.fullVersion, latestJdk.fullVersion)) {
 			latestMajorMap.set(jdk.majorVersion, jdk);
 		}
 	}
@@ -96,12 +96,12 @@ export async function scan(
 
 	// Set Runtimes Configuration
 	for (const scannedJdk of latestMajorMap.values()) {
-		const scannedName = jdkconfig.runtime.nameOf(scannedJdk.majorVersion);
+		const scannedName = jdksettings.runtime.nameOf(scannedJdk.majorVersion);
 		const configRuntime = runtimes.find(r => r.name === scannedName);
 		if (configRuntime) {
-			if (jdkconfig.runtime.isUserInstalled(configRuntime.path)) {
+			if (jdksettings.runtime.isUserInstalled(configRuntime.path)) {
 				const configJdk = await findByPath(configRuntime.path); // Don't set if same fullVersion
-				if (configJdk && jdkconfig.runtime.isNewLeft(scannedJdk.fullVersion, configJdk.fullVersion)) {
+				if (configJdk && jdksettings.runtime.isNewLeft(scannedJdk.fullVersion, configJdk.fullVersion)) {
 					configRuntime.path = scannedJdk.homePath;
 				}
 				// else Keep if downloaded or same version
