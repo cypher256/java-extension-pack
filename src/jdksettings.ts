@@ -213,7 +213,7 @@ export async function update(
 		const profile:any = _.cloneDeep(profilesOld[runtime.name]) ?? {}; // for isEqual
 		profile.overrideName = true;
 		if (OS.isWindows) {
-			profile.path ??= 'powershell';
+			profile.path ??= 'cmd'; // powershell (legacy), pwsh (non-preinstalled)
 		} else {
 			profile.path ??= OS.isMac ? 'zsh' : 'bash';
 			profile.args ??= ['-l'];
