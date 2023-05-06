@@ -123,7 +123,7 @@ Command Palette: `Open User Settings (JSON)`
 // Terminal Dropdown
 "terminal.integrated.profiles.windows": {
   "JavaSE-1.8": {
-      "path": "powershell",
+      "path": "cmd",
       "env": {
           "JAVA_HOME": "c:\\Users\\<UserName>\\AppData\\Roaming\\Code\\User\\globalStorage\\pleiades.java-extension-pack-jdk\\8",
           "PATH": "c:\\Users\\<UserName>\\AppData\\Roaming\\Code\\User\\globalStorage\\pleiades.java-extension-pack-jdk\\8\\bin;${env:PATH}"
@@ -131,7 +131,7 @@ Command Palette: `Open User Settings (JSON)`
       "overrideName": true
   },
   "JavaSE-11": {
-      "path": "powershell",
+      "path": "cmd",
       "env": {
           "JAVA_HOME": "c:\\Program Files\\Amazon Corretto\\jdk11.0.18_10",
           "PATH": "c:\\Program Files\\Amazon Corretto\\jdk11.0.18_10\\bin;${env:PATH}"
