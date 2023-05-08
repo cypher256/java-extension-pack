@@ -27,13 +27,13 @@ export async function activate(context:vscode.ExtensionContext) {
 		jdkcontext.context.globalState.update(STATE_KEY_ACTIVATED, true);
 		installLanguagePack(); // async
 	}
-	const redhatVersions = jdksettings.runtime.getRedhatVersions();
+	const jdtVersions = jdksettings.runtime.getJdtVersions();
 	const ltsFilter = (ver:number) => [8, 11].includes(ver) || (ver >= 17 && (ver - 17) % 4 === 0);
-	const targetLtsVersions = redhatVersions.filter(ltsFilter).slice(-4);
+	const targetLtsVersions = jdtVersions.filter(ltsFilter).slice(-4);
 	const latestLtsVersion = _.last(targetLtsVersions) ?? 0;
-	log.info('RedHat versions ' + redhatVersions);
+	log.info('JDT Supported versions ' + jdtVersions);
 	log.info('Target LTS versions ' + targetLtsVersions);
-	const runtimes = jdksettings.getConfigRuntimes();
+	const runtimes = jdksettings.runtime.getConfigRuntimes();
 
 	// Scan JDK
 	try {
@@ -52,7 +52,7 @@ export async function activate(context:vscode.ExtensionContext) {
 		vscode.window.withProgress({location: vscode.ProgressLocation.Window}, async progress => {
 			try {
 				const runtimesOld = _.cloneDeep(runtimes);
-				const downloadVersions = _.uniq([...targetLtsVersions, _.last(redhatVersions) ?? 0]);
+				const downloadVersions = _.uniq([...targetLtsVersions, _.last(jdtVersions) ?? 0]);
 				const promiseArray = downloadVersions.map(v => jdkdownload.download(runtimes, v, progress));
 				await Promise.all(promiseArray);
 				await jdksettings.update(runtimes, runtimesOld, latestLtsVersion);

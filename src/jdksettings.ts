@@ -20,21 +20,17 @@ export interface IConfigRuntime {
 }
 
 /**
- * Gets the Java runtime configurations for the VSCode Java extension.
- * @returns An array of Java runtime objects.
- */
-export function getConfigRuntimes(): IConfigRuntime[] {
-	const config = vscode.workspace.getConfiguration();
-	return config.get(runtime.CONFIG_KEY, []);
-}
-
-/**
  * The namespace for the Java configuration runtime.
  */
 export namespace runtime {
 
 	export const CONFIG_KEY = 'java.configuration.runtimes';
 
+	export function getConfigRuntimes(): IConfigRuntime[] {
+		const config = vscode.workspace.getConfiguration();
+		return config.get(CONFIG_KEY, []);
+	}
+	
 	export function versionOf(runtimeName:string): number {
 		return Number(runtimeName.replace(/^J(ava|2)SE-(1\.|)/, '')); // NaN if invalid
 	}
@@ -48,18 +44,18 @@ export namespace runtime {
 		return 'JavaSE-' + majorVersion;
 	}
 
-	export function getRedhatNames(): string[] {
+	export function getJdtNames(): string[] {
 		const redhatJava = vscode.extensions.getExtension('redhat.java'); // extensionDependencies
 		const redhatProp = redhatJava?.packageJSON?.contributes?.configuration?.properties;
-		const redhatRuntimeNames:string[] = redhatProp?.[CONFIG_KEY]?.items?.properties?.name?.enum ?? [];
-		if (redhatRuntimeNames.length === 0) {
+		const jdtRuntimeNames:string[] = redhatProp?.[CONFIG_KEY]?.items?.properties?.name?.enum ?? [];
+		if (jdtRuntimeNames.length === 0) {
 			log.warn('Failed getExtension RedHat', redhatJava);
 		}
-		return redhatRuntimeNames;
+		return jdtRuntimeNames;
 	}
 
-	export function getRedhatVersions(): number[] {
-		return getRedhatNames().map(name => versionOf(name));
+	export function getJdtVersions(): number[] {
+		return getJdtNames().map(versionOf);
 	}
 
 	export function isUserInstalled(javaHome:string): boolean {
@@ -93,7 +89,7 @@ export async function update(
 	const config = vscode.workspace.getConfiguration();
 	const CONFIG_KEY_DEPRECATED_JAVA_HOME = 'java.home';
 	if (config.get(CONFIG_KEY_DEPRECATED_JAVA_HOME) !== null) {
-		updateUserSettings(CONFIG_KEY_DEPRECATED_JAVA_HOME, undefined);
+		updateConfig(CONFIG_KEY_DEPRECATED_JAVA_HOME, undefined);
 	}
 
 	// VSCode LS Java Home (Fix if unsupported old version)
@@ -115,17 +111,17 @@ export async function update(
 					// https://github.com/redhat-developer/vscode-java/blob/master/src/requirements.ts
 					const jdk = await jdkscan.findByPath(fixedPath);
 					if (!jdk || jdk.majorVersion < latestLtsVersion) {
-						updateUserSettings(CONFIG_KEY_LS_JAVA_HOME, latestLtsPath); // Fix unsupported old version
+						updateConfig(CONFIG_KEY_LS_JAVA_HOME, latestLtsPath); // Fix unsupported old version
 					} else if (fixedPath !== originPath) {
-						updateUserSettings(CONFIG_KEY_LS_JAVA_HOME, fixedPath); // Fix invalid
+						updateConfig(CONFIG_KEY_LS_JAVA_HOME, fixedPath); // Fix invalid
 					} else {
 						// Keep new version
 					}
 				} else {
-					updateUserSettings(CONFIG_KEY_LS_JAVA_HOME, latestLtsPath); // Can't fix
+					updateConfig(CONFIG_KEY_LS_JAVA_HOME, latestLtsPath); // Can't fix
 				}
 			} else {
-				updateUserSettings(CONFIG_KEY_LS_JAVA_HOME, latestLtsPath); // if unset
+				updateConfig(CONFIG_KEY_LS_JAVA_HOME, latestLtsPath); // if unset
 			}
 		}
 	}
@@ -137,7 +133,7 @@ export async function update(
 			latestLtsRuntime.default = true;
 		}
 		runtimes.sort((a, b) => a.name.localeCompare(b.name));
-		updateUserSettings(runtime.CONFIG_KEY, runtimes);
+		updateConfig(runtime.CONFIG_KEY, runtimes);
 	}
 
 	// Gradle Daemon Java Home (Fix if set), Note: If unset use java.jdt.ls.java.home
@@ -148,10 +144,10 @@ export async function update(
 		if (originPath) {
 			const fixedPath = await jdkscan.fixPath(originPath, defaultRuntime.path);
 			if (fixedPath && fixedPath !== originPath) {
-				updateUserSettings(CONFIG_KEY_GRADLE_JAVA_HOME, fixedPath);
+				updateConfig(CONFIG_KEY_GRADLE_JAVA_HOME, fixedPath);
 			}
 		} else {
-			updateUserSettings(CONFIG_KEY_GRADLE_JAVA_HOME, defaultRuntime.path);
+			updateConfig(CONFIG_KEY_GRADLE_JAVA_HOME, defaultRuntime.path);
 		}
 	}
 
@@ -163,7 +159,7 @@ export async function update(
 		let mavenJavaHome = customEnv.find(i => i.environmentVariable === 'JAVA_HOME');
 		function _updateMavenJavaHome(newPath: string) {
 			mavenJavaHome.value = newPath;
-			updateUserSettings(CONFIG_KEY_MAVEN_CUSTOM_ENV, customEnv);
+			updateConfig(CONFIG_KEY_MAVEN_CUSTOM_ENV, customEnv);
 		}
 		if (mavenJavaHome) {
 			const fixedPath = await jdkscan.fixPath(mavenJavaHome.value, defaultRuntime.path);
@@ -177,7 +173,7 @@ export async function update(
 		}
 	}
 
-	// Terminal Default (Keep if set)
+	// Terminal Default Environment Variables (Keep if set)
 	function _setTerminalEnv(javaHome: string, env: any) {
 		env.JAVA_HOME = javaHome;
 		env.PATH = javaHome + (OS.isWindows ? '\\bin;' : '/bin:') + '${env:PATH}';
@@ -191,7 +187,7 @@ export async function update(
 		const terminalDefault:any = config.get(CONFIG_KEY_TERMINAL_ENV, {});
 		function _updateTerminalConfig(newPath: string) {
 			_setTerminalEnv(newPath, terminalDefault);
-			updateUserSettings(CONFIG_KEY_TERMINAL_ENV, terminalDefault);
+			updateConfig(CONFIG_KEY_TERMINAL_ENV, terminalDefault);
 		}
 		if (terminalDefault.JAVA_HOME) {
 			const fixedPath = await jdkscan.fixPath(terminalDefault.JAVA_HOME, defaultRuntime.path);
@@ -203,7 +199,12 @@ export async function update(
 		}
 	}
 
-	// Terminal Profiles
+	// Terminal Default Profile (Keep if set)
+	if (OS.isWindows) {
+		setIfNull('terminal.integrated.defaultProfile.windows', 'Command Prompt');
+	}
+
+	// Terminal Profiles Dropdown
 	const CONFIG_KEY_TERMINAL_PROFILES = 'terminal.integrated.profiles.' + osConfigName;
 	const profilesOld:any = _.cloneDeep(config.get(CONFIG_KEY_TERMINAL_PROFILES)); // Proxy to POJO
 	const profilesNew:any = Object.fromEntries(Object.entries(profilesOld)
@@ -223,27 +224,27 @@ export async function update(
 		profilesNew[runtime.name] = profile;
 	}
 	if (!_.isEqual(profilesNew, profilesOld) ) {
-		updateUserSettings(CONFIG_KEY_TERMINAL_PROFILES, profilesNew);
-		// Don't set 'terminal.integrated.defaultProfile.*' because Terminal Default is set
+		updateConfig(CONFIG_KEY_TERMINAL_PROFILES, profilesNew);
 	}
 }
 
-function updateUserSettings(section:string, value:any) {
+function updateConfig(section:string, value:any) {
 	const config = vscode.workspace.getConfiguration();
-	config.update(section, value, vscode.ConfigurationTarget.Global);
+	config.update(section, value, vscode.ConfigurationTarget.Global); // User Settings
 	log.info('Updated config:', section, _.isObject(value) ? '' : value);
+}
+
+function setIfNull(section:string, value:any) {
+	const config = vscode.workspace.getConfiguration();
+	if (!config.inspect(section)?.globalValue) {
+		updateConfig(section, value);
+	}
 }
 
 /**
  * Sets default values for VSCode settings.
  */
 export function setDefault() {
-	const config = vscode.workspace.getConfiguration();
-	function _setIfNull(section:string, value:any) {
-		if (!config.inspect(section)?.globalValue) {
-			updateUserSettings(section, value);
-		}
-	}
-	_setIfNull('workbench.tree.indent', 20);
-	_setIfNull('java.debug.settings.hotCodeReplace', 'auto');
+	setIfNull('java.debug.settings.hotCodeReplace', 'auto');
+	setIfNull('workbench.tree.indent', 20);
 }

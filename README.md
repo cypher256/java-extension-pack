@@ -14,7 +14,7 @@ The extension greatly reduces the installation, configuration effort, and [JDK c
 # Features
 
 ## JDK Auto-configuration
-The JDKs are auto-configured for the current environment on VSCode startup as follows. If there are multiple JDKs of the same version, the latest minor version among them is used. If you manually install or update the JDK and want to force update the configuration of VSCode, restart VSCode or execute `Reload Window` from the command palette (Ctrl/Cmd + Shift + P). These are applied as user (VSCode global) settings. You can manually change user settings, but if you want to customize your settings even further, consider using [workspace settings](https://code.visualstudio.com/docs/getstarted/settings) or [profiles](https://code.visualstudio.com/docs/editor/profiles).
+The JDKs are auto-configured for the current environment on VSCode startup as follows. If there are multiple JDKs of the same version, the latest minor version among them is used. If you manually install or update the JDK and want to force update the configuration of VSCode, restart VSCode or execute `Developer: Reload Window` from the command palette (Ctrl/Cmd + Shift + P). These are applied as user (VSCode global) settings. You can manually change user settings, but if you want to customize your settings even further, consider using [workspace settings](https://code.visualstudio.com/docs/getstarted/settings) or [profiles](https://code.visualstudio.com/docs/editor/profiles).
 
 1. Auto-fix invalid JDK configuration path (e.g. /jdk17/bin/java -> /jdk17)
 1. Auto-remove configuration entries when JDK uninstalled or version path changed
@@ -53,7 +53,7 @@ Up to 4 LTSs and the [latest available non-LTS](https://marketplace.visualstudio
 <br>
 
 #### e.g. Auto-configured User settings.json
-Command Palette: `Open User Settings (JSON)`
+Command Palette ≫ `Preferences: Open User Settings (JSON)`
 ```json
 // JDT Language Server
 "java.jdt.ls.java.home": "c:\\Program Files\\java\\jdk-17.0.6",
@@ -110,17 +110,20 @@ Terminal profiles are defined based on configured runtimes, so you can easily op
 |Configuration Name|Configured Value (Order of priority)|
 |---|---|
 |[terminal.integrated.env.*](https://code.visualstudio.com/docs/terminal/profiles#_configuring-profiles)<br>([Issues](https://github.com/microsoft/vscode/issues?q=is%3Aissue+terminal.integrated.env+JAVA_HOME))|Set default if JAVA_HOME environment variable unset<br>(Setting > JAVA_HOME)|
+|[terminal.integrated.defaultProfile.windows](https://code.visualstudio.com/docs/terminal/profiles)<br>([Issues](https://github.com/microsoft/vscode/issues?q=is%3Aissue+terminal.integrated.profiles))|Set "Command Prompt" if unset on Windows<br>default "PowerShell"|
 |[terminal.integrated.profiles.*](https://code.visualstudio.com/docs/terminal/profiles)<br>([Issues](https://github.com/microsoft/vscode/issues?q=is%3Aissue+terminal.integrated.profiles))|Set configured runtimes to terminal|
 
 #### e.g. Auto-configured User settings.json
-Command Palette: `Open User Settings (JSON)`
+Command Palette ≫ `Preferences: Open User Settings (JSON)`
 ```json
 // Terminal Default Environment Variables
 "terminal.integrated.env.windows": {
   "JAVA_HOME": "c:\\Program Files\\java\\jdk-17.0.6",
   "PATH": "c:\\Program Files\\java\\jdk-17.0.6\\bin;${env:PATH}"
 },
-// Terminal Dropdown
+// Terminal Default Profile
+"terminal.integrated.defaultProfile.windows": "Command Prompt",
+// Terminal Profiles Dropdown
 "terminal.integrated.profiles.windows": {
   "JavaSE-1.8": {
       "path": "cmd",
@@ -156,8 +159,8 @@ If the user settings is not set, it will auto-set the JDT Auto default value. No
 
 |Configuration Name|VSCode default|JDT Auto default|
 |---|---|---|
-|[workbench.tree.indent](https://code.visualstudio.com/docs/getstarted/settings#:~:text=in%20pixels.%0A%20%20%22-,workbench.tree.indent,-%22%3A%208)|8|20|
 |[java.debug.settings.hotCodeReplace](https://code.visualstudio.com/docs/java/java-debugging#_hot-code-replace)|manual|auto|
+|[workbench.tree.indent](https://code.visualstudio.com/docs/getstarted/settings#:~:text=in%20pixels.%0A%20%20%22-,workbench.tree.indent,-%22%3A%208)|8|20|
 
 <br>
 
@@ -171,13 +174,13 @@ If the user settings is not set, it will auto-set the JDT Auto default value. No
 
 # Included Extension Features
 ## Extension Pack for Java
-Since many projects are nowadays using different Java versions in development, it is recommended to specify the Java version for each project instead of the `JAVA_HOME` environment variable so as not to affect the OS and OS user environment. To see which JDKs are used for your projects in multi-root workspaces, you can trigger the command `Configure Java Runtime` in Command Palette. The [Configure Runtime for Projects](https://code.visualstudio.com/docs/java/java-project) view is a feature of the Extension Pack for Java (Microsoft).
+Since many projects are nowadays using different Java versions in development, it is recommended to specify the Java version for each project instead of the `JAVA_HOME` environment variable so as not to affect the OS and OS user environment. To see which JDKs are used for your projects in multi-root workspaces, you can trigger the command `Java: Configure Java Runtime` in Command Palette. The [Configure Runtime for Projects](https://code.visualstudio.com/docs/java/java-project) view is a feature of the Extension Pack for Java (Microsoft).
 <br><p>
 ![Configure Java Runtime](https://code.visualstudio.com/assets/docs/java/java-project/configure-project-runtime.png)
 </p>
 
 ### Change JDK for Gradle and Maven projects
-If you want to change the JDK version for your Gradle or Maven projects, you need to update it in your build scripts (build.gradle or pom.xml). You can click ⓘ to see how to make such changes. Click 🖊 will navigate to the build script file of the project. It is recommended that the Maven/Gradle version be set by project using `gradlew`/`mvnw` properties. For Spring Boot Gradle/Maven projects and general Gradle projects, these wrappers are included by default, so you don't need to install Gradle or Maven.
+If you want to change the JDK version for your Gradle or Maven projects, you need to update it in your build scripts (build.gradle or pom.xml). You can click ⓘ to see how to make such changes. Click 🖊 will navigate to the build script file of the project. It is recommended that the Maven/Gradle version be set by project using `gradlew`/`mvnw` properties. For Spring Boot Gradle/Maven projects and general Gradle projects, these wrappers are included by default, so you don't need to install Gradle/Maven or set its environment variables.
 <br>
 
 ### Change JDK for unmanaged folders

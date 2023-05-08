@@ -19,10 +19,10 @@ export async function scan(
 	runtimes:jdksettings.IConfigRuntime[]) {
 
 	// Fix JDK path
-	const redhatNames = jdksettings.runtime.getRedhatNames();
+	const jdtRuntimeNames = jdksettings.runtime.getJdtNames();
 	for (let i = runtimes.length - 1; i >= 0; i--) { // Decrement for splice
 		const runtime = runtimes[i];
-		if (redhatNames.length > 0 && !redhatNames.includes(runtime.name)) {
+		if (jdtRuntimeNames.length > 0 && !jdtRuntimeNames.includes(runtime.name)) {
 			log.info(`Remove unsupported name ${runtime.name}`);
 			runtimes.splice(i, 1);
 			continue;
@@ -43,9 +43,9 @@ export async function scan(
 
 	// Scan User Installed JDK
 	const latestMajorMap = new Map<number, IJdk>();
-	const redhatVersions = jdksettings.runtime.getRedhatVersions();
+	const jdtVersions = jdksettings.runtime.getJdtVersions();
 	for (const jdk of await findAll()) {
-		if (!redhatVersions.includes(jdk.majorVersion)) {
+		if (!jdtVersions.includes(jdk.majorVersion)) {
 			continue;
 		}
 		const latestJdk = latestMajorMap.get(jdk.majorVersion);
@@ -79,7 +79,7 @@ export async function scan(
 	}
 
 	// Scan Auto-Downloaded JDK (Old Java Version Support)
-	for (const major of redhatVersions) {
+	for (const major of jdtVersions) {
 		if (latestMajorMap.has(major)) {
 			continue; // Prefer user-installed JDK
 		}
