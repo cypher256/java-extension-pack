@@ -111,7 +111,7 @@ export async function update(
 					// https://github.com/redhat-developer/vscode-java/blob/master/src/requirements.ts
 					const jdk = await jdkscan.findByPath(fixedPath);
 					if (!jdk || jdk.majorVersion < latestLtsVersion) {
-						updateConfig(CONFIG_KEY_LS_JAVA_HOME, latestLtsPath); // Fix unsupported old version
+						updateConfig(CONFIG_KEY_LS_JAVA_HOME, latestLtsPath); // Fix unsupported older version
 					} else if (fixedPath !== originPath) {
 						updateConfig(CONFIG_KEY_LS_JAVA_HOME, fixedPath); // Fix invalid
 					} else {

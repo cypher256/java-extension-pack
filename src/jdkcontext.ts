@@ -27,7 +27,7 @@ export function rmSync(p:string): void {
 	try {
 		fs.rmSync(p, {recursive: true, force: true});
 	} catch (e) {
-		log.info('Failed rmSync: ' + e);
+		log.info('Failed rmSync: ' + e); // Silent
 	}
 }
 
@@ -37,6 +37,6 @@ export function mkdirSync(p:string): void {
 			fs.mkdirSync(p, {recursive: true});
 		}
 	} catch (e) {
-		log.info('Failed mkdirSync: ' + e);
+		log.info('Failed mkdirSync: ' + e); // Silent
 	}
 }
