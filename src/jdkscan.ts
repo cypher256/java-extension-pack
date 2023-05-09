@@ -173,19 +173,19 @@ function createJdk(runtime: jdkutils.IJavaRuntime | undefined): IJdk | undefined
 }		 
 
 async function tryGlob(
-	managerName: string,
+	logLabel: string,
 	jdks: IJdk[], 
-	pattern: string | string[], 
-	options?: GlobOptionsWithFileTypesUnset | undefined) {
+	javaExePathPattern: string | string[], 
+	globOptions?: GlobOptionsWithFileTypesUnset | undefined) {
 
 	try {
-		if (typeof pattern === 'string') {
-			pattern = [pattern];
+		if (typeof javaExePathPattern === 'string') {
+			javaExePathPattern = [javaExePathPattern];
 		}
-		const globPatterns = pattern.map(p => p.replace(/\\/g, '/'));
-		for (const javaExeFile of await glob(globPatterns, options)) {
+		const globPatterns = javaExePathPattern.map(p => p.replace(/\\/g, '/'));
+		for (const javaExeFile of await glob(globPatterns, globOptions)) {
 			const jdk = await findByPath(path.join(javaExeFile, '..', '..'));
-			pushJdk(managerName, jdk, jdks);
+			pushJdk(logLabel, jdk, jdks);
 		}
 	} catch (error) {
 		log.info('glob error', error); // Silent
@@ -203,7 +203,8 @@ async function findAll(): Promise<IJdk[]> {
 	const jdks: IJdk[] = [];
 	const scanStrategies = [
 		async () => {
-			// Find by jdk-utils
+			// Find by jdk-utils, Gradle Toolchains support pull requested
+			// https://github.com/Eskibear/node-jdk-utils/issues/9
 			const runtimes = await jdkutils.findRuntimes({ checkJavac: true, withVersion: true });
 			runtimes.map(createJdk).forEach(jdk => pushJdk('jdk-utils', jdk, jdks));
 		},
@@ -226,9 +227,11 @@ async function findAll(): Promise<IJdk[]> {
 		},
 		async () => {
 			// Find Pleiades (Windows) e.g.
+			// C:\pleiades\java\17\bin
 			// C:\pleiades\2023-03\java\17\bin
 			if (!OS.isWindows) {return;} // Windows only (Exclude macos JDK 32bit)
-			const patterns = [...'cd'].map(c => `${c}:/pleiades/20*/java/*/bin/java.exe`);
+			const patterns = [...'cd']
+				.flatMap(drive => ['', '20*/'].map(p => `${drive}:/pleiades*/${p}java/*/bin/java.exe`));
 			await tryGlob('Pleiades', jdks, patterns);
 		},
 	];
