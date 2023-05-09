@@ -100,9 +100,9 @@ export async function download(
 	try {
 		await decompress(downloadedFile, storageJavaDir, {
 			map: file => {
-				file.path = file.path.replace(/^[^\/]+/, String(majorVersion));
+				file.path = file.path.replace(/^[^/]+/, String(majorVersion));
 				if (OS.isMac) {
-					file.path = file.path.replace(/^([0-9]+\/)Contents\/Home\//, '$1');
+					file.path = file.path.replace(/^(\d+\/)Contents\/Home\//, '$1');
 				}
 				return file;
 			}

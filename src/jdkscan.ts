@@ -59,7 +59,7 @@ export async function scan(
 	const newStorageDir = path.join(oldStorageDir, 'java');
 	jdkcontext.mkdirSync(newStorageDir);
 	for (const name of await fs.promises.readdir(oldStorageDir)) {
-		if (name.match(/\.(zip|gz)$/) || name.match(/^[0-9]+$/)) {
+		if (name.match(/\.(zip|gz)$/) || name.match(/^\d+$/)) {
 			try {
 				const oldPath = path.join(oldStorageDir, name);
 				const newPath = path.join(newStorageDir, name);
