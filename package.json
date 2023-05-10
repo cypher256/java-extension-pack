@@ -95,9 +95,9 @@
     "axios": "1.x",
     "compare-versions": "^6.0.0-rc.1",
     "decompress": "^4.2.1",
-    "glob-latest": "npm:glob@^10.2.2",
+    "glob-latest": "npm:glob@10.x",
     "jdk-utils": "0.x",
     "lodash": "^4.17.21"
   },
-  "version": "2023.509.0"
+  "version": "2023.510.0"
 }
