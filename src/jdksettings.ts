@@ -247,4 +247,8 @@ function setIfNull(section:string, value:any) {
 export function setDefault() {
 	setIfNull('java.debug.settings.hotCodeReplace', 'auto');
 	setIfNull('workbench.tree.indent', 20);
+	if (OS.isWindows) {
+		setIfNull('files.eol', '\n');
+		setIfNull('[bat]', {'files.eol': '\r\n'});
+	}
 }

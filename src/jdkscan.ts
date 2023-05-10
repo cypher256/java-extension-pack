@@ -155,7 +155,10 @@ export async function findByPath(homePath: string): Promise<IJdk | undefined> {
 	return createJdk(runtime);
 }
 
-interface IJdk {
+/**
+ * An interface representing a JDK.
+ */
+export interface IJdk {
 	majorVersion: number;
 	fullVersion: string;
 	homePath: string;

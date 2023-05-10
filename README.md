@@ -14,7 +14,7 @@ The extension greatly reduces the installation, configuration effort, and [JDK c
 # Features
 
 ## JDK Auto-configuration
-The JDKs are auto-configured for the current environment on VSCode startup as follows. You can check the detected JDK in User settings.json described later or Output (Ctrl + Shift + U) ≫ Dropdown: `JDK Auto`. If there are multiple JDKs of the same version, the latest minor version among them is used. If you manually install or update the JDK and want to force update the configuration of VSCode, restart VSCode or execute **Developer: Reload Window** from the command palette (F1 or Ctrl/Cmd + Shift + P). These are applied as user (VSCode global) settings. You can manually change user settings, but if you want to customize your settings even further, consider using [workspace settings](https://code.visualstudio.com/docs/getstarted/settings) or [profiles](https://code.visualstudio.com/docs/editor/profiles).
+The JDKs are auto-configured for the current environment on VSCode startup as follows. You can check the detected JDK in User settings.json described later or Output (Ctrl + Shift + U) ≫ Dropdown: `JDK Auto`. If there are multiple JDKs of the same version, the latest minor version among them is used. If you manually install or update the JDK and want to force update the configuration of VSCode, restart VSCode or execute **>Developer: Reload Window** from the command palette (F1 or Ctrl/Cmd + Shift + P). These are applied as user (VSCode global) settings. You can manually change user settings, but if you want to customize your settings even further, consider using [workspace settings](https://code.visualstudio.com/docs/getstarted/settings) or [profiles](https://code.visualstudio.com/docs/editor/profiles).
 
 1. Auto-fix invalid JDK configuration path (e.g. `/jdk17/bin/java` -> `/jdk17`)
 1. Auto-remove configuration entries when JDK uninstalled or version path changed
@@ -53,7 +53,7 @@ Up to 4 LTSs and the [latest available non-LTS](https://marketplace.visualstudio
 <br>
 
 #### e.g. Auto-configured User settings.json
-Command Palette ≫ **Preferences: Open User Settings (JSON)**
+Command Palette **>Preferences: Open User Settings (JSON)**
 ```json
 // JDT Language Server
 "java.jdt.ls.java.home": "c:\\Program Files\\java\\jdk-17.0.6",
@@ -102,7 +102,7 @@ Command Palette ≫ **Preferences: Open User Settings (JSON)**
 <br>
 
 ## Terminal Auto-configuration
-Terminal profiles are defined based on configured runtimes, so you can easily open a terminal by selecting the Java version from the Terminal (Ctrl/Cmd + \`) ≫ Profiles dropdown. The configured environment variables have no effect outside the terminal, so the system and OS user environment remain clean. The `JAVA_HOME` and `PATH` in the auto-configured terminal configuration will always be overridden from the configured runtimes, so if you want to customize it, copy the terminal configuration entry and create a new one.
+Terminal profiles are defined based on configured runtimes, so you can easily open a terminal by selecting the Java version from command **>Terminal: Create New Terminal (With Profile)** or Terminal (Ctrl/Cmd + \`) ≫ Profiles dropdown. The configured environment variables have no effect outside the terminal, so the system and OS user environment remain clean. The `JAVA_HOME` and `PATH` in the auto-configured terminal configuration will always be overridden from the configured runtimes, so if you want to customize it, copy the terminal configuration entry and create a new one.
 <br><p>
 ![Switch Java Version](https://raw.githubusercontent.com/cypher256/java-extension-pack/main/image/terminal.png)
 </p>
@@ -114,7 +114,7 @@ Terminal profiles are defined based on configured runtimes, so you can easily op
 |[terminal.integrated.profiles.*](https://code.visualstudio.com/docs/terminal/profiles)<br>([Issues](https://github.com/microsoft/vscode/issues?q=is%3Aissue+terminal.integrated.profiles))|Set configured runtimes to terminal|
 
 #### e.g. Auto-configured User settings.json
-Command Palette ≫ **Preferences: Open User Settings (JSON)**
+Command Palette **>Preferences: Open User Settings (JSON)**
 ```json
 // Terminal Default Environment Variables
 "terminal.integrated.env.windows": {
@@ -155,12 +155,14 @@ The language pack corresponding to the OS locale is installed at the first start
 <br>
 
 ## Auto-default Settings
-If the user settings is not set, it will auto-set the JDT Auto default value. Note that a debug run is required to enable Hot Code Replace (Hot Deploy).
+If the user settings is not set, it will auto-set the JDK Auto default value. Note that a debug run is required to enable Hot Code Replace (Hot Deploy).
 
-|Configuration Name|VSCode default|JDT Auto default|
+|Configuration Name|VSCode default|JDK Auto default|
 |---|---|---|
 |[java.debug.settings.hotCodeReplace](https://code.visualstudio.com/docs/java/java-debugging#_hot-code-replace)|`manual`|`auto`|
 |[workbench.tree.indent](https://code.visualstudio.com/docs/getstarted/settings#:~:text=in%20pixels.%0A%20%20%22-,workbench.tree.indent,-%22%3A%208)|`8`|`20`|
+|(Windows) `files.eol`|`auto`|`\n`|
+|(Windows) `[bat]` : `files.eol`|`files.eol`|`\r\n`|
 
 <br>
 
