@@ -161,7 +161,7 @@ If the user settings is not set, it will auto-set the JDK Auto default value. No
 |---|---|---|
 |[java.debug.settings.hotCodeReplace](https://code.visualstudio.com/docs/java/java-debugging#_hot-code-replace)|`manual`|`auto`|
 |[workbench.tree.indent](https://code.visualstudio.com/docs/getstarted/settings#:~:text=in%20pixels.%0A%20%20%22-,workbench.tree.indent,-%22%3A%208)|`8`|`20`|
-|(Windows) `files.eol`|`auto`|`\n`|
+|(Windows) [files.eol](https://code.visualstudio.com/docs/getstarted/settings#:~:text=line%20character.%0A%20%20%22-,files.eol,-%22%3A%20%22auto)|`auto`|`\n`|
 |(Windows) `[bat]` : `files.eol`|`files.eol`|`\r\n`|
 
 <br>
