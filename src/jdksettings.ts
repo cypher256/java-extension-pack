@@ -14,7 +14,7 @@ const { log, OS } = jdkcontext;
  * An interface for the VSCode Java configuration runtime.
  */
 export interface IConfigRuntime {
-	name: string;
+	readonly name: string;
 	path: string;
 	default?: boolean;
 }
