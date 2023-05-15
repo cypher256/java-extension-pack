@@ -85,7 +85,7 @@
     "@typescript-eslint/eslint-plugin": "5.x",
     "@typescript-eslint/parser": "5.x",
     "@vscode/l10n-dev": "0.x",
-    "@vscode/test-electron": "^2.3.0",
+    "@vscode/test-electron": "2.x",
     "eslint": "8.x",
     "glob": "^8.1.0",
     "mocha": "^10.2.0",
@@ -99,5 +99,5 @@
     "jdk-utils": "0.x",
     "lodash": "^4.17.21"
   },
-  "version": "2023.510.0"
+  "version": "2023.515.0"
 }
