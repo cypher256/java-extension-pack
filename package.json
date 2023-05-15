@@ -76,12 +76,12 @@
     "vscode": "^1.54.0"
   },
   "devDependencies": {
-    "@types/vscode": "^1.54.0",
     "@types/decompress": "^4.2.4",
     "@types/glob": "^8.1.0",
     "@types/lodash": "^4.14.194",
     "@types/mocha": "^10.0.1",
     "@types/node": "18.x",
+    "@types/vscode": "^1.54.0",
     "@typescript-eslint/eslint-plugin": "5.x",
     "@typescript-eslint/parser": "5.x",
     "@vscode/l10n-dev": "0.x",
@@ -97,7 +97,8 @@
     "decompress": "^4.2.1",
     "glob-latest": "npm:glob@10.x",
     "jdk-utils": "0.x",
-    "lodash": "^4.17.21"
+    "lodash": "^4.17.21",
+    "minipass": "5.x"
   },
   "version": "2023.515.0"
 }

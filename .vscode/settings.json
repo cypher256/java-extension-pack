@@ -32,6 +32,7 @@
         "lannonbr",
         "lcov",
         "localjdk",
+        "minipass",
         "mvnw",
         "pwsh",
         "runtimes",

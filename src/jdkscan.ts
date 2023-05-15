@@ -173,7 +173,7 @@ function createJdk(runtime: jdkutils.IJavaRuntime | undefined): IJdk | undefined
 		};
 	}
 	return undefined;
-}		 
+}
 
 async function tryGlob(
 	logLabel: string,
