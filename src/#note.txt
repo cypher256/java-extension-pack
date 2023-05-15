@@ -4,7 +4,6 @@
 
  @types/node          18.x  →     20.x
  @types/vscode     ^1.54.0  →  ^1.78.0  test compile error
- @vscode/l10n-dev  ^0.0.25  →  ^0.0.26  Github Actions npm ERR! code E404
  glob               ^8.1.0  →  ^10.2.4  test compile error
  minipass              5.x  →      6.x  npm update error
 
