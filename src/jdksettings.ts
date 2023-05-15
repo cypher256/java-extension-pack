@@ -249,6 +249,7 @@ export function setDefault() {
 	setIfNull('workbench.tree.indent', 20);
 	if (OS.isWindows) {
 		setIfNull('files.eol', '\n');
+		// eslint-disable-next-line @typescript-eslint/naming-convention
 		setIfNull('[bat]', {'files.eol': '\r\n'});
 	}
 }
