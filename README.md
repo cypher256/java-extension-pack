@@ -23,7 +23,7 @@ The JDKs are auto-configured for the current environment on VSCode startup as fo
 1. Auto-download Adoptium LTS JDKs and available latest non-LTS JDK if not installed
 1. Auto-update auto-downloaded JDKs to the latest version
 
-|Configuration Name|Configured Value (Priority Order)|
+|Configuration Name|Configured Value (Default)|
 |---|---|
 |(*1) [java.jdt.ls.java.home](https://github.com/redhat-developer/vscode-java/wiki/JDK-Requirements#platform-versions)<br>([Issues](https://github.com/redhat-developer/vscode-java/issues?q=is%3Aissue+java.jdt.ls.java.home))|Latest LTS (*2)<br>(Setting > `JDK_HOME` > `JAVA_HOME` > `PATH`)|
 |(*1) [spring-boot.ls.java.home](https://github.com/spring-projects/sts4/blob/main/vscode-extensions/vscode-spring-boot/lib/Main.ts#L30)<br>([Issues](https://github.com/spring-projects/sts4/issues?q=is%3Aissue+spring-boot.ls.java.home))|Latest LTS (*2)<br>(Setting > `JAVA_HOME` > `PATH`)|
@@ -107,11 +107,11 @@ Terminal profiles are defined based on configured runtimes, so you can easily op
 ![Switch Java Version](https://raw.githubusercontent.com/cypher256/java-extension-pack/main/image/terminal.png)
 </p>
 
-|Configuration Name|Configured Value (Order of priority)|
+|Configuration Name|Configured Value (Default)|
 |---|---|
 |[terminal.integrated.env.*](https://code.visualstudio.com/docs/terminal/profiles#_configuring-profiles)<br>([Issues](https://github.com/microsoft/vscode/issues?q=is%3Aissue+terminal.integrated.env+JAVA_HOME))|Set default if JAVA_HOME environment variable unset<br>(Setting > JAVA_HOME)|
-|[terminal.integrated.defaultProfile.windows](https://code.visualstudio.com/docs/terminal/profiles)<br>([Issues](https://github.com/microsoft/vscode/issues?q=is%3Aissue+terminal.integrated.profiles))|Set "Command Prompt" if unset on Windows<br>default "PowerShell"|
-|[terminal.integrated.profiles.*](https://code.visualstudio.com/docs/terminal/profiles)<br>([Issues](https://github.com/microsoft/vscode/issues?q=is%3Aissue+terminal.integrated.profiles))|Set configured runtimes to terminal|
+|[terminal.integrated.defaultProfile.windows](https://code.visualstudio.com/docs/terminal/profiles)<br>([Issues](https://github.com/microsoft/vscode/issues?q=is%3Aissue+terminal.integrated.profiles))|Set "Command Prompt" if unset on Windows<br>("PowerShell")|
+|[terminal.integrated.profiles.*](https://code.visualstudio.com/docs/terminal/profiles)<br>([Issues](https://github.com/microsoft/vscode/issues?q=is%3Aissue+terminal.integrated.profiles))|Set configured runtimes to terminal<br>(None)|
 
 #### e.g. Auto-configured User settings.json
 Command Palette **>Preferences: Open User Settings (JSON)**
