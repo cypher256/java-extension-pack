@@ -30,7 +30,7 @@ export namespace runtime {
 		const config = vscode.workspace.getConfiguration();
 		return config.get(CONFIG_KEY, []);
 	}
-	
+
 	export function versionOf(runtimeName:string): number {
 		return Number(runtimeName.replace(/^J(ava|2)SE-(1\.|)/, '')); // NaN if invalid
 	}

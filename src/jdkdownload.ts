@@ -48,7 +48,7 @@ function archOf(javaVersion: number): string {
  */
 export async function download(
 	runtimes:jdksettings.IConfigRuntime[],
-	majorVersion:number, 
+	majorVersion:number,
 	progress:vscode.Progress<any>) {
 
 	const runtimeName = jdksettings.runtime.nameOf(majorVersion);
@@ -82,7 +82,7 @@ export async function download(
 	const fileExt = OS.isWindows ? 'zip' : 'tar.gz';
 	const fileName = `OpenJDK${majorVersion}U-jdk_${arch}_${p2}.${fileExt}`;
 	const downloadUrl = downloadUrlPrefix + fileName;
-	
+
 	// Download JDK
 	log.info('Downloading...', downloadUrl);
 	progress.report({ message: `JDK Auto: ${l10n('Downloading')} ${fullVersion}` });
