@@ -157,12 +157,14 @@ The language pack corresponding to the OS locale is installed at the first start
 ## Auto-default Settings
 If the user settings is not set, it will auto-set the JDK Auto default value. Note that a debug run is required to enable Hot Code Replace (Hot Deploy).
 
-|Configuration Name|VSCode default|JDK Auto default|
-|---|---|---|
-|[java.debug.settings.hotCodeReplace](https://code.visualstudio.com/docs/java/java-debugging#_hot-code-replace)|`manual`|`auto`|
-|[workbench.tree.indent](https://code.visualstudio.com/docs/getstarted/settings#:~:text=in%20pixels.%0A%20%20%22-,workbench.tree.indent,-%22%3A%208)|`8`|`20`|
-|(Windows) [files.eol](https://code.visualstudio.com/docs/getstarted/settings#:~:text=line%20character.%0A%20%20%22-,files.eol,-%22%3A%20%22auto)|`auto`|`\n`|
-|(Windows) `[bat]` : `files.eol`|`files.eol`|`\r\n`|
+|Extension Name|Configuration Name|Original default|JDK Auto default|
+|---|---|---|---|
+|Debugger for Java|[java.debug.settings.hotCodeReplace](https://code.visualstudio.com/docs/java/java-debugging#_hot-code-replace)|`manual`|`auto`|
+|VSCode|[workbench.tree.indent](https://code.visualstudio.com/docs/getstarted/settings#:~:text=in%20pixels.%0A%20%20%22-,workbench.tree.indent,-%22%3A%208)|`8`|`20`|
+|VSCode|(Windows) [files.eol](https://code.visualstudio.com/docs/getstarted/settings#:~:text=line%20character.%0A%20%20%22-,files.eol,-%22%3A%20%22auto)|`auto`|`\n`|
+|VSCode|(Windows) `[bat]` : `files.eol`|`files.eol`|`\r\n`|
+|Trailing Spaces|[trailing-spaces.includeEmptyLines](https://marketplace.visualstudio.com/items?itemName=shardulm94.trailing-spaces#:~:text=will%20be%20ignored.-,Include%20Empty%20Lines,-Default%3A%20true)|`true`|`false`|
+|Code Spell Checker|`cSpell.diagnosticLevel`|`Information`|`Hint`|
 
 <br>
 
@@ -182,7 +184,7 @@ Since many projects are nowadays using different Java versions in development, i
 </p>
 
 ### Change JDK for Gradle and Maven projects
-If you want to change the JDK version for your Gradle or Maven projects, you need to update it in your build scripts (`build.gradle` or `pom.xml`). You can click ⓘ to see how to make such changes. Click 🖊 will navigate to the build script file of the project. It is recommended that the Maven/Gradle version be set by project using `gradlew`/`mvnw` properties. For Spring Boot Gradle/Maven projects and general Gradle projects, these wrappers are included by default, so you don't need to install Gradle/Maven or set its environment variables.
+If you want to change the JDK version for your Gradle or Maven projects, you need to update it in your build scripts (`build.gradle` or `pom.xml`). You can click ⓘ to see how to make such changes. Click 🖊 will navigate to the build script file of the project. Maven/Gradle version is recommended to be set per project in `gradle-wrapper.properties`/`maven-wrapper.properties` using wrapper `gradlew`/`mvnw`. For Spring Boot Gradle/Maven projects and general Gradle projects, these wrappers are included by default, so you don't need to install Gradle/Maven or set its environment variables.
 <br>
 
 ### Change JDK for unmanaged folders
@@ -210,58 +212,55 @@ The JDK used to run the server for Servlet and Jakarta EE applications can be sp
 
 - ![](https://img.shields.io/visual-studio-marketplace/i/vscjava.vscode-java-pack?style=plastic)
 [Extension Pack for Java](https://marketplace.visualstudio.com/items?itemName=vscjava.vscode-java-pack) (Microsoft: MIT) / [VSCode Document](https://code.visualstudio.com/docs/java/java-tutorial#_creating-a-source-code-file)<br>
-IntelliSense, Refactoring, Debugger, Maven, Lombok, etc...<br>
+Popular extensions for Java development that provides Java IntelliSense, debugging, testing, Maven/Gradle support, project management and more.<br>
 - ![](https://img.shields.io/visual-studio-marketplace/i/vmware.vscode-boot-dev-pack?style=plastic)
 [Spring Boot Extension Pack](https://marketplace.visualstudio.com/items?itemName=vmware.vscode-boot-dev-pack) (VMWare: EPL-1.0) / [VSCode Document](https://code.visualstudio.com/docs/java/java-spring-boot#_create-the-project)<br>
-Spring Initializr, Boot Dashboard, Properties Support<br>
+A collection of extensions for developing Spring Boot applications.<br>
 - ![](https://img.shields.io/visual-studio-marketplace/i/vscjava.vscode-gradle?style=plastic)
 [Gradle for Java](https://marketplace.visualstudio.com/items?itemName=vscjava.vscode-gradle) (Microsoft: MIT) / [VSCode Document](https://code.visualstudio.com/docs/java/java-build#_gradle)<br>
-Syntax highlighting, Task Panel, Run tasks<br>
+Manage Gradle Projects, run Gradle tasks and provide better Gradle file authoring experience in VS Code.<br>
 - ![](https://img.shields.io/visual-studio-marketplace/i/redhat.vscode-community-server-connector?style=plastic)
 [Community Server Connectors](https://marketplace.visualstudio.com/items?itemName=redhat.vscode-community-server-connector) (Red Hat: EPL-2.0) / [VSCode Document](https://code.visualstudio.com/docs/java/java-tomcat-jetty)<br>
-Servers Panel, Start/Stop (Tomcat, Glassfish, etc...), Server download and installation<br>
+This VSCode Extension provides a Runtime Server Protocol based server connector, which can start, stop, publish to, and otherwise control Community runtimes and servers like Apache Felix, Karaf, and Tomcat.<br>
+- ![](https://img.shields.io/visual-studio-marketplace/i/streetsidesoftware.code-spell-checker?style=plastic)
+[Code Spell Checker](https://marketplace.visualstudio.com/items?itemName=streetsidesoftware.code-spell-checker) (Street Side Software: GPL)<br>
+Spelling checker for source code.
+- ![](https://img.shields.io/visual-studio-marketplace/i/shardulm94.trailing-spaces?style=plastic)
+[Trailing Spaces](https://marketplace.visualstudio.com/items?itemName=shardulm94.trailing-spaces) (Shardul Mahadik: MIT)<br>
+Highlight trailing spaces and delete them in a flash!
+- ![](https://img.shields.io/visual-studio-marketplace/i/oderwat.indent-rainbow?style=plastic)
+[Indent-Rainbow](https://marketplace.visualstudio.com/items?itemName=oderwat.indent-rainbow) (oderwat: MIT)<br>
+Makes indentation easier to read.
+- ![](https://img.shields.io/visual-studio-marketplace/i/mechatroner.rainbow-csv?style=plastic)
+[Rainbow CSV](https://marketplace.visualstudio.com/items?itemName=mechatroner.rainbow-csv) (mechatroner: MIT)<br>
+Highlight CSV and TSV files, Run SQL-like queries.
 - ![](https://img.shields.io/visual-studio-marketplace/i/MS-CEINTL.vscode-language-pack-zh-hans?style=plastic)
 [Language Pack](https://marketplace.visualstudio.com/search?target=VSCode&category=Language%20Packs) (Microsoft: MIT) / [VSCode Document](https://code.visualstudio.com/docs/getstarted/locales)<br>
-A language pack that matches the OS Locale<br>
+A language pack that matches the OS Locale.<br>
 
 <br>
 <br>
 
 # Recommended Extensions
 
-## Java
 - ![](https://img.shields.io/visual-studio-marketplace/i/SonarSource.sonarlint-vscode?style=plastic)
-[SonarLint](https://marketplace.visualstudio.com/items?itemName=SonarSource.sonarlint-vscode) / [VSCode Document](https://code.visualstudio.com/docs/java/java-linting#_sonarlint)<br>
+[SonarLint](https://marketplace.visualstudio.com/items?itemName=SonarSource.sonarlint-vscode) (SonarSource: GPLv3) / [VSCode Document](https://code.visualstudio.com/docs/java/java-linting#_sonarlint)<br>
 SonarLint is an IDE extension that helps you detect and fix quality issues as you write code in C, C++, Java, JavaScript, PHP, Python, HTML and TypeScript.
 - ![](https://img.shields.io/visual-studio-marketplace/i/ryanluker.vscode-coverage-gutters?style=plastic)
-[Coverage Gutters](https://marketplace.visualstudio.com/items?itemName=ryanluker.vscode-coverage-gutters)<br>
+[Coverage Gutters](https://marketplace.visualstudio.com/items?itemName=ryanluker.vscode-coverage-gutters) (ryanluker: MIT)<br>
 Display test coverage generated by lcov or xml - works with many languages.
-## General
-- ![](https://img.shields.io/visual-studio-marketplace/i/oderwat.indent-rainbow?style=plastic)
-[Indent-Rainbow](https://marketplace.visualstudio.com/items?itemName=oderwat.indent-rainbow)<br>
-Makes indentation easier to read.
 - ![](https://img.shields.io/visual-studio-marketplace/i/usernamehw.errorlens?style=plastic)
-[Error Lens](https://marketplace.visualstudio.com/items?itemName=usernamehw.errorlens)<br>
+[Error Lens](https://marketplace.visualstudio.com/items?itemName=usernamehw.errorlens) (Alexander: -)<br>
 Improve highlighting of errors, warnings and other language diagnostics.
 - ![](https://img.shields.io/visual-studio-marketplace/i/intellsmi.comment-translate?style=plastic)
-[Comment Translate](https://marketplace.visualstudio.com/items?itemName=intellsmi.comment-translate)<br>
+[Comment Translate](https://marketplace.visualstudio.com/items?itemName=intellsmi.comment-translate) (intellsmi: MIT)<br>
 This plugin uses the Google Translate API to translate comments for the VSCode programming language.
-- ![](https://img.shields.io/visual-studio-marketplace/i/streetsidesoftware.code-spell-checker?style=plastic)
-[Code Spell Checker](https://marketplace.visualstudio.com/items?itemName=streetsidesoftware.code-spell-checker)<br>
-Spelling checker for source code.
-- ![](https://img.shields.io/visual-studio-marketplace/i/shardulm94.trailing-spaces?style=plastic)
-[Trailing Spaces](https://marketplace.visualstudio.com/items?itemName=shardulm94.trailing-spaces)<br>
-Code formatter using prettier.
 - ![](https://img.shields.io/visual-studio-marketplace/i/esbenp.prettier-vscode?style=plastic)
-[Prettier - Code formatter](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode)<br>
+[Prettier - Code formatter](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode) (Prettier: MIT)<br>
 Code formatter using prettier.
-- ![](https://img.shields.io/visual-studio-marketplace/i/mechatroner.rainbow-csv?style=plastic)
-[Rainbow CSV](https://marketplace.visualstudio.com/items?itemName=mechatroner.rainbow-csv)<br>
-Highlight CSV and TSV files, Run SQL-like queries.
-## ChatGPT
 - ![](https://img.shields.io/visual-studio-marketplace/i/GitHub.copilot?style=plastic)
-[GitHub Copilot](https://marketplace.visualstudio.com/items?itemName=GitHub.copilot) / [VSCode Document](https://code.visualstudio.com/docs/editor/artificial-intelligence)<br>
+[GitHub Copilot](https://marketplace.visualstudio.com/items?itemName=GitHub.copilot) (GitHub: -) / [VSCode Document](https://code.visualstudio.com/docs/editor/artificial-intelligence)<br>
 Your AI pair programmer.
 - ![](https://img.shields.io/visual-studio-marketplace/i/genieai.chatgpt-vscode?style=plastic)
-[ChatGPT - Genie AI](https://marketplace.visualstudio.com/items?itemName=genieai.chatgpt-vscode)<br>
+[ChatGPT - Genie AI](https://marketplace.visualstudio.com/items?itemName=genieai.chatgpt-vscode) (Genie AI: ISC)<br>
 Your best AI pair programmer. Save conversations and continue any time. A Visual Studio Code - ChatGPT Integration. Supports GPT-4, GPT3.5, GPT3 and Codex models. Create new files, view diffs with one click; your copilot to learn code, add tests, find bugs and more.

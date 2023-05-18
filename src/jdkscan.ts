@@ -54,7 +54,7 @@ export async function scan(
 		}
 	}
 
-	// Migrate old download location from / to /java (To be removed in 2024)
+	// Migrate old download location from '/' to '/java' (ADD 2023.5.2: To be removed)
 	const oldStorageDir = jdkcontext.getGlobalStoragePath();
 	const newStorageDir = path.join(oldStorageDir, 'java');
 	jdkcontext.mkdirSync(newStorageDir);
@@ -177,8 +177,8 @@ function createJdk(runtime: jdkutils.IJavaRuntime | undefined): IJdk | undefined
 
 async function tryGlob(
 	logLabel: string,
-	jdks: IJdk[], 
-	javaExePathPattern: string | string[], 
+	jdks: IJdk[],
+	javaExePathPattern: string | string[],
 	globOptions?: GlobOptionsWithFileTypesUnset | undefined) {
 
 	try {

@@ -40,7 +40,7 @@ export async function activate(context:vscode.ExtensionContext) {
 		const runtimesOld = _.cloneDeep(runtimes);
 		await jdkscan.scan(runtimes);
 		await jdksettings.update(runtimes, runtimesOld, latestLtsVersion);
-
+		
 	} catch (e:any) {
 		let message = `JDK scan failed. ${e.message ?? e}`;
 		vscode.window.showErrorMessage(message);
@@ -56,7 +56,7 @@ export async function activate(context:vscode.ExtensionContext) {
 				const promiseArray = downloadVersions.map(v => jdkdownload.download(runtimes, v, progress));
 				await Promise.all(promiseArray);
 				await jdksettings.update(runtimes, runtimesOld, latestLtsVersion);
-
+				
 			} catch (e:any) {
 				let message = `JDK download failed. ${e.request?.path ?? ''} ${e.message ?? e}`;
 				log.info(message, e); // Silent: offline, 404 building, 503 proxy auth error, etc.

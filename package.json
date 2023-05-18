@@ -54,7 +54,11 @@
     "vscjava.vscode-java-pack",
     "vmware.vscode-boot-dev-pack",
     "vscjava.vscode-gradle",
-    "redhat.vscode-community-server-connector"
+    "redhat.vscode-community-server-connector",
+    "streetsidesoftware.code-spell-checker",
+    "shardulm94.trailing-spaces",
+    "oderwat.indent-rainbow",
+    "mechatroner.rainbow-csv"
   ],
   "activationEvents": [
     "onStartupFinished"
@@ -100,5 +104,5 @@
     "lodash": "^4.17.21",
     "minipass": "5.x"
   },
-  "version": "2023.515.0"
+  "version": "2023.518.0"
 }

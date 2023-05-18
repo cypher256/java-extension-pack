@@ -234,9 +234,12 @@ function updateConfig(section:string, value:any) {
 	log.info('Updated config:', section, _.isObject(value) ? '' : value);
 }
 
-function setIfNull(section:string, value:any) {
+function setIfNull(section:string, value:any, extensionName?:string) {
+	if (extensionName && !vscode.extensions.getExtension(extensionName)) {
+		return;
+	}
 	const config = vscode.workspace.getConfiguration();
-	if (!config.inspect(section)?.globalValue) {
+	if (config.inspect(section)?.globalValue === undefined) {
 		updateConfig(section, value);
 	}
 }
@@ -252,4 +255,6 @@ export function setDefault() {
 		// eslint-disable-next-line @typescript-eslint/naming-convention
 		setIfNull('[bat]', {'files.eol': '\r\n'});
 	}
+	setIfNull('trailing-spaces.includeEmptyLines', false, 'shardulm94.trailing-spaces');
+	setIfNull('cSpell.diagnosticLevel', 'Hint', 'streetsidesoftware.code-spell-checker');
 }
