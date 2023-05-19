@@ -178,7 +178,7 @@ export async function update(
 		env.JAVA_HOME = javaHome;
 		env.PATH = javaHome + (OS.isWindows ? '\\bin;' : '/bin:') + '${env:PATH}';
 		if (OS.isMac) {
-			env.ZDOTDIR ??= jdkcontext.getGlobalStoragePath(); // Disable .zshrc JAVA_HOME
+			env.ZDOTDIR ??= `~/.zsh_jdkauto`; // Disable .zshrc JAVA_HOME
 		}
 	}
 	const osConfigName = OS.isWindows ? 'windows' : OS.isMac ? 'osx' : 'linux';
@@ -215,9 +215,12 @@ export async function update(
 		profile.overrideName = true;
 		if (OS.isWindows) {
 			profile.path ??= 'cmd'; // powershell (legacy), pwsh (non-preinstalled)
+		} else if (OS.isMac) {
+			profile.path ??= 'zsh';
+			profile.args ??= ['-l']; // Disable .zshrc JAVA_HOME in _setTerminalEnv ZDOTDIR
 		} else {
-			profile.path ??= OS.isMac ? 'zsh' : 'bash';
-			profile.args ??= ['-l'];
+			profile.path ??= 'bash';
+			profile.args ??= ["--rcfile", "~/.bashrc_jdkauto"]; // Disable .bashrc JAVA_HOME (also WSL)
 		}
 		profile.env ??= {};
 		_setTerminalEnv(runtime.path, profile.env);
@@ -250,6 +253,21 @@ function setIfNull(section:string, value:any, extensionName?:string) {
 export function setDefault() {
 	setIfNull('java.debug.settings.hotCodeReplace', 'auto');
 	setIfNull('workbench.tree.indent', 20);
+	// Editor rulers RGBA for any theme
+	setIfNull('editor.rulers', [
+		{
+			"column": 80,
+			"color": "#00FF0015"
+		},
+		{
+			"column": 100,
+			"color": "#FFFF0010"
+		},
+		{
+			"column": 120,
+			"color": "#FF000025"
+		},
+	]);
 	if (OS.isWindows) {
 		setIfNull('files.eol', '\n');
 		// eslint-disable-next-line @typescript-eslint/naming-convention

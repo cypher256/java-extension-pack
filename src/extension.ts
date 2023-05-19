@@ -8,7 +8,7 @@ import * as jdksettings from './jdksettings';
 import * as jdkscan from './jdkscan';
 import * as jdkdownload from './jdkdownload';
 import * as jdkcontext from './jdkcontext';
-const { log } = jdkcontext;
+const { log, OS } = jdkcontext;
 
 /**
  * Activates the extension.
@@ -25,7 +25,11 @@ export async function activate(context:vscode.ExtensionContext) {
 	const STATE_KEY_ACTIVATED = 'activated';
 	if (!jdkcontext.context.globalState.get(STATE_KEY_ACTIVATED)) {
 		jdkcontext.context.globalState.update(STATE_KEY_ACTIVATED, true);
-		installLanguagePack(); // async
+		// async
+		installLanguagePack();
+		if (OS.isWindows || OS.isLinux) {
+			installExtension('s-nlf-fh.glassit');
+		}
 	}
 	const jdtVersions = jdksettings.runtime.getJdtVersions();
 	const ltsFilter = (ver:number) => [8, 11].includes(ver) || (ver >= 17 && (ver - 17) % 4 === 0);
@@ -66,10 +70,6 @@ export async function activate(context:vscode.ExtensionContext) {
 	}
 }
 
-/**
- * Install the language pack corresponding to the OS locale at the first startup.
- * @see https://marketplace.visualstudio.com/search?target=VSCode&category=Language%20Packs
- */
 async function installLanguagePack() {
 	try {
 		const osLocale = JSON.parse(process.env.VSCODE_NLS_CONFIG!).osLocale.toLowerCase();
@@ -85,10 +85,17 @@ async function installLanguagePack() {
 		} else {
 			return;
 		}
-		await vscode.commands.executeCommand( // Silent if already installed
-			'workbench.extensions.installExtension', 'ms-ceintl.vscode-language-pack-' + lang);
-		log.info('Installed language pack', lang);
+		await installExtension('ms-ceintl.vscode-language-pack-' + lang);
 	} catch (error) {
 		log.info('Failed to install language pack.', error); // Silent
+	}
+}
+
+async function installExtension(extensionId:string) {
+	try {
+		await vscode.commands.executeCommand('workbench.extensions.installExtension', extensionId);
+		log.info('Installed extension', extensionId);
+	} catch (error) {
+		log.info('Failed to install extension.', error); // Silent
 	}
 }
