@@ -185,15 +185,15 @@ If the user settings is not set, it will auto-set the JDK Auto default value. No
 "editor.rulers": [
   {
     "column": 80,
-    "color": "#00FF0015"
+    "color": "#00FF0010"
   },
   {
     "column": 100,
-    "color": "#FFFF0010"
+    "color": "#BDB76B15"
   },
   {
     "column": 120,
-    "color": "#FA807220"
+    "color": "#FA807219"
   },
 ]
 ```

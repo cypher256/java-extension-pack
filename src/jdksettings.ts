@@ -257,15 +257,15 @@ export function setDefault() {
 	setIfNull('editor.rulers', [
 		{
 			"column": 80,
-			"color": "#00FF0015"
+			"color": "#00FF0010"
 		},
 		{
 			"column": 100,
-			"color": "#FFFF0010"
+			"color": "#BDB76B15"
 		},
 		{
 			"column": 120,
-			"color": "#FF000025"
+			"color": "#FA807219"
 		},
 	]);
 	if (OS.isWindows) {
