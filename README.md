@@ -242,7 +242,7 @@ The JDK used to run the server for Servlet and Jakarta EE applications can be sp
 
 ## Included Extensions
 
-The `Extension Pack for Java` is required. Other unused extensions [can be uninstalled](https://code.visualstudio.com/docs/editor/extension-marketplace#:~:text=you%20can%20always-,Uninstall,-the%20extension%20from). (*) indicates that the platform is dynamically determined and installed at the first startup.
+The `Extension Pack for Java` is required. Other unused extensions [can be uninstalled](https://code.visualstudio.com/docs/editor/extension-marketplace#:~:text=you%20can%20always-,Uninstall,-the%20extension%20from). (*) indicates that it will be installed if available in that environment at first startup.
 
 - ![](https://img.shields.io/visual-studio-marketplace/i/vscjava.vscode-java-pack?style=plastic)
 [Extension Pack for Java](https://marketplace.visualstudio.com/items?itemName=vscjava.vscode-java-pack) (Microsoft: MIT) / [VSCode Document](https://code.visualstudio.com/docs/java/java-tutorial#_creating-a-source-code-file)<br>
@@ -277,6 +277,9 @@ Highlight CSV and TSV files, Run SQL-like queries.
 - ![](https://img.shields.io/visual-studio-marketplace/i/s-nlf-fh.glassit?style=plastic)
 (\*) [GlassIt-VSC](https://marketplace.visualstudio.com/items?itemName=s-nlf-fh.glassit) (hikarin522: MIT)<br>
 VS Code Extension to set window to transparent on Windows and Linux platforms.
+- ![](https://img.shields.io/visual-studio-marketplace/i/intellsmi.comment-translate?style=plastic)
+(\*) [Comment Translate](https://marketplace.visualstudio.com/items?itemName=intellsmi.comment-translate) (intellsmi: MIT)<br>
+This plugin uses the Google Translate API to translate comments for the VSCode programming language.
 - ![](https://img.shields.io/visual-studio-marketplace/i/MS-CEINTL.vscode-language-pack-zh-hans?style=plastic)
 (\*) [Language Pack](https://marketplace.visualstudio.com/search?target=VSCode&category=Language%20Packs) (Microsoft: MIT) / [VSCode Document](https://code.visualstudio.com/docs/getstarted/locales)<br>
 A language pack that matches the OS Locale.<br>
@@ -294,9 +297,6 @@ Improve highlighting of errors, warnings and other language diagnostics.
 - ![](https://img.shields.io/visual-studio-marketplace/i/SonarSource.sonarlint-vscode?style=plastic)
 [SonarLint](https://marketplace.visualstudio.com/items?itemName=SonarSource.sonarlint-vscode) (SonarSource: GPL) / [VSCode Document](https://code.visualstudio.com/docs/java/java-linting#_sonarlint)<br>
 SonarLint is an IDE extension that helps you detect and fix quality issues as you write code in C, C++, Java, JavaScript, PHP, Python, HTML and TypeScript.
-- ![](https://img.shields.io/visual-studio-marketplace/i/intellsmi.comment-translate?style=plastic)
-[Comment Translate](https://marketplace.visualstudio.com/items?itemName=intellsmi.comment-translate) (intellsmi: MIT)<br>
-This plugin uses the Google Translate API to translate comments for the VSCode programming language.
 - ![](https://img.shields.io/visual-studio-marketplace/i/GitHub.copilot?style=plastic)
 [GitHub Copilot](https://marketplace.visualstudio.com/items?itemName=GitHub.copilot) (GitHub: Subscription) / [VSCode Document](https://code.visualstudio.com/docs/editor/artificial-intelligence)<br>
 Your AI pair programmer.

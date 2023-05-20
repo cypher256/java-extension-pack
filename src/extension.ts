@@ -86,6 +86,7 @@ async function installLanguagePack() {
 			return;
 		}
 		await installExtension('ms-ceintl.vscode-language-pack-' + lang);
+		await installExtension('intellsmi.comment-translate');
 	} catch (error) {
 		log.info('Failed to install language pack.', error); // Silent
 	}
