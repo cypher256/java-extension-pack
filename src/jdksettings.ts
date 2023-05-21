@@ -273,6 +273,6 @@ export function setDefault() {
 		// eslint-disable-next-line @typescript-eslint/naming-convention
 		setIfNull('[bat]', {'files.eol': '\r\n'});
 	}
-	setIfNull('trailing-spaces.includeEmptyLines', false, 'shardulm94.trailing-spaces');
 	setIfNull('cSpell.diagnosticLevel', 'Hint', 'streetsidesoftware.code-spell-checker');
+	setIfNull('trailing-spaces.includeEmptyLines', false, 'shardulm94.trailing-spaces');
 }

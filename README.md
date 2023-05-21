@@ -178,8 +178,8 @@ If the user settings is not set, it will auto-set the JDK Auto default value. No
 |VSCode|[editor.rulers](https://code.visualstudio.com/api/references/theme-color#:~:text=location%20with%20%22-,editor.rulers,-%22)|`[]`|See below|
 |VSCode|(Windows) [files.eol](https://code.visualstudio.com/docs/getstarted/settings#:~:text=line%20character.%0A%20%20%22-,files.eol,-%22%3A%20%22auto)|`auto`|`\n`|
 |VSCode|(Windows) `[bat]` : `files.eol`|`files.eol`|`\r\n`|
-|Trailing Spaces|[trailing-spaces.includeEmptyLines](https://marketplace.visualstudio.com/items?itemName=shardulm94.trailing-spaces#:~:text=will%20be%20ignored.-,Include%20Empty%20Lines,-Default%3A%20true)|`true`|`false`|
 |Code Spell Checker|`cSpell.diagnosticLevel`|`Information`|`Hint`|
+|Trailing Spaces|[trailing-spaces.includeEmptyLines](https://marketplace.visualstudio.com/items?itemName=shardulm94.trailing-spaces#:~:text=will%20be%20ignored.-,Include%20Empty%20Lines,-Default%3A%20true)|`true`|`false`|
 
 ```json
 // Specify rulers color and transparency in RGBA format
