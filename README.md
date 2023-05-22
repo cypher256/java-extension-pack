@@ -216,11 +216,11 @@ Since many projects are nowadays using different Java versions in development, i
 </p>
 
 ### Change JDK for Gradle and Maven projects
-If you want to change the JDK version for your Gradle or Maven projects, you need to update it in your build scripts (`build.gradle` or `pom.xml`). You can click ⓘ to see how to make such changes. Click 🖊 will navigate to the build script file of the project. Maven/Gradle version is recommended to be set per project in `gradle-wrapper.properties`/`maven-wrapper.properties` using wrapper `gradlew`/`mvnw`. For Spring Boot Gradle/Maven projects and general Gradle projects, these wrappers are included by default, so you don't need to install Gradle/Maven or set its environment variables.
+If you want to change the JDK version for your [Gradle](https://code.visualstudio.com/docs/java/java-build#_gradle) or [Maven](https://code.visualstudio.com/docs/java/java-build#_maven) projects, you need to update it in your build scripts (`build.gradle` or `pom.xml`). You can click ⓘ to see how to make such changes. Click 🖊 will navigate to the build script file of the project. Maven/Gradle version is recommended to be set per project in `gradle-wrapper.properties`/`maven-wrapper.properties` using wrapper `gradlew`/`mvnw`. For Spring Boot Gradle/Maven projects and general Gradle projects, these wrappers are included by default, so you don't need to install Gradle/Maven or set its environment variables.
 <br>
 
 ### Change JDK for unmanaged folders
-To change the JDK for unmanaged folders (with out any build tools), you can click the 🖊 button. It will list all the JDKs and you can select one for your unmanaged folders. This changes the `"default": true` for `java.configuration.runtimes`. Currently, it is <a href="https://github.com/redhat-developer/vscode-java/issues/2543">not possible to use different Java versions</a> in multiple unmanaged folders within the same workspace.
+To change the JDK for [unmanaged folders](https://code.visualstudio.com/docs/java/java-tutorial#_creating-a-source-code-file) (with out any build tools), you can click the 🖊 button. It will list all the JDKs and you can select one for your unmanaged folders. This changes the `"default": true` for `java.configuration.runtimes`. Currently, it is <a href="https://github.com/redhat-developer/vscode-java/issues/2543">not possible to use different Java versions</a> in multiple unmanaged folders within the same workspace.
 <br>
 <br>
 
