@@ -2,12 +2,12 @@
  * VSCode Java Extension Pack JDK Auto
  * Copyright (c) Shinji Kashihara.
  */
-import * as vscode from 'vscode';
 import * as _ from "lodash";
-import * as jdksettings from './jdksettings';
-import * as jdkscan from './jdkscan';
-import * as jdkdownload from './jdkdownload';
+import * as vscode from 'vscode';
 import * as jdkcontext from './jdkcontext';
+import * as jdkdownload from './jdkdownload';
+import * as jdkscan from './jdkscan';
+import * as jdksettings from './jdksettings';
 const { log, OS } = jdkcontext;
 
 /**
@@ -46,28 +46,30 @@ export async function activate(context:vscode.ExtensionContext) {
 		await jdksettings.update(runtimes, runtimesOld, latestLtsVersion);
 		
 	} catch (e:any) {
-		let message = `JDK scan failed. ${e.message ?? e}`;
+		const message = `JDK scan failed. ${e.message ?? e}`;
 		vscode.window.showErrorMessage(message);
 		log.warn(message, e);
 	}
 
 	// Download JDK
-	if (jdkdownload.isTarget && targetLtsVersions.length > 0) {
-		vscode.window.withProgress({location: vscode.ProgressLocation.Window}, async progress => {
-			try {
-				const runtimesOld = _.cloneDeep(runtimes);
-				const downloadVersions = _.uniq([...targetLtsVersions, _.last(jdtVersions) ?? 0]);
-				const promiseArray = downloadVersions.map(v => jdkdownload.download(runtimes, v, progress));
-				await Promise.all(promiseArray);
-				await jdksettings.update(runtimes, runtimesOld, latestLtsVersion);
-				
-			} catch (e:any) {
-				let message = `JDK download failed. ${e.request?.path ?? ''} ${e.message ?? e}`;
-				log.info(message, e); // Silent: offline, 404 building, 503 proxy auth error, etc.
-			}
-			log.info('activate END');
-		});
+	if (!jdkdownload.isTarget || targetLtsVersions.length === 0) {
+		log.info(`activate END. jdkdownload.isTarget:${jdkdownload.isTarget}`);
+		return;
 	}
+	vscode.window.withProgress({location: vscode.ProgressLocation.Window}, async progress => {
+		try {
+			const runtimesOld = _.cloneDeep(runtimes);
+			const downloadVersions = _.uniq([...targetLtsVersions, _.last(jdtVersions) ?? 0]);
+			const promiseArray = downloadVersions.map(v => jdkdownload.download(runtimes, v, progress));
+			await Promise.all(promiseArray);
+			await jdksettings.update(runtimes, runtimesOld, latestLtsVersion);
+			
+		} catch (e:any) {
+			const message = `JDK download failed. ${e.request?.path ?? ''} ${e.message ?? e}`;
+			log.info(message, e); // Silent: offline, 404 building, 503 proxy auth error, etc.
+		}
+		log.info('activate END');
+	});
 }
 
 async function installLanguagePack() {

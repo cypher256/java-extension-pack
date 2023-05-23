@@ -30,7 +30,7 @@ The JDKs are auto-configured for the current environment on VSCode startup as fo
 |(*1) [rsp-ui.rsp.java.home](https://github.com/redhat-developer/vscode-rsp-ui#extension-settings)<br>([Issues](https://github.com/redhat-developer/vscode-rsp-ui/issues?q=is%3Aissue+rsp-ui.rsp.java.home))|Latest LTS (*2)<br>(Setting > `JDK_HOME` > `JAVA_HOME`> Windows Registry > `PATH`)|
 |~~[java.home](https://github.com/redhat-developer/vscode-java/wiki/JDK-Requirements#universal-version)~~|Delete due to deprecated entry|
 |[java.configuration.runtimes](https://code.visualstudio.com/docs/java/java-project#_configure-runtime-for-projects)<br>([Issues](https://github.com/redhat-developer/vscode-java/issues?q=is%3Aissue+java.configuration.runtimes))|Set all major JDKs scanned, detected, and downloaded<br>(Setting > `JAVA_HOME`)|
-|[java.import.gradle.java.home](https://marketplace.visualstudio.com/items?itemName=vscjava.vscode-gradle#java-specific-settings)<br>([Issues](https://github.com/microsoft/vscode-gradle/issues?q=is%3Aissue+java.import.gradle.java.home))|Set default if unset<br>(Setting > `java.jdt.ls.java.home`)|
+|[java.import.gradle.java.home](https://github.com/redhat-developer/vscode-java/wiki/JDK-Requirements#my-gradle-version-does-not-support-java-17)<br>([Issues](https://github.com/microsoft/vscode-gradle/issues?q=is%3Aissue+java.import.gradle.java.home))|Set default if unset<br>(Setting > `java.jdt.ls.java.home`)|
 |[maven.terminal.customEnv](https://marketplace.visualstudio.com/items?itemName=vscjava.vscode-maven#additional-configurations)<br>([Issues](https://github.com/microsoft/vscode-maven/issues?q=is%3Aissue+maven.terminal.customEnv))|Set default if `JAVA_HOME` environment variable unset<br>(Setting > `JAVA_HOME`)|
 
 (*1) The language server runtime used by VSCode extensions. Not for building and running projects.<br>
@@ -119,7 +119,7 @@ Terminal profiles are defined based on configured runtimes, so you can easily op
 
 A non-existent rcfile is specified so that JAVA_HOME and PATH are not overwritten at shell startup. If necessary, manually create the following rcfile.
 
-|OS|Default Shell|rcfile location|
+|OS|Default Shell|rcfile Location|
 |---|---|---|
 |Windows|cmd|-|
 |macOS|zsh|~/.zsh_jdkauto/.zshrc|
@@ -161,29 +161,30 @@ Command Palette **>Preferences: Open User Settings (JSON)**
 ```
 
 <br>
-
-## Language Pack Auto-installation
-The language pack corresponding to the OS locale is installed at the first startup.
-* `cs`, `de`, `es`, `fr`, `it`, `ja`, `ko`, `pl`, `ru`, `tr`, `zh-hans` or `zh-hant`
-
 <br>
 
 ## Auto-default Settings
 If the user settings is not set, it will auto-set the JDK Auto default value. Note that a debug run is required to enable Hot Code Replace (Hot Deploy).
 
-|Extension Name|Configuration Name|Original default|JDK Auto default|
+|Extension Name|Configuration Name|Original Default|JDK Auto Default|
 |---|---|---|---|
 |Debugger for Java|[java.debug.settings.hotCodeReplace](https://code.visualstudio.com/docs/java/java-debugging#_hot-code-replace)|`manual`|`auto`|
-|VSCode|[workbench.tree.indent](https://code.visualstudio.com/docs/getstarted/settings#:~:text=in%20pixels.%0A%20%20%22-,workbench.tree.indent,-%22%3A%208)|`8`|`20`|
+|Language support for Java|[java.sources.organizeImports.staticStarThreshold](https://github.com/redhat-developer/vscode-java)|`99`|`1`|
+|VSCode|[editor.codeActionsOnSave](https://github.com/redhat-developer/vscode-java/pull/3015)|`{}`|See below|
 |VSCode|[editor.rulers](https://code.visualstudio.com/api/references/theme-color#:~:text=location%20with%20%22-,editor.rulers,-%22)|`[]`|See below|
+|VSCode|[editor.unicodeHighlight.includeComments](https://code.visualstudio.com/updates/v1_63#_unicode-highlighting)|`inUntrustedWorkspace`|`true`|
+|VSCode|[workbench.tree.indent](https://code.visualstudio.com/docs/getstarted/settings#:~:text=in%20pixels.%0A%20%20%22-,workbench.tree.indent,-%22%3A%208)|`8`|`20`|
+|VSCode|[workbench.colorCustomizations](https://code.visualstudio.com/api/references/theme-color)|`{}`|See below|
 |VSCode|(Windows) [files.eol](https://code.visualstudio.com/docs/getstarted/settings#:~:text=line%20character.%0A%20%20%22-,files.eol,-%22%3A%20%22auto)|`auto`|`\n`|
 |VSCode|(Windows) `[bat]` : `files.eol`|`files.eol`|`\r\n`|
 |Code Spell Checker|`cSpell.diagnosticLevel`|`Information`|`Hint`|
 |Trailing Spaces|[trailing-spaces.includeEmptyLines](https://marketplace.visualstudio.com/items?itemName=shardulm94.trailing-spaces#:~:text=will%20be%20ignored.-,Include%20Empty%20Lines,-Default%3A%20true)|`true`|`false`|
 
 ```json
-// Specify rulers color and transparency in RGBA format
-"editor.rulers": [
+"editor.codeActionsOnSave": {
+  "source.organizeImports": true
+},
+"editor.rulers": [ // RGBA for transparency
   {
     "column": 80,
     "color": "#00FF0010"
@@ -196,8 +197,24 @@ If the user settings is not set, it will auto-set the JDK Auto default value. No
     "column": 120,
     "color": "#FA807219"
   },
-]
+],
+"workbench.colorCustomizations": {
+  "[Visual Studio Dark][Default Dark+]": {
+    "tab.activeBorder": "#0F0" // Bottom border
+  },
+  "editor.wordHighlightStrongBorder": "#FF6347", // Write-access
+  "editor.wordHighlightBorder": "#FFD700", // Read-access
+  "editor.selectionHighlightBorder": "#A9A9A9" // Double click selection
+},
 ```
+
+<br>
+<br>
+
+## Language Pack Auto-installation
+The language pack corresponding to the OS locale is installed at the first startup.
+* `cs`, `de`, `es`, `fr`, `it`, `ja`, `ko`, `pl`, `ru`, `tr`, `zh-hans` or `zh-hant`
+
 <br>
 
 ## License

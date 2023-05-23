@@ -2,12 +2,12 @@
  * VSCode Java Extension Pack JDK Auto
  * Copyright (c) Shinji Kashihara.
  */
-import * as vscode from 'vscode';
-import * as path from 'path';
-import * as _ from "lodash";
 import { compare } from 'compare-versions';
-import * as jdkscan from './jdkscan';
+import * as _ from "lodash";
+import * as path from 'path';
+import * as vscode from 'vscode';
 import * as jdkcontext from './jdkcontext';
+import * as jdkscan from './jdkscan';
 const { log, OS } = jdkcontext;
 
 /**
@@ -82,7 +82,7 @@ export namespace runtime {
  * @param latestLtsVersion The latest LTS version.
  */
 export async function update(
-	runtimes:IConfigRuntime[], 
+	runtimes:IConfigRuntime[],
 	runtimesOld:IConfigRuntime[],
 	latestLtsVersion:number) {
 
@@ -251,9 +251,12 @@ function setIfNull(section:string, value:any, extensionName?:string) {
  * Sets default values for VSCode settings.
  */
 export function setDefault() {
+	/* eslint-disable @typescript-eslint/naming-convention */
 	setIfNull('java.debug.settings.hotCodeReplace', 'auto');
-	setIfNull('workbench.tree.indent', 20);
-	// Editor rulers RGBA for any theme
+	setIfNull('java.sources.organizeImports.staticStarThreshold', 1);
+	setIfNull('editor.codeActionsOnSave', {
+		"source.organizeImports": true
+	});
 	setIfNull('editor.rulers', [
 		{
 			"column": 80,
@@ -268,11 +271,20 @@ export function setDefault() {
 			"color": "#FA807219"
 		},
 	]);
+	setIfNull('editor.unicodeHighlight.includeComments', true);
 	if (OS.isWindows) {
 		setIfNull('files.eol', '\n');
-		// eslint-disable-next-line @typescript-eslint/naming-convention
 		setIfNull('[bat]', {'files.eol': '\r\n'});
 	}
+	setIfNull('workbench.tree.indent', 20);
+	setIfNull('workbench.colorCustomizations', {
+		"[Visual Studio Dark][Default Dark+]": {
+			"tab.activeBorder": "#0F0",
+		},
+		"editor.wordHighlightStrongBorder": "#FF6347",
+		"editor.wordHighlightBorder": "#FFD700",
+		"editor.selectionHighlightBorder": "#A9A9A9",
+	});
 	setIfNull('cSpell.diagnosticLevel', 'Hint', 'streetsidesoftware.code-spell-checker');
 	setIfNull('trailing-spaces.includeEmptyLines', false, 'shardulm94.trailing-spaces');
 }
