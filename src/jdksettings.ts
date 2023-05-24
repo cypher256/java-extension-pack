@@ -257,6 +257,7 @@ export function setDefault() {
 	setIfNull('editor.codeActionsOnSave', {
 		"source.organizeImports": true
 	});
+	setIfNull('editor.minimap.enabled', false);
 	setIfNull('editor.rulers', [
 		{
 			"column": 80,
@@ -272,11 +273,6 @@ export function setDefault() {
 		},
 	]);
 	setIfNull('editor.unicodeHighlight.includeComments', true);
-	if (OS.isWindows) {
-		setIfNull('files.eol', '\n');
-		setIfNull('[bat]', {'files.eol': '\r\n'});
-	}
-	setIfNull('workbench.tree.indent', 20);
 	setIfNull('workbench.colorCustomizations', {
 		"[Visual Studio Dark][Default Dark+]": {
 			"tab.activeBorder": "#0F0",
@@ -285,6 +281,11 @@ export function setDefault() {
 		"editor.wordHighlightBorder": "#FFD700",
 		"editor.selectionHighlightBorder": "#A9A9A9",
 	});
+	setIfNull('workbench.tree.indent', 20);
+	if (OS.isWindows) {
+		setIfNull('files.eol', '\n');
+		setIfNull('[bat]', {'files.eol': '\r\n'});
+	}
 	setIfNull('cSpell.diagnosticLevel', 'Hint', 'streetsidesoftware.code-spell-checker');
 	setIfNull('trailing-spaces.includeEmptyLines', false, 'shardulm94.trailing-spaces');
 }

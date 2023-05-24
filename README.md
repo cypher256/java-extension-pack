@@ -171,13 +171,14 @@ If the user settings is not set, it will auto-set the JDK Auto default value. No
 |Debugger for Java|[java.debug.settings.hotCodeReplace](https://code.visualstudio.com/docs/java/java-debugging#_hot-code-replace)|`manual`|`auto`|
 |Language support for Java|[java.sources.organizeImports.staticStarThreshold](https://github.com/redhat-developer/vscode-java)|`99`|`1`|
 |VSCode|[editor.codeActionsOnSave](https://github.com/redhat-developer/vscode-java/pull/3015)|`{}`|See below|
+|VSCode|[editor.minimap.enabled](https://github.com/redhat-developer/vscode-java/pull/3015)|`true`|`false`|
 |VSCode|[editor.rulers](https://code.visualstudio.com/api/references/theme-color#:~:text=location%20with%20%22-,editor.rulers,-%22)|`[]`|See below|
 |VSCode|[editor.unicodeHighlight.includeComments](https://code.visualstudio.com/updates/v1_63#_unicode-highlighting)|`inUntrustedWorkspace`|`true`|
-|VSCode|[workbench.tree.indent](https://code.visualstudio.com/docs/getstarted/settings#:~:text=in%20pixels.%0A%20%20%22-,workbench.tree.indent,-%22%3A%208)|`8`|`20`|
 |VSCode|[workbench.colorCustomizations](https://code.visualstudio.com/api/references/theme-color)|`{}`|See below|
+|VSCode|[workbench.tree.indent](https://code.visualstudio.com/docs/getstarted/settings#:~:text=in%20pixels.%0A%20%20%22-,workbench.tree.indent,-%22%3A%208)|`8`|`20`|
 |VSCode|(Windows) [files.eol](https://code.visualstudio.com/docs/getstarted/settings#:~:text=line%20character.%0A%20%20%22-,files.eol,-%22%3A%20%22auto)|`auto`|`\n`|
 |VSCode|(Windows) `[bat]` : `files.eol`|`files.eol`|`\r\n`|
-|Code Spell Checker|`cSpell.diagnosticLevel`|`Information`|`Hint`|
+|Code Spell Checker|[cSpell.diagnosticLevel](https://streetsidesoftware.com/vscode-spell-checker/docs/configuration/#cspelldiagnosticlevel)|`Information`|`Hint`|
 |Trailing Spaces|[trailing-spaces.includeEmptyLines](https://marketplace.visualstudio.com/items?itemName=shardulm94.trailing-spaces#:~:text=will%20be%20ignored.-,Include%20Empty%20Lines,-Default%3A%20true)|`true`|`false`|
 
 ```json
@@ -207,7 +208,9 @@ If the user settings is not set, it will auto-set the JDK Auto default value. No
   "editor.selectionHighlightBorder": "#A9A9A9" // Double click selection
 },
 ```
+![Default Settings](https://raw.githubusercontent.com/cypher256/java-extension-pack/main/image/default_settings.png)
 
+<br>
 <br>
 <br>
 
