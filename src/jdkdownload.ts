@@ -2,18 +2,18 @@
  * VSCode Java Extension Pack JDK Auto
  * Copyright (c) Shinji Kashihara.
  */
-import * as vscode from 'vscode';
-const l10n = vscode.l10n.t;
-import * as fs from 'fs';
-import * as path from 'path';
-import * as decompress from 'decompress';
-import * as stream from 'stream';
-import * as _ from "lodash";
 import axios from 'axios';
+import * as decompress from 'decompress';
+import * as fs from 'fs';
+import * as _ from "lodash";
+import * as path from 'path';
+import * as stream from 'stream';
 import { promisify } from 'util';
-import * as jdksettings from './jdksettings';
-import * as jdkscan from './jdkscan';
+import * as vscode from 'vscode';
 import * as jdkcontext from './jdkcontext';
+import * as jdkscan from './jdkscan';
+import * as jdksettings from './jdksettings';
+const l10n = vscode.l10n;
 const { log, OS } = jdkcontext;
 
 /**
@@ -85,7 +85,7 @@ export async function download(
 
 	// Download JDK
 	log.info('Downloading...', downloadUrl);
-	progress.report({ message: `JDK Auto: ${l10n('Downloading')} ${fullVersion}` });
+	progress.report({ message: `JDK Auto: ${l10n.t('Downloading')} ${fullVersion}` });
 	jdkcontext.mkdirSync(storageJavaDir);
 	const downloadedFile = versionDir + '_download_tmp.' + fileExt;
 	const writer = fs.createWriteStream(downloadedFile);
@@ -95,7 +95,7 @@ export async function download(
 
 	// Decompress JDK
 	log.info('Installing...', downloadedFile);
-	progress.report({ message: `JDK Auto: ${l10n('Installing')} ${fullVersion}` });
+	progress.report({ message: `JDK Auto: ${l10n.t('Installing')} ${fullVersion}` });
 	jdkcontext.rmSync(versionDir);
 	try {
 		await decompress(downloadedFile, storageJavaDir, {
@@ -124,8 +124,8 @@ export async function download(
 	} else {
 		runtimes.push({name: runtimeName, path: versionDir});
 	}
-	const message = fullVersionOld 
-		? `${l10n('UPDATE SUCCESS')} ${runtimeName}: ${fullVersionOld} -> ${fullVersion}`
-		: `${l10n('INSTALL SUCCESS')} ${runtimeName}: ${fullVersion}`;
+	const message = fullVersionOld
+		? `${l10n.t('UPDATE SUCCESS')} ${runtimeName}: ${fullVersionOld} -> ${fullVersion}`
+		: `${l10n.t('INSTALL SUCCESS')} ${runtimeName}: ${fullVersion}`;
 	vscode.window.setStatusBarMessage(`JDK Auto: ${message}`, 15_000);
 }

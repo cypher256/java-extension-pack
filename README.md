@@ -262,7 +262,7 @@ The JDK used to run the server for Servlet and Jakarta EE applications can be sp
 
 ## Included Extensions
 
-The `Extension Pack for Java` is required. Other unused extensions [can be uninstalled](https://code.visualstudio.com/docs/editor/extension-marketplace#:~:text=you%20can%20always-,Uninstall,-the%20extension%20from). (*) indicates that it will be installed if available in that environment at first startup.
+The `Extension Pack for Java` is required. Other extensions can be [disabled](https://code.visualstudio.com/docs/editor/extension-marketplace#_disable-an-extension) per workspace or [uninstalled](https://code.visualstudio.com/docs/editor/extension-marketplace#_uninstall-an-extension) according to your preference. If you want to set up extensions and configurations by development language, consider [Profile](https://code.visualstudio.com/docs/editor/profiles). (*) indicates that it will be installed if available in that environment at first startup.
 
 - ![](https://img.shields.io/visual-studio-marketplace/i/vscjava.vscode-java-pack?style=plastic)
 [Extension Pack for Java](https://marketplace.visualstudio.com/items?itemName=vscjava.vscode-java-pack) (Microsoft: MIT) / [VSCode Document](https://code.visualstudio.com/docs/java/java-tutorial#_creating-a-source-code-file)<br>

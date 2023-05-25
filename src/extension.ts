@@ -25,12 +25,13 @@ export async function activate(context:vscode.ExtensionContext) {
 	const STATE_KEY_ACTIVATED = 'activated';
 	if (!jdkcontext.context.globalState.get(STATE_KEY_ACTIVATED)) {
 		jdkcontext.context.globalState.update(STATE_KEY_ACTIVATED, true);
-		// async
 		installLanguagePack();
 		if (OS.isWindows || OS.isLinux) {
 			installExtension('s-nlf-fh.glassit');
 		}
 	}
+
+	// Get JDK versions
 	const jdtVersions = jdksettings.runtime.getJdtVersions();
 	const ltsFilter = (ver:number) => [8, 11].includes(ver) || (ver >= 17 && (ver - 17) % 4 === 0);
 	const targetLtsVersions = jdtVersions.filter(ltsFilter).slice(-4);
@@ -44,7 +45,6 @@ export async function activate(context:vscode.ExtensionContext) {
 		const runtimesOld = _.cloneDeep(runtimes);
 		await jdkscan.scan(runtimes);
 		await jdksettings.update(runtimes, runtimesOld, latestLtsVersion);
-		
 	} catch (e:any) {
 		const message = `JDK scan failed. ${e.message ?? e}`;
 		vscode.window.showErrorMessage(message);
@@ -63,7 +63,6 @@ export async function activate(context:vscode.ExtensionContext) {
 			const promiseArray = downloadVersions.map(v => jdkdownload.download(runtimes, v, progress));
 			await Promise.all(promiseArray);
 			await jdksettings.update(runtimes, runtimesOld, latestLtsVersion);
-			
 		} catch (e:any) {
 			const message = `JDK download failed. ${e.request?.path ?? ''} ${e.message ?? e}`;
 			log.info(message, e); // Silent: offline, 404 building, 503 proxy auth error, etc.
