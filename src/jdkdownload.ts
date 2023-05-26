@@ -19,25 +19,34 @@ const { log, OS } = jdkcontext;
 /**
  * true if the current platform is JDK downloadable.
  */
-export const isTarget = OS.isWindows || OS.isMac || (OS.isLinux && process.arch === 'x64');
+export const isTarget = archOf(0) !== undefined;
 
-/*+
+/**
  * Get the architecture name used as part of the download URL.
  * @param javaVersion The major version of the JDK.
- * @returns The architecture name.
+ * @returns The architecture name. undefined if the current platform is not JDK downloadable.
  */
-function archOf(javaVersion: number): string {
+function archOf(javaVersion: number): string | undefined {
+	const isX64 = process.arch === 'x64';
+	const isArm64 = process.arch === 'arm64';
 	if (OS.isWindows) {
-		return 'x64_windows_hotspot';
+		if (isX64) {
+			return 'x64_windows_hotspot';
+		}
 	} else if (OS.isMac) {
-		if (process.arch === 'arm64' && javaVersion >= 11) {
+		if (isArm64 && javaVersion >= 11) {
 			return 'aarch64_mac_hotspot';
-		} else {
+		} else { // javaVersion < 11 is Rosetta
 			return 'x64_mac_hotspot';
 		}
-	} else {
-		return 'x64_linux_hotspot';
+	} else if (OS.isLinux) {
+		if (isArm64) {
+			return 'aarch64_linux_hotspot';
+		} else if (isX64) {
+			return 'x64_linux_hotspot';
+		}
 	}
+	return undefined;
 }
 
 /**
@@ -56,6 +65,10 @@ export async function download(
 	if (matchedRuntime && jdksettings.runtime.isUserInstalled(matchedRuntime.path)) {
 		log.info(`No download ${majorVersion} (User installed)`);
 		return;
+	}
+	const arch = archOf(majorVersion);
+	if (!arch) {
+		throw new Error(`Unsupported platform: ${process.platform}/${process.arch}`);
 	}
 
 	// Get Download URL
@@ -78,7 +91,6 @@ export async function download(
 	const p1 = fullVersion.replace('+', '%2B');
 	const p2 = fullVersion.replace('+', '_').replace(/(jdk|-)/g, '');
 	const downloadUrlPrefix = `${URL_PREFIX}/download/${p1}/`;
-	const arch = archOf(majorVersion);
 	const fileExt = OS.isWindows ? 'zip' : 'tar.gz';
 	const fileName = `OpenJDK${majorVersion}U-jdk_${arch}_${p2}.${fileExt}`;
 	const downloadUrl = downloadUrlPrefix + fileName;

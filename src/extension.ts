@@ -53,7 +53,7 @@ export async function activate(context:vscode.ExtensionContext) {
 
 	// Download JDK
 	if (!jdkdownload.isTarget || targetLtsVersions.length === 0) {
-		log.info(`activate END. jdkdownload.isTarget:${jdkdownload.isTarget}`);
+		log.info(`activate END. jdkdownload.isTarget:${jdkdownload.isTarget} ${process.platform}/${process.arch}`);
 		return;
 	}
 	vscode.window.withProgress({location: vscode.ProgressLocation.Window}, async progress => {

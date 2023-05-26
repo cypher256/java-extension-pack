@@ -84,7 +84,7 @@
   "devDependencies": {
     "@types/decompress": "^4.2.4",
     "@types/glob": "^8.1.0",
-    "@types/lodash": "^4.14.194",
+    "@types/lodash": "4.x",
     "@types/mocha": "^10.0.1",
     "@types/node": "18.x",
     "@types/vscode": "^1.54.0",
@@ -103,7 +103,7 @@
     "decompress": "^4.2.1",
     "glob-latest": "npm:glob@10.x",
     "jdk-utils": "0.x",
-    "lodash": "^4.17.21",
+    "lodash": "4.x",
     "minipass": "5.x"
   },
   "version": "2023.524.0"

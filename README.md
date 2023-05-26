@@ -42,7 +42,7 @@ The JDKs are auto-configured for the current environment on VSCode startup as fo
 Up to 4 LTSs and the [latest available non-LTS](https://marketplace.visualstudio.com/items?itemName=redhat.java#features) will be auto-downloaded if not installed. Unused old non-LTS that were previously auto-downloaded can safely be removed manually from the directory. Auto-download is supported on the following platforms:
 - Windows x64
 - macos x64, aarch64
-- Linux x64
+- Linux x64, aarch64
 
 The downloaded JDKs are stored in the following JDK Auto extension global storage directory.
 
@@ -222,7 +222,7 @@ The language pack corresponding to the OS locale is installed at the first start
 
 ## License
 - MIT (c) 2023- WILL Shinji Kashihara (cypher256)
-- Adoptium JDK: https://adoptium.net/docs/faq/
+- Adoptium JDK: https://adoptium.net/docs/faq/#_is_temurin_free_to_use
 
 <br>
 <br>
