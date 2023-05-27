@@ -57,6 +57,7 @@
     "redhat.vscode-community-server-connector",
     "ryanluker.vscode-coverage-gutters",
     "formulahendry.auto-rename-tag",
+    "ritwickdey.LiveServer",
     "esbenp.prettier-vscode",
     "streetsidesoftware.code-spell-checker",
     "shardulm94.trailing-spaces",
