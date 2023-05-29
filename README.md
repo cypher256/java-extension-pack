@@ -3,10 +3,25 @@
 [![GitHub Sponsor](https://img.shields.io/static/v1?label=Sponsor&message=%E2%9D%A4&logo=GitHub&color=ff69b4)](https://github.com/sponsors/cypher256)
 ![](https://github.com/cypher256/java-extension-pack/actions/workflows/eslint.yml/badge.svg)
 ![](https://img.shields.io/visual-studio-marketplace/d/Pleiades.java-extension-pack-jdk?color=yellow)
-![](https://img.shields.io/visual-studio-marketplace/i/Pleiades.java-extension-pack-jdk?color=blue)
+[![](https://img.shields.io/visual-studio-marketplace/i/Pleiades.java-extension-pack-jdk?color=blue)](vscode:extension/Pleiades.java-extension-pack-jdk)
 ![](https://img.shields.io/visual-studio-marketplace/last-updated/Pleiades.java-extension-pack-jdk?color=orange)
 
 The extension greatly reduces the installation, configuration effort, and [JDK configuration errors](https://stackoverflow.com/search?q=vscode+jdk) for general Java developers. There is no need to manually install the JDK or set the `JAVA_HOME` environment variables. It also comes pre-included with extensions that most Java developers need, such as Maven, Gradle, Spring, Lombok, and Tomcat start/stop, so you can start developing right out of the box with zero configuration.
+<br>
+<br>
+<br>
+
+# Install
+## Using Install Button
+1. [![](https://img.shields.io/badge/-Open%20README.md%20in%20VSCode-107c10?style=for-the-badge&logo=visualstudiocode)](vscode:extension/Pleiades.java-extension-pack-jdk)
+1. Click Install
+## Using Extensions Sidebar
+1. Open Extensions SideBar (Ctrl/CMD + Shift + X)
+1. Search for `jdk auto`
+1. Click Install
+## Using Quick Pick
+- Open Quick Pick (Ctrl/CMD + P), paste the following command, and press enter.<br>
+`ext install Pleiades.java-extension-pack-jdk`
 <br>
 <br>
 <br>
@@ -208,7 +223,7 @@ If the user settings is not set, it will auto-set the JDK Auto default value. No
   "editor.selectionHighlightBorder": "#A9A9A9" // Double click selection
 },
 ```
-![Default Settings](https://raw.githubusercontent.com/cypher256/java-extension-pack/main/image/default_settings.png)
+[![Highlight Default Settings](https://raw.githubusercontent.com/cypher256/java-extension-pack/main/image/default_settings.png)](https://raw.githubusercontent.com/cypher256/java-extension-pack/main/image/default_settings.png)
 
 <br>
 <br>
