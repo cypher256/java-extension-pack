@@ -177,12 +177,9 @@ export async function update(
 	function _setTerminalEnv(javaHome: string, env: any) {
 		env.JAVA_HOME = javaHome;
 		env.PATH = javaHome + (OS.isWindows ? '\\bin;' : '/bin:') + '${env:PATH}';
-		if (OS.isMac) {
-			env.ZDOTDIR ??= `~/.zsh_jdkauto`; // Disable .zshrc JAVA_HOME
-		}
 	}
 	const osConfigName = OS.isWindows ? 'windows' : OS.isMac ? 'osx' : 'linux';
-	if (defaultRuntime) {
+	if (defaultRuntime && OS.isWindows) { // Exclude macOS (Support npm scripts)
 		const CONFIG_KEY_TERMINAL_ENV = 'terminal.integrated.env.' + osConfigName;
 		const terminalDefault:any = config.get(CONFIG_KEY_TERMINAL_ENV, {});
 		function _updateTerminalConfig(newPath: string) {
@@ -213,16 +210,17 @@ export async function update(
 	for (const runtime of runtimes) {
 		const profile:any = _.cloneDeep(profilesOld[runtime.name]) ?? {}; // for isEqual
 		profile.overrideName = true;
+		profile.env ??= {};
 		if (OS.isWindows) {
 			profile.path ??= 'cmd'; // powershell (legacy), pwsh (non-preinstalled)
 		} else if (OS.isMac) {
 			profile.path ??= 'zsh';
 			profile.args ??= ['-l']; // Disable .zshrc JAVA_HOME in _setTerminalEnv ZDOTDIR
+			profile.env.ZDOTDIR ??= `~/.zsh_jdkauto`; // Disable .zshrc JAVA_HOME
 		} else {
 			profile.path ??= 'bash';
 			profile.args ??= ["--rcfile", "~/.bashrc_jdkauto"]; // Disable .bashrc JAVA_HOME (also WSL)
 		}
-		profile.env ??= {};
 		_setTerminalEnv(runtime.path, profile.env);
 		profilesNew[runtime.name] = profile;
 	}

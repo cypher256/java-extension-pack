@@ -79,7 +79,8 @@
     "lint": "eslint src --ext ts",
     "test": "node ./out/test/runTest.js",
     "clean": "rimraf out",
-    "l10n": "npx @vscode/l10n-dev export --outDir ./l10n ./src"
+    "l10n": "npx @vscode/l10n-dev export --outDir ./l10n ./src",
+    "package": "npx vsce package"
   },
   "engines": {
     "vscode": "^1.54.0"
@@ -109,5 +110,5 @@
     "lodash": "4.x",
     "minipass": "5.x"
   },
-  "version": "2023.527.2"
+  "version": "2023.529.0"
 }
