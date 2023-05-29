@@ -13,7 +13,7 @@ The extension greatly reduces the installation, configuration effort, and [JDK c
 
 # Install
 ## Using Install Button
-1. [![](https://img.shields.io/badge/-Open%20README.md%20in%20VSCode-107c10?style=for-the-badge&logo=visualstudiocode)](vscode:extension/Pleiades.java-extension-pack-jdk)
+1. <a href="vscode:extension/Pleiades.java-extension-pack-jdk">![](https://img.shields.io/badge/-Open%20README.md%20in%20VSCode-107c10?style=for-the-badge&logo=visualstudiocode)</a>
 1. Click Install
 ## Using Extensions Sidebar
 1. Open Extensions SideBar (Ctrl/CMD + Shift + X)
