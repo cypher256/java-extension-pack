@@ -181,14 +181,14 @@ export async function update(
 	const osConfigName = OS.isWindows ? 'windows' : OS.isMac ? 'osx' : 'linux';
 	if (defaultRuntime && OS.isWindows) { // Exclude macOS (Support npm scripts)
 		const CONFIG_KEY_TERMINAL_ENV = 'terminal.integrated.env.' + osConfigName;
-		const terminalDefault:any = config.get(CONFIG_KEY_TERMINAL_ENV, {});
+		const terminalEnv:any = config.get(CONFIG_KEY_TERMINAL_ENV, {});
 		function _updateTerminalConfig(newPath: string) {
-			_setTerminalEnv(newPath, terminalDefault);
-			updateConfig(CONFIG_KEY_TERMINAL_ENV, terminalDefault);
+			_setTerminalEnv(newPath, terminalEnv);
+			updateConfig(CONFIG_KEY_TERMINAL_ENV, terminalEnv);
 		}
-		if (terminalDefault.JAVA_HOME) {
-			const fixedPath = await jdkscan.fixPath(terminalDefault.JAVA_HOME, defaultRuntime.path);
-			if (fixedPath && fixedPath !== terminalDefault.JAVA_HOME) {
+		if (terminalEnv.JAVA_HOME) {
+			const fixedPath = await jdkscan.fixPath(terminalEnv.JAVA_HOME, defaultRuntime.path);
+			if (fixedPath && fixedPath !== terminalEnv.JAVA_HOME) {
 				_updateTerminalConfig(fixedPath);
 			}
 		} else if (!isValidEnvJavaHome) {
