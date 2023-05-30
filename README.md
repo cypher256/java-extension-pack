@@ -12,15 +12,15 @@ The extension greatly reduces the installation, configuration effort, and [JDK c
 <br>
 
 # Install
-## Using Install Button
-1. Click Install above to open in VSCode (for Marketplace in browser)
-1. Click Install
+## Using VSCode Web Marketplace
+1. Click Install on the [Marketplace web page](https://marketplace.visualstudio.com/items?itemName=Pleiades.java-extension-pack-jdk) in web browser
+1. Click Install on README.md opened in VSCode
 ## Using Extensions Sidebar
-1. Open Extensions SideBar (Ctrl/CMD + Shift + X)
+1. Open Extensions sideBar (Ctrl/CMD + Shift + X) in VSCode
 1. Search for `jdk auto`
 1. Click Install
 ## Using Quick Pick
-- Open Quick Pick (Ctrl/CMD + P), paste the following command, and press enter.<br>
+- Open Quick Pick (Ctrl/CMD + P) in VSCode, paste the following command, and press enter.<br>
 `ext install Pleiades.java-extension-pack-jdk`
 <br>
 <br>
@@ -179,7 +179,7 @@ Command Palette **>Preferences: Open User Settings (JSON)**
 <br>
 
 ## Auto-default Settings
-If the user settings is not set, it will auto-set the JDK Auto default value. Note that a debug run is required to enable Hot Code Replace (Hot Deploy).
+Entries that do not have the following configuration in the user settings are automatically set to the default values of JDK Auto. Note that a debug run is required to enable Hot Code Replace (Hot Deploy).
 
 |Extension Name|Configuration Name|Original Default|JDK Auto Default|
 |---|---|---|---|
@@ -260,10 +260,10 @@ To change the JDK for [unmanaged folders](https://code.visualstudio.com/docs/jav
 <br>
 
 ## Spring Boot Extension Pack
-Set the JDK version when [creating a Spring Boot project](https://code.visualstudio.com/docs/java/java-spring-boot#_create-the-project) or in `build.gradle`/`pom.xml`.
+Set the JDK version when [creating a Spring Boot project](https://code.visualstudio.com/docs/java/java-spring-boot#_create-the-project) or in `build.gradle`/`pom.xml`. Java projects in general can view and change the Java version from `{} Java` in the bottom Status Bar.
 <p>
 
-![Spring Boot Dashboard](https://raw.githubusercontent.com/cypher256/java-extension-pack/main/image/spring.jpg)
+[![Spring Boot Dashboard](https://raw.githubusercontent.com/cypher256/java-extension-pack/main/image/spring.jpg)](https://raw.githubusercontent.com/cypher256/java-extension-pack/main/image/spring.jpg)
 </p>
 <br>
 
