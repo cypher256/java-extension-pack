@@ -14,7 +14,7 @@ The extension greatly reduces the installation, configuration effort, and [JDK c
 # Install
 ## Using VSCode Web Marketplace
 1. Click Install on the [Marketplace web page](https://marketplace.visualstudio.com/items?itemName=Pleiades.java-extension-pack-jdk) in web browser
-1. Click Install on README.md opened in VSCode
+1. Click Install on README opened in VSCode
 ## Using Extensions Sidebar
 1. Open Extensions sideBar (Ctrl/CMD + Shift + X) in VSCode
 1. Search for `jdk auto`
