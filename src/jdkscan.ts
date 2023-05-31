@@ -3,12 +3,12 @@
  * Copyright (c) Shinji Kashihara.
  */
 import * as fs from 'fs';
-import * as os from "os";
-import * as path from 'path';
 import { GlobOptionsWithFileTypesUnset, glob } from 'glob-latest';
 import * as jdkutils from 'jdk-utils';
-import * as jdksettings from './jdksettings';
+import * as os from "os";
+import * as path from 'path';
 import * as jdkcontext from './jdkcontext';
+import * as jdksettings from './jdksettings';
 const { log, OS } = jdkcontext;
 
 /**
@@ -43,7 +43,7 @@ export async function scan(
 
 	// Scan User Installed JDK
 	const latestMajorMap = new Map<number, IJdk>();
-	const jdtVersions = jdksettings.runtime.getJdtVersions();
+	const jdtVersions = jdksettings.runtime.getAvailableVersions();
 	for (const jdk of await findAll()) {
 		if (!jdtVersions.includes(jdk.majorVersion)) {
 			continue;
@@ -78,7 +78,7 @@ export async function scan(
 		}
 	}
 
-	// Scan Auto-Downloaded JDK (Old Java Version Support)
+	// Scan Auto-Downloaded JDK (Previously downloaded versions)
 	for (const major of jdtVersions) {
 		if (latestMajorMap.has(major)) {
 			continue; // Prefer user-installed JDK

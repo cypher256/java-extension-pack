@@ -54,7 +54,7 @@ export namespace runtime {
 		return jdtRuntimeNames;
 	}
 
-	export function getJdtVersions(): number[] {
+	export function getAvailableVersions(): number[] {
 		return getJdtNames().map(versionOf);
 	}
 
@@ -272,9 +272,14 @@ export function setDefault() {
 	]);
 	setIfNull('editor.unicodeHighlight.includeComments', true);
 	setIfNull('workbench.colorCustomizations', {
-		"[Visual Studio Dark][Default Dark+]": {
+		"[Default Dark+][Visual Studio Dark]": {
 			"tab.activeBorder": "#0F0",
 		},
+		"[Default Dark Modern]": {
+            "tab.activeBorderTop": "#00FF00",
+            "tab.unfocusedActiveBorderTop" : "#00FF0088",
+            "textCodeBlock.background": "#00000055",
+        },
 		"editor.wordHighlightStrongBorder": "#FF6347",
 		"editor.wordHighlightBorder": "#FFD700",
 		"editor.selectionHighlightBorder": "#A9A9A9",

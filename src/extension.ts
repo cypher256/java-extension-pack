@@ -32,11 +32,11 @@ export async function activate(context:vscode.ExtensionContext) {
 	}
 
 	// Get JDK versions
-	const jdtVersions = jdksettings.runtime.getJdtVersions();
+	const availableVersions = jdksettings.runtime.getAvailableVersions();
 	const ltsFilter = (ver:number) => [8, 11].includes(ver) || (ver >= 17 && (ver - 17) % 4 === 0);
-	const targetLtsVersions = jdtVersions.filter(ltsFilter).slice(-4);
+	const targetLtsVersions = availableVersions.filter(ltsFilter).slice(-4);
 	const latestLtsVersion = _.last(targetLtsVersions) ?? 0;
-	log.info('JDT Supported versions ' + jdtVersions);
+	log.info('Available Java versions ' + availableVersions);
 	log.info('Target LTS versions ' + targetLtsVersions);
 	const runtimes = jdksettings.runtime.getConfigRuntimes();
 
@@ -59,7 +59,7 @@ export async function activate(context:vscode.ExtensionContext) {
 	vscode.window.withProgress({location: vscode.ProgressLocation.Window}, async progress => {
 		try {
 			const runtimesOld = _.cloneDeep(runtimes);
-			const downloadVersions = _.uniq([...targetLtsVersions, _.last(jdtVersions) ?? 0]);
+			const downloadVersions = _.uniq([...targetLtsVersions, _.last(availableVersions) ?? 0]);
 			const promiseArray = downloadVersions.map(v => jdkdownload.download(runtimes, v, progress));
 			await Promise.all(promiseArray);
 			await jdksettings.update(runtimes, runtimesOld, latestLtsVersion);
