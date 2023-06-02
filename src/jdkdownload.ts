@@ -60,10 +60,11 @@ export async function download(
 	majorVersion:number,
 	progress:vscode.Progress<any>) {
 
+	// Skip User Installed
 	const runtimeName = jdksettings.runtime.nameOf(majorVersion);
 	const matchedRuntime = runtimes.find(r => r.name === runtimeName);
-	if (matchedRuntime && jdksettings.runtime.isUserInstalled(matchedRuntime.path)) {
-		log.info(`No download ${majorVersion} (User installed)`);
+	if (matchedRuntime && jdkcontext.isUserInstalled(matchedRuntime.path)) {
+		log.info(`No download JDK ${majorVersion} (User installed)`);
 		return;
 	}
 	const arch = archOf(majorVersion);
@@ -83,7 +84,7 @@ export async function download(
 	const versionFile = path.join(versionDir, 'version.txt');
 	const fullVersionOld = fs.existsSync(versionFile) ? fs.readFileSync(versionFile).toString() : null;
 	if (fullVersion === fullVersionOld && await jdkscan.isValidPath(versionDir)) {
-		log.info(`No download ${majorVersion} (No updates)`);
+		log.info(`No download JDK ${majorVersion} (No updates)`);
 		return;
 	}
 
@@ -96,7 +97,7 @@ export async function download(
 	const downloadUrl = downloadUrlPrefix + fileName;
 
 	// Download JDK
-	log.info('Downloading...', downloadUrl);
+	log.info('Downloading JDK...', downloadUrl);
 	progress.report({ message: `JDK Auto: ${l10n.t('Downloading')} ${fullVersion}` });
 	jdkcontext.mkdirSync(storageJavaDir);
 	const downloadedFile = versionDir + '_download_tmp.' + fileExt;
@@ -106,7 +107,7 @@ export async function download(
 	await promisify(stream.finished)(writer);
 
 	// Decompress JDK
-	log.info('Installing...', downloadedFile);
+	log.info('Installing JDK...', downloadedFile);
 	progress.report({ message: `JDK Auto: ${l10n.t('Installing')} ${fullVersion}` });
 	jdkcontext.rmSync(versionDir);
 	try {

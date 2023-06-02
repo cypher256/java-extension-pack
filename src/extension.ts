@@ -4,9 +4,9 @@
  */
 import * as _ from "lodash";
 import * as vscode from 'vscode';
+import * as maven from './download/maven';
 import * as jdkcontext from './jdkcontext';
 import * as jdkdownload from './jdkdownload';
-import * as jdkscan from './jdkscan';
 import * as jdksettings from './jdksettings';
 const { log, OS } = jdkcontext;
 
@@ -19,7 +19,7 @@ export async function activate(context:vscode.ExtensionContext) {
 	jdkcontext.init(context);
 	log.info(`activate START ${context.extension?.packageJSON?.version} --------------------`);
 	log.info('JAVA_HOME', process.env.JAVA_HOME);
-	log.info('Download location', jdkcontext.getGlobalStoragePath());
+	log.info('Save Location', jdkcontext.getGlobalStoragePath());
 
 	jdksettings.setDefault();
 	const STATE_KEY_ACTIVATED = 'activated';
@@ -43,8 +43,8 @@ export async function activate(context:vscode.ExtensionContext) {
 	// Scan JDK
 	try {
 		const runtimesOld = _.cloneDeep(runtimes);
-		await jdkscan.scan(runtimes);
-		await jdksettings.update(runtimes, runtimesOld, latestLtsVersion);
+		// await jdkscan.scan(runtimes);
+		// await jdksettings.updateRuntimes(runtimes, runtimesOld, latestLtsVersion);
 	} catch (e:any) {
 		const message = `JDK scan failed. ${e.message ?? e}`;
 		vscode.window.showErrorMessage(message);
@@ -61,8 +61,9 @@ export async function activate(context:vscode.ExtensionContext) {
 			const runtimesOld = _.cloneDeep(runtimes);
 			const downloadVersions = _.uniq([...targetLtsVersions, _.last(availableVersions) ?? 0]);
 			const promiseArray = downloadVersions.map(v => jdkdownload.download(runtimes, v, progress));
-			await Promise.all(promiseArray);
-			await jdksettings.update(runtimes, runtimesOld, latestLtsVersion);
+			promiseArray.push(maven.download(progress));
+			await Promise.allSettled(promiseArray);
+			await jdksettings.updateRuntimes(runtimes, runtimesOld, latestLtsVersion);
 		} catch (e:any) {
 			const message = `JDK download failed. ${e.request?.path ?? ''} ${e.message ?? e}`;
 			log.info(message, e); // Silent: offline, 404 building, 503 proxy auth error, etc.

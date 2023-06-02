@@ -6,6 +6,7 @@ import { compare } from 'compare-versions';
 import * as _ from "lodash";
 import * as path from 'path';
 import * as vscode from 'vscode';
+import * as maven from './download/maven';
 import * as jdkcontext from './jdkcontext';
 import * as jdkscan from './jdkscan';
 const { log, OS } = jdkcontext;
@@ -58,12 +59,6 @@ export namespace runtime {
 		return getJdtNames().map(versionOf);
 	}
 
-	export function isUserInstalled(javaHome:string): boolean {
-		const _javaHome = path.normalize(javaHome);
-		const _globalStoragePath = path.normalize(jdkcontext.getGlobalStoragePath());
-		return !_javaHome.startsWith(_globalStoragePath);
-	}
-
 	export function isNewLeft(leftVersion:string, rightVersion:string): boolean {
 		try {
 			const optimize = (s:string) => s.replace(/_/g, '.');
@@ -81,7 +76,7 @@ export namespace runtime {
  * @param runtimesOld An array of previous Java runtime objects to compare with `runtimes`.
  * @param latestLtsVersion The latest LTS version.
  */
-export async function update(
+export async function updateRuntimes(
 	runtimes:IConfigRuntime[],
 	runtimesOld:IConfigRuntime[],
 	latestLtsVersion:number) {
@@ -89,7 +84,7 @@ export async function update(
 	const config = vscode.workspace.getConfiguration();
 	const CONFIG_KEY_DEPRECATED_JAVA_HOME = 'java.home';
 	if (config.get(CONFIG_KEY_DEPRECATED_JAVA_HOME) !== null) {
-		updateConfig(CONFIG_KEY_DEPRECATED_JAVA_HOME, undefined);
+		removeEntry(CONFIG_KEY_DEPRECATED_JAVA_HOME);
 	}
 
 	// VSCode LS Java Home (Fix if unsupported old version)
@@ -111,17 +106,17 @@ export async function update(
 					// https://github.com/redhat-developer/vscode-java/blob/master/src/requirements.ts
 					const jdk = await jdkscan.findByPath(fixedPath);
 					if (!jdk || jdk.majorVersion < latestLtsVersion) {
-						updateConfig(CONFIG_KEY_LS_JAVA_HOME, latestLtsPath); // Fix unsupported older version
+						updateEntry(CONFIG_KEY_LS_JAVA_HOME, latestLtsPath); // Fix unsupported older version
 					} else if (fixedPath !== originPath) {
-						updateConfig(CONFIG_KEY_LS_JAVA_HOME, fixedPath); // Fix invalid
+						updateEntry(CONFIG_KEY_LS_JAVA_HOME, fixedPath); // Fix invalid
 					} else {
 						// Keep new version
 					}
 				} else {
-					updateConfig(CONFIG_KEY_LS_JAVA_HOME, latestLtsPath); // Can't fix
+					updateEntry(CONFIG_KEY_LS_JAVA_HOME, latestLtsPath); // Can't fix
 				}
 			} else {
-				updateConfig(CONFIG_KEY_LS_JAVA_HOME, latestLtsPath); // if unset
+				updateEntry(CONFIG_KEY_LS_JAVA_HOME, latestLtsPath); // if unset
 			}
 		}
 	}
@@ -133,7 +128,7 @@ export async function update(
 			latestLtsRuntime.default = true;
 		}
 		runtimes.sort((a, b) => a.name.localeCompare(b.name));
-		updateConfig(runtime.CONFIG_KEY, runtimes);
+		updateEntry(runtime.CONFIG_KEY, runtimes);
 	}
 
 	// Gradle Daemon Java Home (Fix if set), Note: If unset use java.jdt.ls.java.home
@@ -144,10 +139,10 @@ export async function update(
 		if (originPath) {
 			const fixedPath = await jdkscan.fixPath(originPath, defaultRuntime.path);
 			if (fixedPath && fixedPath !== originPath) {
-				updateConfig(CONFIG_KEY_GRADLE_JAVA_HOME, fixedPath);
+				updateEntry(CONFIG_KEY_GRADLE_JAVA_HOME, fixedPath);
 			}
 		} else {
-			updateConfig(CONFIG_KEY_GRADLE_JAVA_HOME, defaultRuntime.path);
+			updateEntry(CONFIG_KEY_GRADLE_JAVA_HOME, defaultRuntime.path);
 		}
 	}
 
@@ -159,7 +154,7 @@ export async function update(
 		let mavenJavaHome = customEnv.find(i => i.environmentVariable === 'JAVA_HOME');
 		function _updateMavenJavaHome(newPath: string) {
 			mavenJavaHome.value = newPath;
-			updateConfig(CONFIG_KEY_MAVEN_CUSTOM_ENV, customEnv);
+			updateEntry(CONFIG_KEY_MAVEN_CUSTOM_ENV, customEnv);
 		}
 		if (mavenJavaHome) {
 			const fixedPath = await jdkscan.fixPath(mavenJavaHome.value, defaultRuntime.path);
@@ -175,24 +170,33 @@ export async function update(
 
 	// Terminal Default Environment Variables (Keep if set)
 	function _setTerminalEnv(javaHome: string, env: any) {
+		const mavenExePath = config.get<string>(maven.CONFIG_KEY_GUI_MAVEN_EXE_PATH);
+		const pathArray = [];
+		pathArray.push(javaHome + (OS.isWindows ? '\\bin' : '/bin'));
+		if (mavenExePath) {
+			pathArray.push(path.join(mavenExePath, '..'));
+		}
+		pathArray.push('${env:PATH}');
+		env.PATH = pathArray.join(OS.isWindows ? ';' : ':');
 		env.JAVA_HOME = javaHome;
-		env.PATH = javaHome + (OS.isWindows ? '\\bin;' : '/bin:') + '${env:PATH}';
 	}
 	const osConfigName = OS.isWindows ? 'windows' : OS.isMac ? 'osx' : 'linux';
 	if (defaultRuntime && OS.isWindows) { // Exclude macOS (Support npm scripts)
 		const CONFIG_KEY_TERMINAL_ENV = 'terminal.integrated.env.' + osConfigName;
 		const terminalEnv:any = config.get(CONFIG_KEY_TERMINAL_ENV, {});
-		function _updateTerminalConfig(newPath: string) {
+		function _updateTerminalDefault(newPath: string) {
 			_setTerminalEnv(newPath, terminalEnv);
-			updateConfig(CONFIG_KEY_TERMINAL_ENV, terminalEnv);
+			// TODO diff PATH, JAVA_HOME for update
+			updateEntry(CONFIG_KEY_TERMINAL_ENV, terminalEnv);
 		}
 		if (terminalEnv.JAVA_HOME) {
 			const fixedPath = await jdkscan.fixPath(terminalEnv.JAVA_HOME, defaultRuntime.path);
 			if (fixedPath && fixedPath !== terminalEnv.JAVA_HOME) {
-				_updateTerminalConfig(fixedPath);
+				// TODO remove "!== condition", update maven path?
+				_updateTerminalDefault(fixedPath);
 			}
 		} else if (!isValidEnvJavaHome) {
-			_updateTerminalConfig(defaultRuntime.path);
+			_updateTerminalDefault(defaultRuntime.path);
 		}
 	}
 
@@ -225,14 +229,24 @@ export async function update(
 		profilesNew[runtime.name] = profile;
 	}
 	if (!_.isEqual(profilesNew, profilesOld) ) {
-		updateConfig(CONFIG_KEY_TERMINAL_PROFILES, profilesNew);
+		updateEntry(CONFIG_KEY_TERMINAL_PROFILES, profilesNew);
 	}
 }
 
-function updateConfig(section:string, value:any) {
+/**
+ * Updates a VSCode settings entry.
+ */
+export function updateEntry(section:string, value:any) {
 	const config = vscode.workspace.getConfiguration();
 	config.update(section, value, vscode.ConfigurationTarget.Global); // User Settings
-	log.info('Updated config:', section, _.isObject(value) ? '' : value);
+	log.info('Updated settings:', section, _.isObject(value) ? '' : value);
+}
+
+/**
+ * Removes a VSCode settings entry.
+ */
+export function removeEntry(section:string) {
+	updateEntry(section, undefined);
 }
 
 function setIfNull(section:string, value:any, extensionName?:string) {
@@ -241,7 +255,7 @@ function setIfNull(section:string, value:any, extensionName?:string) {
 	}
 	const config = vscode.workspace.getConfiguration();
 	if (config.inspect(section)?.globalValue === undefined) {
-		updateConfig(section, value);
+		updateEntry(section, value);
 	}
 }
 

@@ -99,7 +99,7 @@ export async function scan(
 		const scannedName = jdksettings.runtime.nameOf(scannedJdk.majorVersion);
 		const configRuntime = runtimes.find(r => r.name === scannedName);
 		if (configRuntime) {
-			if (jdksettings.runtime.isUserInstalled(configRuntime.path)) {
+			if (jdkcontext.isUserInstalled(configRuntime.path)) {
 				const configJdk = await findByPath(configRuntime.path); // Don't set if same fullVersion
 				if (configJdk && jdksettings.runtime.isNewLeft(scannedJdk.fullVersion, configJdk.fullVersion)) {
 					configRuntime.path = scannedJdk.homePath;
@@ -238,6 +238,6 @@ async function findAll(): Promise<IJdk[]> {
 			await tryGlob('Pleiades', jdks, patterns);
 		},
 	];
-	await Promise.all(scanStrategies.map(f => f()));
+	await Promise.allSettled(scanStrategies.map(f => f()));
 	return jdks;
 }
