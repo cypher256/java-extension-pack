@@ -17,35 +17,57 @@ const l10n = vscode.l10n;
 const { log } = jdkcontext;
 export const CONFIG_KEY_GUI_MAVEN_EXE_PATH = 'maven.executable.path';
 
+/**
+ * Downloads and installs the Maven if it is not already installed.
+ * @param progress A progress object used to report the download and installation progress.
+ */
 export async function download(progress:vscode.Progress<any>) {
+	try {
+		const config = vscode.workspace.getConfiguration();
+		const mavenExePathOld = config.get<string>(CONFIG_KEY_GUI_MAVEN_EXE_PATH);
+		const mavenExePathNew = await downloadProc(progress, mavenExePathOld);
+		if (mavenExePathOld !== mavenExePathNew) {
+			jdksettings.updateEntry(CONFIG_KEY_GUI_MAVEN_EXE_PATH, mavenExePathNew);
+		}
+	} catch (error) {
+		log.info('Failed download Maven', error);
+	}
+}
 
+async function downloadProc(
+	progress:vscode.Progress<any>,
+	mavenExePathOld:string | undefined): Promise<string | undefined> {
+
+	let mavenExePathNew = mavenExePathOld;
 	const storageMavenDir = path.join(jdkcontext.getGlobalStoragePath(), 'maven');
     const homeDirName = 'latest';
 	const homeDir = path.join(storageMavenDir, homeDirName);
 
 	// Skip User Installed
-	const config = vscode.workspace.getConfiguration();
-	const mavenExePath = config.get<string>(CONFIG_KEY_GUI_MAVEN_EXE_PATH);
-	if (mavenExePath) {
-		if (!fs.existsSync(mavenExePath)) {
-			log.info('Remove invalid settings', CONFIG_KEY_GUI_MAVEN_EXE_PATH, mavenExePath);
-			jdksettings.removeEntry(CONFIG_KEY_GUI_MAVEN_EXE_PATH);
-		} else if (jdkcontext.isUserInstalled(mavenExePath)) {
-			log.info('No download Maven (User installed)', CONFIG_KEY_GUI_MAVEN_EXE_PATH, mavenExePath);
-			return;
+	if (mavenExePathOld) {
+		if (!fs.existsSync(mavenExePathOld)) {
+			log.info('Remove invalid settings', CONFIG_KEY_GUI_MAVEN_EXE_PATH, mavenExePathOld);
+			mavenExePathNew = undefined;
+		} else if (jdkcontext.isUserInstalled(mavenExePathOld)) {
+			log.info('No download Maven (User installed)', CONFIG_KEY_GUI_MAVEN_EXE_PATH, mavenExePathOld);
+			return mavenExePathOld;
 		}
 	}
 	try {
 		const systemMvnPath = await which('mvn');
 		if (systemMvnPath) {
-			log.info('Maven in path variable', systemMvnPath);
-			return;
+			log.info('Detect Maven', systemMvnPath);
+			if (!mavenExePathNew) {
+				mavenExePathNew = systemMvnPath;
+			}
+			return mavenExePathNew;
 		}
 	} catch (error) {
 		// Not found in path
+		log.info('which', error);
 	}
-	if (!config.get(CONFIG_KEY_GUI_MAVEN_EXE_PATH) && isValidMavenHome(homeDir)) {
-		jdksettings.updateEntry(CONFIG_KEY_GUI_MAVEN_EXE_PATH, getMavenExePath(homeDir));
+	if (!mavenExePathNew && isValidMavenHome(homeDir)) {
+		mavenExePathNew = getMavenExePath(homeDir);
 	}
 
     // Get Latest Version
@@ -59,7 +81,7 @@ export async function download(progress:vscode.Progress<any>) {
 	const versionOld = fs.existsSync(versionFile) ? fs.readFileSync(versionFile).toString() : null;
 	if (version === versionOld && isValidMavenHome(homeDir)) {
 		log.info(`No download Maven ${version} (No updates)`);
-		return;
+		return mavenExePathNew;
 	}
 
     // Download Maven
@@ -89,14 +111,15 @@ export async function download(progress:vscode.Progress<any>) {
 	}
 	if (!isValidMavenHome(homeDir)) {
 		log.info('Invalid Maven:', homeDir);
-		jdksettings.removeEntry(CONFIG_KEY_GUI_MAVEN_EXE_PATH);
-		return; // Silent
+		mavenExePathNew = undefined;
+		return mavenExePathNew; // Silent
 	}
 	jdkcontext.rmSync(downloadedFile);
 	fs.writeFileSync(versionFile, version);
 
 	// Set Settings
-	jdksettings.updateEntry(CONFIG_KEY_GUI_MAVEN_EXE_PATH, getMavenExePath(homeDir));
+	mavenExePathNew = getMavenExePath(homeDir);
+	return mavenExePathNew;
 }
 
 function isValidMavenHome(homeDir:string) {

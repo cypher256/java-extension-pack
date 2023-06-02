@@ -10,9 +10,9 @@ import * as path from 'path';
 import * as stream from 'stream';
 import { promisify } from 'util';
 import * as vscode from 'vscode';
-import * as jdkcontext from './jdkcontext';
-import * as jdkscan from './jdkscan';
-import * as jdksettings from './jdksettings';
+import * as jdkcontext from '../jdkcontext';
+import * as jdkscan from '../jdkscan';
+import * as jdksettings from '../jdksettings';
 const l10n = vscode.l10n;
 const { log, OS } = jdkcontext;
 

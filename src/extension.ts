@@ -4,9 +4,9 @@
  */
 import * as _ from "lodash";
 import * as vscode from 'vscode';
-import * as maven from './download/maven';
+import * as downloadjdk from './download/jdk';
+import * as downloadmaven from './download/maven';
 import * as jdkcontext from './jdkcontext';
-import * as jdkdownload from './jdkdownload';
 import * as jdksettings from './jdksettings';
 const { log, OS } = jdkcontext;
 
@@ -52,16 +52,16 @@ export async function activate(context:vscode.ExtensionContext) {
 	}
 
 	// Download JDK
-	if (!jdkdownload.isTarget || targetLtsVersions.length === 0) {
-		log.info(`activate END. jdkdownload.isTarget:${jdkdownload.isTarget} ${process.platform}/${process.arch}`);
+	if (!downloadjdk.isTarget || targetLtsVersions.length === 0) {
+		log.info(`activate END. jdkdownload.isTarget:${downloadjdk.isTarget} ${process.platform}/${process.arch}`);
 		return;
 	}
 	vscode.window.withProgress({location: vscode.ProgressLocation.Window}, async progress => {
 		try {
 			const runtimesOld = _.cloneDeep(runtimes);
 			const downloadVersions = _.uniq([...targetLtsVersions, _.last(availableVersions) ?? 0]);
-			const promiseArray = downloadVersions.map(v => jdkdownload.download(runtimes, v, progress));
-			promiseArray.push(maven.download(progress));
+			const promiseArray = downloadVersions.map(v => downloadjdk.download(runtimes, v, progress));
+			promiseArray.push(downloadmaven.download(progress));
 			await Promise.allSettled(promiseArray);
 			await jdksettings.updateRuntimes(runtimes, runtimesOld, latestLtsVersion);
 		} catch (e:any) {

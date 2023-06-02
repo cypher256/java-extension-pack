@@ -6,7 +6,7 @@ import { compare } from 'compare-versions';
 import * as _ from "lodash";
 import * as path from 'path';
 import * as vscode from 'vscode';
-import * as maven from './download/maven';
+import * as downloadmaven from './download/maven';
 import * as jdkcontext from './jdkcontext';
 import * as jdkscan from './jdkscan';
 const { log, OS } = jdkcontext;
@@ -170,9 +170,9 @@ export async function updateRuntimes(
 
 	// Terminal Default Environment Variables (Keep if set)
 	function _setTerminalEnv(javaHome: string, env: any) {
-		const mavenExePath = config.get<string>(maven.CONFIG_KEY_GUI_MAVEN_EXE_PATH);
+		const mavenExePath = config.get<string>(downloadmaven.CONFIG_KEY_GUI_MAVEN_EXE_PATH);
 		const pathArray = [];
-		pathArray.push(javaHome + (OS.isWindows ? '\\bin' : '/bin'));
+		pathArray.push(path.join(javaHome, 'bin'));
 		if (mavenExePath) {
 			pathArray.push(path.join(mavenExePath, '..'));
 		}
@@ -185,14 +185,16 @@ export async function updateRuntimes(
 		const CONFIG_KEY_TERMINAL_ENV = 'terminal.integrated.env.' + osConfigName;
 		const terminalEnv:any = config.get(CONFIG_KEY_TERMINAL_ENV, {});
 		function _updateTerminalDefault(newPath: string) {
+			const terminalEnvOld = _.cloneDeep(terminalEnv);
 			_setTerminalEnv(newPath, terminalEnv);
-			// TODO diff PATH, JAVA_HOME for update
-			updateEntry(CONFIG_KEY_TERMINAL_ENV, terminalEnv);
+			if (!_.isEqual(terminalEnv, terminalEnvOld) ) {
+				updateEntry(CONFIG_KEY_TERMINAL_ENV, terminalEnv);
+				// TODO message: Restart Terminal
+			}
 		}
 		if (terminalEnv.JAVA_HOME) {
 			const fixedPath = await jdkscan.fixPath(terminalEnv.JAVA_HOME, defaultRuntime.path);
-			if (fixedPath && fixedPath !== terminalEnv.JAVA_HOME) {
-				// TODO remove "!== condition", update maven path?
+			if (fixedPath && fixedPath) {
 				_updateTerminalDefault(fixedPath);
 			}
 		} else if (!isValidEnvJavaHome) {
@@ -230,6 +232,7 @@ export async function updateRuntimes(
 	}
 	if (!_.isEqual(profilesNew, profilesOld) ) {
 		updateEntry(CONFIG_KEY_TERMINAL_PROFILES, profilesNew);
+		// TODO message: Restart Terminal
 	}
 }
 
