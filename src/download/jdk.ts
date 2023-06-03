@@ -98,7 +98,7 @@ export async function download(
 
 	// Download JDK
 	log.info('Downloading JDK...', downloadUrl);
-	progress.report({ message: `JDK Auto: ${l10n.t('Downloading')} ${fullVersion}` });
+	progress.report({ message: `JDK Auto: ${l10n.t('Downloading')} JDK ${fullVersion}` });
 	jdkcontext.mkdirSync(storageJavaDir);
 	const downloadedFile = versionDir + '_download_tmp.' + fileExt;
 	const writer = fs.createWriteStream(downloadedFile);

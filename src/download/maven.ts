@@ -15,7 +15,7 @@ import * as jdksettings from '../jdksettings';
 import which = require('which');
 const l10n = vscode.l10n;
 const { log } = jdkcontext;
-export const CONFIG_KEY_GUI_MAVEN_EXE_PATH = 'maven.executable.path';
+export const CONFIG_KEY_MAVEN_EXE_PATH = 'maven.executable.path';
 
 /**
  * Downloads and installs the Maven if it is not already installed.
@@ -24,10 +24,10 @@ export const CONFIG_KEY_GUI_MAVEN_EXE_PATH = 'maven.executable.path';
 export async function download(progress:vscode.Progress<any>) {
 	try {
 		const config = vscode.workspace.getConfiguration();
-		const mavenExePathOld = config.get<string>(CONFIG_KEY_GUI_MAVEN_EXE_PATH);
+		const mavenExePathOld = config.get<string>(CONFIG_KEY_MAVEN_EXE_PATH);
 		const mavenExePathNew = await downloadProc(progress, mavenExePathOld);
 		if (mavenExePathOld !== mavenExePathNew) {
-			jdksettings.updateEntry(CONFIG_KEY_GUI_MAVEN_EXE_PATH, mavenExePathNew);
+			await jdksettings.updateEntry(CONFIG_KEY_MAVEN_EXE_PATH, mavenExePathNew);
 		}
 	} catch (error) {
 		log.info('Failed download Maven', error);
@@ -40,34 +40,33 @@ async function downloadProc(
 
 	let mavenExePathNew = mavenExePathOld;
 	const storageMavenDir = path.join(jdkcontext.getGlobalStoragePath(), 'maven');
-    const homeDirName = 'latest';
-	const homeDir = path.join(storageMavenDir, homeDirName);
+    const versionDirName = 'latest';
+	const versionDir = path.join(storageMavenDir, versionDirName);
 
 	// Skip User Installed
 	if (mavenExePathOld) {
 		if (!fs.existsSync(mavenExePathOld)) {
-			log.info('Remove invalid settings', CONFIG_KEY_GUI_MAVEN_EXE_PATH, mavenExePathOld);
+			log.info('Remove invalid settings', CONFIG_KEY_MAVEN_EXE_PATH, mavenExePathOld);
 			mavenExePathNew = undefined;
 		} else if (jdkcontext.isUserInstalled(mavenExePathOld)) {
-			log.info('No download Maven (User installed)', CONFIG_KEY_GUI_MAVEN_EXE_PATH, mavenExePathOld);
+			log.info('No download Maven (User installed)', CONFIG_KEY_MAVEN_EXE_PATH, mavenExePathOld);
 			return mavenExePathOld;
 		}
 	}
 	try {
-		const systemMvnPath = await which('mvn');
-		if (systemMvnPath) {
-			log.info('Detect Maven', systemMvnPath);
+		const systemMvnExe = await which('mvn');
+		if (systemMvnExe) {
+			log.info('Detect Maven', systemMvnExe);
 			if (!mavenExePathNew) {
-				mavenExePathNew = systemMvnPath;
+				mavenExePathNew = systemMvnExe;
 			}
 			return mavenExePathNew;
 		}
 	} catch (error) {
-		// Not found in path
-		log.info('which', error);
+		log.info('which system path', error);
 	}
-	if (!mavenExePathNew && isValidMavenHome(homeDir)) {
-		mavenExePathNew = getMavenExePath(homeDir);
+	if (!mavenExePathNew && isValidHome(versionDir)) {
+		mavenExePathNew = getExePath(versionDir);
 	}
 
     // Get Latest Version
@@ -77,40 +76,40 @@ async function downloadProc(
     const version = versionTag.replace(/<.+?>/g, '');
 
 	// Check Version File
-	const versionFile = path.join(homeDir, 'version.txt');
+	const versionFile = path.join(versionDir, 'version.txt');
 	const versionOld = fs.existsSync(versionFile) ? fs.readFileSync(versionFile).toString() : null;
-	if (version === versionOld && isValidMavenHome(homeDir)) {
+	if (version === versionOld && isValidHome(versionDir)) {
 		log.info(`No download Maven ${version} (No updates)`);
 		return mavenExePathNew;
 	}
 
-    // Download Maven
+    // Download Archive
 	const downloadUrl = `${URL_PREFIX}${version}/apache-maven-${version}-bin.tar.gz`;
 	log.info('Downloading Maven...', downloadUrl);
 	progress.report({ message: `JDK Auto: ${l10n.t('Downloading')} Maven ${version}` });
 	jdkcontext.mkdirSync(storageMavenDir);
-	const downloadedFile = homeDir + '_download_tmp.tar.gz';
+	const downloadedFile = versionDir + '_download_tmp.tar.gz';
 	const writer = fs.createWriteStream(downloadedFile);
 	const res = await axios.get(downloadUrl, {responseType: 'stream'});
 	res.data.pipe(writer);
 	await promisify(stream.finished)(writer);
 
-	// Decompress JDK
+	// Decompress Archive
 	log.info('Installing Maven...', storageMavenDir);
 	progress.report({ message: `JDK Auto: ${l10n.t('Installing')} Maven ${version}` });
-	jdkcontext.rmSync(homeDir);
+	jdkcontext.rmSync(versionDir);
 	try {
 		await decompress(downloadedFile, storageMavenDir, {
 			map: file => {
-				file.path = file.path.replace(/^[^/]+/, homeDirName);
+				file.path = file.path.replace(/^[^/]+/, versionDirName);
 				return file;
 			}
 		});
 	} catch (e) {
 		log.info('Failed decompress: ' + e); // Validate below
 	}
-	if (!isValidMavenHome(homeDir)) {
-		log.info('Invalid Maven:', homeDir);
+	if (!isValidHome(versionDir)) {
+		log.info('Invalid Maven:', versionDir);
 		mavenExePathNew = undefined;
 		return mavenExePathNew; // Silent
 	}
@@ -118,14 +117,14 @@ async function downloadProc(
 	fs.writeFileSync(versionFile, version);
 
 	// Set Settings
-	mavenExePathNew = getMavenExePath(homeDir);
+	mavenExePathNew = getExePath(versionDir);
 	return mavenExePathNew;
 }
 
-function isValidMavenHome(homeDir:string) {
-    return fs.existsSync(getMavenExePath(homeDir));
+function isValidHome(homeDir:string) {
+    return fs.existsSync(getExePath(homeDir));
 }
 
-function getMavenExePath(homeDir:string) {
+function getExePath(homeDir:string) {
 	return path.join(homeDir, 'bin', 'mvn');
 }

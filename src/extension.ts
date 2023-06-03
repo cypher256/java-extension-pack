@@ -4,9 +4,11 @@
  */
 import * as _ from "lodash";
 import * as vscode from 'vscode';
+import * as downloadgradle from './download/gradle';
 import * as downloadjdk from './download/jdk';
 import * as downloadmaven from './download/maven';
 import * as jdkcontext from './jdkcontext';
+import * as jdkscan from './jdkscan';
 import * as jdksettings from './jdksettings';
 const { log, OS } = jdkcontext;
 
@@ -43,8 +45,8 @@ export async function activate(context:vscode.ExtensionContext) {
 	// Scan JDK
 	try {
 		const runtimesOld = _.cloneDeep(runtimes);
-		// await jdkscan.scan(runtimes);
-		// await jdksettings.updateRuntimes(runtimes, runtimesOld, latestLtsVersion);
+		await jdkscan.scan(runtimes);
+		await jdksettings.updateRuntimes(runtimes, runtimesOld, latestLtsVersion);
 	} catch (e:any) {
 		const message = `JDK scan failed. ${e.message ?? e}`;
 		vscode.window.showErrorMessage(message);
@@ -62,6 +64,7 @@ export async function activate(context:vscode.ExtensionContext) {
 			const downloadVersions = _.uniq([...targetLtsVersions, _.last(availableVersions) ?? 0]);
 			const promiseArray = downloadVersions.map(v => downloadjdk.download(runtimes, v, progress));
 			promiseArray.push(downloadmaven.download(progress));
+			promiseArray.push(downloadgradle.download(progress));
 			await Promise.allSettled(promiseArray);
 			await jdksettings.updateRuntimes(runtimes, runtimesOld, latestLtsVersion);
 		} catch (e:any) {

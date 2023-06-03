@@ -6,6 +6,7 @@ import { compare } from 'compare-versions';
 import * as _ from "lodash";
 import * as path from 'path';
 import * as vscode from 'vscode';
+import * as downloadgradle from './download/gradle';
 import * as downloadmaven from './download/maven';
 import * as jdkcontext from './jdkcontext';
 import * as jdkscan from './jdkscan';
@@ -170,11 +171,15 @@ export async function updateRuntimes(
 
 	// Terminal Default Environment Variables (Keep if set)
 	function _setTerminalEnv(javaHome: string, env: any) {
-		const mavenExePath = config.get<string>(downloadmaven.CONFIG_KEY_GUI_MAVEN_EXE_PATH);
 		const pathArray = [];
 		pathArray.push(path.join(javaHome, 'bin'));
+		const mavenExePath = config.get<string>(downloadmaven.CONFIG_KEY_MAVEN_EXE_PATH);
 		if (mavenExePath) {
 			pathArray.push(path.join(mavenExePath, '..'));
+		}
+		const gradleHome = config.get<string>(downloadgradle.CONFIG_KEY_GRADLE_HOME);
+		if (gradleHome) {
+			pathArray.push(path.join(gradleHome, 'bin'));
 		}
 		pathArray.push('${env:PATH}');
 		env.PATH = pathArray.join(OS.isWindows ? ';' : ':');
@@ -189,7 +194,6 @@ export async function updateRuntimes(
 			_setTerminalEnv(newPath, terminalEnv);
 			if (!_.isEqual(terminalEnv, terminalEnvOld) ) {
 				updateEntry(CONFIG_KEY_TERMINAL_ENV, terminalEnv);
-				// TODO message: Restart Terminal
 			}
 		}
 		if (terminalEnv.JAVA_HOME) {
@@ -232,24 +236,23 @@ export async function updateRuntimes(
 	}
 	if (!_.isEqual(profilesNew, profilesOld) ) {
 		updateEntry(CONFIG_KEY_TERMINAL_PROFILES, profilesNew);
-		// TODO message: Restart Terminal
 	}
 }
 
 /**
  * Updates a VSCode settings entry.
  */
-export function updateEntry(section:string, value:any) {
+export async function updateEntry(section:string, value:any) {
 	const config = vscode.workspace.getConfiguration();
-	config.update(section, value, vscode.ConfigurationTarget.Global); // User Settings
 	log.info('Updated settings:', section, _.isObject(value) ? '' : value);
+	return await config.update(section, value, vscode.ConfigurationTarget.Global); // User Settings
 }
 
 /**
  * Removes a VSCode settings entry.
  */
-export function removeEntry(section:string) {
-	updateEntry(section, undefined);
+export async function removeEntry(section:string) {
+	return await updateEntry(section, undefined);
 }
 
 function setIfNull(section:string, value:any, extensionName?:string) {
@@ -269,6 +272,7 @@ export function setDefault() {
 	/* eslint-disable @typescript-eslint/naming-convention */
 	setIfNull('java.debug.settings.hotCodeReplace', 'auto');
 	setIfNull('java.sources.organizeImports.staticStarThreshold', 1);
+	// VSCode General
 	setIfNull('editor.codeActionsOnSave', {
 		"source.organizeImports": true
 	});
@@ -306,6 +310,9 @@ export function setDefault() {
 		setIfNull('files.eol', '\n');
 		setIfNull('[bat]', {'files.eol': '\r\n'});
 	}
+	// VSCode Terminal
+	setIfNull('terminal.integrated.enablePersistentSessions', false);
+	// Third party extensions
 	setIfNull('cSpell.diagnosticLevel', 'Hint', 'streetsidesoftware.code-spell-checker');
 	setIfNull('trailing-spaces.includeEmptyLines', false, 'shardulm94.trailing-spaces');
 }

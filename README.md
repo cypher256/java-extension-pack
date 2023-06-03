@@ -6,7 +6,7 @@
 [![](https://img.shields.io/visual-studio-marketplace/i/Pleiades.java-extension-pack-jdk?color=blue)](vscode:extension/Pleiades.java-extension-pack-jdk)
 ![](https://img.shields.io/visual-studio-marketplace/last-updated/Pleiades.java-extension-pack-jdk?color=orange)
 
-The extension greatly reduces the installation, configuration effort, and [JDK configuration errors](https://stackoverflow.com/search?q=vscode+jdk) for general Java developers. There is no need to manually install the JDK or set the `JAVA_HOME` environment variables. It also comes pre-included with extensions that most Java developers need, such as Maven, Gradle, Spring, Lombok, and Tomcat start/stop, so you can start developing right out of the box with zero configuration.
+The extension greatly reduces the installation, configuration effort, and [JDK configuration errors](https://stackoverflow.com/search?q=vscode+jdk) for general Java developers. There is no need to manually install JDK, Gradle, or Maven or set environment variables such as `path`. It also comes pre-included with extensions that most Java developers need, such as Maven, Gradle, Spring, Lombok, and Tomcat start/stop, so you can start developing right out of the box with zero configuration.
 <br>
 <br>
 <br>
@@ -47,6 +47,8 @@ The JDKs are auto-configured for the current environment on VSCode startup as fo
 |[java.configuration.runtimes](https://code.visualstudio.com/docs/java/java-project#_configure-runtime-for-projects)<br>([Issues](https://github.com/redhat-developer/vscode-java/issues?q=is%3Aissue+java.configuration.runtimes))|Set all major JDKs scanned, detected, and downloaded<br>(Setting > `JAVA_HOME`)|
 |[java.import.gradle.java.home](https://github.com/redhat-developer/vscode-java/wiki/JDK-Requirements#my-gradle-version-does-not-support-java-17)<br>([Issues](https://github.com/microsoft/vscode-gradle/issues?q=is%3Aissue+java.import.gradle.java.home))|Set default if unset<br>(Setting > `java.jdt.ls.java.home`)|
 |[maven.terminal.customEnv](https://marketplace.visualstudio.com/items?itemName=vscjava.vscode-maven#additional-configurations)<br>([Issues](https://github.com/microsoft/vscode-maven/issues?q=is%3Aissue+maven.terminal.customEnv))|Set default if `JAVA_HOME` environment variable unset<br>(Setting > `JAVA_HOME`)|
+|[java.import.gradle.home](https://github.com/microsoft/vscode-gradle#java-specific-settings)<br>([Issues](https://github.com/microsoft/vscode-gradle/issues?q=is%3Aissue+java.import.gradle.home))|Set gradle on system path or auto-downloaded Gradle<br>(None)|
+|[maven.executable.path](https://github.com/Microsoft/vscode-maven#settings)<br>([Issues](https://github.com/microsoft/vscode-maven/issues?q=is%3Aissue+maven.executable.path))|Set mvn on system path or auto-downloaded Maven<br>(None)|
 
 (*1) The language server runtime used by VSCode extensions. Not for building and running projects.<br>
 (*2) Set latest LTS if unset, Fix if unsupported older version.
@@ -54,12 +56,17 @@ The JDKs are auto-configured for the current environment on VSCode startup as fo
 <br>
 
 #### Auto-download Support
-Up to 4 LTSs and the [latest available non-LTS](https://marketplace.visualstudio.com/items?itemName=redhat.java#features) will be auto-downloaded if not installed. Unused old non-LTS that were previously auto-downloaded can safely be removed manually from the directory. Auto-download is supported on the following platforms:
+The following will be downloaded if they do not exist locally:
+- JDK - up to 4 LTSs and [latest non-LTS](https://marketplace.visualstudio.com/items?itemName=redhat.java#features) if not detected
+- Gradle - download if not on system path
+- Maven - download if not on system path
+
+JDK auto-download supports the following platforms:
 - Windows x64
 - macos x64, aarch64
 - Linux x64, aarch64
 
-The downloaded JDKs are stored in the following JDK Auto extension global storage directory.
+It is saved in the following directory.
 
 |OS|JDK Auto Extension global storage directory|
 |---|---|
@@ -129,6 +136,7 @@ Terminal profiles are defined based on configured runtimes, so you can easily op
 |[terminal.integrated.env.*](https://code.visualstudio.com/docs/terminal/profiles#_configuring-profiles)<br>([Issues](https://github.com/microsoft/vscode/issues?q=is%3Aissue+terminal.integrated.env+JAVA_HOME))|Set default if JAVA_HOME environment variable unset<br>(Setting > JAVA_HOME)|
 |[terminal.integrated.defaultProfile.windows](https://code.visualstudio.com/docs/terminal/profiles)<br>([Issues](https://github.com/microsoft/vscode/issues?q=is%3Aissue+terminal.integrated.profiles))|Set "Command Prompt" if unset on Windows<br>("PowerShell")|
 |[terminal.integrated.profiles.*](https://code.visualstudio.com/docs/terminal/profiles)<br>([Issues](https://github.com/microsoft/vscode/issues?q=is%3Aissue+terminal.integrated.profiles))|Set configured runtimes to terminal<br>(None)|
+|[terminal.integrated.enablePersistentSessions](https://code.visualstudio.com/docs/terminal/advanced#_persistent-sessions)<br>([Issues](https://github.com/microsoft/vscode/issues?q=is%3Aissue+terminal.integrated.enablePersistentSessions))|false<br>(true)|
 
 <br>
 
