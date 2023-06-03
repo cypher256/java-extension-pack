@@ -55,7 +55,7 @@ async function downloadProc(
 	try {
 		const systemGradleExe = await which('gradle');
 		if (systemGradleExe) {
-			log.info('Detect Gradle', systemGradleExe);
+			log.info('Detected Gradle', systemGradleExe);
 			if (!gradleHomeNew) {
 				gradleHomeNew = path.join(systemGradleExe, '..', '..');
 			}

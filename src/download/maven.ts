@@ -56,7 +56,7 @@ async function downloadProc(
 	try {
 		const systemMvnExe = await which('mvn');
 		if (systemMvnExe) {
-			log.info('Detect Maven', systemMvnExe);
+			log.info('Detected Maven', systemMvnExe);
 			if (!mavenExePathNew) {
 				mavenExePathNew = systemMvnExe;
 			}
