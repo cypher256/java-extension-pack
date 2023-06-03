@@ -49,7 +49,6 @@
     "Extension Packs"
   ],
   "extensionDependencies": [
-    "redhat.java"
   ],
   "extensionPack": [
     "vscjava.vscode-java-pack",
@@ -111,5 +110,5 @@
     "lodash": "4.x",
     "minipass": "5.x"
   },
-  "version": "2023.603.0"
+  "version": "2023.603.1"
 }

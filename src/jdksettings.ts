@@ -47,7 +47,9 @@ export namespace runtime {
 	}
 
 	export function getJdtNames(): string[] {
-		const redhatJava = vscode.extensions.getExtension('redhat.java'); // extensionDependencies
+		// Do not add redhat to extensionDependencies,
+		// because JDK Auto will not start when redhat activation error occurs.
+		const redhatJava = vscode.extensions.getExtension('redhat.java');
 		const redhatProp = redhatJava?.packageJSON?.contributes?.configuration?.properties;
 		const jdtRuntimeNames:string[] = redhatProp?.[CONFIG_KEY]?.items?.properties?.name?.enum ?? [];
 		if (jdtRuntimeNames.length === 0) {
@@ -100,6 +102,7 @@ export async function updateRuntimes(
 		]) {
 			const originPath = config.get<string>(CONFIG_KEY_LS_JAVA_HOME);
 			const latestLtsPath = latestLtsRuntime.path;
+			let javaHome = null;
 			if (originPath) {
 				const fixedPath = await jdkscan.fixPath(originPath);
 				if (fixedPath) {
@@ -107,17 +110,21 @@ export async function updateRuntimes(
 					// https://github.com/redhat-developer/vscode-java/blob/master/src/requirements.ts
 					const jdk = await jdkscan.findByPath(fixedPath);
 					if (!jdk || jdk.majorVersion < latestLtsVersion) {
-						updateEntry(CONFIG_KEY_LS_JAVA_HOME, latestLtsPath); // Fix unsupported older version
+						javaHome = latestLtsPath; // Fix unsupported older version
 					} else if (fixedPath !== originPath) {
-						updateEntry(CONFIG_KEY_LS_JAVA_HOME, fixedPath); // Fix invalid
+						javaHome = fixedPath; // Fix invalid
 					} else {
 						// Keep new version
 					}
 				} else {
-					updateEntry(CONFIG_KEY_LS_JAVA_HOME, latestLtsPath); // Can't fix
+					javaHome = latestLtsPath; // Can't fix
 				}
 			} else {
-				updateEntry(CONFIG_KEY_LS_JAVA_HOME, latestLtsPath); // if unset
+				javaHome = latestLtsPath; // if unset
+			}
+			if (javaHome) {
+				updateEntry(CONFIG_KEY_LS_JAVA_HOME, javaHome);
+
 			}
 		}
 	}
@@ -188,7 +195,7 @@ export async function updateRuntimes(
 	const osConfigName = OS.isWindows ? 'windows' : OS.isMac ? 'osx' : 'linux';
 	if (defaultRuntime && OS.isWindows) { // Exclude macOS (Support npm scripts)
 		const CONFIG_KEY_TERMINAL_ENV = 'terminal.integrated.env.' + osConfigName;
-		const terminalEnv:any = config.get(CONFIG_KEY_TERMINAL_ENV, {});
+		const terminalEnv:any = _.cloneDeep(config.get(CONFIG_KEY_TERMINAL_ENV, {})); // Proxy to POJO for isEqual
 		function _updateTerminalDefault(newPath: string) {
 			const terminalEnvOld = _.cloneDeep(terminalEnv);
 			_setTerminalEnv(newPath, terminalEnv);
@@ -213,7 +220,7 @@ export async function updateRuntimes(
 
 	// Terminal Profiles Dropdown
 	const CONFIG_KEY_TERMINAL_PROFILES = 'terminal.integrated.profiles.' + osConfigName;
-	const profilesOld:any = _.cloneDeep(config.get(CONFIG_KEY_TERMINAL_PROFILES)); // Proxy to POJO
+	const profilesOld:any = _.cloneDeep(config.get(CONFIG_KEY_TERMINAL_PROFILES)); // Proxy to POJO for isEqual
 	const profilesNew:any = Object.fromEntries(Object.entries(profilesOld)
 		.filter(([key, profile]) => !runtime.versionOf(key))); // Copy unmanaged profile
 
