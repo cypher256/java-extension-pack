@@ -40,9 +40,9 @@ The JDKs are auto-configured for the current environment on VSCode startup as fo
 
 |Configuration Name|Configured Value (Priority)|
 |---|---|
-|(*1) [java.jdt.ls.java.home](https://github.com/redhat-developer/vscode-java/wiki/JDK-Requirements#platform-versions)<br>([Issues](https://github.com/redhat-developer/vscode-java/issues?q=is%3Aissue+java.jdt.ls.java.home))|Latest LTS (*2)<br>(Setting > `JDK_HOME` > `JAVA_HOME` > `PATH`)|
-|(*1) [spring-boot.ls.java.home](https://github.com/spring-projects/sts4/blob/main/vscode-extensions/vscode-spring-boot/lib/Main.ts#L30)<br>([Issues](https://github.com/spring-projects/sts4/issues?q=is%3Aissue+spring-boot.ls.java.home))|Latest LTS (*2)<br>(Setting > `JAVA_HOME` > `PATH`)|
-|(*1) [rsp-ui.rsp.java.home](https://github.com/redhat-developer/vscode-rsp-ui#extension-settings)<br>([Issues](https://github.com/redhat-developer/vscode-rsp-ui/issues?q=is%3Aissue+rsp-ui.rsp.java.home))|Latest LTS (*2)<br>(Setting > `JDK_HOME` > `JAVA_HOME`> Windows Registry > `PATH`)|
+|(*1) [java.jdt.ls.java.home](https://github.com/redhat-developer/vscode-java/wiki/JDK-Requirements#platform-versions)<br>([Issues](https://github.com/redhat-developer/vscode-java/issues?q=is%3Aissue+java.jdt.ls.java.home))|Set latest LTS if unset, Fix if unsupported older version<br>(Setting > `JDK_HOME` > `JAVA_HOME` > `PATH`)|
+|(*1) [spring-boot.ls.java.home](https://github.com/spring-projects/sts4/blob/main/vscode-extensions/vscode-spring-boot/lib/Main.ts#L30)<br>([Issues](https://github.com/spring-projects/sts4/issues?q=is%3Aissue+spring-boot.ls.java.home))|Set latest LTS if unset, Fix if unsupported older version<br>(Setting > `JAVA_HOME` > `PATH`)|
+|(*1) [rsp-ui.rsp.java.home](https://github.com/redhat-developer/vscode-rsp-ui#extension-settings)<br>([Issues](https://github.com/redhat-developer/vscode-rsp-ui/issues?q=is%3Aissue+rsp-ui.rsp.java.home))|Set latest LTS if unset, Fix if unsupported older version<br>(Setting > `JDK_HOME` > `JAVA_HOME`> Windows Registry > `PATH`)|
 |~~[java.home](https://github.com/redhat-developer/vscode-java/wiki/JDK-Requirements#universal-version)~~|Delete due to deprecated entry|
 |[java.configuration.runtimes](https://code.visualstudio.com/docs/java/java-project#_configure-runtime-for-projects)<br>([Issues](https://github.com/redhat-developer/vscode-java/issues?q=is%3Aissue+java.configuration.runtimes))|Set all major JDKs scanned, detected, and downloaded<br>(Setting > `JAVA_HOME`)|
 |[java.import.gradle.java.home](https://github.com/redhat-developer/vscode-java/wiki/JDK-Requirements#my-gradle-version-does-not-support-java-17)<br>([Issues](https://github.com/microsoft/vscode-gradle/issues?q=is%3Aissue+java.import.gradle.java.home))|Set default if unset<br>(Setting > `java.jdt.ls.java.home`)|
@@ -50,8 +50,7 @@ The JDKs are auto-configured for the current environment on VSCode startup as fo
 |[java.import.gradle.home](https://github.com/microsoft/vscode-gradle#java-specific-settings)<br>([Issues](https://github.com/microsoft/vscode-gradle/issues?q=is%3Aissue+java.import.gradle.home))|Set gradle on system path or auto-downloaded Gradle<br>(None)|
 |[maven.executable.path](https://github.com/Microsoft/vscode-maven#settings)<br>([Issues](https://github.com/microsoft/vscode-maven/issues?q=is%3Aissue+maven.executable.path))|Set mvn on system path or auto-downloaded Maven<br>(None)|
 
-(*1) The language server runtime used by VSCode extensions. Not for building and running projects.<br>
-(*2) Set latest LTS if unset, Fix if unsupported older version.
+(*1) The language server runtime used by VSCode extensions. Not for building and running projects.
 <br>
 <br>
 
