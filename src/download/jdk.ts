@@ -7,8 +7,6 @@ import * as decompress from 'decompress';
 import * as fs from 'fs';
 import * as _ from "lodash";
 import * as path from 'path';
-import * as stream from 'stream';
-import { promisify } from 'util';
 import * as vscode from 'vscode';
 import * as jdkcontext from '../jdkcontext';
 import * as jdkscan from '../jdkscan';
@@ -96,17 +94,13 @@ export async function download(
 	const fileName = `OpenJDK${majorVersion}U-jdk_${arch}_${p2}.${fileExt}`;
 	const downloadUrl = downloadUrlPrefix + fileName;
 
-	// Download JDK
+	// Download Archive
 	log.info('Downloading JDK...', downloadUrl);
 	progress.report({ message: `JDK Auto: ${l10n.t('Downloading')} JDK ${fullVersion}` });
-	jdkcontext.mkdirSync(storageJavaDir);
 	const downloadedFile = versionDir + '_download_tmp.' + fileExt;
-	const writer = fs.createWriteStream(downloadedFile);
-	const res = await axios.get(downloadUrl, {responseType: 'stream'});
-	res.data.pipe(writer);
-	await promisify(stream.finished)(writer);
+	await jdkcontext.download(downloadUrl, downloadedFile);
 
-	// Decompress JDK
+	// Decompress Archive
 	log.info('Installing JDK...', downloadedFile);
 	progress.report({ message: `JDK Auto: ${l10n.t('Installing')} ${fullVersion}` });
 	jdkcontext.rmSync(versionDir);

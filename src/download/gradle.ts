@@ -6,8 +6,6 @@ import axios from 'axios';
 import * as decompress from 'decompress';
 import * as fs from 'fs';
 import * as path from 'path';
-import * as stream from 'stream';
-import { promisify } from 'util';
 import * as vscode from 'vscode';
 import * as jdkcontext from '../jdkcontext';
 import * as jdksettings from '../jdksettings';
@@ -84,12 +82,8 @@ async function downloadProc(
 	const downloadUrl = json.downloadUrl;
 	log.info('Downloading Gradle...', downloadUrl);
 	progress.report({ message: `JDK Auto: ${l10n.t('Downloading')} Gradle ${version}` });
-	jdkcontext.mkdirSync(storageGradleDir);
 	const downloadedFile = versionDir + '_download_tmp.zip';
-	const writer = fs.createWriteStream(downloadedFile);
-	const res = await axios.get(downloadUrl, {responseType: 'stream'});
-	res.data.pipe(writer);
-	await promisify(stream.finished)(writer);
+	await jdkcontext.download(downloadUrl, downloadedFile);
 
 	// Decompress Archive
 	log.info('Installing Gradle...', storageGradleDir);

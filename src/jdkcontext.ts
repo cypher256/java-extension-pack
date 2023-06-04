@@ -2,8 +2,11 @@
  * VSCode Java Extension Pack JDK Auto
  * Copyright (c) Shinji Kashihara.
  */
+import axios from 'axios';
 import * as fs from 'fs';
 import * as path from 'path';
+import * as stream from 'stream';
+import { promisify } from 'util';
 import * as vscode from 'vscode';
 
 export const log: vscode.LogOutputChannel = vscode.window.createOutputChannel("JDK Auto", {log:true});
@@ -15,7 +18,7 @@ export namespace OS {
 }
 
 export let context: vscode.ExtensionContext;
-export function init(_context: vscode.ExtensionContext): void {
+export function init(_context: vscode.ExtensionContext) {
 	context = _context;
 }
 
@@ -34,7 +37,7 @@ export function isUserInstalled(checkDir:string): boolean {
 	return !_checkDir.startsWith(_globalStoragePath);
 }
 
-export function rmSync(p:string): void {
+export function rmSync(p:string) {
 	try {
 		fs.rmSync(p, {recursive: true, force: true});
 	} catch (e) {
@@ -42,7 +45,7 @@ export function rmSync(p:string): void {
 	}
 }
 
-export function mkdirSync(p:string): void {
+export function mkdirSync(p:string) {
 	try {
 		if (!fs.existsSync(p)) {
 			fs.mkdirSync(p, {recursive: true});
@@ -50,4 +53,12 @@ export function mkdirSync(p:string): void {
 	} catch (e) {
 		log.info('Failed mkdirSync: ' + e); // Silent
 	}
+}
+
+export async function download(downloadUrl:string, downloadedFile:string) {
+	mkdirSync(path.dirname(downloadedFile));
+	const writer = fs.createWriteStream(downloadedFile);
+	const res = await axios.get(downloadUrl, {responseType: 'stream'});
+	res.data.pipe(writer);
+	await promisify(stream.finished)(writer);
 }
