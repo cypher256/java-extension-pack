@@ -38,7 +38,7 @@ export async function activate(context:vscode.ExtensionContext) {
 	const ltsFilter = (ver:number) => [8, 11].includes(ver) || (ver >= 17 && (ver - 17) % 4 === 0);
 	const targetLtsVersions = availableVersions.filter(ltsFilter).slice(-4);
 	const latestLtsVersion = _.last(targetLtsVersions) ?? 0;
-	log.info('Available Java versions ' + availableVersions);
+	log.info('Supported Java versions ' + availableVersions);
 	log.info('Target LTS versions ' + targetLtsVersions);
 	const runtimes = jdksettings.runtime.getConfigRuntimes();
 

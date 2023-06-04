@@ -46,7 +46,7 @@ async function downloadProc(
 			log.info('Remove invalid settings', CONFIG_KEY_GRADLE_HOME, gradleHomeOld);
 			gradleHomeNew = undefined;
 		} else if (jdkcontext.isUserInstalled(gradleHomeOld)) {
-			log.info('No download Gradle (User installed)', CONFIG_KEY_GRADLE_HOME, gradleHomeOld);
+			log.info('Available Gradle (User installed)', CONFIG_KEY_GRADLE_HOME, gradleHomeOld);
 			return gradleHomeOld;
 		}
 	}
@@ -74,7 +74,7 @@ async function downloadProc(
 	const versionFile = path.join(versionDir, 'version.txt');
 	const versionOld = fs.existsSync(versionFile) ? fs.readFileSync(versionFile).toString() : null;
 	if (version === versionOld && isValidHome(versionDir)) {
-		log.info(`No download Gradle ${version} (No updates)`);
+		log.info(`Available Gradle ${version} (No updates)`);
 		return gradleHomeNew;
 	}
 

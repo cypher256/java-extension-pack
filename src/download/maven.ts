@@ -47,7 +47,7 @@ async function downloadProc(
 			log.info('Remove invalid settings', CONFIG_KEY_MAVEN_EXE_PATH, mavenExePathOld);
 			mavenExePathNew = undefined;
 		} else if (jdkcontext.isUserInstalled(mavenExePathOld)) {
-			log.info('No download Maven (User installed)', CONFIG_KEY_MAVEN_EXE_PATH, mavenExePathOld);
+			log.info('Available Maven (User installed)', CONFIG_KEY_MAVEN_EXE_PATH, mavenExePathOld);
 			return mavenExePathOld;
 		}
 	}
@@ -77,7 +77,7 @@ async function downloadProc(
 	const versionFile = path.join(versionDir, 'version.txt');
 	const versionOld = fs.existsSync(versionFile) ? fs.readFileSync(versionFile).toString() : null;
 	if (version === versionOld && isValidHome(versionDir)) {
-		log.info(`No download Maven ${version} (No updates)`);
+		log.info(`Available Maven ${version} (No updates)`);
 		return mavenExePathNew;
 	}
 

@@ -62,7 +62,7 @@ export async function download(
 	const runtimeName = jdksettings.runtime.nameOf(majorVersion);
 	const matchedRuntime = runtimes.find(r => r.name === runtimeName);
 	if (matchedRuntime && jdkcontext.isUserInstalled(matchedRuntime.path)) {
-		log.info(`No download JDK ${majorVersion} (User installed)`);
+		log.info(`Available JDK ${majorVersion} (User installed)`);
 		return;
 	}
 	const arch = archOf(majorVersion);
@@ -82,7 +82,7 @@ export async function download(
 	const versionFile = path.join(versionDir, 'version.txt');
 	const fullVersionOld = fs.existsSync(versionFile) ? fs.readFileSync(versionFile).toString() : null;
 	if (fullVersion === fullVersionOld && await jdkscan.isValidPath(versionDir)) {
-		log.info(`No download JDK ${majorVersion} (No updates)`);
+		log.info(`Available JDK ${fullVersion.replace(/jdk-?/, '')} (No updates)`);
 		return;
 	}
 
