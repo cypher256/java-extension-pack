@@ -178,9 +178,9 @@ export async function updateRuntimes(
 
 	// Terminal Default Environment Variables (Keep if set)
 	let mavenBinDir:string | undefined = undefined;
-	const mavenExePath = config.get<string>(downloadmaven.CONFIG_KEY_MAVEN_EXE_PATH) || await jdkcontext.whichPath('mvn');
-	if (mavenExePath) {
-		mavenBinDir = path.join(mavenExePath, '..');
+	const mvnExePath = config.get<string>(downloadmaven.CONFIG_KEY_MAVEN_EXE_PATH) || await jdkcontext.whichPath('mvn');
+	if (mvnExePath) {
+		mavenBinDir = path.join(mvnExePath, '..');
 	}
 	let gradleBinDir:string | undefined = undefined;
 	const gradleHome = config.get<string>(downloadgradle.CONFIG_KEY_GRADLE_HOME);
