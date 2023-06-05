@@ -48,14 +48,15 @@ async function downloadProc(
 			return mavenExePathOld;
 		}
 	}
-
-	const exeSystemPath = await jdkcontext.whichPath('mvn');
-	if (exeSystemPath) {
-		log.info('Detected Maven', exeSystemPath);
-		return mavenExePathNew; // Don't set config
-	}
-	if (!mavenExePathNew && isValidHome(versionDir)) {
-		mavenExePathNew = getExePath(versionDir);
+	if (!mavenExePathNew) {
+		const exeSystemPath = await jdkcontext.whichPath('mvn');
+		if (exeSystemPath) {
+			log.info('Available Maven', exeSystemPath);
+			return mavenExePathNew; // Don't set config
+		}
+		if (isValidHome(versionDir)) {
+			mavenExePathNew = getExePath(versionDir);
+		}
 	}
 
     // Get Latest Version

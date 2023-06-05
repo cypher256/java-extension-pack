@@ -177,24 +177,28 @@ export async function updateRuntimes(
 	}
 
 	// Terminal Default Environment Variables (Keep if set)
-	const mavenSystemExePath = await jdkcontext.whichPath('mvn');
-	const gradleSystemExePath = await jdkcontext.whichPath('gradle');
+	let mavenBinDir:string | undefined = undefined;
+	const mavenExePath = config.get<string>(downloadmaven.CONFIG_KEY_MAVEN_EXE_PATH) || await jdkcontext.whichPath('mvn');
+	if (mavenExePath) {
+		mavenBinDir = path.join(mavenExePath, '..');
+	}
+	let gradleBinDir:string | undefined = undefined;
+	const gradleHome = config.get<string>(downloadgradle.CONFIG_KEY_GRADLE_HOME);
+	if (gradleHome) {
+		gradleBinDir = path.join(gradleHome, 'bin');
+	} else {
+		const gradleSystemExePath = await jdkcontext.whichPath('gradle');
+		if (gradleSystemExePath) {
+			gradleBinDir = path.join(gradleSystemExePath, '..');
+		}
+	}
 	function _setTerminalEnv(javaHome: string, env: any) {
 		const pathArray = [];
 		pathArray.push(path.join(javaHome, 'bin'));
-		let mavenExePath = config.get<string>(downloadmaven.CONFIG_KEY_MAVEN_EXE_PATH);
-		if (!mavenExePath /* empty string */) {mavenExePath = mavenSystemExePath;};
-		if (mavenExePath) {
-			pathArray.push(path.join(mavenExePath, '..')); // bin
-		}
-		const gradleHome = config.get<string>(downloadgradle.CONFIG_KEY_GRADLE_HOME);
-		if (gradleHome) {
-			pathArray.push(path.join(gradleHome, 'bin'));
-		} else if (gradleSystemExePath) {
-			pathArray.push(path.join(gradleSystemExePath, '..')); // bin
-		}
+		pathArray.push(mavenBinDir);
+		pathArray.push(gradleBinDir);
 		pathArray.push('${env:PATH}');
-		env.PATH = pathArray.join(OS.isWindows ? ';' : ':');
+		env.PATH = pathArray.filter(i => i).join(OS.isWindows ? ';' : ':');
 		env.JAVA_HOME = javaHome;
 	}
 	const osConfigName = OS.isWindows ? 'windows' : OS.isMac ? 'osx' : 'linux';

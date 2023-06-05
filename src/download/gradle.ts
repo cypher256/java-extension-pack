@@ -47,13 +47,15 @@ async function downloadProc(
 			return gradleHomeOld;
 		}
 	}
-	const exeSystemPath = await jdkcontext.whichPath('gradle');
-	if (exeSystemPath) {
-		log.info('Detected Gradle', exeSystemPath);
-		return gradleHomeNew; // Don't set config
-	}
-	if (!gradleHomeNew && isValidHome(versionDir)) {
-		gradleHomeNew = versionDir;
+	if (!gradleHomeNew) {
+		const exeSystemPath = await jdkcontext.whichPath('gradle');
+		if (exeSystemPath) {
+			log.info('Available Gradle', exeSystemPath);
+			return gradleHomeNew; // Don't set config
+		}
+		if (isValidHome(versionDir)) {
+			gradleHomeNew = versionDir;
+		}
 	}
 
     // Get Latest Version
