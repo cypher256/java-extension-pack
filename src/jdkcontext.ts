@@ -43,7 +43,9 @@ export function isUserInstalled(checkDir:string): boolean {
 
 export function rm(p:string) {
 	fs.rm(p, {recursive: true, force: true}, e => {
-		log.info('Failed rm: ', e); // Silent
+		if (e) {
+			log.info('Failed rm: ', e); // Silent
+		}
 	});
 }
 
