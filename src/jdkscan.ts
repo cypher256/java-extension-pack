@@ -19,12 +19,16 @@ export async function scan(
 	runtimes:jdksettings.IConfigRuntime[]) {
 
 	// Fix JDK path
+	function suppressRedhatErrorDialog() {
+		jdksettings.updateEntry(jdksettings.runtime.CONFIG_KEY, runtimes);
+	}
 	const jdtRuntimeNames = jdksettings.runtime.getJdtNames();
 	for (let i = runtimes.length - 1; i >= 0; i--) { // Decrement for splice
 		const runtime = runtimes[i];
 		if (jdtRuntimeNames.length > 0 && !jdtRuntimeNames.includes(runtime.name)) {
 			log.info(`Remove unsupported name ${runtime.name}`);
 			runtimes.splice(i, 1);
+			suppressRedhatErrorDialog();
 			continue;
 		}
 		const originPath = runtime.path;
@@ -32,11 +36,13 @@ export async function scan(
 		if (!fixedPath) {
 			log.info(`Remove invalid path ${originPath}`);
 			runtimes.splice(i, 1);
+			suppressRedhatErrorDialog();
 			continue;
 		}
 		if (fixedPath !== originPath) {
 			log.info(`Fix\n   ${originPath}\n-> ${fixedPath}`);
 			runtime.path = fixedPath;
+			suppressRedhatErrorDialog();
 		}
 		// Don't check mismatches between manually set name and path
 	}

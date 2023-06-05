@@ -3,14 +3,11 @@
  * Copyright (c) Shinji Kashihara.
  */
 import axios from 'axios';
-import * as decompress from 'decompress';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as vscode from 'vscode';
 import * as jdkcontext from '../jdkcontext';
 import * as jdksettings from '../jdksettings';
-import which = require('which');
-const l10n = vscode.l10n;
 const { log } = jdkcontext;
 export const CONFIG_KEY_GRADLE_HOME = 'java.import.gradle.home';
 
@@ -50,17 +47,10 @@ async function downloadProc(
 			return gradleHomeOld;
 		}
 	}
-	try {
-		const systemGradleExe = await which('gradle');
-		if (systemGradleExe) {
-			log.info('Detected Gradle', systemGradleExe);
-			if (!gradleHomeNew) {
-				gradleHomeNew = path.join(systemGradleExe, '..', '..');
-			}
-			return gradleHomeNew;
-		}
-	} catch (error) {
-		log.info('which system path', error);
+	const exeSystemPath = await jdkcontext.whichPath('gradle');
+	if (exeSystemPath) {
+		log.info('Detected Gradle', exeSystemPath);
+		return gradleHomeNew; // Don't set config
 	}
 	if (!gradleHomeNew && isValidHome(versionDir)) {
 		gradleHomeNew = versionDir;
@@ -78,33 +68,17 @@ async function downloadProc(
 		return gradleHomeNew;
 	}
 
-    // Download Archive
+    // Download
 	const downloadUrl = json.downloadUrl;
-	log.info('Downloading Gradle...', downloadUrl);
-	progress.report({ message: `JDK Auto: ${l10n.t('Downloading')} Gradle ${version}` });
 	const downloadedFile = versionDir + '_download_tmp.zip';
-	await jdkcontext.download(downloadUrl, downloadedFile);
-
-	// Decompress Archive
-	log.info('Installing Gradle...', storageGradleDir);
-	progress.report({ message: `JDK Auto: ${l10n.t('Installing')} Gradle ${version}` });
-	jdkcontext.rmSync(versionDir);
-	try {
-		await decompress(downloadedFile, storageGradleDir, {
-			map: file => {
-				file.path = file.path.replace(/^[^/]+/, versionDirName);
-				return file;
-			}
-		});
-	} catch (e) {
-		log.info('Failed decompress: ' + e); // Validate below
-	}
+	await jdkcontext.download(downloadUrl, downloadedFile, progress, `Gradle ${version}`);
+	await jdkcontext.extract(downloadedFile, versionDir, progress, `Gradle ${version}`);
 	if (!isValidHome(versionDir)) {
 		log.info('Invalid Gradle:', versionDir);
 		gradleHomeNew = undefined;
 		return gradleHomeNew; // Silent
 	}
-	jdkcontext.rmSync(downloadedFile);
+	jdkcontext.rm(downloadedFile);
 	fs.writeFileSync(versionFile, version);
 
 	// Set Settings

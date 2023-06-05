@@ -1,6 +1,8 @@
 {
   "Downloading": "Downloading",
   "Installing": "Installing",
+  "Configuration changed, please Reload Window.": "Configuration changed, please Reload Window.",
+  "Reload": "Reload",
   "UPDATE SUCCESS": "UPDATE SUCCESS",
   "INSTALL SUCCESS": "INSTALL SUCCESS"
 }

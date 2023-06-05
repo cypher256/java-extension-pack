@@ -94,9 +94,9 @@ export async function updateRuntimes(
 	const latestLtsRuntime = runtimes.find(r => r.name === runtime.nameOf(latestLtsVersion));
 	if (latestLtsRuntime) {
 		for (const CONFIG_KEY_LS_JAVA_HOME of [
-			// Reload dialog appears when changes
+			// Reload dialog by redhat.java extension
 			'java.jdt.ls.java.home',
-			// No dialog
+			// No dialog (Note: extension.ts addConfigChangeEvent)
 			'spring-boot.ls.java.home',
 			'rsp-ui.rsp.java.home',
 		]) {
@@ -177,16 +177,21 @@ export async function updateRuntimes(
 	}
 
 	// Terminal Default Environment Variables (Keep if set)
+	const mavenSystemExePath = await jdkcontext.whichPath('mvn');
+	const gradleSystemExePath = await jdkcontext.whichPath('gradle');
 	function _setTerminalEnv(javaHome: string, env: any) {
 		const pathArray = [];
 		pathArray.push(path.join(javaHome, 'bin'));
-		const mavenExePath = config.get<string>(downloadmaven.CONFIG_KEY_MAVEN_EXE_PATH);
+		let mavenExePath = config.get<string>(downloadmaven.CONFIG_KEY_MAVEN_EXE_PATH);
+		if (!mavenExePath /* empty string */) {mavenExePath = mavenSystemExePath;};
 		if (mavenExePath) {
-			pathArray.push(path.join(mavenExePath, '..'));
+			pathArray.push(path.join(mavenExePath, '..')); // bin
 		}
 		const gradleHome = config.get<string>(downloadgradle.CONFIG_KEY_GRADLE_HOME);
 		if (gradleHome) {
 			pathArray.push(path.join(gradleHome, 'bin'));
+		} else if (gradleSystemExePath) {
+			pathArray.push(path.join(gradleSystemExePath, '..')); // bin
 		}
 		pathArray.push('${env:PATH}');
 		env.PATH = pathArray.join(OS.isWindows ? ';' : ':');
@@ -205,7 +210,7 @@ export async function updateRuntimes(
 		}
 		if (terminalEnv.JAVA_HOME) {
 			const fixedPath = await jdkscan.fixPath(terminalEnv.JAVA_HOME, defaultRuntime.path);
-			if (fixedPath && fixedPath) {
+			if (fixedPath) {
 				_updateTerminalDefault(fixedPath);
 			}
 		} else if (!isValidEnvJavaHome) {

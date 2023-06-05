@@ -48,8 +48,7 @@
     "Language Packs",
     "Extension Packs"
   ],
-  "extensionDependencies": [
-  ],
+  "extensionDependencies": [],
   "extensionPack": [
     "vscjava.vscode-java-pack",
     "vmware.vscode-boot-dev-pack",
@@ -110,5 +109,5 @@
     "lodash": "4.x",
     "minipass": "5.x"
   },
-  "version": "2023.604.0"
+  "version": "2023.605.0"
 }

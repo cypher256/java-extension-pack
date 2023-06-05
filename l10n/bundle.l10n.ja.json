@@ -1,7 +1,8 @@
 {
-  "Updated": "更新しました",
   "Downloading": "ダウンロード中",
   "Installing": "インストール中",
+  "Configuration changed, please Reload Window.": "構成が変更されました。ウィンドウを再読み込みしてください。",
+  "Reload": "再読み込み",
   "UPDATE SUCCESS": "更新成功",
   "INSTALL SUCCESS": "インストール成功"
 }

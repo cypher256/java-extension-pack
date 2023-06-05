@@ -11,6 +11,7 @@ import * as jdkcontext from './jdkcontext';
 import * as jdkscan from './jdkscan';
 import * as jdksettings from './jdksettings';
 const { log, OS } = jdkcontext;
+const l10n = vscode.l10n;
 
 /**
  * Activates the extension.
@@ -55,6 +56,7 @@ export async function activate(context:vscode.ExtensionContext) {
 
 	// Download JDK
 	if (!downloadjdk.isTarget || targetLtsVersions.length === 0) {
+		addConfigChangeEvent();
 		log.info(`activate END. jdkdownload.isTarget:${downloadjdk.isTarget} ${process.platform}/${process.arch}`);
 		return;
 	}
@@ -71,6 +73,7 @@ export async function activate(context:vscode.ExtensionContext) {
 			const message = `JDK download failed. ${e.request?.path ?? ''} ${e.message ?? e}`;
 			log.info(message, e); // Silent: offline, 404 building, 503 proxy auth error, etc.
 		}
+		addConfigChangeEvent();
 		log.info('activate END');
 	});
 }
@@ -104,4 +107,25 @@ async function installExtension(extensionId:string) {
 	} catch (error) {
 		log.info('Failed to install extension.', error); // Silent
 	}
+}
+
+function addConfigChangeEvent() {
+	vscode.workspace.onDidChangeConfiguration((event) => {
+		if (
+			// 'java.jdt.ls.java.home' is not defined because redhat.java extension is detected
+			event.affectsConfiguration('spring-boot.ls.java.home') ||
+			event.affectsConfiguration('rsp-ui.rsp.java.home') ||
+			event.affectsConfiguration('java.import.gradle.java.home') ||
+			event.affectsConfiguration('java.import.gradle.home') ||
+			event.affectsConfiguration('maven.executable.path')
+		) {
+			const msg = l10n.t('Configuration changed, please Reload Window.');
+			const action = l10n.t('Reload');
+			vscode.window.showWarningMessage(msg, action).then((selection) => {
+				if (action === selection) {
+					vscode.commands.executeCommand('workbench.action.reloadWindow');
+				}
+			});
+		}
+	});
 }

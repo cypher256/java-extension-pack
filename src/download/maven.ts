@@ -3,15 +3,12 @@
  * Copyright (c) Shinji Kashihara.
  */
 import axios from 'axios';
-import * as decompress from 'decompress';
 import * as fs from 'fs';
 import * as _ from 'lodash';
 import * as path from 'path';
 import * as vscode from 'vscode';
 import * as jdkcontext from '../jdkcontext';
 import * as jdksettings from '../jdksettings';
-import which = require('which');
-const l10n = vscode.l10n;
 const { log } = jdkcontext;
 export const CONFIG_KEY_MAVEN_EXE_PATH = 'maven.executable.path';
 
@@ -51,17 +48,11 @@ async function downloadProc(
 			return mavenExePathOld;
 		}
 	}
-	try {
-		const systemMvnExe = await which('mvn');
-		if (systemMvnExe) {
-			log.info('Detected Maven', systemMvnExe);
-			if (!mavenExePathNew) {
-				mavenExePathNew = systemMvnExe;
-			}
-			return mavenExePathNew;
-		}
-	} catch (error) {
-		log.info('which system path', error);
+
+	const exeSystemPath = await jdkcontext.whichPath('mvn');
+	if (exeSystemPath) {
+		log.info('Detected Maven', exeSystemPath);
+		return mavenExePathNew; // Don't set config
 	}
 	if (!mavenExePathNew && isValidHome(versionDir)) {
 		mavenExePathNew = getExePath(versionDir);
@@ -81,33 +72,17 @@ async function downloadProc(
 		return mavenExePathNew;
 	}
 
-    // Download Archive
+    // Download
 	const downloadUrl = `${URL_PREFIX}${version}/apache-maven-${version}-bin.tar.gz`;
-	log.info('Downloading Maven...', downloadUrl);
-	progress.report({ message: `JDK Auto: ${l10n.t('Downloading')} Maven ${version}` });
 	const downloadedFile = versionDir + '_download_tmp.tar.gz';
-	await jdkcontext.download(downloadUrl, downloadedFile);
-
-	// Decompress Archive
-	log.info('Installing Maven...', storageMavenDir);
-	progress.report({ message: `JDK Auto: ${l10n.t('Installing')} Maven ${version}` });
-	jdkcontext.rmSync(versionDir);
-	try {
-		await decompress(downloadedFile, storageMavenDir, {
-			map: file => {
-				file.path = file.path.replace(/^[^/]+/, versionDirName);
-				return file;
-			}
-		});
-	} catch (e) {
-		log.info('Failed decompress: ' + e); // Validate below
-	}
+	await jdkcontext.download(downloadUrl, downloadedFile, progress, `Maven ${version}`);
+	await jdkcontext.extract(downloadedFile, versionDir, progress, `Maven ${version}`);
 	if (!isValidHome(versionDir)) {
 		log.info('Invalid Maven:', versionDir);
 		mavenExePathNew = undefined;
 		return mavenExePathNew; // Silent
 	}
-	jdkcontext.rmSync(downloadedFile);
+	jdkcontext.rm(downloadedFile);
 	fs.writeFileSync(versionFile, version);
 
 	// Set Settings

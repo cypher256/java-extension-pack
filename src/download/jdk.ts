@@ -3,7 +3,6 @@
  * Copyright (c) Shinji Kashihara.
  */
 import axios from 'axios';
-import * as decompress from 'decompress';
 import * as fs from 'fs';
 import * as _ from "lodash";
 import * as path from 'path';
@@ -92,37 +91,18 @@ export async function download(
 	const downloadUrlPrefix = `${URL_PREFIX}/download/${p1}/`;
 	const fileExt = OS.isWindows ? 'zip' : 'tar.gz';
 	const fileName = `OpenJDK${majorVersion}U-jdk_${arch}_${p2}.${fileExt}`;
+
+	// Download
 	const downloadUrl = downloadUrlPrefix + fileName;
-
-	// Download Archive
-	log.info('Downloading JDK...', downloadUrl);
-	progress.report({ message: `JDK Auto: ${l10n.t('Downloading')} JDK ${fullVersion}` });
 	const downloadedFile = versionDir + '_download_tmp.' + fileExt;
-	await jdkcontext.download(downloadUrl, downloadedFile);
-
-	// Decompress Archive
-	log.info('Installing JDK...', downloadedFile);
-	progress.report({ message: `JDK Auto: ${l10n.t('Installing')} ${fullVersion}` });
-	jdkcontext.rmSync(versionDir);
-	try {
-		await decompress(downloadedFile, storageJavaDir, {
-			map: file => {
-				file.path = file.path.replace(/^[^/]+/, String(majorVersion));
-				if (OS.isMac) {
-					file.path = file.path.replace(/^(\d+\/)Contents\/Home\//, '$1');
-				}
-				return file;
-			}
-		});
-	} catch (e) {
-		log.info('Failed decompress: ' + e); // Validate below
-	}
+	await jdkcontext.download(downloadUrl, downloadedFile, progress, fullVersion);
+	await jdkcontext.extract(downloadedFile, versionDir, progress, fullVersion);
 	if (!await jdkscan.isValidPath(versionDir)) {
 		log.info('Invalid JDK:', versionDir);
 		_.remove(runtimes, r => r.name === runtimeName);
 		return; // Silent
 	}
-	jdkcontext.rmSync(downloadedFile);
+	jdkcontext.rm(downloadedFile);
 	fs.writeFileSync(versionFile, fullVersion);
 
 	// Set Runtimes Configuration

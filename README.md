@@ -47,18 +47,18 @@ The JDKs are auto-configured for the current environment on VSCode startup as fo
 |[java.configuration.runtimes](https://code.visualstudio.com/docs/java/java-project#_configure-runtime-for-projects)<br>([Issues](https://github.com/redhat-developer/vscode-java/issues?q=is%3Aissue+java.configuration.runtimes))|Set all major JDKs scanned, detected, and downloaded<br>(Setting > `JAVA_HOME`)|
 |[java.import.gradle.java.home](https://github.com/redhat-developer/vscode-java/wiki/JDK-Requirements#my-gradle-version-does-not-support-java-17)<br>([Issues](https://github.com/microsoft/vscode-gradle/issues?q=is%3Aissue+java.import.gradle.java.home))|Set default if unset<br>(Setting > `java.jdt.ls.java.home`)|
 |[maven.terminal.customEnv](https://marketplace.visualstudio.com/items?itemName=vscjava.vscode-maven#additional-configurations)<br>([Issues](https://github.com/microsoft/vscode-maven/issues?q=is%3Aissue+maven.terminal.customEnv))|Set default if `JAVA_HOME` environment variable unset<br>(Setting > `JAVA_HOME`)|
-|[java.import.gradle.home](https://github.com/microsoft/vscode-gradle#java-specific-settings)<br>([Issues](https://github.com/microsoft/vscode-gradle/issues?q=is%3Aissue+java.import.gradle.home))|Set gradle on system path or auto-downloaded Gradle<br>(None)|
-|[maven.executable.path](https://github.com/Microsoft/vscode-maven#settings)<br>([Issues](https://github.com/microsoft/vscode-maven/issues?q=is%3Aissue+maven.executable.path))|Set mvn on system path or auto-downloaded Maven<br>(None)|
+|[java.import.gradle.home](https://github.com/microsoft/vscode-gradle#java-specific-settings)<br>([Issues](https://github.com/microsoft/vscode-gradle/issues?q=is%3Aissue+java.import.gradle.home))|Set latest if not on PATH environment<br>(`gradlew` > Setting > `PATH` > `GRADLE_HOME`)|
+|[maven.executable.path](https://github.com/Microsoft/vscode-maven#settings)<br>([Issues](https://github.com/microsoft/vscode-maven/issues?q=is%3Aissue+maven.executable.path))|Set latest if not on PATH environment<br>(Setting > `mvnw` > `PATH`)|
 
 (*1) The language server runtime used by VSCode extensions. Not for building and running projects.
 <br>
 <br>
 
 #### Auto-download Support
-The following will be downloaded if they do not exist locally:
+The following will be downloaded if they do not exist locally. For Gradle and Maven, only the latest versions are automatically downloaded. If you are using a very old Java version, please set up gradlew or mvnw manually in your project.
 - JDK - up to 4 LTSs and [latest non-LTS](https://marketplace.visualstudio.com/items?itemName=redhat.java#features) if not detected
-- Gradle - download if not on system path
-- Maven - download if not on system path
+- Gradle - download if not on PATH environment ([Compatibility Matrix](https://docs.gradle.org/current/userguide/compatibility.html))
+- Maven - download if not on PATH environment ([Compatibility Plan](https://maven.apache.org/developers/compatibility-plan.html))
 
 JDK auto-download supports the following platforms:
 - Windows x64
