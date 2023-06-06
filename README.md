@@ -6,7 +6,7 @@
 [![](https://img.shields.io/visual-studio-marketplace/i/Pleiades.java-extension-pack-jdk?color=blue)](vscode:extension/Pleiades.java-extension-pack-jdk)
 ![](https://img.shields.io/visual-studio-marketplace/last-updated/Pleiades.java-extension-pack-jdk?color=orange)
 
-The extension greatly reduces the installation, configuration effort, and [JDK configuration errors](https://stackoverflow.com/search?q=vscode+jdk) for general Java developers. There is no need to manually install JDK, Gradle, or Maven or set environment variables such as `path`. It also comes pre-included with extensions that most Java developers need, such as Maven, Gradle, Spring, Lombok, and Tomcat start/stop, so you can start developing right out of the box with zero configuration.
+The extension greatly reduces the installation, configuration effort, and [JDK configuration errors](https://stackoverflow.com/search?q=vscode+jdk) for general Java developers. There is no need to manually install JDK, Gradle, or Maven or set environment variables such as `path`. It also comes pre-included with extensions that most Java developers need, such as Spring, Lombok, and Tomcat start/stop, so you can start developing right out of the box with zero configuration.
 <br>
 <br>
 <br>

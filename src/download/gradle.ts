@@ -50,8 +50,8 @@ async function downloadProc(
 	if (!gradleHomeNew) {
 		const exeSystemPath = await jdkcontext.whichPath('gradle');
 		if (exeSystemPath) {
-			log.info('Available Gradle', exeSystemPath);
-			return gradleHomeNew; // Don't set config
+			log.info('Available Gradle (PATH)', exeSystemPath);
+			return gradleHomeNew; // Don't set config (gradlew > Setting > PATH > GRADLE_HOME)
 		}
 		if (isValidHome(versionDir)) {
 			gradleHomeNew = versionDir;

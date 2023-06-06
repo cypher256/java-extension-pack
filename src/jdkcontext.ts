@@ -88,17 +88,28 @@ export async function download(
 	const writer = fs.createWriteStream(downloadedFile);
 	const res = await axios.get(downloadUrl, {responseType: 'stream'});
 
+	const DOWNLOAD_MSG_KEY = 'DOWNLOAD_MSG_KEY';
+	const state = context.workspaceState;
 	const totalLength = res.headers['content-length'];
 	if (totalLength) {
 		let currentLength = 0;
 		res.data.on('data', (chunk: Buffer) => {
+			const prevMsg = state.get(DOWNLOAD_MSG_KEY);
+			if (prevMsg && prevMsg !== msg) {
+				return;
+			}
+			state.update(DOWNLOAD_MSG_KEY, msg);
 			currentLength += chunk.length;
 			const percent = Math.floor((currentLength / totalLength) * 100);
 			progress.report({message: `${msg} (${percent}%)`});
 		});
 	}
-	res.data.pipe(writer);
-	await promisify(stream.finished)(writer);
+	try {
+		res.data.pipe(writer);
+		await promisify(stream.finished)(writer);
+	} finally {
+		state.update(DOWNLOAD_MSG_KEY, undefined);
+	}
 }
 
 export async function extract(

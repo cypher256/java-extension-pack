@@ -178,7 +178,10 @@ export async function updateRuntimes(
 
 	// Terminal Default Environment Variables (Keep if set)
 	let mavenBinDir:string | undefined = undefined;
-	const mvnExePath = config.get<string>(downloadmaven.CONFIG_KEY_MAVEN_EXE_PATH) || await jdkcontext.whichPath('mvn');
+	let mvnExePath = config.get<string>(downloadmaven.CONFIG_KEY_MAVEN_EXE_PATH);
+	if (!mvnExePath && !OS.isWindows) {
+		mvnExePath = await jdkcontext.whichPath('mvn');
+	}
 	if (mvnExePath) {
 		mavenBinDir = path.join(mvnExePath, '..');
 	}
@@ -186,10 +189,10 @@ export async function updateRuntimes(
 	const gradleHome = config.get<string>(downloadgradle.CONFIG_KEY_GRADLE_HOME);
 	if (gradleHome) {
 		gradleBinDir = path.join(gradleHome, 'bin');
-	} else {
-		const gradleSystemExePath = await jdkcontext.whichPath('gradle');
-		if (gradleSystemExePath) {
-			gradleBinDir = path.join(gradleSystemExePath, '..');
+	} else if (!OS.isWindows) {
+		const gradleExePath = await jdkcontext.whichPath('gradle');
+		if (gradleExePath) {
+			gradleBinDir = path.join(gradleExePath, '..');
 		}
 	}
 	function _setTerminalEnv(javaHome: string, env: any) {
@@ -256,12 +259,12 @@ export async function updateRuntimes(
 }
 
 /**
- * Updates a VSCode settings entry.
+ * Updates a VSCode user settings entry.
  */
 export async function updateEntry(section:string, value:any) {
 	const config = vscode.workspace.getConfiguration();
 	log.info('Updated settings:', section, _.isObject(value) ? '' : value);
-	return await config.update(section, value, vscode.ConfigurationTarget.Global); // User Settings
+	return await config.update(section, value, vscode.ConfigurationTarget.Global);
 }
 
 /**

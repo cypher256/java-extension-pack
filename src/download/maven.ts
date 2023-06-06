@@ -51,8 +51,8 @@ async function downloadProc(
 	if (!mavenExePathNew) {
 		const exeSystemPath = await jdkcontext.whichPath('mvn');
 		if (exeSystemPath) {
-			log.info('Available Maven', exeSystemPath);
-			return mavenExePathNew; // Don't set config
+			log.info('Available Maven (PATH)', exeSystemPath);
+			return mavenExePathNew; // Don't set config (Setting > mvnw > PATH)
 		}
 		if (isValidHome(versionDir)) {
 			mavenExePathNew = getExePath(versionDir);

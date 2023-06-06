@@ -111,8 +111,4 @@ export async function download(
 	} else {
 		runtimes.push({name: runtimeName, path: versionDir});
 	}
-	const message = fullVersionOld
-		? `${l10n.t('UPDATE SUCCESS')} ${runtimeName}: ${fullVersionOld} -> ${fullVersion}`
-		: `${l10n.t('INSTALL SUCCESS')} ${runtimeName}: ${fullVersion}`;
-	vscode.window.setStatusBarMessage(`JDK Auto: ${message}`, 15_000);
 }
