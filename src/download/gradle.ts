@@ -6,9 +6,9 @@ import axios from 'axios';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as vscode from 'vscode';
-import * as jdkcontext from '../jdkcontext';
-import * as jdksettings from '../jdksettings';
-const { log } = jdkcontext;
+import * as autoContext from '../autoContext';
+import * as userSettings from '../userSettings';
+const { log } = autoContext;
 export const CONFIG_KEY_GRADLE_HOME = 'java.import.gradle.home';
 
 /**
@@ -21,7 +21,7 @@ export async function download(progress:vscode.Progress<any>) {
 		const gradleHomeOld = config.get<string>(CONFIG_KEY_GRADLE_HOME);
 		const gradleHomeNew = await downloadProc(progress, gradleHomeOld);
 		if (gradleHomeOld !== gradleHomeNew) {
-			await jdksettings.updateEntry(CONFIG_KEY_GRADLE_HOME, gradleHomeNew);
+			await userSettings.update(CONFIG_KEY_GRADLE_HOME, gradleHomeNew);
 		}
 	} catch (error) {
 		log.info('Failed download Gradle', error);
@@ -33,7 +33,7 @@ async function downloadProc(
 	gradleHomeOld:string | undefined): Promise<string | undefined> {
 
 	let gradleHomeNew = gradleHomeOld;
-	const storageGradleDir = path.join(jdkcontext.getGlobalStoragePath(), 'gradle');
+	const storageGradleDir = path.join(autoContext.getGlobalStoragePath(), 'gradle');
     const versionDirName = 'latest';
 	const versionDir = path.join(storageGradleDir, versionDirName);
 
@@ -42,13 +42,13 @@ async function downloadProc(
 		if (!isValidHome(gradleHomeOld)) {
 			log.info('Remove invalid settings', CONFIG_KEY_GRADLE_HOME, gradleHomeOld);
 			gradleHomeNew = undefined;
-		} else if (jdkcontext.isUserInstalled(gradleHomeOld)) {
+		} else if (autoContext.isUserInstalled(gradleHomeOld)) {
 			log.info('Available Gradle (User installed)', CONFIG_KEY_GRADLE_HOME, gradleHomeOld);
 			return gradleHomeOld;
 		}
 	}
 	if (!gradleHomeNew) {
-		const exeSystemPath = await jdkcontext.whichPath('gradle');
+		const exeSystemPath = await autoContext.whichPath('gradle');
 		if (exeSystemPath) {
 			log.info('Available Gradle (PATH)', exeSystemPath);
 			return gradleHomeNew; // Don't set config (gradlew > Setting > PATH > GRADLE_HOME)
@@ -73,14 +73,14 @@ async function downloadProc(
     // Download
 	const downloadUrl = json.downloadUrl;
 	const downloadedFile = versionDir + '_download_tmp.zip';
-	await jdkcontext.download(downloadUrl, downloadedFile, progress, `Gradle ${version}`);
-	await jdkcontext.extract(downloadedFile, versionDir, progress, `Gradle ${version}`);
+	await autoContext.download(downloadUrl, downloadedFile, progress, `Gradle ${version}`);
+	await autoContext.extract(downloadedFile, versionDir, progress, `Gradle ${version}`);
 	if (!isValidHome(versionDir)) {
 		log.info('Invalid Gradle:', versionDir);
 		gradleHomeNew = undefined;
 		return gradleHomeNew; // Silent
 	}
-	jdkcontext.rm(downloadedFile);
+	autoContext.rm(downloadedFile);
 	fs.writeFileSync(versionFile, version);
 
 	// Set Settings

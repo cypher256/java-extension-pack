@@ -7,16 +7,15 @@ import * as fs from 'fs';
 import * as _ from "lodash";
 import * as path from 'path';
 import * as vscode from 'vscode';
-import * as jdkcontext from '../jdkcontext';
-import * as jdkscan from '../jdkscan';
-import * as jdksettings from '../jdksettings';
-const l10n = vscode.l10n;
-const { log, OS } = jdkcontext;
+import * as autoContext from '../autoContext';
+import { OS, log } from '../autoContext';
+import * as jdkExplorer from '../jdkExplorer';
+import * as userSettings from '../userSettings';
 
 /**
  * true if the current platform is JDK downloadable.
  */
-export const isTarget = archOf(0) !== undefined;
+export const isTargetPlatform = archOf(0) !== undefined;
 
 /**
  * Get the architecture name used as part of the download URL.
@@ -53,14 +52,14 @@ function archOf(javaVersion: number): string | undefined {
  * @param progress A progress object used to report the download and installation progress.
  */
 export async function download(
-	runtimes:jdksettings.IConfigRuntime[],
+	runtimes:userSettings.IJavaRuntime[],
 	majorVersion:number,
 	progress:vscode.Progress<any>) {
 
 	// Skip User Installed
-	const runtimeName = jdksettings.runtime.nameOf(majorVersion);
+	const runtimeName = userSettings.JavaRuntime.nameOf(majorVersion);
 	const matchedRuntime = runtimes.find(r => r.name === runtimeName);
-	if (matchedRuntime && jdkcontext.isUserInstalled(matchedRuntime.path)) {
+	if (matchedRuntime && autoContext.isUserInstalled(matchedRuntime.path)) {
 		log.info(`Available JDK ${majorVersion} (User installed)`);
 		return;
 	}
@@ -74,13 +73,13 @@ export async function download(
 	const response = await axios.get(`${URL_PREFIX}/latest`);
 	const redirectedUrl:string = response.request.res.responseUrl;
 	const fullVersion = redirectedUrl.replace(/.+tag\//, '');
-	const storageJavaDir = path.join(jdkcontext.getGlobalStoragePath(), 'java');
+	const storageJavaDir = path.join(autoContext.getGlobalStoragePath(), 'java');
 	const versionDir = path.join(storageJavaDir, String(majorVersion));
 
 	// Check Version File
 	const versionFile = path.join(versionDir, 'version.txt');
 	const fullVersionOld = fs.existsSync(versionFile) ? fs.readFileSync(versionFile).toString() : null;
-	if (fullVersion === fullVersionOld && await jdkscan.isValidPath(versionDir)) {
+	if (fullVersion === fullVersionOld && await jdkExplorer.isValidPath(versionDir)) {
 		log.info(`Available JDK ${fullVersion.replace(/jdk-?/, '')} (No updates)`);
 		return;
 	}
@@ -95,14 +94,14 @@ export async function download(
 	// Download
 	const downloadUrl = downloadUrlPrefix + fileName;
 	const downloadedFile = versionDir + '_download_tmp.' + fileExt;
-	await jdkcontext.download(downloadUrl, downloadedFile, progress, fullVersion);
-	await jdkcontext.extract(downloadedFile, versionDir, progress, fullVersion);
-	if (!await jdkscan.isValidPath(versionDir)) {
+	await autoContext.download(downloadUrl, downloadedFile, progress, fullVersion);
+	await autoContext.extract(downloadedFile, versionDir, progress, fullVersion);
+	if (!await jdkExplorer.isValidPath(versionDir)) {
 		log.info('Invalid JDK:', versionDir);
 		_.remove(runtimes, r => r.name === runtimeName);
 		return; // Silent
 	}
-	jdkcontext.rm(downloadedFile);
+	autoContext.rm(downloadedFile);
 	fs.writeFileSync(versionFile, fullVersion);
 
 	// Set Runtimes Configuration

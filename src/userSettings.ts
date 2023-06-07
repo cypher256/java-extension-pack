@@ -6,16 +6,50 @@ import { compare } from 'compare-versions';
 import * as _ from "lodash";
 import * as path from 'path';
 import * as vscode from 'vscode';
-import * as downloadgradle from './download/gradle';
-import * as downloadmaven from './download/maven';
-import * as jdkcontext from './jdkcontext';
-import * as jdkscan from './jdkscan';
-const { log, OS } = jdkcontext;
+import * as autoContext from './autoContext';
+import { OS, log } from './autoContext';
+import * as downloadGradle from './download/gradle';
+import * as downloadMaven from './download/maven';
+import * as jdkExplorer from './jdkExplorer';
+
+/**
+ * Return a value from user settings configuration.
+ * @param section Configuration name, supports _dotted_ names.
+ * @return The value `section` denotes or `undefined`.
+ */
+export function get<T>(section: string): T | undefined {
+	return vscode.workspace.getConfiguration().get(section);
+}
+/**
+ * Return a value from user settings configuration.
+ * @param section Configuration name, supports _dotted_ names.
+ * @param defaultValue A value should be returned when no value could be found, is `undefined`.
+ * @return The value `section` denotes or the default.
+ */
+export function getOr<T>(section: string, defaultValue: T): T {
+	return vscode.workspace.getConfiguration().get(section, defaultValue);
+}
+
+/**
+ * Updates a VSCode user settings entry.
+ */
+export async function update(section:string, value:any) {
+	log.info('Update settings:', section, _.isObject(value) ? '' : value);
+	const config = vscode.workspace.getConfiguration();
+	return await config.update(section, value, vscode.ConfigurationTarget.Global);
+}
+
+/**
+ * Removes a VSCode User settings entry.
+ */
+export async function remove(section:string) {
+	return await update(section, undefined);
+}
 
 /**
  * An interface for the VSCode Java configuration runtime.
  */
-export interface IConfigRuntime {
+export interface IJavaRuntime {
 	readonly name: string;
 	path: string;
 	default?: boolean;
@@ -24,14 +58,9 @@ export interface IConfigRuntime {
 /**
  * The namespace for the Java configuration runtime.
  */
-export namespace runtime {
+export namespace JavaRuntime {
 
 	export const CONFIG_KEY = 'java.configuration.runtimes';
-
-	export function getConfigRuntimes(): IConfigRuntime[] {
-		const config = vscode.workspace.getConfiguration();
-		return config.get(CONFIG_KEY, []);
-	}
 
 	export function versionOf(runtimeName:string): number {
 		return Number(runtimeName.replace(/^J(ava|2)SE-(1\.|)/, '')); // NaN if invalid
@@ -46,7 +75,7 @@ export namespace runtime {
 		return 'JavaSE-' + majorVersion;
 	}
 
-	export function getJdtNames(): string[] {
+	export function getAvailableNames(): string[] {
 		// Do not add redhat to extensionDependencies,
 		// because JDK Auto will not start when redhat activation error occurs.
 		const redhatJava = vscode.extensions.getExtension('redhat.java');
@@ -59,7 +88,7 @@ export namespace runtime {
 	}
 
 	export function getAvailableVersions(): number[] {
-		return getJdtNames().map(versionOf);
+		return getAvailableNames().map(versionOf);
 	}
 
 	export function isNewLeft(leftVersion:string, rightVersion:string): boolean {
@@ -74,24 +103,31 @@ export namespace runtime {
 }
 
 /**
+ * Gets the Java runtime configurations for the VSCode Java extension.
+ * @returns An array of Java runtime objects.
+ */
+export function getJavaRuntimes(): IJavaRuntime[] {
+	return getOr(JavaRuntime.CONFIG_KEY, []);
+}
+
+/**
  * Updates the Java runtime configurations for the VSCode Java extension.
  * @param runtimes An array of Java runtime objects to update the configuration with.
  * @param runtimesOld An array of previous Java runtime objects to compare with `runtimes`.
  * @param latestLtsVersion The latest LTS version.
  */
-export async function updateRuntimes(
-	runtimes:IConfigRuntime[],
-	runtimesOld:IConfigRuntime[],
+export async function updateJavaRuntimes(
+	runtimes:IJavaRuntime[],
+	runtimesOld:IJavaRuntime[],
 	latestLtsVersion:number) {
 
-	const config = vscode.workspace.getConfiguration();
 	const CONFIG_KEY_DEPRECATED_JAVA_HOME = 'java.home';
-	if (config.get(CONFIG_KEY_DEPRECATED_JAVA_HOME) !== null) {
-		removeEntry(CONFIG_KEY_DEPRECATED_JAVA_HOME);
+	if (get(CONFIG_KEY_DEPRECATED_JAVA_HOME) !== null) {
+		remove(CONFIG_KEY_DEPRECATED_JAVA_HOME);
 	}
 
 	// VSCode LS Java Home (Fix if unsupported old version)
-	const latestLtsRuntime = runtimes.find(r => r.name === runtime.nameOf(latestLtsVersion));
+	const latestLtsRuntime = runtimes.find(r => r.name === JavaRuntime.nameOf(latestLtsVersion));
 	if (latestLtsRuntime) {
 		for (const CONFIG_KEY_LS_JAVA_HOME of [
 			// Reload dialog by redhat.java extension
@@ -100,15 +136,15 @@ export async function updateRuntimes(
 			'spring-boot.ls.java.home',
 			'rsp-ui.rsp.java.home',
 		]) {
-			const originPath = config.get<string>(CONFIG_KEY_LS_JAVA_HOME);
+			const originPath = get<string>(CONFIG_KEY_LS_JAVA_HOME);
 			const latestLtsPath = latestLtsRuntime.path;
 			let javaHome = null;
 			if (originPath) {
-				const fixedPath = await jdkscan.fixPath(originPath);
+				const fixedPath = await jdkExplorer.fixPath(originPath);
 				if (fixedPath) {
 					// RedHat LS minimum version check: REQUIRED_JDK_VERSION
 					// https://github.com/redhat-developer/vscode-java/blob/master/src/requirements.ts
-					const jdk = await jdkscan.findByPath(fixedPath);
+					const jdk = await jdkExplorer.findByPath(fixedPath);
 					if (!jdk || jdk.majorVersion < latestLtsVersion) {
 						javaHome = latestLtsPath; // Fix unsupported older version
 					} else if (fixedPath !== originPath) {
@@ -123,7 +159,7 @@ export async function updateRuntimes(
 				javaHome = latestLtsPath; // if unset
 			}
 			if (javaHome) {
-				updateEntry(CONFIG_KEY_LS_JAVA_HOME, javaHome);
+				update(CONFIG_KEY_LS_JAVA_HOME, javaHome);
 
 			}
 		}
@@ -136,36 +172,36 @@ export async function updateRuntimes(
 			latestLtsRuntime.default = true;
 		}
 		runtimes.sort((a, b) => a.name.localeCompare(b.name));
-		updateEntry(runtime.CONFIG_KEY, runtimes);
+		update(JavaRuntime.CONFIG_KEY, runtimes);
 	}
 
 	// Gradle Daemon Java Home (Fix if set), Note: If unset use java.jdt.ls.java.home
 	const defaultRuntime = runtimes.find(r => r.default);
 	if (defaultRuntime) {
 		const CONFIG_KEY_GRADLE_JAVA_HOME = 'java.import.gradle.java.home';
-		const originPath = config.get<string>(CONFIG_KEY_GRADLE_JAVA_HOME);
+		const originPath = get<string>(CONFIG_KEY_GRADLE_JAVA_HOME);
 		if (originPath) {
-			const fixedPath = await jdkscan.fixPath(originPath, defaultRuntime.path);
+			const fixedPath = await jdkExplorer.fixPath(originPath, defaultRuntime.path);
 			if (fixedPath && fixedPath !== originPath) {
-				updateEntry(CONFIG_KEY_GRADLE_JAVA_HOME, fixedPath);
+				update(CONFIG_KEY_GRADLE_JAVA_HOME, fixedPath);
 			}
 		} else {
-			updateEntry(CONFIG_KEY_GRADLE_JAVA_HOME, defaultRuntime.path);
+			update(CONFIG_KEY_GRADLE_JAVA_HOME, defaultRuntime.path);
 		}
 	}
 
 	// Project Maven Java Home (Keep if set)
-	const isValidEnvJavaHome = await jdkscan.isValidPath(process.env.JAVA_HOME);
+	const isValidEnvJavaHome = await jdkExplorer.isValidPath(process.env.JAVA_HOME);
 	if (defaultRuntime) {
 		const CONFIG_KEY_MAVEN_CUSTOM_ENV = 'maven.terminal.customEnv';
-		const customEnv:any[] = config.get(CONFIG_KEY_MAVEN_CUSTOM_ENV, []);
+		const customEnv:any[] = getOr(CONFIG_KEY_MAVEN_CUSTOM_ENV, []);
 		let mavenJavaHome = customEnv.find(i => i.environmentVariable === 'JAVA_HOME');
 		function _updateMavenJavaHome(newPath: string) {
 			mavenJavaHome.value = newPath;
-			updateEntry(CONFIG_KEY_MAVEN_CUSTOM_ENV, customEnv);
+			update(CONFIG_KEY_MAVEN_CUSTOM_ENV, customEnv);
 		}
 		if (mavenJavaHome) {
-			const fixedPath = await jdkscan.fixPath(mavenJavaHome.value, defaultRuntime.path);
+			const fixedPath = await jdkExplorer.fixPath(mavenJavaHome.value, defaultRuntime.path);
 			if (fixedPath && fixedPath !== mavenJavaHome.value) {
 				_updateMavenJavaHome(fixedPath);
 			}
@@ -178,19 +214,19 @@ export async function updateRuntimes(
 
 	// Terminal Default Environment Variables (Keep if set)
 	let mavenBinDir:string | undefined = undefined;
-	let mvnExePath = config.get<string>(downloadmaven.CONFIG_KEY_MAVEN_EXE_PATH);
+	let mvnExePath = get<string>(downloadMaven.CONFIG_KEY_MAVEN_EXE_PATH);
 	if (!mvnExePath && !OS.isWindows) {
-		mvnExePath = await jdkcontext.whichPath('mvn');
+		mvnExePath = await autoContext.whichPath('mvn');
 	}
 	if (mvnExePath) {
 		mavenBinDir = path.join(mvnExePath, '..');
 	}
 	let gradleBinDir:string | undefined = undefined;
-	const gradleHome = config.get<string>(downloadgradle.CONFIG_KEY_GRADLE_HOME);
+	const gradleHome = get<string>(downloadGradle.CONFIG_KEY_GRADLE_HOME);
 	if (gradleHome) {
 		gradleBinDir = path.join(gradleHome, 'bin');
 	} else if (!OS.isWindows) {
-		const gradleExePath = await jdkcontext.whichPath('gradle');
+		const gradleExePath = await autoContext.whichPath('gradle');
 		if (gradleExePath) {
 			gradleBinDir = path.join(gradleExePath, '..');
 		}
@@ -207,16 +243,16 @@ export async function updateRuntimes(
 	const osConfigName = OS.isWindows ? 'windows' : OS.isMac ? 'osx' : 'linux';
 	if (defaultRuntime && OS.isWindows) { // Exclude macOS (Support npm scripts)
 		const CONFIG_KEY_TERMINAL_ENV = 'terminal.integrated.env.' + osConfigName;
-		const terminalEnv:any = _.cloneDeep(config.get(CONFIG_KEY_TERMINAL_ENV, {})); // Proxy to POJO for isEqual
+		const terminalEnv:any = _.cloneDeep(getOr(CONFIG_KEY_TERMINAL_ENV, {})); // Proxy to POJO for isEqual
 		function _updateTerminalDefault(newPath: string) {
 			const terminalEnvOld = _.cloneDeep(terminalEnv);
 			_setTerminalEnv(newPath, terminalEnv);
 			if (!_.isEqual(terminalEnv, terminalEnvOld) ) {
-				updateEntry(CONFIG_KEY_TERMINAL_ENV, terminalEnv);
+				update(CONFIG_KEY_TERMINAL_ENV, terminalEnv);
 			}
 		}
 		if (terminalEnv.JAVA_HOME) {
-			const fixedPath = await jdkscan.fixPath(terminalEnv.JAVA_HOME, defaultRuntime.path);
+			const fixedPath = await jdkExplorer.fixPath(terminalEnv.JAVA_HOME, defaultRuntime.path);
 			if (fixedPath) {
 				_updateTerminalDefault(fixedPath);
 			}
@@ -232,9 +268,9 @@ export async function updateRuntimes(
 
 	// Terminal Profiles Dropdown
 	const CONFIG_KEY_TERMINAL_PROFILES = 'terminal.integrated.profiles.' + osConfigName;
-	const profilesOld:any = _.cloneDeep(config.get(CONFIG_KEY_TERMINAL_PROFILES)); // Proxy to POJO for isEqual
+	const profilesOld:any = _.cloneDeep(get(CONFIG_KEY_TERMINAL_PROFILES)); // Proxy to POJO for isEqual
 	const profilesNew:any = Object.fromEntries(Object.entries(profilesOld)
-		.filter(([key, profile]) => !runtime.versionOf(key))); // Copy unmanaged profile
+		.filter(([key, profile]) => !JavaRuntime.versionOf(key))); // Copy unmanaged profile
 
 	for (const runtime of runtimes) {
 		const profile:any = _.cloneDeep(profilesOld[runtime.name]) ?? {}; // for isEqual
@@ -254,24 +290,8 @@ export async function updateRuntimes(
 		profilesNew[runtime.name] = profile;
 	}
 	if (!_.isEqual(profilesNew, profilesOld) ) {
-		updateEntry(CONFIG_KEY_TERMINAL_PROFILES, profilesNew);
+		update(CONFIG_KEY_TERMINAL_PROFILES, profilesNew);
 	}
-}
-
-/**
- * Updates a VSCode user settings entry.
- */
-export async function updateEntry(section:string, value:any) {
-	const config = vscode.workspace.getConfiguration();
-	log.info('Updated settings:', section, _.isObject(value) ? '' : value);
-	return await config.update(section, value, vscode.ConfigurationTarget.Global);
-}
-
-/**
- * Removes a VSCode settings entry.
- */
-export async function removeEntry(section:string) {
-	return await updateEntry(section, undefined);
 }
 
 function setIfNull(section:string, value:any, extensionName?:string) {
@@ -280,7 +300,7 @@ function setIfNull(section:string, value:any, extensionName?:string) {
 	}
 	const config = vscode.workspace.getConfiguration();
 	if (config.inspect(section)?.globalValue === undefined) {
-		updateEntry(section, value);
+		update(section, value);
 	}
 }
 

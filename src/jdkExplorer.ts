@@ -7,25 +7,26 @@ import { GlobOptionsWithFileTypesUnset, glob } from 'glob-latest';
 import * as jdkutils from 'jdk-utils';
 import * as os from "os";
 import * as path from 'path';
-import * as jdkcontext from './jdkcontext';
-import * as jdksettings from './jdksettings';
-const { log, OS } = jdkcontext;
+import * as autoContext from './autoContext';
+import { OS, log } from './autoContext';
+import * as userSettings from './userSettings';
+import { JavaRuntime } from './userSettings';
 
 /**
  * Scan installed JDK on the system and updates the given list of Java runtimes.
- * @param runtimes An array of installed Java runtimes.
+ * @param runtimes An array of Java configuration runtimes.
  */
 export async function scan(
-	runtimes:jdksettings.IConfigRuntime[]) {
+	runtimes:userSettings.IJavaRuntime[]) {
 
 	// Fix JDK path
 	function suppressRedhatErrorDialog() {
-		jdksettings.updateEntry(jdksettings.runtime.CONFIG_KEY, runtimes);
+		userSettings.update(JavaRuntime.CONFIG_KEY, runtimes);
 	}
-	const jdtRuntimeNames = jdksettings.runtime.getJdtNames();
+	const runtimeNames = JavaRuntime.getAvailableNames();
 	for (let i = runtimes.length - 1; i >= 0; i--) { // Decrement for splice
 		const runtime = runtimes[i];
-		if (jdtRuntimeNames.length > 0 && !jdtRuntimeNames.includes(runtime.name)) {
+		if (runtimeNames.length > 0 && !runtimeNames.includes(runtime.name)) {
 			log.info(`Remove unsupported name ${runtime.name}`);
 			runtimes.splice(i, 1);
 			suppressRedhatErrorDialog();
@@ -49,28 +50,28 @@ export async function scan(
 
 	// Scan User Installed JDK
 	const latestMajorMap = new Map<number, IJdk>();
-	const jdtVersions = jdksettings.runtime.getAvailableVersions();
-	for (const jdk of await findAll()) {
-		if (!jdtVersions.includes(jdk.majorVersion)) {
+	const availableVersions = JavaRuntime.getAvailableVersions();
+	for (const jdk of await findInstalledJdks()) {
+		if (!availableVersions.includes(jdk.majorVersion)) {
 			continue;
 		}
 		const latestJdk = latestMajorMap.get(jdk.majorVersion);
-		if (!latestJdk || jdksettings.runtime.isNewLeft(jdk.fullVersion, latestJdk.fullVersion)) {
+		if (!latestJdk || JavaRuntime.isNewLeft(jdk.fullVersion, latestJdk.fullVersion)) {
 			latestMajorMap.set(jdk.majorVersion, jdk);
 		}
 	}
 
 	// Migrate old download location from '/' to '/java' (ADD 2023.5.2: To be removed)
-	const oldStorageDir = jdkcontext.getGlobalStoragePath();
+	const oldStorageDir = autoContext.getGlobalStoragePath();
 	const newStorageDir = path.join(oldStorageDir, 'java');
-	jdkcontext.mkdirSync(newStorageDir);
+	autoContext.mkdirSync(newStorageDir);
 	for (const name of await fs.promises.readdir(oldStorageDir)) {
 		if (name.match(/\.(zip|gz)$/) || name.match(/^\d+$/)) {
 			try {
 				const oldPath = path.join(oldStorageDir, name);
 				const newPath = path.join(newStorageDir, name);
 				if (fs.existsSync(newPath)) {
-					jdkcontext.rmSync(oldPath);
+					autoContext.rmSync(oldPath);
 				} else {
 					fs.renameSync(oldPath, newPath);
 				}
@@ -85,11 +86,11 @@ export async function scan(
 	}
 
 	// Scan Auto-Downloaded JDK (Previously downloaded versions)
-	for (const major of jdtVersions) {
+	for (const major of availableVersions) {
 		if (latestMajorMap.has(major)) {
 			continue; // Prefer user-installed JDK
 		}
-		let versionDir = path.join(jdkcontext.getGlobalStoragePath(), 'java', String(major));
+		let versionDir = path.join(autoContext.getGlobalStoragePath(), 'java', String(major));
 		if (await isValidPath(versionDir)) {
 			log.info(`Detected ${major} Auto-downloaded JDK`);
 			latestMajorMap.set(major, {
@@ -102,12 +103,12 @@ export async function scan(
 
 	// Set Runtimes Configuration
 	for (const scannedJdk of latestMajorMap.values()) {
-		const scannedName = jdksettings.runtime.nameOf(scannedJdk.majorVersion);
+		const scannedName = JavaRuntime.nameOf(scannedJdk.majorVersion);
 		const configRuntime = runtimes.find(r => r.name === scannedName);
 		if (configRuntime) {
-			if (jdkcontext.isUserInstalled(configRuntime.path)) {
+			if (autoContext.isUserInstalled(configRuntime.path)) {
 				const configJdk = await findByPath(configRuntime.path); // Don't set if same fullVersion
-				if (configJdk && jdksettings.runtime.isNewLeft(scannedJdk.fullVersion, configJdk.fullVersion)) {
+				if (configJdk && JavaRuntime.isNewLeft(scannedJdk.fullVersion, configJdk.fullVersion)) {
 					configRuntime.path = scannedJdk.homePath;
 				}
 				// else Keep if downloaded or same version
@@ -208,7 +209,7 @@ function pushJdk(managerName: string, jdk: IJdk | undefined, jdks: IJdk[]) {
 	}
 }
 
-async function findAll(): Promise<IJdk[]> {
+async function findInstalledJdks(): Promise<IJdk[]> {
 	const jdks: IJdk[] = [];
 	const scanStrategies = [
 		async () => {

@@ -9,9 +9,9 @@ import * as path from 'path';
 import * as stream from 'stream';
 import { promisify } from 'util';
 import * as vscode from 'vscode';
+import { l10n } from 'vscode';
 import _ = require('lodash');
 import which = require('which');
-const l10n = vscode.l10n;
 
 export const log: vscode.LogOutputChannel = vscode.window.createOutputChannel("JDK Auto", {log:true});
 

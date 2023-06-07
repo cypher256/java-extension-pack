@@ -7,9 +7,9 @@ import * as fs from 'fs';
 import * as _ from 'lodash';
 import * as path from 'path';
 import * as vscode from 'vscode';
-import * as jdkcontext from '../jdkcontext';
-import * as jdksettings from '../jdksettings';
-const { log } = jdkcontext;
+import * as autoContext from '../autoContext';
+import * as userSettings from '../userSettings';
+const { log } = autoContext;
 export const CONFIG_KEY_MAVEN_EXE_PATH = 'maven.executable.path';
 
 /**
@@ -22,7 +22,7 @@ export async function download(progress:vscode.Progress<any>) {
 		const mavenExePathOld = config.get<string>(CONFIG_KEY_MAVEN_EXE_PATH);
 		const mavenExePathNew = await downloadProc(progress, mavenExePathOld);
 		if (mavenExePathOld !== mavenExePathNew) {
-			await jdksettings.updateEntry(CONFIG_KEY_MAVEN_EXE_PATH, mavenExePathNew);
+			await userSettings.update(CONFIG_KEY_MAVEN_EXE_PATH, mavenExePathNew);
 		}
 	} catch (error) {
 		log.info('Failed download Maven', error);
@@ -34,7 +34,7 @@ async function downloadProc(
 	mavenExePathOld:string | undefined): Promise<string | undefined> {
 
 	let mavenExePathNew = mavenExePathOld;
-	const storageMavenDir = path.join(jdkcontext.getGlobalStoragePath(), 'maven');
+	const storageMavenDir = path.join(autoContext.getGlobalStoragePath(), 'maven');
     const versionDirName = 'latest';
 	const versionDir = path.join(storageMavenDir, versionDirName);
 
@@ -43,13 +43,13 @@ async function downloadProc(
 		if (!fs.existsSync(mavenExePathOld)) {
 			log.info('Remove invalid settings', CONFIG_KEY_MAVEN_EXE_PATH, mavenExePathOld);
 			mavenExePathNew = undefined;
-		} else if (jdkcontext.isUserInstalled(mavenExePathOld)) {
+		} else if (autoContext.isUserInstalled(mavenExePathOld)) {
 			log.info('Available Maven (User installed)', CONFIG_KEY_MAVEN_EXE_PATH, mavenExePathOld);
 			return mavenExePathOld;
 		}
 	}
 	if (!mavenExePathNew) {
-		const exeSystemPath = await jdkcontext.whichPath('mvn');
+		const exeSystemPath = await autoContext.whichPath('mvn');
 		if (exeSystemPath) {
 			log.info('Available Maven (PATH)', exeSystemPath);
 			return mavenExePathNew; // Don't set config (Setting > mvnw > PATH)
@@ -76,14 +76,14 @@ async function downloadProc(
     // Download
 	const downloadUrl = `${URL_PREFIX}${version}/apache-maven-${version}-bin.tar.gz`;
 	const downloadedFile = versionDir + '_download_tmp.tar.gz';
-	await jdkcontext.download(downloadUrl, downloadedFile, progress, `Maven ${version}`);
-	await jdkcontext.extract(downloadedFile, versionDir, progress, `Maven ${version}`);
+	await autoContext.download(downloadUrl, downloadedFile, progress, `Maven ${version}`);
+	await autoContext.extract(downloadedFile, versionDir, progress, `Maven ${version}`);
 	if (!isValidHome(versionDir)) {
 		log.info('Invalid Maven:', versionDir);
 		mavenExePathNew = undefined;
 		return mavenExePathNew; // Silent
 	}
-	jdkcontext.rm(downloadedFile);
+	autoContext.rm(downloadedFile);
 	fs.writeFileSync(versionFile, version);
 
 	// Set Settings
