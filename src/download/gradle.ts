@@ -7,8 +7,8 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as vscode from 'vscode';
 import * as autoContext from '../autoContext';
+import { log } from '../autoContext';
 import * as userSettings from '../userSettings';
-const { log } = autoContext;
 export const CONFIG_KEY_GRADLE_HOME = 'java.import.gradle.home';
 
 /**

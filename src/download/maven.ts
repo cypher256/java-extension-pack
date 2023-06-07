@@ -8,8 +8,8 @@ import * as _ from 'lodash';
 import * as path from 'path';
 import * as vscode from 'vscode';
 import * as autoContext from '../autoContext';
+import { log } from '../autoContext';
 import * as userSettings from '../userSettings';
-const { log } = autoContext;
 export const CONFIG_KEY_MAVEN_EXE_PATH = 'maven.executable.path';
 
 /**
