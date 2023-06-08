@@ -10,6 +10,7 @@ import * as vscode from 'vscode';
 import * as autoContext from '../autoContext';
 import { log } from '../autoContext';
 import * as userSettings from '../userSettings';
+import { Downloader } from './Downloader';
 export const CONFIG_KEY_MAVEN_EXE_PATH = 'maven.executable.path';
 
 /**
@@ -36,7 +37,7 @@ async function downloadProc(
 	let mavenExePathNew = mavenExePathOld;
 	const storageMavenDir = path.join(autoContext.getGlobalStoragePath(), 'maven');
     const versionDirName = 'latest';
-	const versionDir = path.join(storageMavenDir, versionDirName);
+	const homeDir = path.join(storageMavenDir, versionDirName);
 
 	// Skip User Installed
 	if (mavenExePathOld) {
@@ -54,8 +55,8 @@ async function downloadProc(
 			log.info('Available Maven (PATH)', exeSystemPath);
 			return mavenExePathNew; // Don't set config (Setting > mvnw > PATH)
 		}
-		if (isValidHome(versionDir)) {
-			mavenExePathNew = getExePath(versionDir);
+		if (isValidHome(homeDir)) {
+			mavenExePathNew = getExePath(homeDir);
 		}
 	}
 
@@ -66,20 +67,21 @@ async function downloadProc(
     const version = versionTag.replace(/<.+?>/g, '');
 
 	// Check Version File
-	const versionFile = path.join(versionDir, 'version.txt');
+	const versionFile = path.join(homeDir, 'version.txt');
 	const versionOld = fs.existsSync(versionFile) ? fs.readFileSync(versionFile).toString() : null;
-	if (version === versionOld && isValidHome(versionDir)) {
+	if (version === versionOld && isValidHome(homeDir)) {
 		log.info(`Available Maven ${version} (No updates)`);
 		return mavenExePathNew;
 	}
 
     // Download
 	const downloadUrl = `${URL_PREFIX}${version}/apache-maven-${version}-bin.tar.gz`;
-	const downloadedFile = versionDir + '_download_tmp.tar.gz';
-	await autoContext.download(downloadUrl, downloadedFile, progress, `Maven ${version}`);
-	await autoContext.extract(downloadedFile, versionDir, progress, `Maven ${version}`);
-	if (!isValidHome(versionDir)) {
-		log.info('Invalid Maven:', versionDir);
+	const downloadedFile = homeDir + '_download_tmp.tar.gz';
+	const downloader = new Downloader(downloadUrl, downloadedFile, homeDir, progress, `Maven ${version}`);
+	await downloader.execute();
+	
+	if (!isValidHome(homeDir)) {
+		log.info('Invalid Maven:', homeDir);
 		mavenExePathNew = undefined;
 		return mavenExePathNew; // Silent
 	}
@@ -87,7 +89,7 @@ async function downloadProc(
 	fs.writeFileSync(versionFile, version);
 
 	// Set Settings
-	mavenExePathNew = getExePath(versionDir);
+	mavenExePathNew = getExePath(homeDir);
 	return mavenExePathNew;
 }
 

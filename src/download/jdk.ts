@@ -11,6 +11,7 @@ import * as autoContext from '../autoContext';
 import { OS, log } from '../autoContext';
 import * as jdkExplorer from '../jdkExplorer';
 import * as userSettings from '../userSettings';
+import { Downloader } from './Downloader';
 
 /**
  * true if the current platform is JDK downloadable.
@@ -74,12 +75,12 @@ export async function download(
 	const redirectedUrl:string = response.request.res.responseUrl;
 	const fullVersion = redirectedUrl.replace(/.+tag\//, '');
 	const storageJavaDir = path.join(autoContext.getGlobalStoragePath(), 'java');
-	const versionDir = path.join(storageJavaDir, String(majorVersion));
+	const homeDir = path.join(storageJavaDir, String(majorVersion));
 
 	// Check Version File
-	const versionFile = path.join(versionDir, 'version.txt');
+	const versionFile = path.join(homeDir, 'version.txt');
 	const fullVersionOld = fs.existsSync(versionFile) ? fs.readFileSync(versionFile).toString() : null;
-	if (fullVersion === fullVersionOld && await jdkExplorer.isValidPath(versionDir)) {
+	if (fullVersion === fullVersionOld && await jdkExplorer.isValidPath(homeDir)) {
 		log.info(`Available JDK ${fullVersion.replace(/jdk-?/, '')} (No updates)`);
 		return;
 	}
@@ -93,11 +94,13 @@ export async function download(
 
 	// Download
 	const downloadUrl = downloadUrlPrefix + fileName;
-	const downloadedFile = versionDir + '_download_tmp.' + fileExt;
-	await autoContext.download(downloadUrl, downloadedFile, progress, fullVersion);
-	await autoContext.extract(downloadedFile, versionDir, progress, fullVersion);
-	if (!await jdkExplorer.isValidPath(versionDir)) {
-		log.info('Invalid JDK:', versionDir);
+	const downloadedFile = homeDir + '_download_tmp.' + fileExt;
+	const downloader = new Downloader(downloadUrl, downloadedFile, homeDir, progress, fullVersion);
+	downloader.removeLeadingPath = OS.isMac ? 3 : 1; // Remove leading 'jdk-xxx/Contents/Home/' on macOS
+	await downloader.execute();
+
+	if (!await jdkExplorer.isValidPath(homeDir)) {
+		log.info('Invalid JDK:', homeDir);
 		_.remove(runtimes, r => r.name === runtimeName);
 		return; // Silent
 	}
@@ -106,8 +109,8 @@ export async function download(
 
 	// Set Runtimes Configuration
 	if (matchedRuntime) {
-		matchedRuntime.path = versionDir;
+		matchedRuntime.path = homeDir;
 	} else {
-		runtimes.push({name: runtimeName, path: versionDir});
+		runtimes.push({name: runtimeName, path: homeDir});
 	}
 }

@@ -2,14 +2,9 @@
  * VSCode Java Extension Pack JDK Auto
  * Copyright (c) Shinji Kashihara.
  */
-import axios from 'axios';
-import * as decompress from 'decompress';
 import * as fs from 'fs';
 import * as path from 'path';
-import * as stream from 'stream';
-import { promisify } from 'util';
 import * as vscode from 'vscode';
-import { l10n } from 'vscode';
 import _ = require('lodash');
 import which = require('which');
 
@@ -72,66 +67,5 @@ export async function whichPath(cmd:string) {
 		return await which(cmd);
 	} catch (error) {
 		return undefined;
-	}
-}
-
-export async function download(
-	downloadUrl:string,
-	downloadedFile:string,
-	progress:vscode.Progress<any>,
-	messageLabel:string) {
-
-	log.info(`Downloading ${messageLabel}...`, downloadUrl);
-	const msg = `JDK Auto: ${l10n.t('Downloading')} ${messageLabel}`;
-	progress.report({message: msg});
-	mkdirSync(path.dirname(downloadedFile));
-	const writer = fs.createWriteStream(downloadedFile);
-	const res = await axios.get(downloadUrl, {responseType: 'stream'});
-
-	const DOWNLOAD_MSG_KEY = 'DOWNLOAD_MSG_KEY';
-	const state = context.workspaceState;
-	const totalLength = res.headers['content-length'];
-	if (totalLength) {
-		let currentLength = 0;
-		res.data.on('data', (chunk: Buffer) => {
-			const prevMsg = state.get(DOWNLOAD_MSG_KEY);
-			if (prevMsg && prevMsg !== msg) {
-				return;
-			}
-			state.update(DOWNLOAD_MSG_KEY, msg);
-			currentLength += chunk.length;
-			const percent = Math.floor((currentLength / totalLength) * 100);
-			progress.report({message: `${msg} (${percent}%)`});
-		});
-	}
-	try {
-		res.data.pipe(writer);
-		await promisify(stream.finished)(writer);
-	} finally {
-		state.update(DOWNLOAD_MSG_KEY, undefined);
-	}
-}
-
-export async function extract(
-	downloadedFile:string,
-	versionDir:string,
-	progress:vscode.Progress<any>,
-	messageLabel:string) {
-
-	log.info(`Installing ${messageLabel}...`, versionDir);
-	progress.report({ message: `JDK Auto: ${l10n.t('Installing')} ${messageLabel}` });
-	rmSync(versionDir);
-	try {
-		await decompress(downloadedFile, path.join(versionDir, '..'), {
-			map: file => {
-				file.path = file.path.replace(/^[^/]+/, path.basename(versionDir));
-				if (OS.isMac) { // for macOS JDK
-					file.path = file.path.replace(/^(\d+\/)Contents\/Home\//, '$1');
-				}
-				return file;
-			}
-		});
-	} catch (e) {
-		log.info('Failed extract: ' + e); // Validate later
 	}
 }

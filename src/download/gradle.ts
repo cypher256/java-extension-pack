@@ -9,6 +9,7 @@ import * as vscode from 'vscode';
 import * as autoContext from '../autoContext';
 import { log } from '../autoContext';
 import * as userSettings from '../userSettings';
+import { Downloader } from './Downloader';
 export const CONFIG_KEY_GRADLE_HOME = 'java.import.gradle.home';
 
 /**
@@ -35,7 +36,7 @@ async function downloadProc(
 	let gradleHomeNew = gradleHomeOld;
 	const storageGradleDir = path.join(autoContext.getGlobalStoragePath(), 'gradle');
     const versionDirName = 'latest';
-	const versionDir = path.join(storageGradleDir, versionDirName);
+	const homeDir = path.join(storageGradleDir, versionDirName);
 
 	// Skip User Installed
 	if (gradleHomeOld) {
@@ -53,8 +54,8 @@ async function downloadProc(
 			log.info('Available Gradle (PATH)', exeSystemPath);
 			return gradleHomeNew; // Don't set config (gradlew > Setting > PATH > GRADLE_HOME)
 		}
-		if (isValidHome(versionDir)) {
-			gradleHomeNew = versionDir;
+		if (isValidHome(homeDir)) {
+			gradleHomeNew = homeDir;
 		}
 	}
 
@@ -63,20 +64,21 @@ async function downloadProc(
 	const version = json.version;
 
 	// Check Version File
-	const versionFile = path.join(versionDir, 'version.txt');
+	const versionFile = path.join(homeDir, 'version.txt');
 	const versionOld = fs.existsSync(versionFile) ? fs.readFileSync(versionFile).toString() : null;
-	if (version === versionOld && isValidHome(versionDir)) {
+	if (version === versionOld && isValidHome(homeDir)) {
 		log.info(`Available Gradle ${version} (No updates)`);
 		return gradleHomeNew;
 	}
 
     // Download
 	const downloadUrl = json.downloadUrl;
-	const downloadedFile = versionDir + '_download_tmp.zip';
-	await autoContext.download(downloadUrl, downloadedFile, progress, `Gradle ${version}`);
-	await autoContext.extract(downloadedFile, versionDir, progress, `Gradle ${version}`);
-	if (!isValidHome(versionDir)) {
-		log.info('Invalid Gradle:', versionDir);
+	const downloadedFile = homeDir + '_download_tmp.zip';
+	const downloader = new Downloader(downloadUrl, downloadedFile, homeDir, progress, `Gradle ${version}`);
+	await downloader.execute();
+
+	if (!isValidHome(homeDir)) {
+		log.info('Invalid Gradle:', homeDir);
 		gradleHomeNew = undefined;
 		return gradleHomeNew; // Silent
 	}
@@ -84,7 +86,7 @@ async function downloadProc(
 	fs.writeFileSync(versionFile, version);
 
 	// Set Settings
-	gradleHomeNew = versionDir;
+	gradleHomeNew = homeDir;
 	return gradleHomeNew;
 }
 

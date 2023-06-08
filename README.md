@@ -45,20 +45,21 @@ The JDKs are auto-configured for the current environment on VSCode startup as fo
 |(*1) [rsp-ui.rsp.java.home](https://github.com/redhat-developer/vscode-rsp-ui#extension-settings)<br>([Issues](https://github.com/redhat-developer/vscode-rsp-ui/issues?q=is%3Aissue+rsp-ui.rsp.java.home))|Set latest LTS if unset, Fix if unsupported older version<br>(Setting > `JDK_HOME` > `JAVA_HOME`> Windows Registry > `PATH`)|
 |~~[java.home](https://github.com/redhat-developer/vscode-java/wiki/JDK-Requirements#universal-version)~~|Delete due to deprecated entry|
 |[java.configuration.runtimes](https://code.visualstudio.com/docs/java/java-project#_configure-runtime-for-projects)<br>([Issues](https://github.com/redhat-developer/vscode-java/issues?q=is%3Aissue+java.configuration.runtimes))|Set all major JDKs scanned, detected, and downloaded<br>(Setting > `JAVA_HOME`)|
-|[java.import.gradle.java.home](https://github.com/redhat-developer/vscode-java/wiki/JDK-Requirements#my-gradle-version-does-not-support-java-17)<br>([Issues](https://github.com/microsoft/vscode-gradle/issues?q=is%3Aissue+java.import.gradle.java.home))|Set default if unset<br>(Setting > `java.jdt.ls.java.home`)|
-|[maven.terminal.customEnv](https://marketplace.visualstudio.com/items?itemName=vscjava.vscode-maven#additional-configurations)<br>([Issues](https://github.com/microsoft/vscode-maven/issues?q=is%3Aissue+maven.terminal.customEnv))|Set default if `JAVA_HOME` environment variable unset<br>(Setting > `JAVA_HOME`)|
+|[java.import.gradle.java.home](https://github.com/redhat-developer/vscode-java/wiki/JDK-Requirements#my-gradle-version-does-not-support-java-17)<br>([Issues](https://github.com/microsoft/vscode-gradle/issues?q=is%3Aissue+java.import.gradle.java.home))|Set `default` (*2) if unset<br>(Setting > `java.jdt.ls.java.home`)|
+|[maven.terminal.customEnv](https://marketplace.visualstudio.com/items?itemName=vscjava.vscode-maven#additional-configurations)<br>([Issues](https://github.com/microsoft/vscode-maven/issues?q=is%3Aissue+maven.terminal.customEnv))|Set `default` (*2) if `JAVA_HOME` environment variable unset<br>(Setting > `JAVA_HOME`)|
 |[java.import.gradle.home](https://github.com/microsoft/vscode-gradle#java-specific-settings)<br>([Issues](https://github.com/microsoft/vscode-gradle/issues?q=is%3Aissue+java.import.gradle.home))|Set latest if not on PATH environment<br>(`gradlew` > Setting > `PATH` > `GRADLE_HOME`)|
 |[maven.executable.path](https://github.com/Microsoft/vscode-maven#settings)<br>([Issues](https://github.com/microsoft/vscode-maven/issues?q=is%3Aissue+maven.executable.path))|Set latest if not on PATH environment<br>(Setting > `mvnw` > `PATH`)|
 
-(*1) The language server runtime used by VSCode extensions. Not for building and running projects.
+(*1) The language server runtime used by VSCode extensions. Not for building and running projects.<br>
+(*2) The `path` in the entry marked as `default: true` in `java.configuration.runtimes`.
 <br>
 <br>
 
 #### Auto-download Support
-If the [extensions.autoUpdate](https://code.visualstudio.com/docs/editor/extension-marketplace#_extension-autoupdate) configuration is NOT `false` or does not exist locally, it will be downloaded. For Gradle and Maven, only the latest versions are automatically downloaded. If you are using a very old Java version, please set up gradlew or mvnw manually in your project.
+If the [extensions.autoUpdate](https://code.visualstudio.com/docs/editor/extension-marketplace#_extension-autoupdate) configuration is NOT `false` or does not exist locally, it will be downloaded. For Gradle and Maven, only the latest versions are automatically downloaded. If you are using a very old Java version, please set up gradlew ([Compatibility](https://docs.gradle.org/current/userguide/compatibility.html)) or mvnw ([Compatibility](https://maven.apache.org/developers/compatibility-plan.html)) manually in your project.
 - JDK - up to 4 LTSs and [latest non-LTS](https://marketplace.visualstudio.com/items?itemName=redhat.java#features) if not detected
-- Gradle - download if not on PATH environment ([Compatibility Matrix](https://docs.gradle.org/current/userguide/compatibility.html))
-- Maven - download if not on PATH environment ([Compatibility Plan](https://maven.apache.org/developers/compatibility-plan.html))
+- Gradle - download if not on PATH environment
+- Maven - download if not on PATH environment
 
 JDK auto-download supports the following platforms:
 - Windows x64
@@ -350,6 +351,9 @@ Improve highlighting of errors, warnings and other language diagnostics.
 - ![](https://img.shields.io/visual-studio-marketplace/i/SonarSource.sonarlint-vscode?style=plastic)
 [SonarLint](https://marketplace.visualstudio.com/items?itemName=SonarSource.sonarlint-vscode) (SonarSource: GPL) / [VSCode Document](https://code.visualstudio.com/docs/java/java-linting#_sonarlint)<br>
 Detect and fix quality issues as you write code in C, C++, Java, JavaScript, PHP, Python, HTML and TypeScript.
+- ![](https://img.shields.io/visual-studio-marketplace/i/Gruntfuggly.todo-tree?style=plastic)
+[Todo Tree](https://marketplace.visualstudio.com/items?itemName=Gruntfuggly.todo-tree) (Gruntfuggly: MIT)<br>
+Show TODO, FIXME, etc. comment tags in a tree view.
 - ![](https://img.shields.io/visual-studio-marketplace/i/juhahinkula.thymeleaf?style=plastic)
 [thymeleaf](https://marketplace.visualstudio.com/items?itemName=juhahinkula.thymeleaf) (Juha Hinkula: Unknown)<br>
 Thymeleaf snippets.

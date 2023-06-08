@@ -20,16 +20,14 @@ export async function scan(
 	runtimes:userSettings.IJavaRuntime[]) {
 
 	// Fix JDK path
-	function suppressRedhatErrorDialog() {
-		userSettings.update(JavaRuntime.CONFIG_KEY, runtimes);
-	}
 	const runtimeNames = JavaRuntime.getAvailableNames();
+	let needImmediateUpdate = false;
 	for (let i = runtimes.length - 1; i >= 0; i--) { // Decrement for splice
 		const runtime = runtimes[i];
 		if (runtimeNames.length > 0 && !runtimeNames.includes(runtime.name)) {
 			log.info(`Remove unsupported name ${runtime.name}`);
 			runtimes.splice(i, 1);
-			suppressRedhatErrorDialog();
+			needImmediateUpdate = true;
 			continue;
 		}
 		const originPath = runtime.path;
@@ -37,15 +35,19 @@ export async function scan(
 		if (!fixedPath) {
 			log.info(`Remove invalid path ${originPath}`);
 			runtimes.splice(i, 1);
-			suppressRedhatErrorDialog();
+			needImmediateUpdate = true;
 			continue;
 		}
 		if (fixedPath !== originPath) {
 			log.info(`Fix\n   ${originPath}\n-> ${fixedPath}`);
 			runtime.path = fixedPath;
-			suppressRedhatErrorDialog();
+			needImmediateUpdate = true;
 		}
 		// Don't check mismatches between manually set name and path
+	}
+	if (needImmediateUpdate) {
+		// Immediate update for suppress invalid path error dialog (without await)
+		userSettings.update(JavaRuntime.CONFIG_KEY, runtimes);
 	}
 
 	// Scan User Installed JDK
