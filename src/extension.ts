@@ -10,6 +10,7 @@ import { OS, log } from './autoContext';
 import * as downloadGradle from './download/gradle';
 import * as downloadJdk from './download/jdk';
 import * as downloadMaven from './download/maven';
+import * as javaExtension from './javaExtension';
 import * as jdkExplorer from './jdkExplorer';
 import * as userSettings from './userSettings';
 
@@ -35,7 +36,7 @@ export async function activate(context:vscode.ExtensionContext) {
 	}
 
 	// Get JDK versions
-	const availableVersions = userSettings.JavaRuntime.getAvailableVersions();
+	const availableVersions = javaExtension.getAvailableVersions();
 	const ltsFilter = (ver:number) => [8, 11].includes(ver) || (ver >= 17 && (ver - 17) % 4 === 0);
 	const targetLtsVersions = availableVersions.filter(ltsFilter).slice(-4);
 	const latestLtsVersion = _.last(targetLtsVersions) ?? 0;
@@ -125,9 +126,9 @@ function addConfigChangeEvent() {
 			event.affectsConfiguration('maven.executable.path')
 		) {
 			const msg = l10n.t('Configuration changed, please Reload Window.');
-			const action = l10n.t('Reload');
-			vscode.window.showWarningMessage(msg, action).then(selection => {
-				if (action === selection) {
+			const actionLabel = l10n.t('Reload');
+			vscode.window.showWarningMessage(msg, actionLabel).then(selection => {
+				if (actionLabel === selection) {
 					vscode.commands.executeCommand('workbench.action.reloadWindow');
 				}
 			});

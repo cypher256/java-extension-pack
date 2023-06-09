@@ -8,8 +8,8 @@ import * as path from 'path';
 import * as vscode from 'vscode';
 import * as autoContext from '../autoContext';
 import { log } from '../autoContext';
+import * as downloader from '../downloader';
 import * as userSettings from '../userSettings';
-import { Downloader } from './Downloader';
 export const CONFIG_KEY_GRADLE_HOME = 'java.import.gradle.home';
 
 /**
@@ -18,8 +18,7 @@ export const CONFIG_KEY_GRADLE_HOME = 'java.import.gradle.home';
  */
 export async function download(progress:vscode.Progress<any>) {
 	try {
-		const config = vscode.workspace.getConfiguration();
-		const gradleHomeOld = config.get<string>(CONFIG_KEY_GRADLE_HOME);
+		const gradleHomeOld = userSettings.get<string>(CONFIG_KEY_GRADLE_HOME);
 		const gradleHomeNew = await downloadProc(progress, gradleHomeOld);
 		if (gradleHomeOld !== gradleHomeNew) {
 			await userSettings.update(CONFIG_KEY_GRADLE_HOME, gradleHomeNew);
@@ -72,17 +71,19 @@ async function downloadProc(
 	}
 
     // Download
-	const downloadUrl = json.downloadUrl;
-	const downloadedFile = homeDir + '_download_tmp.zip';
-	const downloader = new Downloader(downloadUrl, downloadedFile, homeDir, progress, `Gradle ${version}`);
-	await downloader.execute();
-
+	const downloaderOptions = await downloader.execute({
+		downloadUrl: json.downloadUrl,
+		downloadedFile: homeDir + '_download_tmp.zip',
+		extractDestDir: homeDir,
+		progress: progress,
+		targetMessage: `Gradle ${version}`,
+	});
 	if (!isValidHome(homeDir)) {
 		log.info('Invalid Gradle:', homeDir);
 		gradleHomeNew = undefined;
 		return gradleHomeNew; // Silent
 	}
-	autoContext.rm(downloadedFile);
+	autoContext.rm(downloaderOptions.downloadedFile);
 	fs.writeFileSync(versionFile, version);
 
 	// Set Settings

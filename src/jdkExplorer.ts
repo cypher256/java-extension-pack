@@ -2,6 +2,7 @@
  * VSCode Java Extension Pack JDK Auto
  * Copyright (c) Shinji Kashihara.
  */
+import { compare } from 'compare-versions';
 import * as fs from 'fs';
 import { GlobOptionsWithFileTypesUnset, glob } from 'glob-latest';
 import * as jdkutils from 'jdk-utils';
@@ -9,8 +10,8 @@ import * as os from "os";
 import * as path from 'path';
 import * as autoContext from './autoContext';
 import { OS, log } from './autoContext';
+import * as javaExtension from './javaExtension';
 import * as userSettings from './userSettings';
-import { JavaRuntime } from './userSettings';
 
 /**
  * Scan installed JDK on the system and updates the given list of Java runtimes.
@@ -20,7 +21,7 @@ export async function scan(
 	runtimes:userSettings.IJavaRuntime[]) {
 
 	// Fix JDK path
-	const runtimeNames = JavaRuntime.getAvailableNames();
+	const runtimeNames = javaExtension.getAvailableNames();
 	let needImmediateUpdate = false;
 	for (let i = runtimes.length - 1; i >= 0; i--) { // Decrement for splice
 		const runtime = runtimes[i];
@@ -47,23 +48,23 @@ export async function scan(
 	}
 	if (needImmediateUpdate) {
 		// Immediate update for suppress invalid path error dialog (without await)
-		userSettings.update(JavaRuntime.CONFIG_KEY, runtimes);
+		userSettings.update(javaExtension.CONFIG_KEY_RUNTIMES, runtimes);
 	}
 
 	// Scan User Installed JDK
-	const latestMajorMap = new Map<number, IJdk>();
-	const availableVersions = JavaRuntime.getAvailableVersions();
+	const latestMajorMap = new Map<number, IInstalledJdk>();
+	const availableVersions = javaExtension.getAvailableVersions();
 	for (const jdk of await findInstalledJdks()) {
 		if (!availableVersions.includes(jdk.majorVersion)) {
 			continue;
 		}
 		const latestJdk = latestMajorMap.get(jdk.majorVersion);
-		if (!latestJdk || JavaRuntime.isNewLeft(jdk.fullVersion, latestJdk.fullVersion)) {
+		if (!latestJdk || isNewLeft(jdk.fullVersion, latestJdk.fullVersion)) {
 			latestMajorMap.set(jdk.majorVersion, jdk);
 		}
 	}
 
-	// Migrate old download location from '/' to '/java' (ADD 2023.5.2: To be removed)
+	// TODO Remove (ADD 2023.5.2: Migrate old download location from '/' to '/java')
 	const oldStorageDir = autoContext.getGlobalStoragePath();
 	const newStorageDir = path.join(oldStorageDir, 'java');
 	autoContext.mkdirSync(newStorageDir);
@@ -105,12 +106,12 @@ export async function scan(
 
 	// Set Runtimes Configuration
 	for (const scannedJdk of latestMajorMap.values()) {
-		const scannedName = JavaRuntime.nameOf(scannedJdk.majorVersion);
+		const scannedName = javaExtension.nameOf(scannedJdk.majorVersion);
 		const configRuntime = runtimes.find(r => r.name === scannedName);
 		if (configRuntime) {
 			if (autoContext.isUserInstalled(configRuntime.path)) {
 				const configJdk = await findByPath(configRuntime.path); // Don't set if same fullVersion
-				if (configJdk && JavaRuntime.isNewLeft(scannedJdk.fullVersion, configJdk.fullVersion)) {
+				if (configJdk && isNewLeft(scannedJdk.fullVersion, configJdk.fullVersion)) {
 					configRuntime.path = scannedJdk.homePath;
 				}
 				// else Keep if downloaded or same version
@@ -118,6 +119,16 @@ export async function scan(
 		} else {
 			runtimes.push({name: scannedName, path: scannedJdk.homePath});
 		}
+	}
+}
+
+function isNewLeft(leftVersion:string, rightVersion:string): boolean {
+	try {
+		const optimize = (s:string) => s.replace(/_/g, '.'); // e.g.) 1.8.0_362, 11.0.18
+		return compare(optimize(leftVersion), optimize(rightVersion), '>');
+	} catch (e) {
+		log.warn('Failed compare-versions: ' + e);
+		return false;
 	}
 }
 
@@ -159,21 +170,18 @@ export async function fixPath(homePath:string, defaultPath?:string): Promise<str
  * @param homePath The path of the JDK.
  * @returns The IJdk object.
  */
-export async function findByPath(homePath: string): Promise<IJdk | undefined> {
+export async function findByPath(homePath: string): Promise<IInstalledJdk | undefined> {
 	const runtime = await jdkutils.getRuntime(homePath, { checkJavac: true, withVersion: true });
 	return createJdk(runtime);
 }
 
-/**
- * An interface representing a JDK.
- */
-interface IJdk {
+interface IInstalledJdk {
 	readonly majorVersion: number;
 	readonly fullVersion: string;
 	readonly homePath: string;
 }
 
-function createJdk(runtime: jdkutils.IJavaRuntime | undefined): IJdk | undefined {
+function createJdk(runtime: jdkutils.IJavaRuntime | undefined): IInstalledJdk | undefined {
 	if (runtime?.hasJavac && runtime.version) {
 		return {
 			majorVersion: runtime.version.major,
@@ -186,7 +194,7 @@ function createJdk(runtime: jdkutils.IJavaRuntime | undefined): IJdk | undefined
 
 async function tryGlob(
 	logLabel: string,
-	jdks: IJdk[],
+	jdks: IInstalledJdk[],
 	javaExePathPattern: string | string[],
 	globOptions?: GlobOptionsWithFileTypesUnset | undefined) {
 
@@ -204,15 +212,15 @@ async function tryGlob(
 	}
 }
 
-function pushJdk(managerName: string, jdk: IJdk | undefined, jdks: IJdk[]) {
+function pushJdk(managerName: string, jdk: IInstalledJdk | undefined, jdks: IInstalledJdk[]) {
 	if (jdk) {
 		jdks.push(jdk);
 		log.info(`Detected ${managerName} ${jdk.majorVersion} (${jdk.fullVersion}) ${jdk.homePath}`);
 	}
 }
 
-async function findInstalledJdks(): Promise<IJdk[]> {
-	const jdks: IJdk[] = [];
+async function findInstalledJdks(): Promise<IInstalledJdk[]> {
+	const jdks: IInstalledJdk[] = [];
 	const scanStrategies = [
 		async () => {
 			// Find by jdk-utils, Gradle Toolchains support pull requested

@@ -9,8 +9,8 @@ import * as path from 'path';
 import * as vscode from 'vscode';
 import * as autoContext from '../autoContext';
 import { log } from '../autoContext';
+import * as downloader from '../downloader';
 import * as userSettings from '../userSettings';
-import { Downloader } from './Downloader';
 export const CONFIG_KEY_MAVEN_EXE_PATH = 'maven.executable.path';
 
 /**
@@ -19,8 +19,7 @@ export const CONFIG_KEY_MAVEN_EXE_PATH = 'maven.executable.path';
  */
 export async function download(progress:vscode.Progress<any>) {
 	try {
-		const config = vscode.workspace.getConfiguration();
-		const mavenExePathOld = config.get<string>(CONFIG_KEY_MAVEN_EXE_PATH);
+		const mavenExePathOld = userSettings.get<string>(CONFIG_KEY_MAVEN_EXE_PATH);
 		const mavenExePathNew = await downloadProc(progress, mavenExePathOld);
 		if (mavenExePathOld !== mavenExePathNew) {
 			await userSettings.update(CONFIG_KEY_MAVEN_EXE_PATH, mavenExePathNew);
@@ -75,17 +74,19 @@ async function downloadProc(
 	}
 
     // Download
-	const downloadUrl = `${URL_PREFIX}${version}/apache-maven-${version}-bin.tar.gz`;
-	const downloadedFile = homeDir + '_download_tmp.tar.gz';
-	const downloader = new Downloader(downloadUrl, downloadedFile, homeDir, progress, `Maven ${version}`);
-	await downloader.execute();
-	
+	const downloaderOptions = await downloader.execute({
+		downloadUrl: `${URL_PREFIX}${version}/apache-maven-${version}-bin.tar.gz`,
+		downloadedFile: homeDir + '_download_tmp.tar.gz',
+		extractDestDir: homeDir,
+		progress: progress,
+		targetMessage: `Maven ${version}`,
+	});
 	if (!isValidHome(homeDir)) {
 		log.info('Invalid Maven:', homeDir);
 		mavenExePathNew = undefined;
 		return mavenExePathNew; // Silent
 	}
-	autoContext.rm(downloadedFile);
+	autoContext.rm(downloaderOptions.downloadedFile);
 	fs.writeFileSync(versionFile, version);
 
 	// Set Settings

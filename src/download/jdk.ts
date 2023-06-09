@@ -9,9 +9,10 @@ import * as path from 'path';
 import * as vscode from 'vscode';
 import * as autoContext from '../autoContext';
 import { OS, log } from '../autoContext';
+import * as downloader from '../downloader';
+import * as javaExtension from '../javaExtension';
 import * as jdkExplorer from '../jdkExplorer';
 import * as userSettings from '../userSettings';
-import { Downloader } from './Downloader';
 
 /**
  * true if the current platform is JDK downloadable.
@@ -58,7 +59,7 @@ export async function download(
 	progress:vscode.Progress<any>) {
 
 	// Skip User Installed
-	const runtimeName = userSettings.JavaRuntime.nameOf(majorVersion);
+	const runtimeName = javaExtension.nameOf(majorVersion);
 	const matchedRuntime = runtimes.find(r => r.name === runtimeName);
 	if (matchedRuntime && autoContext.isUserInstalled(matchedRuntime.path)) {
 		log.info(`Available JDK ${majorVersion} (User installed)`);
@@ -93,18 +94,20 @@ export async function download(
 	const fileName = `OpenJDK${majorVersion}U-jdk_${arch}_${p2}.${fileExt}`;
 
 	// Download
-	const downloadUrl = downloadUrlPrefix + fileName;
-	const downloadedFile = homeDir + '_download_tmp.' + fileExt;
-	const downloader = new Downloader(downloadUrl, downloadedFile, homeDir, progress, fullVersion);
-	downloader.removeLeadingPath = OS.isMac ? 3 : 1; // Remove leading 'jdk-xxx/Contents/Home/' on macOS
-	await downloader.execute();
-
+	const downloaderOptions = await downloader.execute({
+		downloadUrl: downloadUrlPrefix + fileName,
+		downloadedFile: homeDir + '_download_tmp.' + fileExt,
+		extractDestDir: homeDir,
+		progress: progress,
+		targetMessage: fullVersion,
+		removeLeadingArchive: OS.isMac ? 3 : 1, // Remove leading 'jdk-xxx/Contents/Home/' on macOS
+	});
 	if (!await jdkExplorer.isValidPath(homeDir)) {
 		log.info('Invalid JDK:', homeDir);
 		_.remove(runtimes, r => r.name === runtimeName);
 		return; // Silent
 	}
-	autoContext.rm(downloadedFile);
+	autoContext.rm(downloaderOptions.downloadedFile);
 	fs.writeFileSync(versionFile, fullVersion);
 
 	// Set Runtimes Configuration

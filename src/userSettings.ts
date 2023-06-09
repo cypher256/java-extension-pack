@@ -2,7 +2,6 @@
  * VSCode Java Extension Pack JDK Auto
  * Copyright (c) Shinji Kashihara.
  */
-import { compare } from 'compare-versions';
 import * as _ from "lodash";
 import * as path from 'path';
 import * as vscode from 'vscode';
@@ -10,6 +9,7 @@ import * as autoContext from './autoContext';
 import { OS, log } from './autoContext';
 import * as downloadGradle from './download/gradle';
 import * as downloadMaven from './download/maven';
+import * as javaExtension from './javaExtension';
 import * as jdkExplorer from './jdkExplorer';
 
 /**
@@ -56,58 +56,11 @@ export interface IJavaRuntime {
 }
 
 /**
- * The namespace for the Java configuration runtime.
- */
-export namespace JavaRuntime {
-
-	export const CONFIG_KEY = 'java.configuration.runtimes';
-
-	export function versionOf(runtimeName:string): number {
-		return Number(runtimeName.replace(/^J(ava|2)SE-(1\.|)/, '')); // NaN if invalid
-	}
-
-	export function nameOf(majorVersion:number): string {
-		if (majorVersion <= 5) {
-			return 'J2SE-1.' + majorVersion;
-		} else if (majorVersion <= 8) {
-			return 'JavaSE-1.' + majorVersion;
-		}
-		return 'JavaSE-' + majorVersion;
-	}
-
-	export function getAvailableNames(): string[] {
-		// Do not add redhat to extensionDependencies,
-		// because JDK Auto will not start when redhat activation error occurs.
-		const redhatJava = vscode.extensions.getExtension('redhat.java');
-		const redhatProp = redhatJava?.packageJSON?.contributes?.configuration?.properties;
-		const jdtRuntimeNames:string[] = redhatProp?.[CONFIG_KEY]?.items?.properties?.name?.enum ?? [];
-		if (jdtRuntimeNames.length === 0) {
-			log.warn('Failed getExtension RedHat', redhatJava);
-		}
-		return jdtRuntimeNames;
-	}
-
-	export function getAvailableVersions(): number[] {
-		return getAvailableNames().map(versionOf);
-	}
-
-	export function isNewLeft(leftVersion:string, rightVersion:string): boolean {
-		try {
-			const optimize = (s:string) => s.replace(/_/g, '.');
-			return compare(optimize(leftVersion), optimize(rightVersion), '>');
-		} catch (e) {
-			log.warn('Failed compare-versions: ' + e);
-			return false;
-		}
-	}
-}
-
-/**
  * Gets the Java runtime configurations for the VSCode Java extension.
  * @returns An array of Java runtime objects.
  */
 export function getJavaRuntimes(): IJavaRuntime[] {
-	return getOr(JavaRuntime.CONFIG_KEY, []);
+	return getOr(javaExtension.CONFIG_KEY_RUNTIMES, []);
 }
 
 /**
@@ -127,7 +80,7 @@ export async function updateJavaRuntimes(
 	}
 
 	// VSCode LS Java Home (Fix if unsupported old version)
-	const latestLtsRuntime = runtimes.find(r => r.name === JavaRuntime.nameOf(latestLtsVersion));
+	const latestLtsRuntime = runtimes.find(r => r.name === javaExtension.nameOf(latestLtsVersion));
 	if (latestLtsRuntime) {
 		for (const CONFIG_KEY_LS_JAVA_HOME of [
 			// Reload dialog by redhat.java extension
@@ -172,7 +125,7 @@ export async function updateJavaRuntimes(
 			latestLtsRuntime.default = true;
 		}
 		runtimes.sort((a, b) => a.name.localeCompare(b.name));
-		update(JavaRuntime.CONFIG_KEY, runtimes);
+		update(javaExtension.CONFIG_KEY_RUNTIMES, runtimes);
 	}
 
 	// Gradle Daemon Java Home (Fix if set), Note: If unset use java.jdt.ls.java.home
@@ -270,7 +223,7 @@ export async function updateJavaRuntimes(
 	const CONFIG_KEY_TERMINAL_PROFILES = 'terminal.integrated.profiles.' + osConfigName;
 	const profilesOld:any = _.cloneDeep(get(CONFIG_KEY_TERMINAL_PROFILES)); // Proxy to POJO for isEqual
 	const profilesNew:any = Object.fromEntries(Object.entries(profilesOld)
-		.filter(([key, profile]) => !JavaRuntime.versionOf(key))); // Copy unmanaged profile
+		.filter(([key, profile]) => !javaExtension.versionOf(key))); // Copy unmanaged profile
 
 	for (const runtime of runtimes) {
 		const profile:any = _.cloneDeep(profilesOld[runtime.name]) ?? {}; // for isEqual
@@ -309,12 +262,11 @@ function setIfNull(section:string, value:any, extensionName?:string) {
  */
 export function setDefault() {
 	/* eslint-disable @typescript-eslint/naming-convention */
-	setIfNull('java.debug.settings.hotCodeReplace', 'auto');
-	setIfNull('java.sources.organizeImports.staticStarThreshold', 1);
 	// VSCode General
 	setIfNull('editor.codeActionsOnSave', {
 		"source.organizeImports": true
 	});
+	setIfNull('editor.linkedEditing', true);
 	setIfNull('editor.minimap.enabled', false);
 	setIfNull('editor.rulers', [
 		{
@@ -351,6 +303,9 @@ export function setDefault() {
 	}
 	// VSCode Terminal
 	setIfNull('terminal.integrated.enablePersistentSessions', false);
+	// Java extensions
+	setIfNull('java.debug.settings.hotCodeReplace', 'auto');
+	setIfNull('java.sources.organizeImports.staticStarThreshold', 1);
 	// Third party extensions
 	setIfNull('cSpell.diagnosticLevel', 'Hint', 'streetsidesoftware.code-spell-checker');
 	setIfNull('trailing-spaces.includeEmptyLines', false, 'shardulm94.trailing-spaces');

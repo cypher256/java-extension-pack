@@ -1,7 +1,7 @@
 {
   "name": "java-extension-pack-jdk",
   "displayName": "Java Extension Pack JDK Auto",
-  "description": "JDK Auto + Extension Pack for Java + Spring Boot Extension Pack",
+  "description": "JDK Auto-configuration + Extension Pack for Java + Spring Boot Extension Pack",
   "icon": "README_icon.png",
   "publisher": "Pleiades",
   "repository": {
@@ -54,12 +54,12 @@
     "vmware.vscode-boot-dev-pack",
     "vscjava.vscode-gradle",
     "redhat.vscode-community-server-connector",
-    "ryanluker.vscode-coverage-gutters",
-    "formulahendry.auto-rename-tag",
-    "ritwickdey.LiveServer",
     "esbenp.prettier-vscode",
     "streetsidesoftware.code-spell-checker",
+    "ryanluker.vscode-coverage-gutters",
+    "ritwickdey.LiveServer",
     "shardulm94.trailing-spaces",
+    "Gruntfuggly.todo-tree",
     "oderwat.indent-rainbow",
     "mechatroner.rainbow-csv"
   ],
@@ -109,5 +109,5 @@
     "lodash": "4.x",
     "minipass": "5.x"
   },
-  "version": "2023.608.0"
+  "version": "2023.609.0"
 }
