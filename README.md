@@ -11,17 +11,20 @@ The extension greatly reduces the installation, configuration effort, and [JDK c
 <br>
 <br>
 
-# Install
-## Using VSCode Web Marketplace
+# Installation
+## Method 1: VSCode Web Marketplace
 1. Click Install on the [Marketplace web page](https://marketplace.visualstudio.com/items?itemName=Pleiades.java-extension-pack-jdk) in web browser
 1. Click Install on README opened in VSCode
-## Using Extensions Sidebar
+## Method 2: Extensions Sidebar
 1. Open Extensions sideBar (Ctrl/CMD + Shift + X) in VSCode
 1. Search for `jdk auto`
 1. Click Install
-## Using Quick Pick
-- Open Quick Pick (Ctrl/CMD + P) in VSCode, paste the following command, and press enter.<br>
+## Method 3: Quick Pick
+1. Open Quick Pick (Ctrl/CMD + P) in VSCode, paste the following command, and press enter.<br>
 `ext install Pleiades.java-extension-pack-jdk`
+## Method 4: Command Line
+1. Install from the [command line](https://code.visualstudio.com/docs/editor/command-line).<br>
+`code --install-extension Pleiades.java-extension-pack-jdk`
 <br>
 <br>
 <br>
