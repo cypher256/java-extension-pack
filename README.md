@@ -34,7 +34,7 @@ The extension greatly reduces the installation, configuration effort, and [JDK c
 ## JDK Auto-configuration
 The JDKs are auto-configured for the current environment on VSCode startup as follows. You can check the detected JDK in User settings.json described later or Output (Ctrl + Shift + U) ≫ Dropdown: `JDK Auto`. If there are multiple JDKs of the same version, the latest minor version among them is used. If you manually install or update the JDK and want to force update the configuration of VSCode, restart VSCode or execute **>Developer: Reload Window** from the command palette (F1 or Ctrl/Cmd + Shift + P). These are applied as user (VSCode global) settings. You can manually change user settings, but if you want to customize your settings even further, consider using [workspace settings](https://code.visualstudio.com/docs/getstarted/settings) or [profiles](https://code.visualstudio.com/docs/editor/profiles).
 
-1. Auto-fix invalid JDK configuration path (e.g. `/jdk17/bin` -> `/jdk17`)
+1. Auto-fix invalid JDK home configuration (e.g. `/jdk17/bin` -> `/jdk17`)
 1. Auto-remove configuration entries when JDK uninstalled or version path changed
 1. Auto-scan from OS-specific location, SDKMAN, jEnv, jabba, ASDF, Gradle, Scoop, IntelliJ etc...
 1. Auto-detect environment variables `JAVA_HOME`, `JDK_HOME` and `PATH`
