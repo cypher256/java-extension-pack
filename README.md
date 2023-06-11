@@ -367,6 +367,6 @@ Manage your code snippets and developer notes using GitHub Gists and repositorie
 - ![](https://img.shields.io/visual-studio-marketplace/i/GitHub.copilot?style=plastic)
 [GitHub Copilot](https://marketplace.visualstudio.com/items?itemName=GitHub.copilot) (GitHub: Subscription) / [VSCode Document](https://code.visualstudio.com/docs/editor/artificial-intelligence)<br>
 Your AI pair programmer.
-- ![](https://img.shields.io/visual-studio-marketplace/i/genieai.chatgpt-vscode?style=plastic)
-[ChatGPT - Genie AI](https://marketplace.visualstudio.com/items?itemName=genieai.chatgpt-vscode) (Genie AI: Subscription)<br>
-Your best AI pair programmer. Save conversations and continue any time. A Visual Studio Code - ChatGPT Integration. Supports GPT-4, GPT3.5, GPT3 and Codex models. Create new files, view diffs with one click; your copilot to learn code, add tests, find bugs and more.
+- ![](https://img.shields.io/visual-studio-marketplace/i/GitHub.copilot-chat?style=plastic)
+[GitHub Copilot Chat](https://marketplace.visualstudio.com/items?itemName=GitHub.copilot-chat) (GitHub: Subscription)<br>
+AI chat features powered by Copilot.
