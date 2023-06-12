@@ -3,7 +3,7 @@
 [![GitHub Sponsor](https://img.shields.io/static/v1?label=Sponsor&message=%E2%9D%A4&logo=GitHub&color=ff69b4)](https://github.com/sponsors/cypher256)
 ![](https://github.com/cypher256/java-extension-pack/actions/workflows/eslint.yml/badge.svg)
 ![](https://img.shields.io/visual-studio-marketplace/d/Pleiades.java-extension-pack-jdk?color=yellow)
-[![](https://img.shields.io/visual-studio-marketplace/i/Pleiades.java-extension-pack-jdk?color=blue)](vscode:extension/Pleiades.java-extension-pack-jdk)
+![](https://img.shields.io/visual-studio-marketplace/i/Pleiades.java-extension-pack-jdk?color=blue)
 ![](https://img.shields.io/visual-studio-marketplace/last-updated/Pleiades.java-extension-pack-jdk?color=orange)
 
 The extension greatly reduces the installation, configuration effort, and [JDK configuration errors](https://stackoverflow.com/search?q=vscode+jdk) for general Java developers. There is no need to manually install JDK, Gradle, or Maven or set environment variables such as `path`. It also comes pre-included with extensions that most Java developers need, such as Spring, Lombok, and Tomcat start/stop, so you can start developing right out of the box with zero configuration.
