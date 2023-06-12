@@ -67,14 +67,14 @@ export async function scan(
 	// TODO Remove (ADD 2023.5.2: Migrate old download location from '/' to '/java')
 	const oldStorageDir = autoContext.getGlobalStoragePath();
 	const newStorageDir = path.join(oldStorageDir, 'java');
-	autoContext.mkdirSync(newStorageDir);
+	autoContext.mkdirSyncQuietly(newStorageDir);
 	for (const name of await fs.promises.readdir(oldStorageDir)) {
 		if (name.match(/\.(zip|gz)$/) || name.match(/^\d+$/)) {
 			try {
 				const oldPath = path.join(oldStorageDir, name);
 				const newPath = path.join(newStorageDir, name);
 				if (fs.existsSync(newPath)) {
-					autoContext.rmSync(oldPath);
+					autoContext.rmSyncQuietly(oldPath);
 				} else {
 					fs.renameSync(oldPath, newPath);
 				}

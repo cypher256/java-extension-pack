@@ -22,7 +22,8 @@ export interface IDownloaderOptions {
     readonly extractDestDir:string,
     readonly progress:vscode.Progress<any>,
     readonly targetMessage:string,
-    removeLeadingArchive?:number
+    removeLeadingArchive?:number,
+    showDownloadMessage?:boolean // Currently unused always false
 }
 
 /**
@@ -38,29 +39,31 @@ export async function execute(opt:IDownloaderOptions) {
 }
 
 async function download(opt:IDownloaderOptions) {
-    log.info(`Downloading ${opt.targetMessage}...`, opt.downloadUrl);
-    const msg = `JDK Auto: ${l10n.t('Downloading')} ${opt.targetMessage}`;
-    opt.progress.report({message: msg});
+    log.info(`Downloading... ${opt.targetMessage}`, opt.downloadUrl);
     const DOWNLOAD_MSG_KEY = 'DOWNLOAD_MSG_KEY';
     const workspaceState = autoContext.context.workspaceState;
-    
     const res = await axios.get(opt.downloadUrl, {responseType: 'stream'});
-    const totalLength = res.headers['content-length'];
-    if (totalLength) {
-        let currentLength = 0;
-        res.data.on('data', (chunk: Buffer) => {
-            currentLength += chunk.length;
-            const prevMsg = workspaceState.get(DOWNLOAD_MSG_KEY);
-            if (prevMsg && prevMsg !== msg) {
-                return;
-            }
-            workspaceState.update(DOWNLOAD_MSG_KEY, msg);
-            const percent = Math.floor((currentLength / totalLength) * 100);
-            opt.progress.report({message: `${msg} (${percent}%)`});
-        });
+
+    if (opt.showDownloadMessage) {
+        const msg = `JDK Auto: ${l10n.t('Downloading')}... ${opt.targetMessage}`;
+        opt.progress.report({message: msg});
+        const totalLength = res.headers['content-length'];
+        if (totalLength) {
+            let currentLength = 0;
+            res.data.on('data', (chunk: Buffer) => {
+                currentLength += chunk.length;
+                const prevMsg = workspaceState.get(DOWNLOAD_MSG_KEY);
+                if (prevMsg && prevMsg !== msg) {
+                    return;
+                }
+                workspaceState.update(DOWNLOAD_MSG_KEY, msg);
+                const percent = Math.floor((currentLength / totalLength) * 100);
+                opt.progress.report({message: `${msg} (${percent}%)`});
+            });
+        }
     }
     try {
-        autoContext.mkdirSync(path.dirname(opt.downloadedFile));
+        autoContext.mkdirSyncQuietly(path.dirname(opt.downloadedFile));
         const writer = fs.createWriteStream(opt.downloadedFile);
         res.data.pipe(writer);
         await promisify(stream.finished)(writer);
@@ -70,9 +73,10 @@ async function download(opt:IDownloaderOptions) {
 }
 
 async function extract(opt:IDownloaderOptions) {
-    log.info(`Installing ${opt.targetMessage}...`, opt.extractDestDir);
-    opt.progress.report({ message: `JDK Auto: ${l10n.t('Installing')} ${opt.targetMessage}` });
-    autoContext.rmSync(opt.extractDestDir);
+    const procMessage = fs.existsSync(opt.extractDestDir) ? l10n.t('Updating') : l10n.t('Installing');
+    log.info(`Installing... ${opt.targetMessage}`, opt.extractDestDir);
+    opt.progress.report({ message: `JDK Auto: ${procMessage}... ${opt.targetMessage}` });
+    autoContext.rmSyncQuietly(opt.extractDestDir);
     try {
         await decompress(opt.downloadedFile, opt.extractDestDir, {strip: opt.removeLeadingArchive});
     } catch (e) {

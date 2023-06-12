@@ -40,8 +40,8 @@ export async function activate(context:vscode.ExtensionContext) {
 	const ltsFilter = (ver:number) => [8, 11].includes(ver) || (ver >= 17 && (ver - 17) % 4 === 0);
 	const targetLtsVersions = availableVersions.filter(ltsFilter).slice(-4);
 	const latestLtsVersion = _.last(targetLtsVersions) ?? 0;
-	log.info('Supported Java versions ' + availableVersions);
-	log.info('Target LTS versions ' + targetLtsVersions);
+	log.info('Supported Java versions', availableVersions);
+	log.info('Target LTS versions', targetLtsVersions);
 	const runtimes = userSettings.getJavaRuntimes();
 
 	// Scan JDK
@@ -75,6 +75,7 @@ export async function activate(context:vscode.ExtensionContext) {
 			promiseArray.push(downloadGradle.download(progress));
 			await Promise.allSettled(promiseArray);
 			await userSettings.updateJavaRuntimes(runtimes, runtimesOld, latestLtsVersion);
+			log.info(javaExtension.CONFIG_KEY_RUNTIMES, runtimes.map(r => javaExtension.versionOf(r.name)));
 		} catch (e:any) {
 			const message = `JDK download failed. ${e.request?.path ?? ''} ${e.message ?? e}`;
 			log.info(message, e); // Silent: offline, 404 building, 503 proxy auth error, etc.

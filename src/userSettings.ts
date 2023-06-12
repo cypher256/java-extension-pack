@@ -303,6 +303,7 @@ export function setDefault() {
 	}
 	// VSCode Terminal
 	setIfNull('terminal.integrated.enablePersistentSessions', false);
+	setIfNull('terminal.integrated.tabs.hideCondition', 'never');
 	// Java extensions
 	setIfNull('java.debug.settings.hotCodeReplace', 'auto');
 	setIfNull('java.sources.organizeImports.staticStarThreshold', 1);

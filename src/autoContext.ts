@@ -44,7 +44,7 @@ export function rm(p:string) {
 	});
 }
 
-export function rmSync(p:string) {
+export function rmSyncQuietly(p:string) {
 	try {
 		fs.rmSync(p, {recursive: true, force: true});
 	} catch (e) {
@@ -52,7 +52,7 @@ export function rmSync(p:string) {
 	}
 }
 
-export function mkdirSync(p:string) {
+export function mkdirSyncQuietly(p:string) {
 	try {
 		if (!fs.existsSync(p)) {
 			fs.mkdirSync(p, {recursive: true});

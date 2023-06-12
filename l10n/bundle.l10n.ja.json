@@ -1,6 +1,7 @@
 {
-  "Downloading": "ダウンロード中",
-  "Installing": "インストール中",
   "Configuration changed, please Reload Window.": "構成が変更されました。ウィンドウを再読み込みしてください。",
-  "Reload": "再読み込み"
+  "Reload": "再読み込み",
+  "Downloading": "ダウンロード中",
+  "Updating": "更新中",
+  "Installing": "インストール中"
 }

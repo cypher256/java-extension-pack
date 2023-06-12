@@ -11,7 +11,7 @@ export const CONFIG_KEY_RUNTIMES = 'java.configuration.runtimes';
  * @returns The VSCode JDT runtime names.
  */
 export function getAvailableNames(): string[] {
-    // Do not add redhat.java extension to extensionDependencies,
+    // Do not add redhat.java extension to extensionDependencies in package.json,
     // because JDK Auto will not start when redhat activation error occurs.
     const redhatJava = vscode.extensions.getExtension('redhat.java');
     const redhatProp = redhatJava?.packageJSON?.contributes?.configuration?.properties;
@@ -33,10 +33,10 @@ export function getAvailableVersions(): number[] {
 /**
  * Returns the JDK major version that matches the given JDK.
  * @param runtimeName The name of the VSCode JDT runtime.
- * @returns The JDK major version. NaN if invalid.
+ * @returns The JDK major version. NaN if invalid runtimeName.
  */
 export function versionOf(runtimeName:string): number {
-    return Number(runtimeName.replace(/^J(ava|2)SE-(1\.|)/, '')); // NaN if invalid
+    return Number(runtimeName.replace(/^J(ava|2)SE-(1\.|)/, ''));
 }
 
 /**
