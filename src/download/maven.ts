@@ -74,11 +74,10 @@ async function downloadProc(
 	}
 
     // Download
-	const downloaderOptions = await downloader.execute({
+	await downloader.execute(progress, {
 		downloadUrl: `${URL_PREFIX}${version}/apache-maven-${version}-bin.tar.gz`,
 		downloadedFile: homeDir + '_download_tmp.tar.gz',
 		extractDestDir: homeDir,
-		progress: progress,
 		targetMessage: `Maven ${version}`,
 	});
 	if (!isValidHome(homeDir)) {
@@ -86,7 +85,6 @@ async function downloadProc(
 		mavenExePathNew = undefined;
 		return mavenExePathNew; // Silent
 	}
-	autoContext.rm(downloaderOptions.downloadedFile);
 	fs.writeFileSync(versionFile, version);
 
 	// Set Settings

@@ -94,20 +94,18 @@ export async function download(
 	const fileName = `OpenJDK${majorVersion}U-jdk_${arch}_${p2}.${fileExt}`;
 
 	// Download
-	const downloaderOptions = await downloader.execute({
+	await downloader.execute(progress, {
 		downloadUrl: downloadUrlPrefix + fileName,
 		downloadedFile: homeDir + '_download_tmp.' + fileExt,
 		extractDestDir: homeDir,
-		progress: progress,
 		targetMessage: fullVersion,
-		removeLeadingArchive: OS.isMac ? 3 : 1, // Remove leading 'jdk-xxx/Contents/Home/' on macOS
+		removeLeadingPath: OS.isMac ? 3 : 1, // Remove leading 'jdk-xxx/Contents/Home/' on macOS
 	});
 	if (!await jdkExplorer.isValidPath(homeDir)) {
 		log.info('Invalid JDK:', homeDir);
 		_.remove(runtimes, r => r.name === runtimeName);
 		return; // Silent
 	}
-	autoContext.rm(downloaderOptions.downloadedFile);
 	fs.writeFileSync(versionFile, fullVersion);
 
 	// Set Runtimes Configuration

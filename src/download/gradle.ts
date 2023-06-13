@@ -71,11 +71,10 @@ async function downloadProc(
 	}
 
     // Download
-	const downloaderOptions = await downloader.execute({
+	await downloader.execute(progress, {
 		downloadUrl: json.downloadUrl,
 		downloadedFile: homeDir + '_download_tmp.zip',
 		extractDestDir: homeDir,
-		progress: progress,
 		targetMessage: `Gradle ${version}`,
 	});
 	if (!isValidHome(homeDir)) {
@@ -83,7 +82,6 @@ async function downloadProc(
 		gradleHomeNew = undefined;
 		return gradleHomeNew; // Silent
 	}
-	autoContext.rm(downloaderOptions.downloadedFile);
 	fs.writeFileSync(versionFile, version);
 
 	// Set Settings
