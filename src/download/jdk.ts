@@ -22,7 +22,7 @@ export const isTargetPlatform = archOf(0) !== undefined;
 /**
  * Get the architecture name used as part of the download URL.
  * @param javaVersion The major version of the JDK.
- * @returns The architecture name. undefined if the current platform is not JDK downloadable.
+ * @return The architecture name. undefined if the current platform is not JDK downloadable.
  */
 function archOf(javaVersion: number): string | undefined {
 	const isX64 = process.arch === 'x64';
@@ -52,6 +52,7 @@ function archOf(javaVersion: number): string | undefined {
  * @param runtimes An array of installed Java runtimes.
  * @param majorVersion The major version of the JDK to download.
  * @param progress A progress object used to report the download and installation progress.
+ * @return A promise that resolves when the JDK is installed.
  */
 export async function download(
 	runtimes:userSettings.IJavaRuntime[],

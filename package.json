@@ -1,7 +1,7 @@
 {
   "name": "java-extension-pack-jdk",
   "displayName": "Java Extension Pack JDK Auto",
-  "description": "JDK Auto-configuration + Extension Pack for Java + Spring Boot Extension Pack",
+  "description": "JDKs Auto-configuration + Extension Pack for Java + Spring Boot Extension Pack",
   "icon": "README_icon.png",
   "publisher": "Pleiades",
   "repository": {
@@ -30,6 +30,7 @@
     "jdk",
     "lombok",
     "maven",
+    "multiple",
     "path",
     "runtimes",
     "server",
@@ -94,7 +95,7 @@
     "@typescript-eslint/eslint-plugin": "5.x",
     "@typescript-eslint/parser": "5.x",
     "@vscode/l10n-dev": "0.0.x",
-    "@vscode/test-electron": "2.x",
+    "@vscode/test-electron": "^2.3.2",
     "eslint": "8.x",
     "glob": "^8.1.0",
     "mocha": "^10.2.0",
@@ -106,8 +107,7 @@
     "decompress": "^4.2.1",
     "glob-latest": "npm:glob@10.x",
     "jdk-utils": "0.x",
-    "lodash": "4.x",
-    "minipass": "5.x"
+    "lodash": "4.x"
   },
-  "version": "2023.612.0"
+  "version": "2023.614.0"
 }

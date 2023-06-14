@@ -2,10 +2,10 @@
 # Fixed Version
 #---------------------------------------
 
- @types/node          18.x  →     20.x
- @types/vscode     ^1.54.0  →  ^1.78.0  test compile error
- glob               ^8.1.0  →  ^10.2.4  test compile error
- minipass              5.x  →      6.x  npm update error
+ @types/node               18.x  →     20.x
+ @types/vscode          ^1.54.0  →  ^1.79.0 test compile error
+ @vscode/test-electron    2.3.2  →    2.3.3 test compile error
+ glob                    ^8.1.0  →  ^10.2.7 test compile error
 
 #---------------------------------------
 # Publish

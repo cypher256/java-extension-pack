@@ -17,6 +17,7 @@ import * as userSettings from './userSettings';
 /**
  * Activates the extension.
  * @param context The extension context.
+ * @return A promise that resolves when the extension is activated.
  */
 export async function activate(context:vscode.ExtensionContext) {
 
@@ -25,11 +26,19 @@ export async function activate(context:vscode.ExtensionContext) {
 	log.info('JAVA_HOME', process.env.JAVA_HOME);
 	log.info('Save Location', autoContext.getGlobalStoragePath());
 
+	// First Setup
 	userSettings.setDefault();
 	const STATE_KEY_ACTIVATED = 'activated';
-	if (!autoContext.context.globalState.get(STATE_KEY_ACTIVATED)) {
+	const isFirstStartup = !autoContext.context.globalState.get(STATE_KEY_ACTIVATED);
+	let nowInstalledLangPack = false;
+	if (isFirstStartup) {
 		autoContext.context.globalState.update(STATE_KEY_ACTIVATED, true);
-		installLanguagePack();
+		const langPackSuffix = getLangPackSuffix();
+		if (langPackSuffix) {
+			nowInstalledLangPack = true;
+			installExtension('ms-ceintl.vscode-language-pack-' + langPackSuffix);
+			installExtension('intellsmi.comment-translate');
+		}
 		if (OS.isWindows || OS.isLinux) {
 			installExtension('s-nlf-fh.glassit');
 		}
@@ -55,14 +64,14 @@ export async function activate(context:vscode.ExtensionContext) {
 		log.warn(message, e);
 	}
 
-	// Download JDK
+	// Download JDK, Gradle, Maven
 	if (!userSettings.get('extensions.autoUpdate')) {
-		addConfigChangeEvent();
+		addConfigChangeEvent(isFirstStartup, nowInstalledLangPack, runtimes);
 		log.info(`activate END. Download disabled (extensions.autoUpdate: false).`);
 		return;
 	}
 	if (!downloadJdk.isTargetPlatform || targetLtsVersions.length === 0) {
-		addConfigChangeEvent();
+		addConfigChangeEvent(isFirstStartup, nowInstalledLangPack, runtimes);
 		log.info(`activate END. isTargetPlatform:${downloadJdk.isTargetPlatform} ${process.platform}/${process.arch}`);
 		return;
 	}
@@ -75,36 +84,31 @@ export async function activate(context:vscode.ExtensionContext) {
 			promiseArray.push(downloadGradle.download(progress));
 			await Promise.allSettled(promiseArray);
 			await userSettings.updateJavaRuntimes(runtimes, runtimesOld, latestLtsVersion);
-			log.info(javaExtension.CONFIG_KEY_RUNTIMES, runtimes.map(r => javaExtension.versionOf(r.name)));
 		} catch (e:any) {
 			const message = `JDK download failed. ${e.request?.path ?? ''} ${e.message ?? e}`;
 			log.info(message, e); // Silent: offline, 404 building, 503 proxy auth error, etc.
 		}
-		addConfigChangeEvent();
+		addConfigChangeEvent(isFirstStartup, nowInstalledLangPack, runtimes);
 		log.info('activate END');
 	});
 }
 
-async function installLanguagePack() {
+function getLangPackSuffix(): string | undefined {
 	try {
 		const osLocale = JSON.parse(process.env.VSCODE_NLS_CONFIG!).osLocale.toLowerCase();
-		let lang = null;
 		if (osLocale.match(/^(cs|de|es|fr|it|ja|ko|pl|ru|tr)/)) {
-			lang = osLocale.substr(0, 2);
+			return osLocale.substr(0, 2);
 		} else if (osLocale.startsWith('pt-br')) {
-			lang = 'pt-BR'; // Portuguese (Brazil)
+			return 'pt-BR'; // Portuguese (Brazil)
 		} else if (osLocale.match(/^zh-(hk|tw)/)) {
-			lang = 'zh-hant'; // Chinese (Traditional)
+			return 'zh-hant'; // Chinese (Traditional)
 		} else if (osLocale.startsWith('zh')) {
-			lang = 'zh-hans'; // Chinese (Simplified)
-		} else {
-			return;
+			return 'zh-hans'; // Chinese (Simplified)
 		}
-		await installExtension('ms-ceintl.vscode-language-pack-' + lang);
-		await installExtension('intellsmi.comment-translate');
 	} catch (error) {
-		log.info('Failed to install language pack.', error); // Silent
+		log.info('Failed to resolve language pack lang.', error); // Silent
 	}
+	return undefined;
 }
 
 async function installExtension(extensionId:string) {
@@ -116,7 +120,25 @@ async function installExtension(extensionId:string) {
 	}
 }
 
-function addConfigChangeEvent() {
+function addConfigChangeEvent(
+	isFirstStartup:boolean,
+	nowInstalledLangPack:boolean,
+	runtimes:userSettings.IJavaRuntime[]) {
+	
+	const availableVersions = runtimes.map(r => javaExtension.versionOf(r.name));
+	log.info(javaExtension.CONFIG_KEY_RUNTIMES, availableVersions);
+	
+	if (isFirstStartup) {
+		const msg = l10n.t('Available Java versions');
+		vscode.window.showInformationMessage(`${msg}: ${availableVersions.join(', ')}`);
+		if (nowInstalledLangPack && vscode.env.language === 'en') {
+			// Choose display language, restart VSCode
+			vscode.commands.executeCommand('workbench.action.configureLocale');
+			setTimeout(showReloadMessage, 15_000); // Delay for prefer above
+		} else {
+			showReloadMessage();
+		}
+	}
 	vscode.workspace.onDidChangeConfiguration(event => {
 		if (
 			// 'java.jdt.ls.java.home' is not defined because redhat.java extension is detected
@@ -126,13 +148,17 @@ function addConfigChangeEvent() {
 			event.affectsConfiguration('java.import.gradle.home') ||
 			event.affectsConfiguration('maven.executable.path')
 		) {
-			const msg = l10n.t('Configuration changed, please Reload Window.');
-			const actionLabel = l10n.t('Reload');
-			vscode.window.showWarningMessage(msg, actionLabel).then(selection => {
-				if (actionLabel === selection) {
-					vscode.commands.executeCommand('workbench.action.reloadWindow');
-				}
-			});
+			showReloadMessage();
+		}
+	});
+}
+
+function showReloadMessage() {
+	const msg = l10n.t('Configuration changed, please Reload Window.');
+	const actionLabel = l10n.t('Reload');
+	vscode.window.showWarningMessage(msg, actionLabel).then(selection => {
+		if (actionLabel === selection) {
+			vscode.commands.executeCommand('workbench.action.reloadWindow');
 		}
 	});
 }

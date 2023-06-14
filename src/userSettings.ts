@@ -32,6 +32,7 @@ export function getOr<T>(section: string, defaultValue: T): T {
 
 /**
  * Updates a VSCode user settings entry.
+ * @return A promise that resolves when the configuration is updated.
  */
 export async function update(section:string, value:any) {
 	log.info('Update settings:', section, _.isObject(value) ? '' : value);
@@ -41,6 +42,7 @@ export async function update(section:string, value:any) {
 
 /**
  * Removes a VSCode User settings entry.
+ * @return A promise that resolves when the configuration is removed.
  */
 export async function remove(section:string) {
 	return await update(section, undefined);
@@ -68,6 +70,7 @@ export function getJavaRuntimes(): IJavaRuntime[] {
  * @param runtimes An array of Java runtime objects to update the configuration with.
  * @param runtimesOld An array of previous Java runtime objects to compare with `runtimes`.
  * @param latestLtsVersion The latest LTS version.
+ * @return A promise that resolves when the configuration is updated.
  */
 export async function updateJavaRuntimes(
 	runtimes:IJavaRuntime[],

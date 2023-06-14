@@ -16,6 +16,7 @@ export const CONFIG_KEY_MAVEN_EXE_PATH = 'maven.executable.path';
 /**
  * Downloads and installs the Maven if it is not already installed.
  * @param progress A progress object used to report the download and installation progress.
+ * @return A promise that resolves when the Maven is installed.
  */
 export async function download(progress:vscode.Progress<any>) {
 	try {

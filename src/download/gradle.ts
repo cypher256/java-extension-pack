@@ -15,6 +15,7 @@ export const CONFIG_KEY_GRADLE_HOME = 'java.import.gradle.home';
 /**
  * Downloads and installs the Gradle if it is not already installed.
  * @param progress A progress object used to report the download and installation progress.
+ * @return A promise that resolves when the Gradle is installed.
  */
 export async function download(progress:vscode.Progress<any>) {
 	try {

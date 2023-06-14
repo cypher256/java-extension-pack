@@ -29,7 +29,7 @@ export interface IDownloaderOptions {
  * Downloads and extracts for the given options.
  * @param progress The progress of the downloader.
  * @param opt The options of the downloader.
- * @returns opt argument.
+ * @return opt argument.
  */
 export async function execute(progress:vscode.Progress<any>, opt:IDownloaderOptions) {
     opt.removeLeadingPath = opt.removeLeadingPath ?? 1;
