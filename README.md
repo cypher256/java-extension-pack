@@ -69,9 +69,9 @@ JDK auto-download supports the following platforms:
 - macos x64, aarch64
 - Linux x64, aarch64
 
-It is saved in the following directory.
+It is saved in the following location.
 
-|OS|JDK Auto Extension global storage directory|
+|OS|JDK Auto Extension global storage location|
 |---|---|
 |Windows|`%APPDATA%\Code\User\globalStorage\pleiades.java-extension-pack-jdk\ `|
 |macos|`$HOME/Library/Application Support/Code/User/globalStorage/pleiades.java-extension-pack-jdk/`|

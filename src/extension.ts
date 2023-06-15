@@ -28,11 +28,11 @@ export async function activate(context:vscode.ExtensionContext) {
 
 	// First Setup
 	userSettings.setDefault();
-	const STATE_KEY_ACTIVATED = 'activated';
-	const isFirstStartup = !autoContext.context.globalState.get(STATE_KEY_ACTIVATED);
+	const STATE_KEY_FIRST_ACTIVATED = 'activated';
+	const isFirstStartup = !autoContext.context.globalState.get(STATE_KEY_FIRST_ACTIVATED);
 	let nowInstalledLangPack = false;
 	if (isFirstStartup) {
-		autoContext.context.globalState.update(STATE_KEY_ACTIVATED, true);
+		autoContext.context.globalState.update(STATE_KEY_FIRST_ACTIVATED, true);
 		const langPackSuffix = getLangPackSuffix();
 		if (langPackSuffix) {
 			nowInstalledLangPack = true;
