@@ -52,10 +52,10 @@ export async function activate(context:vscode.ExtensionContext) {
 	log.info('Supported Java versions', availableVersions);
 	log.info('Target LTS versions', targetLtsVersions);
 	const runtimes = userSettings.getJavaRuntimes();
+	const runtimesOld = _.cloneDeep(runtimes);
 
 	// Scan JDK
 	try {
-		const runtimesOld = _.cloneDeep(runtimes);
 		await jdkExplorer.scan(runtimes);
 		await userSettings.updateJavaRuntimes(runtimes, runtimesOld, latestLtsVersion);
 	} catch (e:any) {
@@ -66,29 +66,29 @@ export async function activate(context:vscode.ExtensionContext) {
 
 	// Download JDK, Gradle, Maven
 	if (!userSettings.get('extensions.autoUpdate')) {
-		addConfigChangeEvent(isFirstStartup, nowInstalledLangPack, runtimes);
+		addConfigChangeEvent(isFirstStartup, nowInstalledLangPack, runtimes, runtimesOld);
 		log.info(`activate END. Download disabled (extensions.autoUpdate: false).`);
 		return;
 	}
 	if (!downloadJdk.isTargetPlatform || targetLtsVersions.length === 0) {
-		addConfigChangeEvent(isFirstStartup, nowInstalledLangPack, runtimes);
+		addConfigChangeEvent(isFirstStartup, nowInstalledLangPack, runtimes, runtimesOld);
 		log.info(`activate END. isTargetPlatform:${downloadJdk.isTargetPlatform} ${process.platform}/${process.arch}`);
 		return;
 	}
 	vscode.window.withProgress({location: vscode.ProgressLocation.Window}, async progress => {
 		try {
-			const runtimesOld = _.cloneDeep(runtimes);
+			const runtimesBeforeDownload = _.cloneDeep(runtimes);
 			const downloadVersions = _.uniq([...targetLtsVersions, _.last(availableVersions) ?? 0]);
 			const promiseArray = downloadVersions.map(v => downloadJdk.download(runtimes, v, progress));
 			promiseArray.push(downloadMaven.download(progress));
 			promiseArray.push(downloadGradle.download(progress));
 			await Promise.allSettled(promiseArray);
-			await userSettings.updateJavaRuntimes(runtimes, runtimesOld, latestLtsVersion);
+			await userSettings.updateJavaRuntimes(runtimes, runtimesBeforeDownload, latestLtsVersion);
 		} catch (e:any) {
 			const message = `JDK download failed. ${e.request?.path ?? ''} ${e.message ?? e}`;
 			log.info(message, e); // Silent: offline, 404 building, 503 proxy auth error, etc.
 		}
-		addConfigChangeEvent(isFirstStartup, nowInstalledLangPack, runtimes);
+		addConfigChangeEvent(isFirstStartup, nowInstalledLangPack, runtimes, runtimesOld);
 		log.info('activate END');
 	});
 }
@@ -123,14 +123,16 @@ async function installExtension(extensionId:string) {
 function addConfigChangeEvent(
 	isFirstStartup:boolean,
 	nowInstalledLangPack:boolean,
-	runtimes:userSettings.IJavaRuntime[]) {
+	runtimesNew:userSettings.IJavaRuntime[],
+	runtimesOld:userSettings.IJavaRuntime[]) {
 	
-	const availableVersions = runtimes.map(r => javaExtension.versionOf(r.name));
-	log.info(javaExtension.CONFIG_KEY_RUNTIMES, availableVersions);
+	const versionsOld = runtimesOld.map(r => javaExtension.versionOf(r.name));
+	const versionsNew = runtimesNew.map(r => javaExtension.versionOf(r.name));
+	log.info(javaExtension.CONFIG_KEY_RUNTIMES, versionsNew);
 	
 	if (isFirstStartup) {
-		const msg = l10n.t('Available Java versions');
-		vscode.window.showInformationMessage(`${msg}: ${availableVersions.join(', ')}`);
+		const msg = l10n.t('Available Java versions:');
+		vscode.window.showInformationMessage(`${msg} ${versionsNew.join(', ')}`);
 		if (nowInstalledLangPack && vscode.env.language === 'en') {
 			// Choose display language, restart VSCode
 			vscode.commands.executeCommand('workbench.action.configureLocale');
@@ -138,7 +140,20 @@ function addConfigChangeEvent(
 		} else {
 			showReloadMessage();
 		}
+	} else {
+		const added = _.difference(versionsNew, versionsOld);
+		if (added.length > 0) {
+			const msg = l10n.t('The following Java Runtime Configuration added. Version:');
+			vscode.window.showInformationMessage(`${msg} ${added.join(', ')}`);
+		} else {
+			const removed = _.difference(versionsOld, versionsNew);
+			if (removed.length > 0) {
+				const msg = l10n.t('The following Java Runtime Configuration removed. Version:');
+				vscode.window.showInformationMessage(`${msg} ${removed.join(', ')}`);
+			}
+		}
 	}
+
 	vscode.workspace.onDidChangeConfiguration(event => {
 		if (
 			// 'java.jdt.ls.java.home' is not defined because redhat.java extension is detected

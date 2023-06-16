@@ -1,5 +1,7 @@
 {
-  "Available Java versions": "使用可能な Java バージョン",
+  "Available Java versions:": "使用可能な Java バージョン:",
+  "The following Java Runtime Configuration added. Version:": "次の Java ランタイム構成が追加されました。バージョン:",
+  "The following Java Runtime Configuration removed. Version:": "次の Java ランタイム構成が削除されました。バージョン:",
   "Configuration changed, please Reload Window.": "構成が変更されました。ウィンドウを再読み込みしてください。",
   "Reload": "再読み込み",
   "Downloading": "ダウンロード中",
