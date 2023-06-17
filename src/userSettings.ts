@@ -304,9 +304,6 @@ export function setDefault() {
 		setIfNull('files.eol', '\n');
 		setIfNull('[bat]', {'files.eol': '\r\n'});
 	}
-	if (OS.isMac) {
-		setIfNull('files.associations', {'*.command': 'shellscript'});
-	}
 	// VSCode Terminal
 	setIfNull('terminal.integrated.enablePersistentSessions', false);
 	setIfNull('terminal.integrated.tabs.hideCondition', 'never');
