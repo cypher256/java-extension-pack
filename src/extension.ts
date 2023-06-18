@@ -129,10 +129,10 @@ function addConfigChangeEvent(
 	const versionsOld = runtimesOld.map(r => javaExtension.versionOf(r.name));
 	const versionsNew = runtimesNew.map(r => javaExtension.versionOf(r.name));
 	log.info(javaExtension.CONFIG_KEY_RUNTIMES, versionsNew);
-	
+	const availableMsg = `${l10n.t('Available Java versions:')} ${versionsNew.join(', ')}`;
+
 	if (isFirstStartup) {
-		const msg = l10n.t('Available Java versions:');
-		vscode.window.showInformationMessage(`${msg} ${versionsNew.join(', ')}`);
+		vscode.window.showInformationMessage(availableMsg);
 		if (nowInstalledLangPack && vscode.env.language === 'en') {
 			// Choose display language, restart VSCode
 			vscode.commands.executeCommand('workbench.action.configureLocale');
@@ -144,12 +144,12 @@ function addConfigChangeEvent(
 		const added = _.difference(versionsNew, versionsOld);
 		if (added.length > 0) {
 			const msg = l10n.t('The following Java Runtime Configuration added. Version:');
-			vscode.window.showInformationMessage(`${msg} ${added.join(', ')}`);
+			vscode.window.showInformationMessage(`${msg} ${added.join(', ')} (${availableMsg})`);
 		} else {
 			const removed = _.difference(versionsOld, versionsNew);
 			if (removed.length > 0) {
 				const msg = l10n.t('The following Java Runtime Configuration removed. Version:');
-				vscode.window.showInformationMessage(`${msg} ${removed.join(', ')}`);
+				vscode.window.showInformationMessage(`${msg} ${removed.join(', ')} (${availableMsg})`);
 			}
 		}
 	}
