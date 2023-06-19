@@ -59,7 +59,7 @@ The JDKs are auto-configured for the current environment on VSCode startup as fo
 <br>
 
 #### Auto-download Support
-If the [extensions.autoUpdate](https://code.visualstudio.com/docs/editor/extension-marketplace#_extension-autoupdate) configuration is NOT `false` or does not exist locally, it will be downloaded. For Gradle and Maven, only the latest versions are automatically downloaded. If you are using a very old Java version, please set up gradlew ([Compatibility](https://docs.gradle.org/current/userguide/compatibility.html)) or mvnw ([Compatibility](https://maven.apache.org/developers/compatibility-plan.html)) manually in your project.
+If the [extensions.autoUpdate](https://code.visualstudio.com/docs/editor/extension-marketplace#_extension-autoupdate) configuration is NOT `false` and does not exist locally, it will be downloaded. For Gradle and Maven, only the latest versions are automatically downloaded. If you are using a very old Java version, please set up gradlew ([Compatibility](https://docs.gradle.org/current/userguide/compatibility.html)) or mvnw ([Compatibility](https://maven.apache.org/developers/compatibility-plan.html)) manually in your project.
 - JDK - up to 4 LTSs and [latest non-LTS](https://marketplace.visualstudio.com/items?itemName=redhat.java#features) if not detected
 - Gradle - download if not on PATH environment
 - Maven - download if not on PATH environment
