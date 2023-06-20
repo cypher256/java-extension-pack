@@ -172,7 +172,7 @@ export async function updateJavaRuntimes(
 	let mavenBinDir:string | undefined = undefined;
 	let mvnExePath = get<string>(downloadMaven.CONFIG_KEY_MAVEN_EXE_PATH);
 	if (!mvnExePath && !OS.isWindows) {
-		mvnExePath = await autoContext.whichPath('mvn');
+		mvnExePath = await autoContext.whichPath('mvn'); // mac/Linux
 	}
 	if (mvnExePath) {
 		mavenBinDir = path.join(mvnExePath, '..');
@@ -182,7 +182,7 @@ export async function updateJavaRuntimes(
 	if (gradleHome) {
 		gradleBinDir = path.join(gradleHome, 'bin');
 	} else if (!OS.isWindows) {
-		const gradleExePath = await autoContext.whichPath('gradle');
+		const gradleExePath = await autoContext.whichPath('gradle'); // mac/Linux
 		if (gradleExePath) {
 			gradleBinDir = path.join(gradleExePath, '..');
 		}
@@ -190,8 +190,10 @@ export async function updateJavaRuntimes(
 	function _setTerminalEnv(javaHome: string, env: any) {
 		const pathArray = [];
 		pathArray.push(path.join(javaHome, 'bin'));
+		// Setting or mac/Linux which
 		pathArray.push(mavenBinDir);
 		pathArray.push(gradleBinDir);
+		// Windows (mac/Linux empty for default no rcfile)
 		pathArray.push('${env:PATH}');
 		env.PATH = pathArray.filter(i => i).join(OS.isWindows ? ';' : ':');
 		env.JAVA_HOME = javaHome;

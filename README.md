@@ -106,12 +106,12 @@ Command Palette **>Preferences: Open User Settings (JSON)**
     "default": true // for No build tools
   },
   {
-    "name": "JavaSE-18", // JAVA_HOME (Auto-detect)
-    "path": "d:\\jdk\\18"
+    "name": "JavaSE-19", // JAVA_HOME (Auto-detect)
+    "path": "d:\\jdk\\19"
   },
   {
-    "name": "JavaSE-19", // Adoptium (Auto-scan)
-    "path": "c:\\Program Files\\Eclipse Adoptium\\jdk-19.0.2.7-hotspot"
+    "name": "JavaSE-20", // Adoptium (Auto-scan)
+    "path": "c:\\Program Files\\Eclipse Adoptium\\jdk-20.0.2.7-hotspot"
   }
 ],
 // Gradle Daemon
@@ -191,7 +191,7 @@ Command Palette **>Preferences: Open User Settings (JSON)**
 <br>
 
 ## Auto-default Settings
-Entries that do not have the following configuration in the user settings are automatically set to the default values of JDK Auto. Note that a debug run is required to enable Hot Code Replace (Hot Deploy).
+Entries that do not have the following configuration in the user settings are automatically set to the default values of JDK Auto. To prevent it from being set, set the entry to empty. Note that a debug run is required to enable Hot Code Replace (Hot Deploy).
 
 |Configuration Name|Original Default|JDK Auto Default|
 |---|---|---|
