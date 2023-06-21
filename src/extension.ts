@@ -160,8 +160,11 @@ function addConfigChangeEvent(
 			event.affectsConfiguration('spring-boot.ls.java.home') ||
 			event.affectsConfiguration('rsp-ui.rsp.java.home') ||
 			event.affectsConfiguration('java.import.gradle.java.home') ||
+			// For Terminal Profiles
 			event.affectsConfiguration('java.import.gradle.home') ||
-			event.affectsConfiguration('maven.executable.path')
+			event.affectsConfiguration('maven.executable.path') ||
+			event.affectsConfiguration('maven.terminal.customEnv') ||
+			event.affectsConfiguration('java.configuration.runtimes')
 		) {
 			showReloadMessage();
 		}

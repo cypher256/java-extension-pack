@@ -103,7 +103,7 @@ Command Palette **>Preferences: Open User Settings (JSON)**
   {
     "name": "JavaSE-17", // Oracle (Auto-scan)
     "path": "c:\\Program Files\\java\\jdk-17.0.6",
-    "default": true // for No build tools
+    "default": true // for No build tools project
   },
   {
     "name": "JavaSE-19", // JAVA_HOME (Auto-detect)
