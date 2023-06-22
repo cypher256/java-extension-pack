@@ -21,11 +21,11 @@ export async function scan(
 	runtimes:userSettings.IJavaRuntime[]) {
 
 	// Fix JDK path
-	const runtimeNames = javaExtension.getAvailableNames();
+	const availableNames = javaExtension.getAvailableNames();
 	let needImmediateUpdate = false;
 	for (let i = runtimes.length - 1; i >= 0; i--) { // Decrement for splice
 		const runtime = runtimes[i];
-		if (runtimeNames.length > 0 && !runtimeNames.includes(runtime.name)) {
+		if (availableNames.length > 0 && !availableNames.includes(runtime.name)) {
 			log.info(`Remove unsupported name ${runtime.name}`);
 			runtimes.splice(i, 1);
 			needImmediateUpdate = true;
@@ -40,7 +40,7 @@ export async function scan(
 			continue;
 		}
 		if (fixedPath !== originPath) {
-			log.info(`Fix\n   ${originPath}\n-> ${fixedPath}`);
+			log.info(`Fix path\n   ${originPath}\n-> ${fixedPath}`);
 			runtime.path = fixedPath;
 			needImmediateUpdate = true;
 		}
@@ -166,9 +166,9 @@ export async function fixPath(homePath:string, defaultPath?:string): Promise<str
 };
 
 /**
- * Returns the IJdk object of the JDK.
+ * Returns the IInstalledJdk object of the JDK.
  * @param homePath The path of the JDK.
- * @returns The IJdk object.
+ * @returns The IInstalledJdk object.
  */
 export async function findByPath(homePath: string): Promise<IInstalledJdk | undefined> {
 	const runtime = await jdkutils.getRuntime(homePath, { checkJavac: true, withVersion: true });
