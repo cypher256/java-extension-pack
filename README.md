@@ -31,9 +31,11 @@ The extension greatly reduces the installation, configuration effort, and [JDK c
 
 # Getting Started
 Just install this extension and your Java development environment is ready to go. Let's write the Java source code right away.
-* [Create source code and run/debug](https://code.visualstudio.com/docs/java/java-tutorial#_creating-a-source-code-file)
-* [Create a general Java project](https://code.visualstudio.com/docs/java/java-project#_create-a-new-java-project)
-* [Create a Spring Boot project](https://code.visualstudio.com/docs/java/java-spring-boot#_create-the-project)
+
+![Hello World](https://raw.githubusercontent.com/cypher256/java-extension-pack/main/image/hello.jpg)
+* [Create Hello World and run/debug](https://code.visualstudio.com/docs/java/java-tutorial#_creating-a-source-code-file) (No build tools)
+* [Create a general Java project](https://code.visualstudio.com/docs/java/java-project#_create-a-new-java-project) (No build tools / Gradle / Maven)
+* [Create a Spring Boot project](https://code.visualstudio.com/docs/java/java-spring-boot#_create-the-project) (Gradle / Maven)
 <br>
 <br>
 <br>

@@ -8,7 +8,7 @@ export const CONFIG_KEY_RUNTIMES = 'java.configuration.runtimes';
 
 /**
  * Returns the names of the available VSCode JDT runtimes.
- * @returns The VSCode JDT runtime names.
+ * @returns The VSCode JDT runtime names. An array of length 0 if not available.
  */
 export function getAvailableNames(): string[] {
     // Do not add redhat.java extension to extensionDependencies in package.json,
@@ -24,7 +24,7 @@ export function getAvailableNames(): string[] {
 
 /**
  * Returns the versions of the available VSCode JDT runtimes.
- * @returns The VSCode JDT runtime versions.
+ * @returns The VSCode JDT runtime versions. An array of length 0 if not available.
  */
 export function getAvailableVersions(): number[] {
     return getAvailableNames().map(versionOf);
