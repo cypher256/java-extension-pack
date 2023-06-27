@@ -4,7 +4,7 @@
  */
 import { compare } from 'compare-versions';
 import * as fs from 'fs';
-import { GlobOptionsWithFileTypesUnset, glob } from 'glob-latest';
+import { GlobOptionsWithFileTypesUnset, glob } from 'glob';
 import * as jdkutils from 'jdk-utils';
 import * as os from "os";
 import * as path from 'path';

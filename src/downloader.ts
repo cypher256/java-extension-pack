@@ -3,7 +3,6 @@
  * Copyright (c) Shinji Kashihara.
  */
 import axios from 'axios';
-import * as decompress from 'decompress';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as stream from 'stream';
@@ -12,6 +11,7 @@ import * as vscode from 'vscode';
 import { l10n } from 'vscode';
 import * as autoContext from './autoContext';
 import { log } from './autoContext';
+import decompress = require('decompress');
 
 /**
  * An interface for the options of the downloader.

@@ -2,6 +2,7 @@
  * VSCode Java Extension Pack JDK Auto
  * Copyright (c) Shinji Kashihara.
  */
+import * as fs from 'fs';
 import * as _ from "lodash";
 import * as vscode from 'vscode';
 import { l10n } from 'vscode';
@@ -28,11 +29,10 @@ export async function activate(context:vscode.ExtensionContext) {
 
 	// First Setup
 	userSettings.setDefault();
-	const STATE_KEY_FIRST_ACTIVATED = 'activated';
-	const isFirstStartup = !autoContext.context.globalState.get(STATE_KEY_FIRST_ACTIVATED);
+	const isFirstStartup = !fs.existsSync(autoContext.getGlobalStoragePath());
 	let nowInstalledLangPack = false;
 	if (isFirstStartup) {
-		autoContext.context.globalState.update(STATE_KEY_FIRST_ACTIVATED, true);
+		autoContext.mkdirSyncQuietly(autoContext.getGlobalStoragePath());
 		const langPackSuffix = getLangPackSuffix();
 		if (langPackSuffix) {
 			nowInstalledLangPack = true;
@@ -171,7 +171,7 @@ function addConfigChangeEvent(
 				showReloadMessage();
 			}
 		});
-	}, 3_000); // Prevent fire first startup
+	}, 5_000); // Prevent update by JDK Auto
 }
 
 function showReloadMessage() {

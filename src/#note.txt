@@ -2,10 +2,8 @@
 # Fixed Version
 #---------------------------------------
 
- @types/node               18.x  →     20.x
- @types/vscode          ^1.54.0  →  ^1.79.0 test compile error
- @vscode/test-electron    2.3.2  →    2.3.3 test compile error
- glob                    ^8.1.0  →  ^10.2.7 test compile error
+ @types/node       18.x  →     20.x
+ @types/vscode  ^1.54.0  →  ^1.79.1
 
 #---------------------------------------
 # Publish

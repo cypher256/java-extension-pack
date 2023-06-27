@@ -4,4 +4,3 @@
 *.vsix
 dist
 node_modules
-out
