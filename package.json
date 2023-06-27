@@ -82,11 +82,11 @@
     "vscode": "^1.54.0"
   },
   "devDependencies": {
-    "@types/vscode": "^1.54.0",
     "@types/decompress": "^4.2.4",
     "@types/lodash": "4.x",
     "@types/mocha": "^10.0.1",
     "@types/node": "18.x",
+    "@types/vscode": "^1.54.0",
     "@types/which": "^3.0.0",
     "@typescript-eslint/eslint-plugin": "5.x",
     "@typescript-eslint/parser": "5.x",
