@@ -50,6 +50,7 @@ async function download(progress:vscode.Progress<{message:string}>, opt:IDownloa
         progress.report({message: msg});
         const totalLength = res.headers['content-length'];
         if (totalLength) {
+            workspaceState.update(DOWNLOAD_MSG_KEY, msg);
             let currentLength = 0;
             res.data.on('data', (chunk: Buffer) => {
                 currentLength += chunk.length;
@@ -57,7 +58,6 @@ async function download(progress:vscode.Progress<{message:string}>, opt:IDownloa
                 if (prevMsg && prevMsg !== msg) {
                     return;
                 }
-                workspaceState.update(DOWNLOAD_MSG_KEY, msg);
                 const percent = Math.floor((currentLength / totalLength) * 100);
                 progress.report({message: `${msg} (${percent}%)`});
             });
@@ -69,7 +69,7 @@ async function download(progress:vscode.Progress<{message:string}>, opt:IDownloa
         res.data.pipe(writer);
         await promisify(stream.finished)(writer);
     } finally {
-        workspaceState.update(DOWNLOAD_MSG_KEY, undefined);
+        await workspaceState.update(DOWNLOAD_MSG_KEY, undefined);
     }
 }
 
