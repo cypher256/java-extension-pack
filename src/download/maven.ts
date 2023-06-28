@@ -6,7 +6,6 @@ import axios from 'axios';
 import * as fs from 'fs';
 import * as _ from 'lodash';
 import * as path from 'path';
-import * as vscode from 'vscode';
 import * as autoContext from '../autoContext';
 import { log } from '../autoContext';
 import * as downloader from '../downloader';
@@ -15,13 +14,13 @@ export const CONFIG_KEY_MAVEN_EXE_PATH = 'maven.executable.path';
 
 /**
  * Downloads and installs the Maven if it is not already installed.
- * @param progress A progress object used to report the download and installation progress.
+ * @param showDownloadMessage true if the download message is displayed.
  * @return A promise that resolves when the Maven is installed.
  */
-export async function download(progress:vscode.Progress<any>) {
+export async function download(showDownloadMessage:boolean) {
 	try {
 		const mavenExePathOld = userSettings.get<string>(CONFIG_KEY_MAVEN_EXE_PATH);
-		const mavenExePathNew = await downloadProc(progress, mavenExePathOld);
+		const mavenExePathNew = await downloadProc(showDownloadMessage, mavenExePathOld);
 		if (mavenExePathOld !== mavenExePathNew) {
 			await userSettings.update(CONFIG_KEY_MAVEN_EXE_PATH, mavenExePathNew);
 		}
@@ -31,7 +30,7 @@ export async function download(progress:vscode.Progress<any>) {
 }
 
 async function downloadProc(
-	progress:vscode.Progress<any>,
+	showDownloadMessage:boolean,
 	mavenExePathOld:string | undefined): Promise<string | undefined> {
 
 	let mavenExePathNew = mavenExePathOld;
@@ -75,11 +74,12 @@ async function downloadProc(
 	}
 
     // Download
-	await downloader.execute(progress, {
+	await downloader.execute({
 		downloadUrl: `${URL_PREFIX}${version}/apache-maven-${version}-bin.tar.gz`,
 		downloadedFile: homeDir + '_download_tmp.tar.gz',
 		extractDestDir: homeDir,
 		targetMessage: `Maven ${version}`,
+		showDownloadMessage: showDownloadMessage,
 	});
 	if (!isValidHome(homeDir)) {
 		log.info('Invalid Maven:', homeDir);

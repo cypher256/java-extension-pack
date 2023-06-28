@@ -30,7 +30,7 @@ The extension greatly reduces the installation, configuration effort, and [JDK c
 <br>
 
 # Getting Started
-Just install this extension and your Java development environment is ready to go. Let's write the Java source code right away.
+Just install this extension and your Java development environment is ready to go. You can also run it with `F5` or run `java`, `gradle`, `mvn` commands in the terminal. Let's write the Java source code right away.
 
 ![Hello World](https://raw.githubusercontent.com/cypher256/java-extension-pack/main/image/hello.jpg)
 * [Create Hello World and run/debug](https://code.visualstudio.com/docs/java/java-tutorial#_creating-a-source-code-file) (No build tools)
@@ -70,7 +70,7 @@ The JDKs are auto-configured for the current environment on VSCode startup as fo
 <br>
 
 #### Auto-download Support
-If the [extensions.autoUpdate](https://code.visualstudio.com/docs/editor/extension-marketplace#_extension-autoupdate) configuration is NOT `false` and does not exist locally, it will be downloaded. For Gradle and Maven, only the latest versions are automatically downloaded. If you are using a very old Java version, please set up gradlew ([Compatibility](https://docs.gradle.org/current/userguide/compatibility.html)) or mvnw ([Compatibility](https://maven.apache.org/developers/compatibility-plan.html)) manually in your project.
+If the [extensions.autoUpdate](https://code.visualstudio.com/docs/editor/extension-marketplace#_extension-autoupdate) configuration is NOT `false` and does not exist locally, it will be downloaded. For Gradle and Maven, only the latest versions are automatically downloaded. If you are using a very old Java version, please set up `gradlew` ([Compatibility](https://docs.gradle.org/current/userguide/compatibility.html)) or `mvnw` ([Compatibility](https://maven.apache.org/developers/compatibility-plan.html)) manually in your project.
 - JDK - up to 4 LTSs and [latest non-LTS](https://marketplace.visualstudio.com/items?itemName=redhat.java#features) if not detected
 - Gradle - download if not on PATH environment
 - Maven - download if not on PATH environment

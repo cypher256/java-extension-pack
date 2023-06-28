@@ -36,7 +36,15 @@ export function isUserInstalled(checkDir:string): boolean {
 	return !_checkDir.startsWith(_globalStoragePath);
 }
 
-export function rm(p:string) {
+export async function whichPath(cmd:string) {
+	try {
+		return await which(cmd);
+	} catch (error) {
+		return undefined;
+	}
+}
+
+export function rmQuietly(p:string) {
 	fs.rm(p, {recursive: true, force: true}, e => {
 		if (e) {
 			log.info('Failed rm: ', e); // Silent
@@ -59,13 +67,5 @@ export function mkdirSyncQuietly(p:string) {
 		}
 	} catch (e) {
 		log.info('Failed mkdirSync: ' + e); // Silent
-	}
-}
-
-export async function whichPath(cmd:string) {
-	try {
-		return await which(cmd);
-	} catch (error) {
-		return undefined;
 	}
 }

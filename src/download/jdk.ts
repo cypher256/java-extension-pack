@@ -6,7 +6,6 @@ import axios from 'axios';
 import * as fs from 'fs';
 import * as _ from "lodash";
 import * as path from 'path';
-import * as vscode from 'vscode';
 import * as autoContext from '../autoContext';
 import { OS, log } from '../autoContext';
 import * as downloader from '../downloader';
@@ -49,15 +48,15 @@ function archOf(javaVersion: number): string | undefined {
 
 /**
  * Downloads and installs a specific version of the JDK if it is not already installed.
+ * @param showDownloadMessage true if the download message is displayed.
  * @param runtimes An array of installed Java runtimes.
  * @param majorVersion The major version of the JDK to download.
- * @param progress A progress object used to report the download and installation progress.
  * @return A promise that resolves when the JDK is installed.
  */
 export async function download(
+	showDownloadMessage:boolean,
 	runtimes:userSettings.IJavaRuntime[],
-	majorVersion:number,
-	progress:vscode.Progress<any>) {
+	majorVersion:number) {
 
 	// Skip User Installed
 	const runtimeName = javaExtension.nameOf(majorVersion);
@@ -95,12 +94,13 @@ export async function download(
 	const fileName = `OpenJDK${majorVersion}U-jdk_${arch}_${p2}.${fileExt}`;
 
 	// Download
-	await downloader.execute(progress, {
+	await downloader.execute({
 		downloadUrl: downloadUrlPrefix + fileName,
 		downloadedFile: homeDir + '_download_tmp.' + fileExt,
 		extractDestDir: homeDir,
 		targetMessage: fullVersion,
 		removeLeadingPath: OS.isMac ? 3 : 1, // Remove leading 'jdk-xxx/Contents/Home/' on macOS
+		showDownloadMessage: showDownloadMessage,
 	});
 	if (!await jdkExplorer.isValidPath(homeDir)) {
 		log.info('Invalid JDK:', homeDir);

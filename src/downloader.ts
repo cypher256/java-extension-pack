@@ -22,30 +22,31 @@ export interface IDownloaderOptions {
     readonly extractDestDir:string,
     readonly targetMessage:string,
     removeLeadingPath?:number,
-    showDownloadMessage?:boolean // Currently unused always false
+    showDownloadMessage?:boolean,
 }
 
 /**
  * Downloads and extracts for the given options.
- * @param progress The progress of the downloader.
  * @param opt The options of the downloader.
  * @return opt argument.
  */
-export async function execute(progress:vscode.Progress<any>, opt:IDownloaderOptions) {
+export async function execute(opt:IDownloaderOptions) {
     opt.removeLeadingPath = opt.removeLeadingPath ?? 1;
-    await download(progress, opt);
-    await extract(progress, opt);
+    await vscode.window.withProgress({location: vscode.ProgressLocation.Window}, async progress => {
+        await download(progress, opt);
+        await extract(progress, opt);
+    });
     return opt;
 }
 
-async function download(progress:vscode.Progress<any>, opt:IDownloaderOptions) {
+async function download(progress:vscode.Progress<{message:string}>, opt:IDownloaderOptions) {
     log.info(`Downloading... ${opt.targetMessage}`, opt.downloadUrl);
     const DOWNLOAD_MSG_KEY = 'DOWNLOAD_MSG_KEY';
     const workspaceState = autoContext.context.workspaceState;
     const res = await axios.get(opt.downloadUrl, {responseType: 'stream'});
 
     if (opt.showDownloadMessage) {
-        const msg = `JDK Auto: ${l10n.t('Downloading')}... ${opt.targetMessage}`;
+        const msg = `JDK Auto: ${l10n.t('Downloading')}... ${opt.targetMessage.replace(/[^A-z].*$/, '')}`;
         progress.report({message: msg});
         const totalLength = res.headers['content-length'];
         if (totalLength) {
@@ -72,14 +73,14 @@ async function download(progress:vscode.Progress<any>, opt:IDownloaderOptions) {
     }
 }
 
-async function extract(progress:vscode.Progress<any>, opt:IDownloaderOptions) {
+async function extract(progress:vscode.Progress<{message:string}>, opt:IDownloaderOptions) {
     const procMessage = fs.existsSync(opt.extractDestDir) ? l10n.t('Updating') : l10n.t('Installing');
     log.info(`Installing... ${opt.targetMessage}`, opt.extractDestDir);
     progress.report({ message: `JDK Auto: ${procMessage}... ${opt.targetMessage}` });
     autoContext.rmSyncQuietly(opt.extractDestDir);
     try {
         await decompress(opt.downloadedFile, opt.extractDestDir, {strip: opt.removeLeadingPath});
-        autoContext.rm(opt.downloadedFile);
+        autoContext.rmQuietly(opt.downloadedFile);
     } catch (e) {
         log.info('Failed extract: ' + e); // Validate later
     }

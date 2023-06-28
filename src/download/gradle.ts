@@ -5,7 +5,6 @@
 import axios from 'axios';
 import * as fs from 'fs';
 import * as path from 'path';
-import * as vscode from 'vscode';
 import * as autoContext from '../autoContext';
 import { log } from '../autoContext';
 import * as downloader from '../downloader';
@@ -14,13 +13,13 @@ export const CONFIG_KEY_GRADLE_HOME = 'java.import.gradle.home';
 
 /**
  * Downloads and installs the Gradle if it is not already installed.
- * @param progress A progress object used to report the download and installation progress.
+ * @param showDownloadMessage true if the download message is displayed.
  * @return A promise that resolves when the Gradle is installed.
  */
-export async function download(progress:vscode.Progress<any>) {
+export async function download(showDownloadMessage:boolean) {
 	try {
 		const gradleHomeOld = userSettings.get<string>(CONFIG_KEY_GRADLE_HOME);
-		const gradleHomeNew = await downloadProc(progress, gradleHomeOld);
+		const gradleHomeNew = await downloadProc(showDownloadMessage, gradleHomeOld);
 		if (gradleHomeOld !== gradleHomeNew) {
 			await userSettings.update(CONFIG_KEY_GRADLE_HOME, gradleHomeNew);
 		}
@@ -30,7 +29,7 @@ export async function download(progress:vscode.Progress<any>) {
 }
 
 async function downloadProc(
-	progress:vscode.Progress<any>,
+	showDownloadMessage:boolean,
 	gradleHomeOld:string | undefined): Promise<string | undefined> {
 
 	let gradleHomeNew = gradleHomeOld;
@@ -72,11 +71,12 @@ async function downloadProc(
 	}
 
     // Download
-	await downloader.execute(progress, {
+	await downloader.execute({
 		downloadUrl: json.downloadUrl,
 		downloadedFile: homeDir + '_download_tmp.zip',
 		extractDestDir: homeDir,
 		targetMessage: `Gradle ${version}`,
+		showDownloadMessage: showDownloadMessage,
 	});
 	if (!isValidHome(homeDir)) {
 		log.info('Invalid Gradle:', homeDir);

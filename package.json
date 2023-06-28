@@ -99,11 +99,11 @@
   },
   "dependencies": {
     "axios": "1.x",
-    "compare-versions": "^6.0.0-rc.1",
+    "compare-versions": "^6.0.0-rc.2",
     "decompress": "^4.2.1",
     "glob": "10.x",
     "jdk-utils": "0.x",
     "lodash": "4.x"
   },
-  "version": "2023.627.0"
+  "version": "2023.628.0"
 }
