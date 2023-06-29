@@ -12,6 +12,10 @@ import { l10n } from 'vscode';
 import * as autoContext from './autoContext';
 import { log } from './autoContext';
 import decompress = require('decompress');
+import _ = require('lodash');
+
+const STATE_MSG_STACK = 'STATE_MSG_STACK';
+const STATE_IS_EXTRACTING = 'STATE_IS_EXTRACTING';
 
 /**
  * An interface for the options of the downloader.
@@ -40,27 +44,26 @@ export async function execute(opt:IDownloaderOptions) {
 
 async function download(progress:vscode.Progress<{message:string}>, opt:IDownloaderOptions) {
     log.info(`Download START ${opt.targetMessage}`, opt.downloadUrl);
-    const DOWNLOAD_MSG_KEY = 'DOWNLOAD_MSG_KEY';
     const workspaceState = autoContext.context.workspaceState;
     const res = await axios.get(opt.downloadUrl, {responseType: 'stream'});
 
     const isFirstDownload = autoContext.mkdirSyncQuietly(path.dirname(opt.downloadedFile));
     if (isFirstDownload) {
-    //if (true) {
-        const msg = `JDK Auto: ${l10n.t('Downloading')}... ${opt.targetMessage.replace(/[^A-z].*$/, '')}`;
+        const msg = `JDK Auto: ${l10n.t('Downloading')}... ${opt.targetMessage}`;
         progress.report({message: msg});
         const totalLength = res.headers['content-length'];
         if (totalLength) {
-            workspaceState.update(DOWNLOAD_MSG_KEY, opt.targetMessage);
             let currentLength = 0;
-            res.data.on('data', (chunk: Buffer) => {
+            res.data.on('data', async (chunk: Buffer) => {
                 currentLength += chunk.length;
-                const prevMsg = workspaceState.get(DOWNLOAD_MSG_KEY);
-                // if (prevMsg && prevMsg !== opt.targetMessage) {
-                //     return;
-                // }
-                // if (!prevMsg || prevMsg === opt.targetMessage) {
-                if (prevMsg === opt.targetMessage) {
+                if (workspaceState.get(STATE_IS_EXTRACTING)) {
+                    return;
+                }
+                let msgStack = workspaceState.get<string[]>(STATE_MSG_STACK, []);
+                if (!msgStack.includes(opt.targetMessage)) {
+                    msgStack.push(opt.targetMessage);
+                    await workspaceState.update(STATE_MSG_STACK, msgStack);
+                } else {
                     const percent = Math.floor((currentLength / totalLength) * 100);
                     progress.report({message: `${msg} (${percent}%)`});
                 }
@@ -72,21 +75,29 @@ async function download(progress:vscode.Progress<{message:string}>, opt:IDownloa
         res.data.pipe(writer);
         await promisify(stream.finished)(writer);
     } finally {
-        // await workspaceState.update(DOWNLOAD_MSG_KEY, undefined);
+        const msgStack = workspaceState.get<string[]>(STATE_MSG_STACK, []);
+        _.pull(msgStack, opt.targetMessage);
+        await workspaceState.update(STATE_MSG_STACK, msgStack);
         log.info(`Download END ${opt.targetMessage}`);
     }
 }
 
 async function extract(progress:vscode.Progress<{message:string}>, opt:IDownloaderOptions) {
     log.info(`Install START ${opt.targetMessage}`, opt.extractDestDir);
-    const procMessage = fs.existsSync(opt.extractDestDir) ? l10n.t('Updating') : l10n.t('Installing');
-    progress.report({ message: `JDK Auto: ${procMessage}... ${opt.targetMessage}` });
-    autoContext.rmSyncQuietly(opt.extractDestDir);
+    const workspaceState = autoContext.context.workspaceState;
     try {
-        await decompress(opt.downloadedFile, opt.extractDestDir, {strip: opt.removeLeadingPath});
-        autoContext.rmQuietly(opt.downloadedFile);
-    } catch (e) {
-        log.info('Failed extract: ' + e); // Validate later
+        await workspaceState.update(STATE_IS_EXTRACTING, true);
+        const procMessage = fs.existsSync(opt.extractDestDir) ? l10n.t('Updating') : l10n.t('Installing');
+        progress.report({ message: `JDK Auto: ${procMessage}... ${opt.targetMessage}` });
+        autoContext.rmSyncQuietly(opt.extractDestDir);
+        try {
+            await decompress(opt.downloadedFile, opt.extractDestDir, {strip: opt.removeLeadingPath});
+            autoContext.rmQuietly(opt.downloadedFile);
+        } catch (e) {
+            log.info('Failed extract: ' + e); // Validate later
+        }
+    } finally {
+        await workspaceState.update(STATE_IS_EXTRACTING, undefined);
+        log.info(`Install END ${opt.targetMessage}`);
     }
-    log.info(`Install END ${opt.targetMessage}`);
 }
