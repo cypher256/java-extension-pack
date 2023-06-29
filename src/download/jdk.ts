@@ -48,13 +48,11 @@ function archOf(javaVersion: number): string | undefined {
 
 /**
  * Downloads and installs a specific version of the JDK if it is not already installed.
- * @param showDownloadMessage true if the download message is displayed.
  * @param runtimes An array of installed Java runtimes.
  * @param majorVersion The major version of the JDK to download.
  * @return A promise that resolves when the JDK is installed.
  */
 export async function download(
-	showDownloadMessage:boolean,
 	runtimes:userSettings.IJavaRuntime[],
 	majorVersion:number) {
 
@@ -99,8 +97,7 @@ export async function download(
 		downloadedFile: homeDir + '_download_tmp.' + fileExt,
 		extractDestDir: homeDir,
 		targetMessage: fullVersion,
-		removeLeadingPath: OS.isMac ? 3 : 1, // Remove leading 'jdk-xxx/Contents/Home/' on macOS
-		showDownloadMessage: showDownloadMessage,
+		removeLeadingPath: OS.isMac ? 3 : 1, // Remove leading 'jdk-xxx/Contents/Home/' fot macOS
 	});
 	if (!await jdkExplorer.isValidPath(homeDir)) {
 		log.info('Invalid JDK:', homeDir);

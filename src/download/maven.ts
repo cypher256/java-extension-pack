@@ -14,13 +14,12 @@ export const CONFIG_KEY_MAVEN_EXE_PATH = 'maven.executable.path';
 
 /**
  * Downloads and installs the Maven if it is not already installed.
- * @param showDownloadMessage true if the download message is displayed.
  * @return A promise that resolves when the Maven is installed.
  */
-export async function download(showDownloadMessage:boolean) {
+export async function download() {
 	try {
 		const mavenExePathOld = userSettings.get<string>(CONFIG_KEY_MAVEN_EXE_PATH);
-		const mavenExePathNew = await downloadProc(showDownloadMessage, mavenExePathOld);
+		const mavenExePathNew = await downloadProc(mavenExePathOld);
 		if (mavenExePathOld !== mavenExePathNew) {
 			await userSettings.update(CONFIG_KEY_MAVEN_EXE_PATH, mavenExePathNew);
 		}
@@ -30,7 +29,6 @@ export async function download(showDownloadMessage:boolean) {
 }
 
 async function downloadProc(
-	showDownloadMessage:boolean,
 	mavenExePathOld:string | undefined): Promise<string | undefined> {
 
 	let mavenExePathNew = mavenExePathOld;
@@ -79,7 +77,6 @@ async function downloadProc(
 		downloadedFile: homeDir + '_download_tmp.tar.gz',
 		extractDestDir: homeDir,
 		targetMessage: `Maven ${version}`,
-		showDownloadMessage: showDownloadMessage,
 	});
 	if (!isValidHome(homeDir)) {
 		log.info('Invalid Maven:', homeDir);

@@ -13,13 +13,12 @@ export const CONFIG_KEY_GRADLE_HOME = 'java.import.gradle.home';
 
 /**
  * Downloads and installs the Gradle if it is not already installed.
- * @param showDownloadMessage true if the download message is displayed.
  * @return A promise that resolves when the Gradle is installed.
  */
-export async function download(showDownloadMessage:boolean) {
+export async function download() {
 	try {
 		const gradleHomeOld = userSettings.get<string>(CONFIG_KEY_GRADLE_HOME);
-		const gradleHomeNew = await downloadProc(showDownloadMessage, gradleHomeOld);
+		const gradleHomeNew = await downloadProc(gradleHomeOld);
 		if (gradleHomeOld !== gradleHomeNew) {
 			await userSettings.update(CONFIG_KEY_GRADLE_HOME, gradleHomeNew);
 		}
@@ -29,7 +28,6 @@ export async function download(showDownloadMessage:boolean) {
 }
 
 async function downloadProc(
-	showDownloadMessage:boolean,
 	gradleHomeOld:string | undefined): Promise<string | undefined> {
 
 	let gradleHomeNew = gradleHomeOld;
@@ -76,7 +74,6 @@ async function downloadProc(
 		downloadedFile: homeDir + '_download_tmp.zip',
 		extractDestDir: homeDir,
 		targetMessage: `Gradle ${version}`,
-		showDownloadMessage: showDownloadMessage,
 	});
 	if (!isValidHome(homeDir)) {
 		log.info('Invalid Gradle:', homeDir);

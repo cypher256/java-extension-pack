@@ -130,7 +130,7 @@ Command Palette **>Preferences: Open User Settings (JSON)**
 // Maven Environment Variables
 "maven.terminal.customEnv": [
   {
-    "environmentVariable": "JAVA_HOME",
+    "environmentVariable": "JAVA_HOME", // Required for mvn
     "value": "c:\\Program Files\\java\\jdk-17.0.6"
   }
 ],

@@ -60,12 +60,14 @@ export function rmSyncQuietly(p:string) {
 	}
 }
 
-export function mkdirSyncQuietly(p:string) {
+export function mkdirSyncQuietly(p:string): boolean {
 	try {
 		if (!fs.existsSync(p)) {
 			fs.mkdirSync(p, {recursive: true});
+			return true;
 		}
 	} catch (e) {
 		log.info('Failed mkdirSync: ' + e); // Silent
 	}
+	return false;
 }

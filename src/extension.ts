@@ -77,9 +77,9 @@ export async function activate(context:vscode.ExtensionContext) {
 		try {
 			const runtimesBeforeDownload = _.cloneDeep(runtimes);
 			const downloadVersions = _.uniq([...targetLtsVersions, _.last(availableVersions) ?? 0]);
-			const promiseArray = downloadVersions.map(v => downloadJdk.download(isFirstStartup, runtimes, v));
-			promiseArray.push(downloadMaven.download(isFirstStartup));
-			promiseArray.push(downloadGradle.download(isFirstStartup));
+			const promiseArray = downloadVersions.map(v => downloadJdk.download(runtimes, v));
+			promiseArray.push(downloadMaven.download());
+			promiseArray.push(downloadGradle.download());
 			await Promise.allSettled(promiseArray);
 			await userSettings.updateJavaRuntimes(runtimes, runtimesBeforeDownload, latestLtsVersion);
 		} catch (e:any) {

@@ -67,23 +67,25 @@ export async function scan(
 	// TODO Remove (ADD 2023.5.2: Migrate old download location from '/' to '/java')
 	const oldStorageDir = autoContext.getGlobalStoragePath();
 	const newStorageDir = path.join(oldStorageDir, 'java');
-	autoContext.mkdirSyncQuietly(newStorageDir);
-	for (const name of await fs.promises.readdir(oldStorageDir)) {
-		if (name.match(/\.(zip|gz)$/) || name.match(/^\d+$/)) {
-			try {
-				const oldPath = path.join(oldStorageDir, name);
-				const newPath = path.join(newStorageDir, name);
-				if (fs.existsSync(newPath)) {
-					autoContext.rmSyncQuietly(oldPath);
-				} else {
-					fs.renameSync(oldPath, newPath);
+	if (fs.existsSync(oldStorageDir)) {
+		for (const name of await fs.promises.readdir(oldStorageDir)) {
+			if (name.match(/\.(zip|gz)$/) || name.match(/^\d+$/)) {
+				try {
+					const oldPath = path.join(oldStorageDir, name);
+					const newPath = path.join(newStorageDir, name);
+					if (fs.existsSync(newPath)) {
+						autoContext.rmSyncQuietly(oldPath);
+					} else {
+						autoContext.mkdirSyncQuietly(newStorageDir);
+						fs.renameSync(oldPath, newPath);
+					}
+					const configRuntime = runtimes.find(r => r.path.toLowerCase() === oldPath.toLowerCase());
+					if (configRuntime) {
+						configRuntime.path = newPath;
+					}
+				} catch (error) {
+					log.info('Failed move', error);
 				}
-				const configRuntime = runtimes.find(r => r.path.toLowerCase() === oldPath.toLowerCase());
-				if (configRuntime) {
-					configRuntime.path = newPath;
-				}
-			} catch (error) {
-				log.info('Failed move', error);
 			}
 		}
 	}
