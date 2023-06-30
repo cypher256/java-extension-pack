@@ -14,8 +14,8 @@ import { log } from './autoContext';
 import decompress = require('decompress');
 import _ = require('lodash');
 
-const STATE_MSG_STACK = 'STATE_MSG_STACK';
-const STATE_IS_EXTRACTING = 'STATE_IS_EXTRACTING';
+const STATE_DOWNLOADING_MSG_STACK = 'STATE_DOWNLOADING_MSG_STACK';
+const STATE_EXTRACTING_MSG = 'STATE_EXTRACTING_MSG';
 
 /**
  * An interface for the options of the downloader.
@@ -42,6 +42,10 @@ export async function execute(opt:IDownloaderOptions) {
     return opt;
 }
 
+function report(progress:vscode.Progress<{message:string}>, msg:string) {
+    progress.report({message: `JDK Auto: ${msg}`});
+}
+
 async function download(progress:vscode.Progress<{message:string}>, opt:IDownloaderOptions) {
     log.info(`Download START ${opt.targetMessage}`, opt.downloadUrl);
     const workspaceState = autoContext.context.workspaceState;
@@ -49,23 +53,27 @@ async function download(progress:vscode.Progress<{message:string}>, opt:IDownloa
 
     const isFirstDownload = autoContext.mkdirSyncQuietly(path.dirname(opt.downloadedFile));
     if (isFirstDownload) {
-        const msg = `JDK Auto: ${l10n.t('Downloading')}... ${opt.targetMessage}`;
-        progress.report({message: msg});
+        const msg = `${l10n.t('Downloading')}... ${opt.targetMessage.replace(/[^A-z].*$/, '')}`;
+        report(progress, msg);
+        
         const totalLength = res.headers['content-length'];
         if (totalLength) {
             let currentLength = 0;
+            
             res.data.on('data', async (chunk: Buffer) => {
                 currentLength += chunk.length;
-                if (workspaceState.get(STATE_IS_EXTRACTING)) {
+                const extractingMsg = workspaceState.get<string>(STATE_EXTRACTING_MSG);
+                if (extractingMsg) { // Prefer extracting message
+                    report(progress, extractingMsg); // Update for Windows
                     return;
                 }
-                let msgStack = workspaceState.get<string[]>(STATE_MSG_STACK, []);
+                let msgStack = workspaceState.get<string[]>(STATE_DOWNLOADING_MSG_STACK, []);
                 if (!msgStack.includes(opt.targetMessage)) {
                     msgStack.push(opt.targetMessage);
-                    await workspaceState.update(STATE_MSG_STACK, msgStack);
+                    await workspaceState.update(STATE_DOWNLOADING_MSG_STACK, msgStack);
                 } else {
                     const percent = Math.floor((currentLength / totalLength) * 100);
-                    progress.report({message: `${msg} (${percent}%)`});
+                    report(progress, `${msg} (${percent}%)`);
                 }
             });
         }
@@ -75,9 +83,9 @@ async function download(progress:vscode.Progress<{message:string}>, opt:IDownloa
         res.data.pipe(writer);
         await promisify(stream.finished)(writer);
     } finally {
-        const msgStack = workspaceState.get<string[]>(STATE_MSG_STACK, []);
+        const msgStack = workspaceState.get<string[]>(STATE_DOWNLOADING_MSG_STACK, []);
         _.pull(msgStack, opt.targetMessage);
-        await workspaceState.update(STATE_MSG_STACK, msgStack);
+        await workspaceState.update(STATE_DOWNLOADING_MSG_STACK, msgStack);
         log.info(`Download END ${opt.targetMessage}`);
     }
 }
@@ -86,9 +94,10 @@ async function extract(progress:vscode.Progress<{message:string}>, opt:IDownload
     log.info(`Install START ${opt.targetMessage}`, opt.extractDestDir);
     const workspaceState = autoContext.context.workspaceState;
     try {
-        await workspaceState.update(STATE_IS_EXTRACTING, true);
-        const procMessage = fs.existsSync(opt.extractDestDir) ? l10n.t('Updating') : l10n.t('Installing');
-        progress.report({ message: `JDK Auto: ${procMessage}... ${opt.targetMessage}` });
+        const procLabel = fs.existsSync(opt.extractDestDir) ? 'Updating' : 'Installing';
+        const msg = `${l10n.t(procLabel)}... ${opt.targetMessage}`;
+        await workspaceState.update(STATE_EXTRACTING_MSG, msg);
+        report(progress, msg);
         autoContext.rmSyncQuietly(opt.extractDestDir);
         try {
             await decompress(opt.downloadedFile, opt.extractDestDir, {strip: opt.removeLeadingPath});
@@ -97,7 +106,7 @@ async function extract(progress:vscode.Progress<{message:string}>, opt:IDownload
             log.info('Failed extract: ' + e); // Validate later
         }
     } finally {
-        await workspaceState.update(STATE_IS_EXTRACTING, undefined);
+        await workspaceState.update(STATE_EXTRACTING_MSG, undefined);
         log.info(`Install END ${opt.targetMessage}`);
     }
 }

@@ -43,7 +43,7 @@ Just install this extension and your Java development environment is ready to go
 # Features
 
 ## JDK Auto-configuration
-The JDKs are auto-configured for the current environment on VSCode startup as follows. You can check the detected JDK in User settings.json described later or Output (Ctrl + Shift + U) ≫ Dropdown: `JDK Auto`. If there are multiple JDKs of the same version, the latest minor version among them is used. If you manually install or update the JDK and want to force update the configuration of VSCode, restart VSCode or execute **>Developer: Reload Window** from the command palette (F1 or Ctrl/Cmd + Shift + P). These are applied as user (VSCode global) settings. You can manually change user settings, but if you want to customize your settings even further, consider using [workspace settings](https://code.visualstudio.com/docs/getstarted/settings) or [profiles](https://code.visualstudio.com/docs/editor/profiles).
+The JDKs are auto-configured for the current environment on VSCode startup as follows. You can check the detected JDK in User `settings.json` described later or Output (Ctrl + Shift + U) ≫ Dropdown: `JDK Auto`. If there are multiple JDKs of the same version, the latest minor version among them is used. If you manually install or update the JDK and want to force update the configuration of VSCode, restart VSCode or execute **>Developer: Reload Window** from the command palette (F1 or Ctrl/Cmd + Shift + P). These are applied as user (VSCode global) settings. You can manually change user settings, but if you want to customize your settings even further, consider using [workspace settings](https://code.visualstudio.com/docs/getstarted/settings) or [profiles](https://code.visualstudio.com/docs/editor/profiles).
 
 1. Auto-fix invalid JDK configuration (e.g. `/jdk17/bin` -> `/jdk17`)
 1. Auto-remove configuration entries when JDK uninstalled or version path changed
@@ -61,8 +61,8 @@ The JDKs are auto-configured for the current environment on VSCode startup as fo
 |[java.configuration.runtimes](https://code.visualstudio.com/docs/java/java-project#_configure-runtime-for-projects)<br>([Issues](https://github.com/redhat-developer/vscode-java/issues?q=is%3Aissue+java.configuration.runtimes))|Set all major JDKs scanned, detected, and downloaded<br>(Setting > `JAVA_HOME`)|
 |[java.import.gradle.java.home](https://github.com/redhat-developer/vscode-java/wiki/JDK-Requirements#my-gradle-version-does-not-support-java-17)<br>([Issues](https://github.com/microsoft/vscode-gradle/issues?q=is%3Aissue+java.import.gradle.java.home))|Set `default` (*2) if unset<br>(Setting > `java.jdt.ls.java.home`)|
 |[maven.terminal.customEnv](https://marketplace.visualstudio.com/items?itemName=vscjava.vscode-maven#additional-configurations)<br>([Issues](https://github.com/microsoft/vscode-maven/issues?q=is%3Aissue+maven.terminal.customEnv))|Set `default` (*2) if `JAVA_HOME` environment variable unset<br>(Setting > `JAVA_HOME`)|
-|[java.import.gradle.home](https://github.com/microsoft/vscode-gradle#java-specific-settings)<br>([Issues](https://github.com/microsoft/vscode-gradle/issues?q=is%3Aissue+java.import.gradle.home))|Set latest if not on PATH environment<br>(`gradlew` > Setting > `PATH` > `GRADLE_HOME`)|
-|[maven.executable.path](https://github.com/Microsoft/vscode-maven#settings)<br>([Issues](https://github.com/microsoft/vscode-maven/issues?q=is%3Aissue+maven.executable.path))|Set latest if not on PATH environment<br>(Setting > `mvnw` > `PATH`)|
+|[java.import.gradle.home](https://github.com/microsoft/vscode-gradle#java-specific-settings)<br>([Issues](https://github.com/microsoft/vscode-gradle/issues?q=is%3Aissue+java.import.gradle.home))|Set latest if not in PATH environment variable<br>(`gradlew` > Setting > `PATH` > `GRADLE_HOME`)|
+|[maven.executable.path](https://github.com/Microsoft/vscode-maven#settings)<br>([Issues](https://github.com/microsoft/vscode-maven/issues?q=is%3Aissue+maven.executable.path))|Set latest if not in PATH environment variable<br>(Setting > `mvnw` > `PATH`)|
 
 (*1) The language server runtime used by VSCode extensions. Not for building and running projects.<br>
 (*2) The `path` in the entry marked as `default: true` in `java.configuration.runtimes`.
@@ -70,10 +70,11 @@ The JDKs are auto-configured for the current environment on VSCode startup as fo
 <br>
 
 #### Auto-download Support
-If the [extensions.autoUpdate](https://code.visualstudio.com/docs/editor/extension-marketplace#_extension-autoupdate) configuration is NOT `false` and does not exist locally, it will be downloaded. For Gradle and Maven, only the latest versions are automatically downloaded. If you are using a very old Java version, please set up `gradlew` ([Compatibility](https://docs.gradle.org/current/userguide/compatibility.html)) or `mvnw` ([Compatibility](https://maven.apache.org/developers/compatibility-plan.html)) manually in your project.
-- JDK - up to 4 LTSs and [latest non-LTS](https://marketplace.visualstudio.com/items?itemName=redhat.java#features) if not detected
-- Gradle - download if not on PATH environment
-- Maven - download if not on PATH environment
+Automatic download is enabled if the [extensions.autoUpdate](https://code.visualstudio.com/docs/editor/extension-marketplace#_extension-autoupdate) configuration is not `false`. For Java, multiple versions are configured or downloaded, but only the latest version of Gradle/Maven is downloaded. If you use an older version of Gradle/Maven due to compatibility issues, please introduce `gradlew` ([Compatibility](https://docs.gradle.org/current/userguide/compatibility.html)) or `mvnw` ([Compatibility](https://maven.apache.org/developers/compatibility-plan.html)) in your project or set the environment variable to Gradle or Maven. If Gradle/Maven is set in the `PATH` environment variable, it will not be automatically configured in `settings.json`.
+
+- JDK - Download 4 LTS and [non-LTS latest](https://marketplace.visualstudio.com/items?itemName=redhat.java#features) versions if not detected
+- Gradle - Download latest version if not in PATH environment variable
+- Maven - Download latest version if not in PATH environment variable
 
 JDK auto-download supports the following platforms:
 - Windows x64

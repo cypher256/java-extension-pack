@@ -105,7 +105,7 @@ function getLangPackSuffix(): string | undefined {
 			return 'zh-hans'; // Chinese (Simplified)
 		}
 	} catch (error) {
-		log.info('Failed to resolve language pack lang.', error); // Silent
+		log.info('Failed to resolve language pack language.', error); // Silent
 	}
 	return undefined;
 }
