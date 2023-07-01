@@ -30,7 +30,7 @@ The extension greatly reduces the installation, configuration effort, and [JDK c
 <br>
 
 # Getting Started
-Just install this extension and your Java development environment is ready to go. You can also run it with `F5` or run `java`, `gradle` or `mvn` commands in the terminal. Let's write the Java source code right away.
+Just install this extension and your Java development environment is ready to go. You can also run it with `F5` or run `java`, `gradle` or `mvn` commands in the VSCode Terminal (Ctrl + \`). Let's write the Java source code right away.
 
 ![Hello World](https://raw.githubusercontent.com/cypher256/java-extension-pack/main/image/hello.jpg)
 * [Create Hello World and run/debug](https://code.visualstudio.com/docs/java/java-tutorial#_creating-a-source-code-file) (No build tools)
@@ -141,7 +141,7 @@ Command Palette **>Preferences: Open User Settings (JSON)**
 <br>
 
 ## Terminal Auto-configuration
-Terminal profiles are defined based on configured multiple runtimes, so you can easily open a terminal by selecting the Java version from command **>Terminal: Create New Terminal (With Profile)** or Terminal (Ctrl/Cmd + \`) ≫ Profiles dropdown. Besides `java`, `gradle` and `mvn` commands can also be used. The configured environment variables have no effect outside the terminal, so the system and OS user environment remain clean. The `JAVA_HOME` and `PATH` in the auto-configured terminal configuration will always be overridden from the configured runtimes, so if you want to customize it, copy the terminal configuration entry and create a new one.
+Terminal profiles are defined based on configured multiple runtimes, so you can easily open a terminal by selecting the Java version from command **>Terminal: Create New Terminal (With Profile)** or Terminal (Ctrl + \`) ≫ Profiles dropdown. Besides `java`, `gradle` and `mvn` commands can also be used. The configured environment variables have no effect outside the terminal, so the system and OS user environment remain clean. The `JAVA_HOME` and `PATH` in the auto-configured terminal configuration will always be overridden from the configured runtimes, so if you want to customize it, copy the terminal configuration entry and create a new one.
 <br><p>
 ![Switch Java Version](https://raw.githubusercontent.com/cypher256/java-extension-pack/main/image/terminal.png)
 </p>
