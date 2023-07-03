@@ -15,19 +15,10 @@ import * as jdkExplorer from './jdkExplorer';
 /**
  * Return a value from user settings configuration.
  * @param section Configuration name, supports _dotted_ names.
- * @return The value `section` denotes or `undefined`.
+ * @return The value `section` denotes or `undefined`. null is a valid value.
  */
 export function get<T>(section: string): T | undefined {
 	return vscode.workspace.getConfiguration().get(section);
-}
-/**
- * Return a value from user settings configuration.
- * @param section Configuration name, supports _dotted_ names.
- * @param defaultValue A value should be returned when no value could be found, is `undefined`.
- * @return The value `section` denotes or the default.
- */
-export function getOr<T>(section: string, defaultValue: T): T {
-	return vscode.workspace.getConfiguration().get(section, defaultValue);
 }
 
 /**
@@ -62,7 +53,7 @@ export interface IJavaRuntime {
  * @returns An array of Java runtime objects.
  */
 export function getJavaRuntimes(): IJavaRuntime[] {
-	return getOr(javaExtension.CONFIG_KEY_RUNTIMES, []);
+	return get(javaExtension.CONFIG_KEY_RUNTIMES) ?? [];
 }
 
 /**
@@ -78,7 +69,7 @@ export async function updateJavaRuntimes(
 	latestLtsVersion:number) {
 
 	const CONFIG_KEY_DEPRECATED_JAVA_HOME = 'java.home';
-	if (get(CONFIG_KEY_DEPRECATED_JAVA_HOME) !== null) {
+	if (get(CONFIG_KEY_DEPRECATED_JAVA_HOME) !== null) { // null if no entry or null value
 		remove(CONFIG_KEY_DEPRECATED_JAVA_HOME);
 	}
 
@@ -150,7 +141,7 @@ export async function updateJavaRuntimes(
 	const isValidEnvJavaHome = await jdkExplorer.isValidPath(process.env.JAVA_HOME);
 	if (defaultRuntime) {
 		const CONFIG_KEY_MAVEN_CUSTOM_ENV = 'maven.terminal.customEnv';
-		const customEnv:any[] = getOr(CONFIG_KEY_MAVEN_CUSTOM_ENV, []);
+		const customEnv:any[] = get(CONFIG_KEY_MAVEN_CUSTOM_ENV) ?? [];
 		let mavenJavaHome = customEnv.find(i => i.environmentVariable === 'JAVA_HOME');
 		function _updateMavenJavaHome(newPath: string) {
 			mavenJavaHome.value = newPath;
@@ -201,7 +192,7 @@ export async function updateJavaRuntimes(
 	const osConfigName = OS.isWindows ? 'windows' : OS.isMac ? 'osx' : 'linux';
 	if (defaultRuntime && OS.isWindows) { // Exclude macOS (Support npm scripts)
 		const CONFIG_KEY_TERMINAL_ENV = 'terminal.integrated.env.' + osConfigName;
-		const terminalEnv:any = _.cloneDeep(getOr(CONFIG_KEY_TERMINAL_ENV, {})); // Proxy to POJO for isEqual
+		const terminalEnv:any = _.cloneDeep(get(CONFIG_KEY_TERMINAL_ENV) ?? {}); // Proxy to POJO for isEqual
 		function _updateTerminalDefault(newPath: string) {
 			const terminalEnvOld = _.cloneDeep(terminalEnv);
 			_setTerminalEnv(newPath, terminalEnv);
@@ -289,14 +280,14 @@ export function setDefault() {
 	]);
 	setIfNull('editor.unicodeHighlight.includeComments', true);
 	setIfNull('workbench.colorCustomizations', {
-		"[Default Dark+][Visual Studio Dark]": {
-			"tab.activeBorder": "#0F0",
-		},
 		"[Default Dark Modern]": {
             "tab.activeBorderTop": "#00FF00",
             "tab.unfocusedActiveBorderTop" : "#00FF0088",
             "textCodeBlock.background": "#00000055",
         },
+		"[Default Dark+][Visual Studio Dark]": {
+			"tab.activeBorder": "#0F0",
+		},
 		"editor.wordHighlightStrongBorder": "#FF6347",
 		"editor.wordHighlightBorder": "#FFD700",
 		"editor.selectionHighlightBorder": "#A9A9A9",
