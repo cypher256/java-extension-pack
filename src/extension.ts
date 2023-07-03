@@ -171,7 +171,7 @@ function addConfigChangeEvent(
 				showReloadMessage();
 			}
 		});
-	}, 5_000); // Prevent update by JDK Auto
+	}, 5_000); // Prevent update by self
 }
 
 function showReloadMessage() {

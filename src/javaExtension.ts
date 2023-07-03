@@ -12,7 +12,7 @@ export const CONFIG_KEY_RUNTIMES = 'java.configuration.runtimes';
  */
 export function getAvailableNames(): string[] {
     // Do not add redhat.java extension to extensionDependencies in package.json,
-    // because JDK Auto will not start when redhat activation error occurs.
+    // because this extension will not start when redhat activation error occurs.
     const redhatJava = vscode.extensions.getExtension('redhat.java');
     const redhatProp = redhatJava?.packageJSON?.contributes?.configuration?.properties;
     const jdtRuntimeNames:string[] = redhatProp?.[CONFIG_KEY_RUNTIMES]?.items?.properties?.name?.enum ?? [];
