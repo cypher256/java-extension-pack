@@ -17,7 +17,7 @@ The extension greatly reduces the installation, configuration effort, and [JDK c
 1. Click Install on README opened in VSCode
 ## Method 2: Extensions Sidebar
 1. Open Extensions sideBar (Ctrl/CMD + Shift + X) in VSCode
-1. Search for `auto config java`
+1. Search for `auto config`
 1. Click Install
 ## Method 3: Quick Pick
 1. Open Quick Pick (Ctrl/CMD + P) in VSCode, paste the following command, and press enter.<br>
