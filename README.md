@@ -1,4 +1,4 @@
-# Java Extension Pack JDK Auto
+# Auto Config Java
 
 [![GitHub Sponsor](https://img.shields.io/static/v1?label=Sponsor&message=%E2%9D%A4&logo=GitHub&color=ff69b4)](https://github.com/sponsors/cypher256)
 ![](https://github.com/cypher256/java-extension-pack/actions/workflows/eslint.yml/badge.svg)
@@ -17,7 +17,7 @@ The extension greatly reduces the installation, configuration effort, and [JDK c
 1. Click Install on README opened in VSCode
 ## Method 2: Extensions Sidebar
 1. Open Extensions sideBar (Ctrl/CMD + Shift + X) in VSCode
-1. Search for `jdk auto`
+1. Search for `auto config java`
 1. Click Install
 ## Method 3: Quick Pick
 1. Open Quick Pick (Ctrl/CMD + P) in VSCode, paste the following command, and press enter.<br>

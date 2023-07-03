@@ -1,5 +1,5 @@
 /**
- * VSCode Java Extension Pack JDK Auto
+ * VSCode Auto Config Java
  * Copyright (c) Shinji Kashihara.
  */
 import { compare } from 'compare-versions';
