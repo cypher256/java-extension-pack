@@ -1,4 +1,5 @@
-Display Name Candidate: Auto Config Java (検索文字列はフル小文字)
+--- Display Name Candidate (few days) ---
+Java Extension Pack Auto Config
 
 #---------------------------------------
 # Fixed Version

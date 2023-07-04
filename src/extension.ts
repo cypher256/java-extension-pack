@@ -155,7 +155,7 @@ function addConfigChangeEvent(
 
 	// User Manual Change Event
 	setTimeout(() => {
-		log.info('Start monitoring config change event');
+		log.info('Add monitoring config change event');
 		vscode.workspace.onDidChangeConfiguration(event => {
 			if (
 				// 'java.jdt.ls.java.home' is not defined because redhat.java extension is detected
