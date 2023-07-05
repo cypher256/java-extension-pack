@@ -54,13 +54,13 @@ export async function scan(
 	// Scan User Installed JDK
 	const latestMajorMap = new Map<number, IInstalledJdk>();
 	const availableVersions = javaExtension.getAvailableVersions();
-	for (const jdk of await findInstalledJdks()) {
-		if (!availableVersions.includes(jdk.majorVersion)) {
+	for (const detectedJdk of await findInstalledJdks()) {
+		if (!availableVersions.includes(detectedJdk.majorVersion)) {
 			continue;
 		}
-		const latestJdk = latestMajorMap.get(jdk.majorVersion);
-		if (!latestJdk || isNewLeft(jdk.fullVersion, latestJdk.fullVersion)) {
-			latestMajorMap.set(jdk.majorVersion, jdk);
+		const latestJdk = latestMajorMap.get(detectedJdk.majorVersion);
+		if (!latestJdk || isNewLeft(detectedJdk.fullVersion, latestJdk.fullVersion)) {
+			latestMajorMap.set(detectedJdk.majorVersion, detectedJdk);
 		}
 	}
 
@@ -194,18 +194,26 @@ function createJdk(runtime: jdkutils.IJavaRuntime | undefined): IInstalledJdk | 
 	return undefined;
 }
 
+function pushJdk(managerName: string, jdk: IInstalledJdk | undefined, jdks: IInstalledJdk[]) {
+	if (jdk) {
+		jdks.push(jdk);
+		log.info(`Detected ${managerName} ${jdk.majorVersion} (${jdk.fullVersion}) ${jdk.homePath}`);
+	}
+}
+
 async function tryGlob(
 	logLabel: string,
 	jdks: IInstalledJdk[],
-	javaExePathPattern: string | string[],
+	distPattern: string | string[],
 	globOptions?: GlobOptionsWithFileTypesUnset | undefined) {
 
 	try {
-		if (typeof javaExePathPattern === 'string') {
-			javaExePathPattern = [javaExePathPattern];
+		if (typeof distPattern === 'string') {
+			distPattern = [distPattern];
 		}
-		const globPatterns = javaExePathPattern.map(p => p.replace(/\\/g, '/'));
-		for (const javaExeFile of await glob(globPatterns, globOptions)) {
+		const JAVA_EXE = '*/bin/java' + (OS.isWindows ? '.exe' : '');
+		const distSlashGlobs = distPattern.map(p => path.join(p, JAVA_EXE).replace(/\\/g, '/'));
+		for (const javaExeFile of await glob(distSlashGlobs, globOptions)) {
 			const jdk = await findByPath(path.join(javaExeFile, '..', '..'));
 			pushJdk(logLabel, jdk, jdks);
 		}
@@ -214,47 +222,49 @@ async function tryGlob(
 	}
 }
 
-function pushJdk(managerName: string, jdk: IInstalledJdk | undefined, jdks: IInstalledJdk[]) {
-	if (jdk) {
-		jdks.push(jdk);
-		log.info(`Detected ${managerName} ${jdk.majorVersion} (${jdk.fullVersion}) ${jdk.homePath}`);
-	}
-}
-
 async function findInstalledJdks(): Promise<IInstalledJdk[]> {
 	const jdks: IInstalledJdk[] = [];
+	const env = process.env;
 	const scanStrategies = [
 		async () => {
-			// Find by jdk-utils, Gradle Toolchains support pull requested
+			// jdk-utils: Gradle Toolchains support pull requested
 			// https://github.com/Eskibear/node-jdk-utils/issues/9
 			const runtimes = await jdkutils.findRuntimes({ checkJavac: true, withVersion: true });
 			runtimes.map(createJdk).forEach(jdk => pushJdk('jdk-utils', jdk, jdks));
 		},
 		async () => {
-			// Find Scoop (Windows) e.g.
-			// C:\Users\<UserName>\scoop\apps\sapmachine18-jdk\18.0.2.1\bin
-			//      C:\ProgramData\scoop\apps\sapmachine18-jdk\18.0.2.1\bin
+			// jdk-utils not supported Windows Distributors
+			// https://github.com/Eskibear/node-jdk-utils/blob/main/src/from/windows.ts
 			if (!OS.isWindows) {return;}
-			const SCOOP = process.env.SCOOP ?? path.join(os.homedir(), "scoop");
-			const SCOOP_GLOBAL = process.env.SCOOP_GLOBAL ?? path.join(process.env.ProgramData ?? '', "scoop");
-			const patterns = [SCOOP, SCOOP_GLOBAL].map(s => path.join(s, 'apps/*/*/bin/java.exe'));
-			await tryGlob('Scoop', jdks, patterns, { ignore: '**/current/**' });
+			for (const programDir of [env.ProgramFiles, env.LOCALAPPDATA].filter(Boolean) as string[]) {
+				const distPats = ['BellSoft', 'RedHat', 'Zulu'].map(s => path.join(programDir, s));
+				await tryGlob('Windows', jdks, distPats);
+			}
 		},
 		async () => {
-			// Find IntelliJ (Windows, Linux) e.g.
-			// C:\Users\<UserName>\.jdks\openjdk-20.0.1\bin
+			// Scoop (Windows)
+			// e.g. C:\ProgramData\scoop\apps\sapmachine18-jdk\18.0.2.1\bin
+			// C:\Users\<UserName>\scoop\apps\sapmachine18-jdk\18.0.2.1\bin
+			if (!OS.isWindows) {return;}
+			const SCOOP = env.SCOOP ?? path.join(os.homedir(), "scoop");
+			const SCOOP_GLOBAL = env.SCOOP_GLOBAL ?? path.join(env.ProgramData ?? '', "scoop");
+			const distPats = [SCOOP, SCOOP_GLOBAL].map(s => path.join(s, 'apps/*'));
+			await tryGlob('Scoop', jdks, distPats, { ignore: '**/current/**' });
+		},
+		async () => {
+			// IntelliJ (Windows, Linux)
+			// e.g. C:\Users\<UserName>\.jdks\openjdk-20.0.1\bin
 			if (OS.isMac) {return;} // Supported jdk-utils macOS.ts
-			const pattern = path.join(os.homedir(), '.jdks/*/bin/java' + (OS.isWindows ? '.exe' : ''));
-			await tryGlob('IntelliJ', jdks, pattern);
+			const distPat = path.join(os.homedir(), '.jdks');
+			await tryGlob('IntelliJ', jdks, distPat);
 		},
 		async () => {
-			// Find Pleiades (Windows) e.g.
-			// C:\pleiades\java\17\bin
+			// Pleiades (Windows)
+			// e.g.    C:\pleiades\java\17\bin
 			// C:\pleiades\2023-03\java\17\bin
 			if (!OS.isWindows) {return;} // Windows only (Exclude macos JDK 32bit)
-			const patterns = [...'cd']
-				.flatMap(drive => ['', '20*/'].map(p => `${drive}:/pleiades*/${p}java/*/bin/java.exe`));
-			await tryGlob('Pleiades', jdks, patterns);
+			const distPats = ['c', 'd'].flatMap(drive => ['', '20*/'].map(p => `${drive}:/pleiades*/${p}java`));
+			await tryGlob('Pleiades', jdks, distPats);
 		},
 	];
 	await Promise.allSettled(scanStrategies.map(f => f()));

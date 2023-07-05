@@ -75,7 +75,10 @@
     "esbuild-base": "esbuild ./src/extension.ts --bundle --outfile=dist/main.js --external:vscode --format=cjs --platform=node",
     "esbuild": "npm run esbuild-base -- --sourcemap",
     "esbuild-watch": "npm run esbuild-base -- --sourcemap --watch",
+    "eslint": "eslint . --ext .ts",
     "l10n": "npx @vscode/l10n-dev export --outDir ./l10n ./src",
+    "ncu": "ncu",
+    "update": "npm update",
     "package": "npx vsce package"
   },
   "engines": {
@@ -84,17 +87,14 @@
   "devDependencies": {
     "@types/decompress": "^4.2.4",
     "@types/lodash": "4.x",
-    "@types/mocha": "^10.0.1",
     "@types/node": "18.x",
     "@types/vscode": "^1.54.0",
     "@types/which": "^3.0.0",
     "@typescript-eslint/eslint-plugin": "5.x",
     "@typescript-eslint/parser": "5.x",
     "@vscode/l10n-dev": "0.0.x",
-    "@vscode/test-electron": "2.x",
     "esbuild": "0.18.x",
-    "eslint": "8.x",
-    "mocha": "^10.2.0",
+    "eslint": "8.37.x",
     "typescript": "5.x"
   },
   "dependencies": {
@@ -105,5 +105,5 @@
     "jdk-utils": "0.x",
     "lodash": "4.x"
   },
-  "version": "2023.703.1"
+  "version": "2023.705.0"
 }

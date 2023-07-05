@@ -70,7 +70,7 @@ The JDKs are auto-configured for the current environment on VSCode startup as fo
 <br>
 
 #### Auto-download Support
-Automatic download is enabled if the [extensions.autoUpdate](https://code.visualstudio.com/docs/editor/extension-marketplace#_extension-autoupdate) configuration is not `false`. For Java, multiple versions are configured or downloaded, but only the latest version of Gradle/Maven is downloaded. If you use an older version of Gradle/Maven due to compatibility issues, please introduce `gradlew` ([Compatibility](https://docs.gradle.org/current/userguide/compatibility.html)) or `mvnw` ([Compatibility](https://maven.apache.org/developers/compatibility-plan.html)) in your project or set the environment variable to Gradle or Maven. If Gradle/Maven is set in the `PATH` environment variable, it will not be automatically configured in `settings.json`.
+Automatic download is enabled if the [extensions.autoUpdate](https://code.visualstudio.com/docs/editor/extension-marketplace#_extension-autoupdate) configuration is NOT `false`. Java downloads multiple versions, but Gradle/Maven downloads only the latest version. If you use an older version of Gradle/Maven due to compatibility issues, please introduce `gradlew` ([Compatibility](https://docs.gradle.org/current/userguide/compatibility.html)) or `mvnw` ([Compatibility](https://maven.apache.org/developers/compatibility-plan.html)) in your project or manually set `java.import.gradle.home` or `maven.executable.path` in `settings.json`.
 
 - JDK - Download 4 LTS and [non-LTS latest](https://marketplace.visualstudio.com/items?itemName=redhat.java#features) versions if not detected
 - Gradle - Download latest version if not in PATH environment variable

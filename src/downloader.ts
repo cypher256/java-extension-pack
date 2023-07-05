@@ -94,8 +94,8 @@ async function extract(progress:vscode.Progress<{message:string}>, opt:IDownload
     log.info(`Install START ${opt.targetMessage}`, opt.extractDestDir);
     const workspaceState = autoContext.context.workspaceState;
     try {
-        const procLabel = fs.existsSync(opt.extractDestDir) ? 'Updating' : 'Installing';
-        const msg = `${l10n.t(procLabel)}... ${opt.targetMessage}`;
+        const procLabel = fs.existsSync(opt.extractDestDir) ? l10n.t('Updating') : l10n.t('Installing');
+        const msg = `${procLabel}... ${opt.targetMessage}`;
         await workspaceState.update(STATE_EXTRACTING_MSG, msg);
         report(progress, msg);
         autoContext.rmSyncQuietly(opt.extractDestDir);

@@ -2,11 +2,20 @@
 Java Extension Pack Auto Config
 
 #---------------------------------------
-# Fixed Version
+# Fixed Version (ncu)
 #---------------------------------------
 
  @types/node       18.x  →     20.x
  @types/vscode  ^1.54.0  →  ^1.79.1
+ eslint          8.37.x  →   8.44.x
+
+#---------------------------------------
+# ncu (npm-check-updates)
+#---------------------------------------
+
+npm i -g npm-check-updates
+npm update
+ncu
 
 #---------------------------------------
 # Publish
@@ -15,14 +24,6 @@ Java Extension Pack Auto Config
 npx vsce package
 npx vsce login Pleiades
 npx vsce publish
-
-#---------------------------------------
-# npm-check-updates
-#---------------------------------------
-
-npm i -g npm-check-updates
-ncu -u --target minor
-npm update
 
 #---------------------------------------
 # JDK URL Format
