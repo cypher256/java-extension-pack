@@ -1,4 +1,4 @@
-# Auto Config Java
+# Java Extension Pack Auto Config
 
 [![GitHub Sponsor](https://img.shields.io/static/v1?label=Sponsor&message=%E2%9D%A4&logo=GitHub&color=ff69b4)](https://github.com/sponsors/cypher256)
 ![](https://github.com/cypher256/java-extension-pack/actions/workflows/eslint.yml/badge.svg)

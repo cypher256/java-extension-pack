@@ -267,7 +267,7 @@ async function findInstalledJdks(): Promise<IInstalledJdk[]> {
 				await tryGlob('Pleiades', jdks, distPats);
 			} else if (OS.isMac) {
 				// 2024+ (Exclude JDK 32bit)
-				// e.g. /Applications/Eclipse_2024-12.app/Contents/java/11/Home/bin
+				// e.g. /Applications/Eclipse_2024-12.app/Contents/java/21/bin
 				// Pending
 			}
 		},
