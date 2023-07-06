@@ -136,7 +136,7 @@ function isNewLeft(leftVersion:string, rightVersion:string): boolean {
 
 /**
  * Returns true if valid JDK path.
- * @param homePath The path of the JDK.
+ * @param homePath The home path of the JDK.
  * @returns true if valid.
  */
 export async function isValidPath(homePath:string | undefined): Promise<boolean> {
@@ -147,7 +147,7 @@ export async function isValidPath(homePath:string | undefined): Promise<boolean>
 
 /**
  * Returns the fixed path of the JDK.
- * @param homePath The path of the JDK.
+ * @param homePath The home path of the JDK.
  * @param defaultPath The default path of the JDK.
  * @returns The fixed path.
  */
@@ -169,7 +169,7 @@ export async function fixPath(homePath:string, defaultPath?:string): Promise<str
 
 /**
  * Returns the IInstalledJdk object of the JDK.
- * @param homePath The path of the JDK.
+ * @param homePath The home path of the JDK.
  * @returns The IInstalledJdk object.
  */
 export async function findByPath(homePath: string): Promise<IInstalledJdk | undefined> {
@@ -237,7 +237,7 @@ async function findInstalledJdks(): Promise<IInstalledJdk[]> {
 			// https://github.com/Eskibear/node-jdk-utils/blob/main/src/from/windows.ts
 			if (!OS.isWindows) {return;}
 			for (const programDir of [env.ProgramFiles, env.LOCALAPPDATA].filter(Boolean) as string[]) {
-				const distPats = ['BellSoft', 'RedHat', 'Zulu'].map(s => path.join(programDir, s));
+				const distPats = ['BellSoft', 'RedHat', 'Semeru', 'Zulu'].map(s => path.join(programDir, s));
 				await tryGlob('Windows', jdks, distPats);
 			}
 		},
@@ -259,12 +259,17 @@ async function findInstalledJdks(): Promise<IInstalledJdk[]> {
 			await tryGlob('IntelliJ', jdks, distPat);
 		},
 		async () => {
-			// Pleiades (Windows)
-			// e.g.    C:\pleiades\java\17\bin
-			// C:\pleiades\2023-03\java\17\bin
-			if (!OS.isWindows) {return;} // Windows only (Exclude macos JDK 32bit)
-			const distPats = ['c', 'd'].flatMap(drive => ['', '20*/'].map(p => `${drive}:/pleiades*/${p}java`));
-			await tryGlob('Pleiades', jdks, distPats);
+			// Pleiades
+			if (OS.isWindows) {
+				// e.g.    C:\pleiades\java\17\bin
+				// C:\pleiades\2023-03\java\17\bin
+				const distPats = ['c', 'd'].flatMap(drive => ['', '20*/'].map(p => `${drive}:/pleiades*/${p}java`));
+				await tryGlob('Pleiades', jdks, distPats);
+			} else if (OS.isMac) {
+				// 2024+ (Exclude JDK 32bit)
+				// e.g. /Applications/Eclipse_2024-12.app/Contents/java/11/Home/bin
+				// Pending
+			}
 		},
 	];
 	await Promise.allSettled(scanStrategies.map(f => f()));

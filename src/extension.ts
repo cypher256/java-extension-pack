@@ -93,19 +93,15 @@ export async function activate(context:vscode.ExtensionContext) {
 }
 
 function getLangPackSuffix(): string | undefined {
-	try {
-		const osLocale = JSON.parse(process.env.VSCODE_NLS_CONFIG!).osLocale.toLowerCase();
-		if (osLocale.match(/^(cs|de|es|fr|it|ja|ko|pl|ru|tr)/)) {
-			return osLocale.substr(0, 2);
-		} else if (osLocale.startsWith('pt-br')) {
-			return 'pt-BR'; // Portuguese (Brazil)
-		} else if (osLocale.match(/^zh-(hk|tw)/)) {
-			return 'zh-hant'; // Chinese (Traditional)
-		} else if (osLocale.startsWith('zh')) {
-			return 'zh-hans'; // Chinese (Simplified)
-		}
-	} catch (error) {
-		log.info('Failed to resolve language pack language.', error); // Silent
+	const osLocale = OS.locale;
+	if (osLocale.match(/^(cs|de|es|fr|it|ja|ko|pl|ru|tr)/)) {
+		return osLocale.substring(0, 2);
+	} else if (osLocale.startsWith('pt-br')) {
+		return 'pt-BR'; // Portuguese (Brazil)
+	} else if (osLocale.match(/^zh-(hk|tw)/)) {
+		return 'zh-hant'; // Chinese (Traditional)
+	} else if (osLocale.startsWith('zh')) {
+		return 'zh-hans'; // Chinese (Simplified)
 	}
 	return undefined;
 }

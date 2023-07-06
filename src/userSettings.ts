@@ -212,7 +212,7 @@ export async function updateJavaRuntimes(
 
 	// Terminal Default Profile (Keep if set)
 	if (OS.isWindows) {
-		setIfNull('terminal.integrated.defaultProfile.windows', 'Command Prompt');
+		setIfUndefined('terminal.integrated.defaultProfile.windows', 'Command Prompt');
 	}
 
 	// Terminal Profiles Dropdown
@@ -243,13 +243,17 @@ export async function updateJavaRuntimes(
 	}
 }
 
-function setIfNull(section:string, value:any, extensionName?:string) {
+function setIfUndefined(section:string, value:any, extensionName?:string) {
 	if (extensionName && !vscode.extensions.getExtension(extensionName)) {
 		return;
 	}
 	const config = vscode.workspace.getConfiguration();
 	if (config.inspect(section)?.globalValue === undefined) {
-		update(section, value);
+		if (typeof value === 'function') {
+			value(section);
+		} else {
+			update(section, value);
+		}
 	}
 }
 
@@ -258,13 +262,13 @@ function setIfNull(section:string, value:any, extensionName?:string) {
  */
 export function setDefault() {
 	/* eslint-disable @typescript-eslint/naming-convention */
-	// VSCode General
-	setIfNull('editor.codeActionsOnSave', {
+	// VSCode Editor
+	setIfUndefined('editor.codeActionsOnSave', {
 		"source.organizeImports": true
 	});
-	setIfNull('editor.linkedEditing', true);
-	setIfNull('editor.minimap.enabled', false);
-	setIfNull('editor.rulers', [
+	setIfUndefined('editor.linkedEditing', true);
+	setIfUndefined('editor.minimap.enabled', false);
+	setIfUndefined('editor.rulers', [
 		{
 			"column": 80,
 			"color": "#00FF0010"
@@ -278,8 +282,13 @@ export function setDefault() {
 			"color": "#FA807219"
 		},
 	]);
-	setIfNull('editor.unicodeHighlight.includeComments', true);
-	setIfNull('workbench.colorCustomizations', {
+	setIfUndefined('editor.unicodeHighlight.includeComments', true);
+	// VSCode Emmet
+	setIfUndefined('emmet.variables', (section:string) => {
+		update(section, {'lang': OS.locale.substring(0, 2)});
+	});
+	// VSCode Workbench
+	setIfUndefined('workbench.colorCustomizations', {
 		"[Default Dark Modern]": {
             "tab.activeBorderTop": "#00FF00",
             "tab.unfocusedActiveBorderTop" : "#00FF0088",
@@ -292,18 +301,18 @@ export function setDefault() {
 		"editor.wordHighlightBorder": "#FFD700",
 		"editor.selectionHighlightBorder": "#A9A9A9",
 	});
-	setIfNull('workbench.tree.indent', 20);
+	setIfUndefined('workbench.tree.indent', 20);
 	if (OS.isWindows) {
-		setIfNull('files.eol', '\n');
-		setIfNull('[bat]', {'files.eol': '\r\n'});
+		setIfUndefined('files.eol', '\n');
+		setIfUndefined('[bat]', {'files.eol': '\r\n'});
 	}
 	// VSCode Terminal
-	setIfNull('terminal.integrated.enablePersistentSessions', false);
-	setIfNull('terminal.integrated.tabs.hideCondition', 'never');
+	setIfUndefined('terminal.integrated.enablePersistentSessions', false);
+	setIfUndefined('terminal.integrated.tabs.hideCondition', 'never');
 	// Java extensions
-	setIfNull('java.debug.settings.hotCodeReplace', 'auto');
-	setIfNull('java.sources.organizeImports.staticStarThreshold', 1);
+	setIfUndefined('java.debug.settings.hotCodeReplace', 'auto');
+	setIfUndefined('java.sources.organizeImports.staticStarThreshold', 1);
 	// Third party extensions
-	setIfNull('cSpell.diagnosticLevel', 'Hint', 'streetsidesoftware.code-spell-checker');
-	setIfNull('trailing-spaces.includeEmptyLines', false, 'shardulm94.trailing-spaces');
+	setIfUndefined('cSpell.diagnosticLevel', 'Hint', 'streetsidesoftware.code-spell-checker');
+	setIfUndefined('trailing-spaces.includeEmptyLines', false, 'shardulm94.trailing-spaces');
 }

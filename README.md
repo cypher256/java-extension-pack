@@ -30,7 +30,7 @@ The extension greatly reduces the installation, configuration effort, and [JDK c
 <br>
 
 # Getting Started
-Just install this extension and your Java development environment is ready to go. You can also run it with `F5` or run `java`, `gradle` or `mvn` commands in the VSCode Terminal. Let's write the Java source code right away.
+Just install this extension and your Java development environment is ready to go. You can also run it with `F5` or run `java`, `gradle` or `mvn` commands via the VSCode Terminal dropdown. Let's write the Java source code right away.
 
 ![Hello World](https://raw.githubusercontent.com/cypher256/java-extension-pack/main/image/hello.jpg)
 * [Create Hello World and run/debug](https://code.visualstudio.com/docs/java/java-tutorial#_creating-a-source-code-file) (No build tools)
@@ -212,6 +212,7 @@ Entries that do not have the following configuration in the user settings are au
 |[editor.minimap.enabled](https://code.visualstudio.com/docs/getstarted/userinterface#_minimap)|`true`|`false`|
 |[editor.rulers](https://code.visualstudio.com/api/references/theme-color#:~:text=location%20with%20%22-,editor.rulers,-%22)|`[]`|See below|
 |[editor.unicodeHighlight.includeComments](https://code.visualstudio.com/updates/v1_63#_unicode-highlighting)|`inUntrustedWorkspace`|`true`|
+|[emmet.variables](https://code.visualstudio.com/docs/editor/emmet#_emmet-configuration) > lang|`en`|OS locale|
 |[workbench.colorCustomizations](https://code.visualstudio.com/api/references/theme-color)|`{}`|See below|
 |[workbench.tree.indent](https://code.visualstudio.com/docs/getstarted/settings#:~:text=in%20pixels.%0A%20%20%22-,workbench.tree.indent,-%22%3A%208)|`8`|`20`|
 |(Windows) [files.eol](https://code.visualstudio.com/docs/getstarted/settings#:~:text=line%20character.%0A%20%20%22-,files.eol,-%22%3A%20%22auto)|`auto`|`\n`|

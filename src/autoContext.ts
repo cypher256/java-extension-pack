@@ -11,6 +11,13 @@ import which = require('which');
 export const log: vscode.LogOutputChannel = vscode.window.createOutputChannel('Auto Config Java', {log:true});
 
 export namespace OS {
+	let _locale = 'en';
+	try {
+		_locale = JSON.parse(process.env.VSCODE_NLS_CONFIG!)?.osLocale.toLowerCase() ?? _locale;
+	} catch (error) {
+		log.info('Failed get osLocale', error);
+	}
+	export const locale = _locale;
 	export const isWindows = process.platform === 'win32';
 	export const isMac = process.platform === 'darwin';
 	export const isLinux = process.platform === 'linux';
