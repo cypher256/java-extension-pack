@@ -1,7 +1,4 @@
-/**
- * VSCode Auto Config Java
- * Copyright (c) Shinji Kashihara.
- */
+/*! VSCode Extension (c) 2023 Shinji Kashihara (cypher256) @ WILL */
 import * as vscode from 'vscode';
 import { log } from './autoContext';
 export const CONFIG_KEY_RUNTIMES = 'java.configuration.runtimes';

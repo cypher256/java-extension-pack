@@ -1,7 +1,4 @@
-/**
- * VSCode Auto Config Java
- * Copyright (c) Shinji Kashihara.
- */
+/*! VSCode Extension (c) 2023 Shinji Kashihara (cypher256) @ WILL */
 import axios from 'axios';
 import * as fs from 'fs';
 import * as _ from 'lodash';
@@ -38,12 +35,19 @@ async function downloadProc(
 
 	// Skip User Installed
 	if (mavenExePathOld) {
-		if (!fs.existsSync(mavenExePathOld)) {
+		const fixedPath = fixPath(mavenExePathOld);
+		if (!fixedPath) {
 			log.info('Remove invalid settings', CONFIG_KEY_MAVEN_EXE_PATH, mavenExePathOld);
 			mavenExePathNew = undefined;
-		} else if (autoContext.isUserInstalled(mavenExePathOld)) {
-			log.info('Available Maven (User installed)', CONFIG_KEY_MAVEN_EXE_PATH, mavenExePathOld);
-			return mavenExePathOld;
+		} else {
+			if (fixedPath !== mavenExePathOld) {
+				log.info(`Fix ${CONFIG_KEY_MAVEN_EXE_PATH}\n   ${mavenExePathOld}\n-> ${fixedPath}`);
+			}
+			mavenExePathNew = fixedPath;
+			if (autoContext.isUserInstalled(mavenExePathNew)) {
+				log.info('Available Maven (User installed)', CONFIG_KEY_MAVEN_EXE_PATH, mavenExePathNew);
+				return mavenExePathNew;
+			}
 		}
 	}
 	if (!mavenExePathNew) {
@@ -65,7 +69,7 @@ async function downloadProc(
 
 	// Check Version File
 	const versionFile = path.join(homeDir, 'version.txt');
-	const versionOld = fs.existsSync(versionFile) ? fs.readFileSync(versionFile).toString() : null;
+	const versionOld = autoContext.readString(versionFile);
 	if (version === versionOld && isValidHome(homeDir)) {
 		log.info(`Available Maven ${version} (No updates)`);
 		return mavenExePathNew;
@@ -91,9 +95,18 @@ async function downloadProc(
 }
 
 function isValidHome(homeDir:string) {
-    return fs.existsSync(getExePath(homeDir));
+    return autoContext.existsFile(getExePath(homeDir));
 }
 
 function getExePath(homeDir:string) {
 	return path.join(homeDir, 'bin', 'mvn');
+}
+
+function fixPath(exePath:string): string | undefined {
+	if (autoContext.existsFile(exePath)) {return exePath;}
+	let fixedPath = path.join(exePath, 'bin', 'mvn');
+	if (autoContext.existsFile(fixedPath)) {return fixedPath;}
+	fixedPath = path.join(exePath, 'mvn');
+	if (autoContext.existsFile(fixedPath)) {return fixedPath;}
+	return undefined;
 }

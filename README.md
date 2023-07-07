@@ -43,7 +43,7 @@ Just install this extension and your Java development environment is ready to go
 # Features
 
 ## JDK Auto-configuration
-The JDKs are auto-configured for the current environment on VSCode startup as follows. You can check the detected JDK in User `settings.json` described later or Output (Ctrl + Shift + U) ≫ Dropdown: `Auto Config Java`. If there are multiple JDKs of the same version, the latest minor version among them is used. If you manually install or update the JDK and want to force update the configuration of VSCode, restart VSCode or execute **>Developer: Reload Window** from the command palette (F1 or Ctrl/Cmd + Shift + P). These apply to User `settings.json` (VSCode global), but can be manually edited to customize them. If you want to customize your settings even further, consider using [workspace settings](https://code.visualstudio.com/docs/getstarted/settings) or [profiles](https://code.visualstudio.com/docs/editor/profiles).
+The JDKs are auto-configured for the current environment on VSCode startup as follows. You can check the detected JDK in User `settings.json` described later or Output (Ctrl + Shift + U) ≫ Dropdown: `Java Auto Config`. If there are multiple JDKs of the same version, the latest minor version among them is used. If you manually install or update the JDK and want to force update the configuration of VSCode, restart VSCode or execute **>Developer: Reload Window** from the command palette (F1 or Ctrl/Cmd + Shift + P). These apply to User `settings.json` (VSCode global), but can be manually edited to customize them. If you want to customize your settings even further, consider using [workspace settings](https://code.visualstudio.com/docs/getstarted/settings) or [profiles](https://code.visualstudio.com/docs/editor/profiles).
 
 1. Auto-fix invalid JDK configuration (e.g. `/jdk17/bin` -> `/jdk17`)
 1. Auto-remove configuration entries when JDK uninstalled or version path changed
@@ -64,7 +64,7 @@ The JDKs are auto-configured for the current environment on VSCode startup as fo
 |[java.import.gradle.home](https://github.com/microsoft/vscode-gradle#java-specific-settings)<br>([Issues](https://github.com/microsoft/vscode-gradle/issues?q=is%3Aissue+java.import.gradle.home))|Set latest if not in PATH environment variable<br>(`gradlew` > Setting > `PATH` > `GRADLE_HOME`)|
 |[maven.executable.path](https://github.com/Microsoft/vscode-maven#settings)<br>([Issues](https://github.com/microsoft/vscode-maven/issues?q=is%3Aissue+maven.executable.path))|Set latest if not in PATH environment variable<br>(Setting > `mvnw` > `PATH`)|
 
-(*1) The language server runtime used by VSCode extensions. Not for building and running projects.<br>
+(*1) The language server runtime used by VSCode extensions. Not for building or running projects.<br>
 (*2) The `path` in the entry marked as `default: true` in `java.configuration.runtimes`.
 <br>
 <br>
@@ -203,7 +203,7 @@ Command Palette **>Preferences: Open User Settings (JSON)**
 <br>
 
 ## Auto-default Settings
-Entries that do not have the following configuration in the user settings are automatically set to the default values of Auto Config Java. To prevent it from being set, set the entry to empty. Note that a debug run is required to enable Hot Code Replace (Hot Deploy).
+Entries that do not have the following configuration in the user settings are automatically set to the default values of Java Auto Config. To prevent it from being set, set the entry to empty. Note that a debug run is required to enable Hot Code Replace (Hot Deploy).
 
 |Configuration Name|Original Default|Auto Default|
 |---|---|---|
@@ -267,7 +267,7 @@ The language pack corresponding to the OS locale is installed at the first start
 <br>
 
 ## License
-- MIT (c) 2023- WILL Shinji Kashihara (cypher256)
+- MIT (c) 2023 Shinji Kashihara (cypher256) @ WILL
 - Adoptium JDK: https://adoptium.net/docs/faq/#_is_temurin_free_to_use
 
 <br>

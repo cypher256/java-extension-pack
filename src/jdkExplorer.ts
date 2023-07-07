@@ -1,7 +1,4 @@
-/**
- * VSCode Auto Config Java
- * Copyright (c) Shinji Kashihara.
- */
+/*! VSCode Extension (c) 2023 Shinji Kashihara (cypher256) @ WILL */
 import { compare } from 'compare-versions';
 import * as fs from 'fs';
 import { GlobOptionsWithFileTypesUnset, glob } from 'glob';
@@ -67,7 +64,7 @@ export async function scan(
 	// TODO Remove (ADD 2023.5.2: Migrate old download location from '/' to '/java')
 	const oldStorageDir = autoContext.getGlobalStoragePath();
 	const newStorageDir = path.join(oldStorageDir, 'java');
-	if (fs.existsSync(oldStorageDir)) {
+	if (autoContext.existsDirectory(oldStorageDir)) {
 		for (const name of await fs.promises.readdir(oldStorageDir)) {
 			if (name.match(/\.(zip|gz)$/) || name.match(/^\d+$/)) {
 				try {
@@ -96,7 +93,7 @@ export async function scan(
 			continue; // Prefer user-installed JDK
 		}
 		let versionDir = path.join(autoContext.getGlobalStoragePath(), 'java', String(major));
-		if (await isValidPath(versionDir)) {
+		if (await isValidHome(versionDir)) {
 			log.info(`Detected ${major} Auto-downloaded JDK`);
 			latestMajorMap.set(major, {
 				majorVersion: major,
@@ -135,36 +132,36 @@ function isNewLeft(leftVersion:string, rightVersion:string): boolean {
 }
 
 /**
- * Returns true if valid JDK path.
- * @param homePath The home path of the JDK.
+ * Returns true if valid JDK dir.
+ * @param homeDir The home dir of the JDK.
  * @returns true if valid.
  */
-export async function isValidPath(homePath:string | undefined): Promise<boolean> {
-	if (!homePath) {return false;}
-	const runtime = await jdkutils.getRuntime(homePath, { checkJavac: true });
+export async function isValidHome(homeDir:string | undefined): Promise<boolean> {
+	if (!homeDir) {return false;}
+	const runtime = await jdkutils.getRuntime(homeDir, { checkJavac: true });
 	return runtime?.hasJavac ? true : false;
 }
 
 /**
- * Returns the fixed path of the JDK.
- * @param homePath The home path of the JDK.
- * @param defaultPath The default path of the JDK.
- * @returns The fixed path.
+ * Returns the fixed dir of the JDK.
+ * @param homeDir The home dir of the JDK.
+ * @param defaultDir The default dir of the JDK.
+ * @returns The fixed dir.
  */
-export async function fixPath(homePath:string, defaultPath?:string): Promise<string | undefined> {
+export async function fixPath(homeDir:string, defaultDir?:string): Promise<string | undefined> {
 	const MAX_UPPER_LEVEL = 2; // e.g. /jdk/bin/java -> /jdk
-	let p = homePath;
+	let d = homeDir;
 	for (let i = 0; i <= MAX_UPPER_LEVEL; i++) {
-		if (await isValidPath(p)) {return p;};
-		p = path.join(p, '..');
+		if (await isValidHome(d)) {return d;};
+		d = path.join(d, '..');
 	}
 	if (OS.isMac) {
-		const contentsHome = path.join(homePath, 'Contents', 'Home');
-		if (await isValidPath(contentsHome)) {return contentsHome;}
-		const home = path.join(homePath, 'Home');
-		if (await isValidPath(home)) {return home;}
+		const contentsHome = path.join(homeDir, 'Contents', 'Home');
+		if (await isValidHome(contentsHome)) {return contentsHome;}
+		const home = path.join(homeDir, 'Home');
+		if (await isValidHome(home)) {return home;}
 	}
-	return defaultPath;
+	return defaultDir;
 };
 
 /**
@@ -195,14 +192,14 @@ function createJdk(runtime: jdkutils.IJavaRuntime | undefined): IInstalledJdk | 
 }
 
 function pushJdk(managerName: string, jdk: IInstalledJdk | undefined, jdks: IInstalledJdk[]) {
-	if (jdk) {
+	if (jdk) { // undefined if JRE
 		jdks.push(jdk);
 		log.info(`Detected ${managerName} ${jdk.majorVersion} (${jdk.fullVersion}) ${jdk.homePath}`);
 	}
 }
 
 async function tryGlob(
-	logLabel: string,
+	messagePrefix: string,
 	jdks: IInstalledJdk[],
 	distPattern: string | string[],
 	globOptions?: GlobOptionsWithFileTypesUnset | undefined) {
@@ -215,7 +212,7 @@ async function tryGlob(
 		const distSlashGlobs = distPattern.map(p => path.join(p, JAVA_EXE).replace(/\\/g, '/'));
 		for (const javaExeFile of await glob(distSlashGlobs, globOptions)) {
 			const jdk = await findByPath(path.join(javaExeFile, '..', '..'));
-			pushJdk(logLabel, jdk, jdks);
+			pushJdk(messagePrefix, jdk, jdks);
 		}
 	} catch (error) {
 		log.info('glob error', error); // Silent
@@ -246,9 +243,9 @@ async function findInstalledJdks(): Promise<IInstalledJdk[]> {
 			// e.g. C:\ProgramData\scoop\apps\sapmachine18-jdk\18.0.2.1\bin
 			// C:\Users\<UserName>\scoop\apps\sapmachine18-jdk\18.0.2.1\bin
 			if (!OS.isWindows) {return;}
-			const SCOOP = env.SCOOP ?? path.join(os.homedir(), "scoop");
-			const SCOOP_GLOBAL = env.SCOOP_GLOBAL ?? path.join(env.ProgramData ?? '', "scoop");
-			const distPats = [SCOOP, SCOOP_GLOBAL].map(s => path.join(s, 'apps/*'));
+			const userDir = env.SCOOP ?? path.join(os.homedir(), "scoop");
+			const globalDir = env.SCOOP_GLOBAL ?? path.join(env.ProgramData ?? '', "scoop");
+			const distPats = [userDir, globalDir].map(s => path.join(s, 'apps/*jdk*'));
 			await tryGlob('Scoop', jdks, distPats, { ignore: '**/current/**' });
 		},
 		async () => {
@@ -266,9 +263,10 @@ async function findInstalledJdks(): Promise<IInstalledJdk[]> {
 				const distPats = ['c', 'd'].flatMap(drive => ['', '20*/'].map(p => `${drive}:/pleiades*/${p}java`));
 				await tryGlob('Pleiades', jdks, distPats);
 			} else if (OS.isMac) {
-				// 2024+ (Exclude JDK 32bit)
+				// 2024+ aarch64 new path format (21/Home/bin -> 21/bin)
 				// e.g. /Applications/Eclipse_2024-12.app/Contents/java/21/bin
-				// Pending
+				// Pending: Check access dialog on mac
+				// await tryGlob('Pleiades', jdks, '/Applications/Eclipse_20*.app/Contents/java');
 			}
 		},
 	];

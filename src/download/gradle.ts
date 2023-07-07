@@ -1,7 +1,4 @@
-/**
- * VSCode Auto Config Java
- * Copyright (c) Shinji Kashihara.
- */
+/*! VSCode Extension (c) 2023 Shinji Kashihara (cypher256) @ WILL */
 import axios from 'axios';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -37,12 +34,19 @@ async function downloadProc(
 
 	// Skip User Installed
 	if (gradleHomeOld) {
-		if (!isValidHome(gradleHomeOld)) {
+		const fixedPath = fixPath(gradleHomeOld);
+		if (!fixedPath) {
 			log.info('Remove invalid settings', CONFIG_KEY_GRADLE_HOME, gradleHomeOld);
 			gradleHomeNew = undefined;
-		} else if (autoContext.isUserInstalled(gradleHomeOld)) {
-			log.info('Available Gradle (User installed)', CONFIG_KEY_GRADLE_HOME, gradleHomeOld);
-			return gradleHomeOld;
+		} else {
+			if (fixedPath !== gradleHomeOld) {
+				log.info(`Fix ${CONFIG_KEY_GRADLE_HOME}\n   ${gradleHomeOld}\n-> ${fixedPath}`);
+			}
+			gradleHomeNew = fixedPath;
+			if (autoContext.isUserInstalled(gradleHomeNew)) {
+				log.info('Available Gradle (User installed)', CONFIG_KEY_GRADLE_HOME, gradleHomeNew);
+				return gradleHomeNew;
+			}
 		}
 	}
 	if (!gradleHomeNew) {
@@ -62,7 +66,7 @@ async function downloadProc(
 
 	// Check Version File
 	const versionFile = path.join(homeDir, 'version.txt');
-	const versionOld = fs.existsSync(versionFile) ? fs.readFileSync(versionFile).toString() : null;
+	const versionOld = autoContext.readString(versionFile);
 	if (version === versionOld && isValidHome(homeDir)) {
 		log.info(`Available Gradle ${version} (No updates)`);
 		return gradleHomeNew;
@@ -88,9 +92,19 @@ async function downloadProc(
 }
 
 function isValidHome(homeDir:string) {
-    return fs.existsSync(getExePath(homeDir));
+    return autoContext.existsFile(getExePath(homeDir));
 }
 
 function getExePath(homeDir:string) {
 	return path.join(homeDir, 'bin', 'gradle');
+}
+
+function fixPath(homeDir:string): string | undefined {
+	const MAX_UPPER_LEVEL = 2; // e.g. /xxx/bin/gradle -> /xxx
+	let d = homeDir;
+	for (let i = 0; i <= MAX_UPPER_LEVEL; i++) {
+		if (isValidHome(d)) {return d;};
+		d = path.join(d, '..');
+	}
+	return undefined;
 }

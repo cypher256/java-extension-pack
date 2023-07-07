@@ -1,14 +1,11 @@
-/**
- * VSCode Auto Config Java
- * Copyright (c) Shinji Kashihara.
- */
+/*! VSCode Extension (c) 2023 Shinji Kashihara (cypher256) @ WILL */
 import * as fs from 'fs';
 import * as path from 'path';
 import * as vscode from 'vscode';
 import _ = require('lodash');
 import which = require('which');
 
-export const log: vscode.LogOutputChannel = vscode.window.createOutputChannel('Auto Config Java', {log:true});
+export const log: vscode.LogOutputChannel = vscode.window.createOutputChannel('Java Auto Config', {log:true});
 
 export namespace OS {
 	let _locale = 'en';
@@ -49,6 +46,18 @@ export async function whichPath(cmd:string) {
 	} catch (error) {
 		return undefined;
 	}
+}
+
+export function existsFile(p:string) {
+	return fs.existsSync(p) && fs.statSync(p).isFile();
+}
+
+export function existsDirectory(p:string) {
+	return fs.existsSync(p) && fs.statSync(p).isDirectory();
+}
+
+export function readString(file:string): string | undefined {
+	return existsFile(file) ? fs.readFileSync(file).toString() : undefined;
 }
 
 export function rmQuietly(p:string) {

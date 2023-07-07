@@ -1,7 +1,4 @@
-/**
- * VSCode Auto Config Java
- * Copyright (c) Shinji Kashihara.
- */
+/*! VSCode Extension (c) 2023 Shinji Kashihara (cypher256) @ WILL */
 import * as _ from "lodash";
 import * as path from 'path';
 import * as vscode from 'vscode';
@@ -138,7 +135,7 @@ export async function updateJavaRuntimes(
 	}
 
 	// Project Maven Java Home (Keep if set)
-	const isValidEnvJavaHome = await jdkExplorer.isValidPath(process.env.JAVA_HOME);
+	const isValidEnvJavaHome = await jdkExplorer.isValidHome(process.env.JAVA_HOME);
 	if (defaultRuntime) {
 		const CONFIG_KEY_MAVEN_CUSTOM_ENV = 'maven.terminal.customEnv';
 		const customEnv:any[] = get(CONFIG_KEY_MAVEN_CUSTOM_ENV) ?? [];

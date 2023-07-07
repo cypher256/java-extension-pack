@@ -99,7 +99,7 @@
   },
   "dependencies": {
     "axios": "1.x",
-    "compare-versions": "^6.0.0-rc.2",
+    "compare-versions": "^6.0.0-rc.3",
     "decompress": "^4.2.1",
     "glob": "10.x",
     "jdk-utils": "0.x",

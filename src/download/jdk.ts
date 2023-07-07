@@ -1,7 +1,4 @@
-/**
- * VSCode Auto Config Java
- * Copyright (c) Shinji Kashihara.
- */
+/*! VSCode Extension (c) 2023 Shinji Kashihara (cypher256) @ WILL */
 import axios from 'axios';
 import * as fs from 'fs';
 import * as _ from "lodash";
@@ -78,8 +75,8 @@ export async function download(
 
 	// Check Version File
 	const versionFile = path.join(homeDir, 'version.txt');
-	const fullVersionOld = fs.existsSync(versionFile) ? fs.readFileSync(versionFile).toString() : null;
-	if (fullVersion === fullVersionOld && await jdkExplorer.isValidPath(homeDir)) {
+	const fullVersionOld = autoContext.readString(versionFile);
+	if (fullVersion === fullVersionOld && await jdkExplorer.isValidHome(homeDir)) {
 		log.info(`Available JDK ${fullVersion.replace(/jdk-?/, '')} (No updates)`);
 		return;
 	}
@@ -99,7 +96,7 @@ export async function download(
 		targetMessage: fullVersion,
 		removeLeadingPath: OS.isMac ? 3 : 1, // Remove leading 'jdk-xxx/Contents/Home/' fot macOS
 	});
-	if (!await jdkExplorer.isValidPath(homeDir)) {
+	if (!await jdkExplorer.isValidHome(homeDir)) {
 		log.info('Invalid JDK:', homeDir);
 		_.remove(runtimes, r => r.name === runtimeName);
 		return; // Silent

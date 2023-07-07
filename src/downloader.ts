@@ -1,7 +1,4 @@
-/**
- * VSCode Auto Config Java
- * Copyright (c) Shinji Kashihara.
- */
+/*! VSCode Extension (c) 2023 Shinji Kashihara (cypher256) @ WILL */
 import axios from 'axios';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -43,7 +40,7 @@ export async function execute(opt:IDownloaderOptions) {
 }
 
 function report(progress:vscode.Progress<{message:string}>, msg:string) {
-    progress.report({message: `Auto Config Java: ${msg}`});
+    progress.report({message: `Java Auto Config: ${msg}`});
 }
 
 async function download(progress:vscode.Progress<{message:string}>, opt:IDownloaderOptions) {
@@ -94,7 +91,7 @@ async function extract(progress:vscode.Progress<{message:string}>, opt:IDownload
     log.info(`Install START ${opt.targetMessage}`, opt.extractDestDir);
     const workspaceState = autoContext.context.workspaceState;
     try {
-        const procLabel = fs.existsSync(opt.extractDestDir) ? l10n.t('Updating') : l10n.t('Installing');
+        const procLabel = autoContext.existsDirectory(opt.extractDestDir) ? l10n.t('Updating') : l10n.t('Installing');
         const msg = `${procLabel}... ${opt.targetMessage}`;
         await workspaceState.update(STATE_EXTRACTING_MSG, msg);
         report(progress, msg);

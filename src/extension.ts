@@ -1,8 +1,4 @@
-/**
- * VSCode Auto Config Java
- * Copyright (c) Shinji Kashihara.
- */
-import * as fs from 'fs';
+/*! VSCode Extension (c) 2023 Shinji Kashihara (cypher256) @ WILL */
 import * as _ from "lodash";
 import * as vscode from 'vscode';
 import { l10n } from 'vscode';
@@ -29,7 +25,7 @@ export async function activate(context:vscode.ExtensionContext) {
 
 	// First Setup
 	userSettings.setDefault();
-	const isFirstStartup = !fs.existsSync(autoContext.getGlobalStoragePath()); // Removed on uninstall
+	const isFirstStartup = !autoContext.existsDirectory(autoContext.getGlobalStoragePath()); // Removed on uninstall
 	let nowInstalledLangPack = false;
 	if (isFirstStartup) {
 		autoContext.mkdirSyncQuietly(autoContext.getGlobalStoragePath());
@@ -65,15 +61,13 @@ export async function activate(context:vscode.ExtensionContext) {
 	}
 
 	// Download JDK, Gradle, Maven
-	try {
-		if (!userSettings.get('extensions.autoUpdate')) {
-			log.info(`activate END. Download disabled (extensions.autoUpdate: false).`);
-			return;
-		}
-		if (!downloadJdk.isTargetPlatform || targetLtsVersions.length === 0) {
-			log.info(`activate END. isTargetPlatform:${downloadJdk.isTargetPlatform} ${process.platform}/${process.arch}`);
-			return;
-		}
+	if (!userSettings.get('extensions.autoUpdate')) {
+		log.info(`activate END. Download disabled (extensions.autoUpdate: false)`);
+	} else if (!downloadJdk.isTargetPlatform) {
+		log.info(`activate END. Download disabled (${process.platform}/${process.arch})`);
+	} else if (targetLtsVersions.length === 0) {
+		log.info(`activate END. Download disabled (Can't get targetLtsVersions)`);
+	} else {
 		try {
 			const runtimesBeforeDownload = _.cloneDeep(runtimes);
 			const downloadVersions = _.uniq([...targetLtsVersions, _.last(availableVersions) ?? 0]);
@@ -82,14 +76,13 @@ export async function activate(context:vscode.ExtensionContext) {
 			promiseArray.push(downloadGradle.download());
 			await Promise.allSettled(promiseArray);
 			await userSettings.updateJavaRuntimes(runtimes, runtimesBeforeDownload, latestLtsVersion);
+			log.info('activate END');
 		} catch (e:any) {
-			const message = `JDK download failed. ${e.request?.path ?? ''} ${e.message ?? e}`;
+			const message = `Download failed. ${e.request?.path ?? ''} ${e.message ?? e}`;
 			log.info(message, e); // Silent: offline, 404 building, 503 proxy auth error, etc.
 		}
-		log.info('activate END');
-	} finally {
-		addConfigChangeEvent(isFirstStartup, nowInstalledLangPack, runtimes, runtimesOld);
 	}
+	addConfigChangeEvent(isFirstStartup, nowInstalledLangPack, runtimes, runtimesOld);
 }
 
 function getLangPackSuffix(): string | undefined {
