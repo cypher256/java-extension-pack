@@ -30,7 +30,7 @@ The extension greatly reduces the installation, configuration effort, and [JDK c
 <br>
 
 # Getting Started
-Just install this extension and your Java development environment is ready to go. You can also run it with `F5` or run `java`, `gradle` or `mvn` commands via the VSCode Terminal dropdown. Let's write the Java source code right away.
+Just install this extension and your Java development environment is ready to go. You can also run it with `F5` or execute `java`, `gradle` or `mvn` commands via the VSCode Terminal dropdown. Let's write the Java source code right away.
 
 ![Hello World](https://raw.githubusercontent.com/cypher256/java-extension-pack/main/image/hello.jpg)
 * [Create Hello World and run/debug](https://code.visualstudio.com/docs/java/java-tutorial#_creating-a-source-code-file) (No build tools)
