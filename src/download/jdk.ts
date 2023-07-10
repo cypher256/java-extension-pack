@@ -50,7 +50,7 @@ function archOf(javaVersion: number): string | undefined {
  * @return A promise that resolves when the JDK is installed.
  */
 export async function download(
-	runtimes:userSettings.IJavaRuntime[],
+	runtimes:userSettings.IJavaConfigRuntime[],
 	majorVersion:number) {
 
 	// Skip User Installed

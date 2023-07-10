@@ -47,13 +47,13 @@ export async function activate(context:vscode.ExtensionContext) {
 	const latestLtsVersion = _.last(targetLtsVersions) ?? 0;
 	log.info('Supported Java versions', availableVersions);
 	log.info('Target LTS versions', targetLtsVersions);
-	const runtimes = userSettings.getJavaRuntimes();
+	const runtimes = userSettings.getJavaConfigRuntimes();
 	const runtimesOld = _.cloneDeep(runtimes);
 
 	// Scan JDK
 	try {
 		await jdkExplorer.scan(runtimes);
-		await userSettings.updateJavaRuntimes(runtimes, runtimesOld, latestLtsVersion);
+		await userSettings.updateJavaConfigRuntimes(runtimes, runtimesOld, latestLtsVersion);
 	} catch (e:any) {
 		const message = `JDK scan failed. ${e.message ?? e}`;
 		vscode.window.showErrorMessage(message);
@@ -75,7 +75,7 @@ export async function activate(context:vscode.ExtensionContext) {
 			promiseArray.push(downloadMaven.download());
 			promiseArray.push(downloadGradle.download());
 			await Promise.allSettled(promiseArray);
-			await userSettings.updateJavaRuntimes(runtimes, runtimesBeforeDownload, latestLtsVersion);
+			await userSettings.updateJavaConfigRuntimes(runtimes, runtimesBeforeDownload, latestLtsVersion);
 			log.info('activate END');
 		} catch (e:any) {
 			const message = `Download failed. ${e.request?.path ?? ''} ${e.message ?? e}`;
@@ -111,8 +111,8 @@ async function installExtension(extensionId:string) {
 function addConfigChangeEvent(
 	isFirstStartup:boolean,
 	nowInstalledLangPack:boolean,
-	runtimesNew:userSettings.IJavaRuntime[],
-	runtimesOld:userSettings.IJavaRuntime[]) {
+	runtimesNew:userSettings.IJavaConfigRuntime[],
+	runtimesOld:userSettings.IJavaConfigRuntime[]) {
 	
 	const versionsOld = runtimesOld.map(r => javaExtension.versionOf(r.name));
 	const versionsNew = runtimesNew.map(r => javaExtension.versionOf(r.name));

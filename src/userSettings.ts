@@ -39,7 +39,7 @@ export async function remove(section:string) {
 /**
  * An interface for the VSCode Java configuration runtime.
  */
-export interface IJavaRuntime {
+export interface IJavaConfigRuntime {
 	readonly name: string;
 	path: string;
 	default?: boolean;
@@ -47,9 +47,9 @@ export interface IJavaRuntime {
 
 /**
  * Gets the Java runtime configurations for the VSCode Java extension.
- * @returns An array of Java runtime objects.
+ * @returns An array of Java runtime objects. If no entry exists, returns an empty array.
  */
-export function getJavaRuntimes(): IJavaRuntime[] {
+export function getJavaConfigRuntimes(): IJavaConfigRuntime[] {
 	return get(javaExtension.CONFIG_KEY_RUNTIMES) ?? [];
 }
 
@@ -60,9 +60,9 @@ export function getJavaRuntimes(): IJavaRuntime[] {
  * @param latestLtsVersion The latest LTS version.
  * @return A promise that resolves when the configuration is updated.
  */
-export async function updateJavaRuntimes(
-	runtimes:IJavaRuntime[],
-	runtimesOld:IJavaRuntime[],
+export async function updateJavaConfigRuntimes(
+	runtimes:IJavaConfigRuntime[],
+	runtimesOld:IJavaConfigRuntime[],
 	latestLtsVersion:number) {
 
 	const CONFIG_KEY_DEPRECATED_JAVA_HOME = 'java.home';
@@ -175,15 +175,20 @@ export async function updateJavaRuntimes(
 			gradleBinDir = path.join(gradleExePath, '..');
 		}
 	}
-	function _setTerminalEnv(javaHome: string, env: any) {
+	function _setTerminalEnv(env:any, javaHome:string, runtimeName?:string) {
 		const pathArray = [];
 		pathArray.push(path.join(javaHome, 'bin'));
-		// Setting or mac/Linux which
-		pathArray.push(mavenBinDir);
-		pathArray.push(gradleBinDir);
-		// Windows (mac/Linux empty for default no rcfile)
+		// Gradle/Maven: From setting or mac/Linux which (Unsupported older Java version)
+		const javaVersion = javaExtension.versionOf(runtimeName ?? '') ?? Number.MAX_VALUE;
+		if (mavenBinDir && (javaVersion >= 8 || autoContext.isUserInstalled(mavenBinDir))) {
+			pathArray.push(mavenBinDir);
+		}
+		if (gradleBinDir && (javaVersion >= 8 || autoContext.isUserInstalled(gradleBinDir))) {
+			pathArray.push(gradleBinDir);
+		}
+		// Add system environment vars (mac/Linux empty for default no rcfile)
 		pathArray.push('${env:PATH}');
-		env.PATH = pathArray.filter(i => i).join(OS.isWindows ? ';' : ':');
+		env.PATH = pathArray.filter(Boolean).join(OS.isWindows ? ';' : ':');
 		env.JAVA_HOME = javaHome;
 	}
 	const osConfigName = OS.isWindows ? 'windows' : OS.isMac ? 'osx' : 'linux';
@@ -192,7 +197,7 @@ export async function updateJavaRuntimes(
 		const terminalEnv:any = _.cloneDeep(get(CONFIG_KEY_TERMINAL_ENV) ?? {}); // Proxy to POJO for isEqual
 		function _updateTerminalDefault(newPath: string) {
 			const terminalEnvOld = _.cloneDeep(terminalEnv);
-			_setTerminalEnv(newPath, terminalEnv);
+			_setTerminalEnv(terminalEnv, newPath);
 			if (!_.isEqual(terminalEnv, terminalEnvOld) ) {
 				update(CONFIG_KEY_TERMINAL_ENV, terminalEnv);
 			}
@@ -216,7 +221,7 @@ export async function updateJavaRuntimes(
 	const CONFIG_KEY_TERMINAL_PROFILES = 'terminal.integrated.profiles.' + osConfigName;
 	const profilesOld:any = _.cloneDeep(get(CONFIG_KEY_TERMINAL_PROFILES)); // Proxy to POJO for isEqual
 	const profilesNew:any = Object.fromEntries(Object.entries(profilesOld)
-		.filter(([key, profile]) => !javaExtension.versionOf(key))); // Copy unmanaged profile
+		.filter(([key, profile]) => !javaExtension.versionOf(key))); // Copy unmanaged profiles only
 
 	for (const runtime of runtimes) {
 		const profile:any = _.cloneDeep(profilesOld[runtime.name]) ?? {}; // for isEqual
@@ -232,7 +237,7 @@ export async function updateJavaRuntimes(
 			profile.path ??= 'bash';
 			profile.args ??= ["--rcfile", "~/.bashrc_jdkauto"]; // Disable .bashrc JAVA_HOME (also WSL)
 		}
-		_setTerminalEnv(runtime.path, profile.env);
+		_setTerminalEnv(profile.env, runtime.path, runtime.name);
 		profilesNew[runtime.name] = profile;
 	}
 	if (!_.isEqual(profilesNew, profilesOld) ) {
