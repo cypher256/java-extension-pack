@@ -90,11 +90,11 @@
     "@types/node": "18.x",
     "@types/vscode": "^1.54.0",
     "@types/which": "^3.0.0",
-    "@typescript-eslint/eslint-plugin": "5.x",
-    "@typescript-eslint/parser": "5.x",
+    "@typescript-eslint/eslint-plugin": "6.x",
+    "@typescript-eslint/parser": "6.x",
     "@vscode/l10n-dev": "0.0.x",
     "esbuild": "0.18.x",
-    "eslint": "8.37.x",
+    "eslint": "8.44.x",
     "typescript": "5.x"
   },
   "dependencies": {
