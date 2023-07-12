@@ -47,7 +47,8 @@ The JDKs are auto-configured for the current environment on VSCode startup as fo
 
 1. Auto-fix invalid JDK configuration (e.g. `/jdk17/bin` -> `/jdk17`)
 1. Auto-remove configuration entries when JDK uninstalled or version path changed
-1. Auto-scan from OS-specific location, SDKMAN, jEnv, jabba, ASDF, Gradle, Scoop, IntelliJ etc...
+1. Auto-scan from package managers SDKMAN, jEnv, jabba, ASDF, Gradle, Scoop, Chocolatey, IntelliJ etc...
+1. Auto-scan from installers Adoptium, BellSoft, Corretto, Microsoft, Oracle, Red Hat, Semeru, Zulu etc...
 1. Auto-detect environment variables `JAVA_HOME`, `JDK_HOME` and `PATH`
 1. Auto-download Adoptium LTS JDKs and available latest non-LTS JDK if not installed
 1. Auto-update auto-downloaded JDKs to the latest version

@@ -24,7 +24,7 @@ export function getAvailableNames(): string[] {
  * @returns The VSCode JDT runtime versions. An array of length 0 if not available.
  */
 export function getAvailableVersions(): number[] {
-    return getAvailableNames().map(versionOf);
+    return getAvailableNames().map(versionOf).filter(Boolean).sort((a,b) => a-b);
 }
 
 /**

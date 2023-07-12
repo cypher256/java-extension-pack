@@ -207,7 +207,9 @@ async function findAll(): Promise<IDetectedJdk[]> {
 			// https://github.com/Eskibear/node-jdk-utils/blob/main/src/from/windows.ts
 			if (!OS.isWindows) {return;}
 			for (const programDir of [env.ProgramFiles, env.LOCALAPPDATA].filter(Boolean) as string[]) {
-				const distPats = ['BellSoft', 'RedHat', 'Semeru', 'Zulu'].map(s => path.join(programDir, s));
+				// TODO DEL 'Zulu' https://github.com/Eskibear/node-jdk-utils/pull/12
+				const dists = ['BellSoft', 'OpenJDK', 'RedHat', 'Semeru', 'Zulu'];
+				const distPats = dists.map(s => path.join(programDir, s));
 				await tryGlob('Windows', jdks, distPats);
 			}
 		},
@@ -216,8 +218,8 @@ async function findAll(): Promise<IDetectedJdk[]> {
 			// e.g. C:\ProgramData\scoop\apps\sapmachine18-jdk\18.0.2.1\bin
 			// C:\Users\<UserName>\scoop\apps\sapmachine18-jdk\18.0.2.1\bin
 			if (!OS.isWindows) {return;}
-			const userDir = env.SCOOP ?? path.join(os.homedir(), "scoop");
-			const globalDir = env.SCOOP_GLOBAL ?? path.join(env.ProgramData ?? '', "scoop");
+			const userDir = env.SCOOP ?? path.join(os.homedir(), 'scoop');
+			const globalDir = env.SCOOP_GLOBAL ?? path.join(env.ProgramData ?? '', 'scoop');
 			const distPats = [userDir, globalDir].map(s => path.join(s, 'apps/*jdk*'));
 			await tryGlob('Scoop', jdks, distPats, { ignore: '**/current/**' });
 		},

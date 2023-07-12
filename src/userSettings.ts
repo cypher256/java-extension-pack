@@ -181,9 +181,11 @@ export async function updateJavaConfigRuntimes(
 		// Gradle/Maven: From setting or mac/Linux which (Unsupported older Java version)
 		const javaVersion = javaExtension.versionOf(runtimeName ?? '') ?? Number.MAX_VALUE;
 		if (mavenBinDir && (javaVersion >= 8 || autoContext.isUserInstalled(mavenBinDir))) {
+			// Minimum version https://maven.apache.org/developers/compatibility-plan.html
 			pathArray.push(mavenBinDir);
 		}
 		if (gradleBinDir && (javaVersion >= 8 || autoContext.isUserInstalled(gradleBinDir))) {
+			// Minimum version https://docs.gradle.org/current/userguide/compatibility.html
 			pathArray.push(gradleBinDir);
 		}
 		// Add system environment vars (mac/Linux empty for default no rcfile)
