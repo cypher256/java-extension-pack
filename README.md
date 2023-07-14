@@ -79,7 +79,7 @@ Automatic download is enabled if the [extensions.autoUpdate](https://code.visual
 
 JDK auto-download supports the following platforms:
 - Windows x64
-- macos x64, aarch64
+- macOS x64, aarch64
 - Linux x64, aarch64
 
 It is saved in the following location.
@@ -87,7 +87,7 @@ It is saved in the following location.
 |OS|Extension global storage location (For local installation)|
 |---|---|
 |Windows|`%APPDATA%\Code\User\globalStorage\pleiades.java-extension-pack-jdk\ `|
-|macos|`$HOME/Library/Application Support/Code/User/globalStorage/pleiades.java-extension-pack-jdk/`|
+|macOS|`$HOME/Library/Application Support/Code/User/globalStorage/pleiades.java-extension-pack-jdk/`|
 |Linux|`$HOME/.config/Code/User/globalStorage/pleiades.java-extension-pack-jdk/`|
 
 <br>
