@@ -36,8 +36,7 @@ Just install this extension and your Java development environment is ready. Let'
 * [Create Hello World and run/debug](https://code.visualstudio.com/docs/java/java-tutorial#_creating-a-source-code-file) (No build tools)
 * [Create a general Java project](https://code.visualstudio.com/docs/java/java-project#_create-a-new-java-project) (No build tools / Gradle / Maven)
 * [Create a Spring Boot project](https://code.visualstudio.com/docs/java/java-spring-boot#_create-the-project) (Gradle / Maven)
-<br>
-<br>
+
 ## Check version
 Select the Java version from the terminal dropdown and execute the following command.
 ```
@@ -45,7 +44,6 @@ java -version
 gradle -v
 mvn -v
 ```
-
 ![Switch Java Version](https://raw.githubusercontent.com/cypher256/java-extension-pack/main/image/terminal.png)
 <br>
 <br>
