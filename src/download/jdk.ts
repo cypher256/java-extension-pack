@@ -24,7 +24,7 @@ function archOf(javaVersion: number): string | undefined {
 	const isX64 = process.arch === 'x64';
 	const isArm64 = process.arch === 'arm64';
 	if (OS.isWindows) {
-		if (isX64) {
+		if (isX64 || isArm64 /* mac Parallels Windows */) {
 			return 'x64_windows_hotspot';
 		}
 	} else if (OS.isMac) {
@@ -34,10 +34,10 @@ function archOf(javaVersion: number): string | undefined {
 			return 'x64_mac_hotspot';
 		}
 	} else if (OS.isLinux) {
-		if (isArm64) {
-			return 'aarch64_linux_hotspot';
-		} else if (isX64) {
+		if (isX64) {
 			return 'x64_linux_hotspot';
+		} else if (isArm64) {
+			return 'aarch64_linux_hotspot';
 		}
 	}
 	return undefined;
