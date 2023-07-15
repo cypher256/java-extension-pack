@@ -179,7 +179,7 @@ export async function updateJavaConfigRuntimes(
 		const pathArray = [];
 		pathArray.push(path.join(javaHome, 'bin'));
 		// Gradle/Maven: From setting or mac/Linux which (Unsupported older Java version)
-		const javaVersion = javaExtension.versionOf(runtimeName ?? '') ?? Number.MAX_VALUE;
+		const javaVersion = javaExtension.versionOf(runtimeName ?? '') || latestLtsVersion;
 		if (mavenBinDir && (javaVersion >= 8 || autoContext.isUserInstalled(mavenBinDir))) {
 			// Minimum version https://maven.apache.org/developers/compatibility-plan.html
 			pathArray.push(mavenBinDir);
