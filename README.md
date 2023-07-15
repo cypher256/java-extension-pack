@@ -379,6 +379,9 @@ Thymeleaf snippets.
 - ![](https://img.shields.io/visual-studio-marketplace/i/vsls-contrib.gistfs?style=plastic)
 [GistPad](https://marketplace.visualstudio.com/items?itemName=vsls-contrib.gistfs) (Jonathan Carter: MIT)<br>
 Manage your code snippets and developer notes using GitHub Gists and repositories.
+- ![](https://img.shields.io/visual-studio-marketplace/i/inferrinizzard.prettier-sql-vscode?style=plastic)
+[Prettier SQL VSCode](https://marketplace.visualstudio.com/items?itemName=inferrinizzard.prettier-sql-vscode) (inferrinizzard: MIT)<br>
+VSCode Extension to format SQL files.
 - ![](https://img.shields.io/visual-studio-marketplace/i/GitHub.copilot?style=plastic)
 [GitHub Copilot](https://marketplace.visualstudio.com/items?itemName=GitHub.copilot) (GitHub: Subscription) / [VSCode Document](https://code.visualstudio.com/docs/editor/artificial-intelligence)<br>
 Your AI pair programmer.
