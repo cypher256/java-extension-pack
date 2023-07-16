@@ -38,7 +38,7 @@ Just install this extension and your Java development environment is ready. Let'
 * [Create a Spring Boot project](https://code.visualstudio.com/docs/java/java-spring-boot#_create-the-project) (Gradle / Maven)
 
 ### Check version
-Select the Java version from the terminal dropdown and execute the following command.
+Select the Java version from the terminal dropdown and execute the following commands.
 ```bash
 java -version
 gradle -v
