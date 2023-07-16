@@ -52,7 +52,7 @@ mvn -v
 # Features
 
 ## JDK Auto-configuration
-The JDKs are auto-configured for the current environment on VSCode startup as follows. You can check the detected JDK in User `settings.json` described later or Output (Ctrl + Shift + U) ≫ Dropdown: `Java Auto Config`. If there are multiple JDKs of the same version, the latest minor version among them is used. If you manually install or update the JDK and want to force update the configuration of VSCode, restart VSCode or execute **>Developer: Reload Window** from the command palette (F1 or Ctrl/Cmd + Shift + P). These apply to User `settings.json` (VSCode global), but can be manually edited to customize them. If you want to customize your settings even further, consider using [workspace settings](https://code.visualstudio.com/docs/getstarted/settings) or [profiles](https://code.visualstudio.com/docs/editor/profiles).
+The JDKs are auto-configured for the current environment on VSCode startup as follows. You can check the detected JDK in User `settings.json` described later or Output (Ctrl + Shift + U) ≫ Dropdown: `Auto Config Java`. If there are multiple JDKs of the same version, the latest minor version among them is used. If you manually install or update the JDK and want to force update the configuration of VSCode, restart VSCode or execute **>Developer: Reload Window** from the command palette (F1 or Ctrl/Cmd + Shift + P). These apply to User `settings.json` (VSCode global), but can be manually edited to customize them. If you want to customize your settings even further, consider using [workspace settings](https://code.visualstudio.com/docs/getstarted/settings) or [profiles](https://code.visualstudio.com/docs/editor/profiles).
 
 1. Auto-fix invalid JDK configuration (e.g. `/jdk17/bin` -> `/jdk17`)
 1. Auto-remove configuration entries when JDK uninstalled or version path changed
@@ -210,7 +210,7 @@ Command Palette **>Preferences: Open User Settings (JSON)**
 <br>
 
 ## Auto-default Settings
-Entries that do not have the following configuration in the user settings are automatically set to the default values of Java Auto Config. To prevent it from being set, set the entry to empty. Note that a debug run is required to enable Hot Code Replace (Hot Deploy).
+Entries that do not have the following configuration in the user settings are automatically set to the default values of Auto Config Java. To prevent it from being set, set the entry to empty. Note that a debug run is required to enable Hot Code Replace (Hot Deploy).
 
 |Configuration Name|Original Default|Auto Default|
 |---|---|---|

@@ -40,7 +40,7 @@ export async function execute(opt:IDownloaderOptions) {
 }
 
 function report(progress:vscode.Progress<{message:string}>, msg:string) {
-    progress.report({message: `Java Auto Config: ${msg}`});
+    progress.report({message: `Auto Config Java: ${msg}`});
 }
 
 async function download(progress:vscode.Progress<{message:string}>, opt:IDownloaderOptions) {

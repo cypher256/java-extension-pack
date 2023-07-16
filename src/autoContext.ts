@@ -5,7 +5,7 @@ import * as vscode from 'vscode';
 import _ = require('lodash');
 import which = require('which');
 
-export const log: vscode.LogOutputChannel = vscode.window.createOutputChannel('Java Auto Config', {log:true});
+export const log: vscode.LogOutputChannel = vscode.window.createOutputChannel('Auto Config Java', {log:true});
 
 export namespace OS {
 	let _locale = 'en';
