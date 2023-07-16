@@ -6,7 +6,7 @@
 ![](https://img.shields.io/visual-studio-marketplace/i/Pleiades.java-extension-pack-jdk?color=blue)
 ![](https://img.shields.io/visual-studio-marketplace/last-updated/Pleiades.java-extension-pack-jdk?color=orange)
 
-The extension greatly reduces the installation, configuration effort, and [JDK configuration errors](https://stackoverflow.com/search?q=vscode+jdk) for general Java developers. There is no need to manually install JDKs, Gradle, or Maven or set environment variables such as `path`. It also comes pre-included with extensions that most Java developers need, such as Spring, Lombok, and Tomcat start/stop, so you can start developing right out of the box with zero configuration.
+The extension greatly reduces the installation, configuration effort, and [JDK configuration errors](https://stackoverflow.com/search?q=vscode+jdk) for general Java developers. There is no need to manually install JDKs, Gradle, or Maven or set environment variables such as `path`. It also comes pre-included with extensions that most Java developers need, such as Spring Boot and Lombok, so you can start developing right out of the box with zero configuration.
 <br>
 <br>
 <br>
@@ -278,40 +278,6 @@ The language pack corresponding to the OS locale is installed at the first start
 - Adoptium JDK: https://adoptium.net/docs/faq/#_is_temurin_free_to_use
 
 <br>
-<br>
-<br>
-
-# Included Extension Features
-## Extension Pack for Java
-Since many projects are nowadays using different Java versions in development, it is recommended to specify the Java version for each project instead of the `JAVA_HOME` environment variable so as not to affect the OS and OS user environment. To see which JDKs are used for your projects in multi-root workspaces, you can trigger the command **Java: Configure Java Runtime** in Command Palette. The [Configure Runtime for Projects](https://code.visualstudio.com/docs/java/java-project) view is a feature of the Extension Pack for Java (Microsoft).
-<br><p>
-![Configure Java Runtime](https://code.visualstudio.com/assets/docs/java/java-project/configure-project-runtime.png)
-</p>
-
-### Change JDK for Gradle and Maven projects
-If you want to change the JDK version for your [Gradle](https://code.visualstudio.com/docs/java/java-build#_gradle) or [Maven](https://code.visualstudio.com/docs/java/java-build#_maven) projects, you need to update it in your build scripts (`build.gradle` or `pom.xml`). You can click ⓘ to see how to make such changes. Click 🖊 will navigate to the build script file of the project. Maven/Gradle version is recommended to be set per project in `gradle-wrapper.properties`/`maven-wrapper.properties` using wrapper `gradlew`/`mvnw`. For Spring Boot Gradle/Maven projects and general Gradle projects, these wrappers are included by default.
-<br>
-
-### Change JDK for unmanaged folders
-To change the JDK for [unmanaged folders](https://code.visualstudio.com/docs/java/java-tutorial#_creating-a-source-code-file) (with out any build tools), you can click the 🖊 button. It will list the JDKs and you can select one for your unmanaged folders. This changes the `"default":true` for `java.configuration.runtimes`. If it's not listed, edit `settings.json` directly and set `"default":true` to that version in `java.configuration.runtimes`. Currently, it is <a href="https://github.com/redhat-developer/vscode-java/issues/2543">not possible to use different Java versions</a> in multiple unmanaged folders within the same workspace.
-<br>
-<br>
-
-## Spring Boot Extension Pack
-Set the JDK version when [creating a Spring Boot project](https://code.visualstudio.com/docs/java/java-spring-boot#_create-the-project) or in `build.gradle`/`pom.xml`. Java projects in general can view and change the Java version from `{} Java` in the bottom Status Bar.
-<p>
-
-[![Spring Boot Dashboard](https://raw.githubusercontent.com/cypher256/java-extension-pack/main/image/spring.jpg)](https://raw.githubusercontent.com/cypher256/java-extension-pack/main/image/spring.jpg)
-</p>
-<br>
-
-## Community Server Connectors
-The JDK used to run the server for Servlet and Jakarta EE applications can be specified from the context menu ≫ **Edit Server** ≫ `vm.install.path`. The [actual configuration](https://github.com/redhat-developer/vscode-rsp-ui#server-parameters) files is in `.rsp/redhat-community-server-connector/servers` in the user home.
-<p>
-
-![Servers View](https://raw.githubusercontent.com/cypher256/java-extension-pack/main/image/servers.jpg)
-</p>
-<br>
 
 ## Included Extensions
 
@@ -326,9 +292,6 @@ A collection of extensions for developing Spring Boot applications.<br>
 - ![](https://img.shields.io/visual-studio-marketplace/i/vscjava.vscode-gradle?style=plastic)
 [Gradle for Java](https://marketplace.visualstudio.com/items?itemName=vscjava.vscode-gradle) (Microsoft: MIT) / [VSCode Document](https://code.visualstudio.com/docs/java/java-build#_gradle)<br>
 Manage Gradle Projects, run Gradle tasks and provide better Gradle file authoring experience in VS Code.<br>
-- ![](https://img.shields.io/visual-studio-marketplace/i/redhat.vscode-community-server-connector?style=plastic)
-[Community Server Connectors](https://marketplace.visualstudio.com/items?itemName=redhat.vscode-community-server-connector) (Red Hat: EPL) / [VSCode Document](https://code.visualstudio.com/docs/java/java-tomcat-jetty)<br>
-This extension can start, stop, publish, and control servers such as Apache Felix, Karaf, and Tomcat..<br>
 - ![](https://img.shields.io/visual-studio-marketplace/i/ryanluker.vscode-coverage-gutters?style=plastic)
 [Coverage Gutters](https://marketplace.visualstudio.com/items?itemName=ryanluker.vscode-coverage-gutters) (ryanluker: MIT)<br>
 Display test coverage generated by lcov or xml - works with many languages.
@@ -365,6 +328,7 @@ A language pack that matches the OS Locale.<br>
 
 <br>
 <br>
+<br>
 
 # Recommended Extensions
 
@@ -379,6 +343,9 @@ Detect and fix quality issues as you write code in C, C++, Java, JavaScript, PHP
 - ![](https://img.shields.io/visual-studio-marketplace/i/juhahinkula.thymeleaf?style=plastic)
 [thymeleaf](https://marketplace.visualstudio.com/items?itemName=juhahinkula.thymeleaf) (Juha Hinkula: Unknown)<br>
 Thymeleaf snippets.
+- ![](https://img.shields.io/visual-studio-marketplace/i/redhat.vscode-community-server-connector?style=plastic)
+[Community Server Connectors](https://marketplace.visualstudio.com/items?itemName=redhat.vscode-community-server-connector) (Red Hat: EPL) / [VSCode Document](https://code.visualstudio.com/docs/java/java-tomcat-jetty)<br>
+This extension can start, stop, publish, and control servers such as Apache Felix, Karaf, and Tomcat..<br>
 - ![](https://img.shields.io/visual-studio-marketplace/i/pthorsson.vscode-jsp?style=plastic)
 [Java Server Pages (JSP)](https://marketplace.visualstudio.com/items?itemName=pthorsson.vscode-jsp) (Patrik Thorsson: MIT)<br>
 (unmaintained) JSP language support for Visual Studio Code, ported from TextMate's JSP bundle.

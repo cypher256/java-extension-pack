@@ -38,8 +38,7 @@
     "spanish",
     "spring-boot",
     "spring",
-    "terminal",
-    "tomcat"
+    "terminal"
   ],
   "categories": [
     "Programming Languages",
@@ -54,7 +53,6 @@
     "vscjava.vscode-java-pack",
     "vmware.vscode-boot-dev-pack",
     "vscjava.vscode-gradle",
-    "redhat.vscode-community-server-connector",
     "esbenp.prettier-vscode",
     "streetsidesoftware.code-spell-checker",
     "ryanluker.vscode-coverage-gutters",
@@ -105,5 +103,5 @@
     "jdk-utils": "0.x",
     "lodash": "4.x"
   },
-  "version": "2023.715.1"
+  "version": "2023.716.0"
 }
