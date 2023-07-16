@@ -39,7 +39,7 @@ Just install this extension and your Java development environment is ready. Let'
 
 ### Check version
 Select the Java version from the terminal dropdown and execute the following command.
-```
+```bash
 java -version
 gradle -v
 mvn -v
