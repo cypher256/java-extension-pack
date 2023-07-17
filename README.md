@@ -108,8 +108,6 @@ Command Palette **>Preferences: Open User Settings (JSON)**
 "java.jdt.ls.java.home": "c:\\Program Files\\java\\jdk-17.0.6",
 // ST4 Language Server
 "spring-boot.ls.java.home": "c:\\Program Files\\java\\jdk-17.0.6",
-// Runtime Server Protocol Server (Not AP server VM)
-"rsp-ui.rsp.java.home": "c:\\Program Files\\java\\jdk-17.0.6",
 ```
 ```json
 // Project Runtimes

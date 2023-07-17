@@ -73,13 +73,16 @@ export async function updateJavaConfigRuntimes(
 	// VSCode LS Java Home (Fix if unsupported old version)
 	const latestLtsRuntime = runtimes.find(r => r.name === javaExtension.nameOf(latestLtsVersion));
 	if (latestLtsRuntime) {
-		for (const CONFIG_KEY_LS_JAVA_HOME of [
+		const CONFIG_KEY_LS_JAVA_HOME_ARRAY = [
 			// Reload dialog by redhat.java extension
 			'java.jdt.ls.java.home',
 			// No dialog (Note: extension.ts addConfigChangeEvent)
 			'spring-boot.ls.java.home',
-			'rsp-ui.rsp.java.home',
-		]) {
+		];
+		if (vscode.extensions.getExtension('redhat.vscode-community-server-connector')) {
+			CONFIG_KEY_LS_JAVA_HOME_ARRAY.push('rsp-ui.rsp.java.home');
+		}
+		for (const CONFIG_KEY_LS_JAVA_HOME of CONFIG_KEY_LS_JAVA_HOME_ARRAY) {
 			const originPath = get<string>(CONFIG_KEY_LS_JAVA_HOME);
 			const latestLtsPath = latestLtsRuntime.path;
 			let javaHome = null;
