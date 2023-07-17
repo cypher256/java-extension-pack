@@ -33,6 +33,7 @@ export async function activate(context:vscode.ExtensionContext) {
 	log.info('Target LTS versions', targetLtsVersions);
 	const runtimes = userSettings.getJavaConfigRuntimes();
 	const runtimesOld = _.cloneDeep(runtimes);
+	const isFirstStartup = !autoContext.existsDirectory(autoContext.getGlobalStoragePath()); // Removed on uninstall
 
 	// Scan JDK
 	try {
@@ -66,7 +67,7 @@ export async function activate(context:vscode.ExtensionContext) {
 			log.info(message, e); // Silent: offline, 404 building, 503 proxy auth error, etc.
 		}
 	}
-	addConfigChangeEvent(runtimes, runtimesOld);
+	addConfigChangeEvent(isFirstStartup, runtimes, runtimesOld);
 }
 
 function getLangPackSuffix(): string | undefined {
@@ -93,6 +94,7 @@ async function installExtension(extensionId:string) {
 }
 
 function addConfigChangeEvent(
+	isFirstStartup:boolean,
 	runtimesNew:userSettings.IJavaConfigRuntime[],
 	runtimesOld:userSettings.IJavaConfigRuntime[]) {
 	
@@ -102,7 +104,6 @@ function addConfigChangeEvent(
 	const availableMsg = `${l10n.t('Available Java versions:')} ${versionsNew.join(', ')}`;
 
 	// First Setup
-	const isFirstStartup = !autoContext.existsDirectory(autoContext.getGlobalStoragePath()); // Removed on uninstall
 	if (isFirstStartup) {
 		autoContext.mkdirSyncQuietly(autoContext.getGlobalStoragePath());
 		vscode.window.showInformationMessage(availableMsg);
