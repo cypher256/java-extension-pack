@@ -22,23 +22,7 @@ export async function activate(context:vscode.ExtensionContext) {
 	log.info(`activate START ${context.extension?.packageJSON?.version} --------------------`);
 	log.info('JAVA_HOME', process.env.JAVA_HOME);
 	log.info('Save Location', autoContext.getGlobalStoragePath());
-
-	// First Setup
 	userSettings.setDefault();
-	const isFirstStartup = !autoContext.existsDirectory(autoContext.getGlobalStoragePath()); // Removed on uninstall
-	let nowInstalledLangPack = false;
-	if (isFirstStartup) {
-		autoContext.mkdirSyncQuietly(autoContext.getGlobalStoragePath());
-		const langPackSuffix = getLangPackSuffix();
-		if (langPackSuffix) {
-			nowInstalledLangPack = true;
-			installExtension('ms-ceintl.vscode-language-pack-' + langPackSuffix);
-			installExtension('intellsmi.comment-translate');
-		}
-		if (OS.isWindows || OS.isLinux) {
-			installExtension('s-nlf-fh.glassit');
-		}
-	}
 
 	// Get JDK versions
 	const availableVersions = javaExtension.getAvailableVersions();
@@ -82,7 +66,7 @@ export async function activate(context:vscode.ExtensionContext) {
 			log.info(message, e); // Silent: offline, 404 building, 503 proxy auth error, etc.
 		}
 	}
-	addConfigChangeEvent(isFirstStartup, nowInstalledLangPack, runtimes, runtimesOld);
+	addConfigChangeEvent(runtimes, runtimesOld);
 }
 
 function getLangPackSuffix(): string | undefined {
@@ -109,8 +93,6 @@ async function installExtension(extensionId:string) {
 }
 
 function addConfigChangeEvent(
-	isFirstStartup:boolean,
-	nowInstalledLangPack:boolean,
 	runtimesNew:userSettings.IJavaConfigRuntime[],
 	runtimesOld:userSettings.IJavaConfigRuntime[]) {
 	
@@ -119,12 +101,31 @@ function addConfigChangeEvent(
 	log.info(javaExtension.CONFIG_KEY_RUNTIMES, versionsNew);
 	const availableMsg = `${l10n.t('Available Java versions:')} ${versionsNew.join(', ')}`;
 
+	// First Setup
+	const isFirstStartup = !autoContext.existsDirectory(autoContext.getGlobalStoragePath()); // Removed on uninstall
 	if (isFirstStartup) {
+		autoContext.mkdirSyncQuietly(autoContext.getGlobalStoragePath());
 		vscode.window.showInformationMessage(availableMsg);
-		if (nowInstalledLangPack && vscode.env.language === 'en') {
-			// Choose display language, restart VSCode
-			vscode.commands.executeCommand('workbench.action.configureLocale');
-			setTimeout(showReloadMessage, 15_000); // Delay for prefer above
+
+		if (OS.isWindows || OS.isLinux) {
+			installExtension('s-nlf-fh.glassit');
+		}
+		const langPackSuffix = getLangPackSuffix();
+		if (langPackSuffix) {
+			installExtension('intellsmi.comment-translate');
+			const langPackId = 'ms-ceintl.vscode-language-pack-' + langPackSuffix;
+			if (!vscode.extensions.getExtension(langPackId)) {
+				installExtension(langPackId); // Restart message
+				setTimeout(showReloadMessage, 15_000); // Delay for above
+			} else {
+				if (vscode.env.language === 'en') {
+					// Choose display language, restart modal dialog
+					vscode.commands.executeCommand('workbench.action.configureLocale');
+					setTimeout(showReloadMessage, 15_000); // Delay for cancel selected
+				} else {
+					showReloadMessage();
+				}
+			}
 		} else {
 			showReloadMessage();
 		}
