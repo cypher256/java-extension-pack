@@ -73,17 +73,16 @@ export async function updateJavaConfigRuntimes(
 	// VSCode LS Java Home (Fix if unsupported old version)
 	const latestLtsRuntime = runtimes.find(r => r.name === javaExtension.nameOf(latestLtsVersion));
 	if (latestLtsRuntime) {
-		const CONFIG_KEY_LS_JAVA_HOME_ARRAY = [
-			// Reload dialog by redhat.java extension
-			'java.jdt.ls.java.home',
-			// No dialog (Note: extension.ts addConfigChangeEvent)
-			'spring-boot.ls.java.home',
-		];
-		if (vscode.extensions.getExtension('redhat.vscode-community-server-connector')) {
-			CONFIG_KEY_LS_JAVA_HOME_ARRAY.push('rsp-ui.rsp.java.home');
+		// Reload dialog on change only redhat.java extension (See: extension.ts addConfigChangeEvent)
+		const configKeys = ['java.jdt.ls.java.home'];
+		function _pushIf(extensionId:string, configKey:string) {
+			if (vscode.extensions.getExtension(extensionId)) {configKeys.push(configKey);}
 		}
-		for (const CONFIG_KEY_LS_JAVA_HOME of CONFIG_KEY_LS_JAVA_HOME_ARRAY) {
-			const originPath = get<string>(CONFIG_KEY_LS_JAVA_HOME);
+		_pushIf('vmware.vscode-spring-boot', 'spring-boot.ls.java.home');
+		_pushIf('redhat.vscode-rsp-ui', 'rsp-ui.rsp.java.home');
+		
+		for (const configKey of configKeys) {
+			const originPath = get<string>(configKey);
 			const latestLtsPath = latestLtsRuntime.path;
 			let javaHome = null;
 			if (originPath) {
@@ -106,16 +105,16 @@ export async function updateJavaConfigRuntimes(
 				javaHome = latestLtsPath; // if unset
 			}
 			if (javaHome) {
-				update(CONFIG_KEY_LS_JAVA_HOME, javaHome);
+				update(configKey, javaHome);
 
 			}
 		}
 	}
 
 	// Project Runtimes Default (Keep if set)
-	const isNoneDefault = runtimes.find(r => r.default) ? false : true;
-	if (isNoneDefault || !_.isEqual(runtimes, runtimesOld)) {
-		if (isNoneDefault && latestLtsRuntime) {
+	const isNoDefault = !runtimes.find(r => r.default);
+	if (isNoDefault || !_.isEqual(runtimes, runtimesOld)) {
+		if (isNoDefault && latestLtsRuntime) {
 			latestLtsRuntime.default = true;
 		}
 		runtimes.sort((a, b) => a.name.localeCompare(b.name));
@@ -124,7 +123,7 @@ export async function updateJavaConfigRuntimes(
 
 	// Gradle Daemon Java Home (Fix if set), Note: If unset use java.jdt.ls.java.home
 	const defaultRuntime = runtimes.find(r => r.default);
-	if (defaultRuntime) {
+	if (defaultRuntime && vscode.extensions.getExtension('vscjava.vscode-gradle')) {
 		const CONFIG_KEY_GRADLE_JAVA_HOME = 'java.import.gradle.java.home';
 		const originPath = get<string>(CONFIG_KEY_GRADLE_JAVA_HOME);
 		if (originPath) {
@@ -163,7 +162,7 @@ export async function updateJavaConfigRuntimes(
 	let mavenBinDir:string | undefined = undefined;
 	let mvnExePath = get<string>(downloadMaven.CONFIG_KEY_MAVEN_EXE_PATH);
 	if (!mvnExePath && !OS.isWindows) {
-		mvnExePath = await autoContext.whichPath('mvn'); // mac/Linux
+		mvnExePath = await autoContext.whichPath('mvn'); // (*1) For mac/Linux (Windows: Enable PATH)
 	}
 	if (mvnExePath) {
 		mavenBinDir = path.join(mvnExePath, '..');
@@ -173,7 +172,7 @@ export async function updateJavaConfigRuntimes(
 	if (gradleHome) {
 		gradleBinDir = path.join(gradleHome, 'bin');
 	} else if (!OS.isWindows) {
-		const gradleExePath = await autoContext.whichPath('gradle'); // mac/Linux
+		const gradleExePath = await autoContext.whichPath('gradle'); // (*1)
 		if (gradleExePath) {
 			gradleBinDir = path.join(gradleExePath, '..');
 		}

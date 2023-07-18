@@ -207,8 +207,7 @@ async function findAll(): Promise<IDetectedJdk[]> {
 			// https://github.com/Eskibear/node-jdk-utils/blob/main/src/from/windows.ts
 			if (!OS.isWindows) {return;}
 			for (const programDir of [env.ProgramFiles, env.LOCALAPPDATA].filter(Boolean) as string[]) {
-				// TODO DEL 'Zulu' https://github.com/Eskibear/node-jdk-utils/pull/12
-				const dists = ['BellSoft', 'OpenJDK', 'RedHat', 'Semeru', 'Zulu'];
+				const dists = ['BellSoft', 'OpenJDK', 'RedHat', 'Semeru'];
 				const distPats = dists.map(s => path.join(programDir, s));
 				await tryGlob('Windows', jdks, distPats);
 			}

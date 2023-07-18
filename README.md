@@ -279,11 +279,11 @@ The language pack corresponding to the OS locale is installed at the first start
 
 ## Included Extensions
 
-The `Extension Pack for Java` is required. Other extensions can be [disabled](https://code.visualstudio.com/docs/editor/extension-marketplace#_disable-an-extension) or [uninstalled](https://code.visualstudio.com/docs/editor/extension-marketplace#_uninstall-an-extension) according to your preference. If you want to set up extensions and configurations by development language, consider [Profile](https://code.visualstudio.com/docs/editor/profiles). (*) indicates that it will be installed if available in that environment at first startup.
+The `Extension Pack for Java` is required. Other extensions can be [disabled](https://code.visualstudio.com/docs/editor/extension-marketplace#_disable-an-extension) or [uninstalled](https://code.visualstudio.com/docs/editor/extension-marketplace#_uninstall-an-extension) according to your preference. Note that uninstalling this extension will <a href="https://github.com/microsoft/vscode/issues/169109">uninstall all</a> of the following extensions. If you want to set up extensions and configurations by development language, consider [Profile](https://code.visualstudio.com/docs/editor/profiles). (*) indicates that it will be installed if available in that environment at first startup.
 
 - ![](https://img.shields.io/visual-studio-marketplace/i/vscjava.vscode-java-pack?style=plastic)
-[Extension Pack for Java](https://marketplace.visualstudio.com/items?itemName=vscjava.vscode-java-pack) (Microsoft: MIT) / [VSCode Document](https://code.visualstudio.com/docs/java/java-tutorial#_creating-a-source-code-file)<br>
-Java IntelliSense, debugging, testing, Maven/Gradle support, project management and more.<br>
+[Extension Pack for Java](https://marketplace.visualstudio.com/items?itemName=vscjava.vscode-java-pack) (Red Hat, Microsoft: MIT) / [VSCode Document](https://code.visualstudio.com/docs/java/java-tutorial#_creating-a-source-code-file)<br>
+Java IntelliSense, debugging, testing, Maven/Gradle support, Lombok and more.<br>
 - ![](https://img.shields.io/visual-studio-marketplace/i/vmware.vscode-boot-dev-pack?style=plastic)
 [Spring Boot Extension Pack](https://marketplace.visualstudio.com/items?itemName=vmware.vscode-boot-dev-pack) (VMWare: EPL) / [VSCode Document](https://code.visualstudio.com/docs/java/java-spring-boot#_create-the-project)<br>
 A collection of extensions for developing Spring Boot applications.<br>
