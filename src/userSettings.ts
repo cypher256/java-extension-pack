@@ -57,13 +57,13 @@ export function getJavaConfigRuntimes(): IJavaConfigRuntime[] {
  * Updates the Java runtime configurations for the VSCode Java extension.
  * @param runtimes An array of Java runtime objects to update the configuration with.
  * @param runtimesOld An array of previous Java runtime objects to compare with `runtimes`.
- * @param latestLtsVer The latest LTS version.
+ * @param stableLtsVer The stable LTS version.
  * @return A promise that resolves when the configuration is updated.
  */
 export async function updateJavaConfigRuntimes(
 	runtimes:IJavaConfigRuntime[],
 	runtimesOld:IJavaConfigRuntime[],
-	latestLtsVer:number) {
+	stableLtsVer:number) {
 
 	const CONFIG_KEY_DEPRECATED_JAVA_HOME = 'java.home';
 	if (get(CONFIG_KEY_DEPRECATED_JAVA_HOME) !== null) { // null if no entry or null value
@@ -71,8 +71,8 @@ export async function updateJavaConfigRuntimes(
 	}
 
 	// VSCode LS Java Home (Fix if unsupported old version)
-	const latestLtsRuntime = runtimes.find(r => r.name === javaExtension.nameOf(latestLtsVer));
-	if (latestLtsRuntime) {
+	const stableLtsRuntime = runtimes.find(r => r.name === javaExtension.nameOf(stableLtsVer));
+	if (stableLtsRuntime) {
 		// Reload dialog on change only redhat.java extension (See: extension.ts addConfigChangeEvent)
 		const configKeys = ['java.jdt.ls.java.home'];
 		function _pushIf(extensionId:string, configKey:string) {
@@ -83,7 +83,7 @@ export async function updateJavaConfigRuntimes(
 		
 		for (const configKey of configKeys) {
 			const originPath = get<string>(configKey);
-			const latestLtsPath = latestLtsRuntime.path;
+			const stableLtsPath = stableLtsRuntime.path;
 			let javaHome = null;
 			if (originPath) {
 				const fixedPath = await jdkExplorer.fixPath(originPath);
@@ -91,18 +91,18 @@ export async function updateJavaConfigRuntimes(
 					// RedHat LS minimum version check: REQUIRED_JDK_VERSION
 					// https://github.com/redhat-developer/vscode-java/blob/master/src/requirements.ts
 					const jdk = await jdkExplorer.findByPath(fixedPath);
-					if (!jdk || jdk.majorVersion < latestLtsVer) {
-						javaHome = latestLtsPath; // Fix unsupported older version
+					if (!jdk || jdk.majorVersion < stableLtsVer) {
+						javaHome = stableLtsPath; // Fix unsupported older version
 					} else if (fixedPath !== originPath) {
 						javaHome = fixedPath; // Fix invalid
 					} else {
 						// Keep new version
 					}
 				} else {
-					javaHome = latestLtsPath; // Can't fix
+					javaHome = stableLtsPath; // Can't fix
 				}
 			} else {
-				javaHome = latestLtsPath; // if unset
+				javaHome = stableLtsPath; // if unset
 			}
 			if (javaHome) {
 				update(configKey, javaHome);
@@ -114,8 +114,8 @@ export async function updateJavaConfigRuntimes(
 	// Project Runtimes Default (Keep if set)
 	const isNoDefault = !runtimes.find(r => r.default);
 	if (isNoDefault || !_.isEqual(runtimes, runtimesOld)) {
-		if (isNoDefault && latestLtsRuntime) {
-			latestLtsRuntime.default = true;
+		if (isNoDefault && stableLtsRuntime) {
+			stableLtsRuntime.default = true;
 		}
 		runtimes.sort((a, b) => a.name.localeCompare(b.name));
 		update(javaExtension.CONFIG_KEY_RUNTIMES, runtimes);
@@ -181,7 +181,7 @@ export async function updateJavaConfigRuntimes(
 		const pathArray = [];
 		pathArray.push(path.join(javaHome, 'bin'));
 		// Gradle/Maven: From setting or mac/Linux 'which' (Unsupported older Java version)
-		const javaVersion = javaExtension.versionOf(runtimeName ?? '') || latestLtsVer;
+		const javaVersion = javaExtension.versionOf(runtimeName ?? '') || Number.MAX_SAFE_INTEGER;
 		if (mavenBinDir && (javaVersion >= 8 || autoContext.isUserInstalled(mavenBinDir))) {
 			// Minimum version https://maven.apache.org/developers/compatibility-plan.html
 			pathArray.push(mavenBinDir);

@@ -26,15 +26,17 @@ export async function activate(context:vscode.ExtensionContext) {
 	const availableVers = javaExtension.getAvailableVersions();
 	const ltsFilter = (ver:number) => [8, 11].includes(ver) || (ver >= 17 && (ver - 17) % 4 === 0);
 	const targetLtsVers = availableVers.filter(ltsFilter).slice(-4);
-	const latestLtsVer = targetLtsVers.at(-1) ?? 0;
+	const ltsLastVer = targetLtsVers.at(-1);
+	const stableLtsVer = (ltsLastVer === availableVers.at(-1) ? targetLtsVers.at(-2) : ltsLastVer) ?? 0;
 	log.info('Supported Java versions', availableVers);
-	log.info(`Target LTS versions [${targetLtsVers}] default ${latestLtsVer}`);
+	log.info(`Target LTS versions [${targetLtsVers}] default ${stableLtsVer}`);
+	
 	const runtimes = userSettings.getJavaConfigRuntimes();
 	const runtimesOld = _.cloneDeep(runtimes);
 	const isFirstStartup = !autoContext.existsDirectory(autoContext.getGlobalStoragePath()); // Removed on uninstall
 
-	await scan(runtimes, runtimesOld, latestLtsVer);
-	await download(runtimes, availableVers, targetLtsVers, latestLtsVer);
+	await scan(runtimes, runtimesOld, stableLtsVer);
+	await download(runtimes, availableVers, targetLtsVers, stableLtsVer);
 	setMessage(runtimes, runtimesOld, isFirstStartup);
 	log.info('activate END');
 }
@@ -42,11 +44,11 @@ export async function activate(context:vscode.ExtensionContext) {
 async function scan(
 	runtimes: userSettings.IJavaConfigRuntime[],
 	runtimesOld: userSettings.IJavaConfigRuntime[],
-	latestLtsVer: number) {
+	stableLtsVer: number) {
 
 	try {
 		await jdkExplorer.scan(runtimes);
-		await userSettings.updateJavaConfigRuntimes(runtimes, runtimesOld, latestLtsVer);
+		await userSettings.updateJavaConfigRuntimes(runtimes, runtimesOld, stableLtsVer);
 	} catch (e: any) {
 		const message = `JDK scan failed. ${e.message ?? e}`;
 		vscode.window.showErrorMessage(message);
@@ -58,7 +60,7 @@ async function download(
 	runtimes: userSettings.IJavaConfigRuntime[],
 	availableVers: number[],
 	targetLtsVers: number[],
-	latestLtsVer: number) {
+	stableLtsVer: number) {
 
 	if (!userSettings.get('extensions.autoUpdate')) {
 		log.info(`Download disabled (extensions.autoUpdate: false)`);
@@ -74,7 +76,7 @@ async function download(
 			promiseArray.push(mavenDownloader.execute());
 			promiseArray.push(gradleDownloader.execute());
 			await Promise.allSettled(promiseArray);
-			await userSettings.updateJavaConfigRuntimes(runtimes, runtimesBeforeDownload, latestLtsVer);
+			await userSettings.updateJavaConfigRuntimes(runtimes, runtimesBeforeDownload, stableLtsVer);
 		} catch (e: any) {
 			const message = `Download failed. ${e.request?.path ?? ''} ${e.message ?? e}`;
 			log.info(message, e);
