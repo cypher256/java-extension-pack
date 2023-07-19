@@ -49,7 +49,7 @@ function archOf(javaVersion: number): string | undefined {
  * @param majorVersion The major version of the JDK to download.
  * @return A promise that resolves when the JDK is installed.
  */
-export async function download(
+export async function execute(
 	runtimes:userSettings.IJavaConfigRuntime[],
 	majorVersion:number) {
 

@@ -37,7 +37,7 @@ Just install this extension and your Java development environment is ready. Let'
 * [Create a general Java project](https://code.visualstudio.com/docs/java/java-project#_create-a-new-java-project) (No build tools / Gradle / Maven)
 * [Create a Spring Boot project](https://code.visualstudio.com/docs/java/java-spring-boot#_create-the-project) (Gradle / Maven)
 
-### Check version
+### Check Version
 Select the Java version from the terminal dropdown and execute the following commands.
 ```bash
 java -version
@@ -87,7 +87,7 @@ Automatic download is enabled if the [extensions.autoUpdate](https://code.visual
 - Maven - Download latest version if not in PATH environment variable
 
 JDK auto-download supports the following platforms:
-- Windows x64
+- Windows x64, Arm (Emulation)
 - macOS x64, aarch64
 - Linux x64, aarch64
 
@@ -338,9 +338,6 @@ Improve highlighting of errors, warnings and other language diagnostics.
 - ![](https://img.shields.io/visual-studio-marketplace/i/SonarSource.sonarlint-vscode?style=plastic)
 [SonarLint](https://marketplace.visualstudio.com/items?itemName=SonarSource.sonarlint-vscode) (SonarSource: GPL) / [VSCode Document](https://code.visualstudio.com/docs/java/java-linting#_sonarlint)<br>
 Detect and fix quality issues as you write code in C, C++, Java, JavaScript, PHP, Python, HTML and TypeScript.
-- ![](https://img.shields.io/visual-studio-marketplace/i/inferrinizzard.prettier-sql-vscode?style=plastic)
-[Prettier SQL VSCode](https://marketplace.visualstudio.com/items?itemName=inferrinizzard.prettier-sql-vscode) (inferrinizzard: MIT)<br>
-VSCode Extension to format SQL files.
 - ![](https://img.shields.io/visual-studio-marketplace/i/juhahinkula.thymeleaf?style=plastic)
 [thymeleaf](https://marketplace.visualstudio.com/items?itemName=juhahinkula.thymeleaf) (Juha Hinkula: Unknown)<br>
 Thymeleaf snippets.

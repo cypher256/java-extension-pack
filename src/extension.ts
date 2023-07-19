@@ -4,9 +4,9 @@ import * as vscode from 'vscode';
 import { l10n } from 'vscode';
 import * as autoContext from './autoContext';
 import { OS, log } from './autoContext';
-import * as downloadGradle from './download/gradle';
-import * as downloadJdk from './download/jdk';
-import * as downloadMaven from './download/maven';
+import * as gradleDownloader from './download/gradle';
+import * as jdkDownloader from './download/jdk';
+import * as mavenDownloader from './download/maven';
 import * as javaExtension from './javaExtension';
 import * as jdkExplorer from './jdkExplorer';
 import * as userSettings from './userSettings';
@@ -17,91 +17,81 @@ import * as userSettings from './userSettings';
  * @return A promise that resolves when the extension is activated.
  */
 export async function activate(context:vscode.ExtensionContext) {
-
 	autoContext.init(context);
 	log.info(`activate START ${context.extension?.packageJSON?.version} --------------------`);
 	log.info('JAVA_HOME', process.env.JAVA_HOME);
-	log.info('Save Location', autoContext.getGlobalStoragePath());
+	log.info('Global Storage', autoContext.getGlobalStoragePath());
 	userSettings.setDefault();
 
-	// Get JDK versions
-	const availableVersions = javaExtension.getAvailableVersions();
+	const availableVers = javaExtension.getAvailableVersions();
 	const ltsFilter = (ver:number) => [8, 11].includes(ver) || (ver >= 17 && (ver - 17) % 4 === 0);
-	const targetLtsVersions = availableVersions.filter(ltsFilter).slice(-4);
-	const latestLtsVersion = _.last(targetLtsVersions) ?? 0;
-	log.info('Supported Java versions', availableVersions);
-	log.info('Target LTS versions', targetLtsVersions);
+	const targetLtsVers = availableVers.filter(ltsFilter).slice(-4);
+	const latestLtsVer = targetLtsVers.at(-1) ?? 0;
+	log.info('Supported Java versions', availableVers);
+	log.info(`Target LTS versions [${targetLtsVers}] default ${latestLtsVer}`);
 	const runtimes = userSettings.getJavaConfigRuntimes();
 	const runtimesOld = _.cloneDeep(runtimes);
 	const isFirstStartup = !autoContext.existsDirectory(autoContext.getGlobalStoragePath()); // Removed on uninstall
 
-	// Scan JDK
+	await scan(runtimes, runtimesOld, latestLtsVer);
+	await download(runtimes, availableVers, targetLtsVers, latestLtsVer);
+	setMessage(runtimes, runtimesOld, isFirstStartup);
+	log.info('activate END');
+}
+
+async function scan(
+	runtimes: userSettings.IJavaConfigRuntime[],
+	runtimesOld: userSettings.IJavaConfigRuntime[],
+	latestLtsVer: number) {
+
 	try {
 		await jdkExplorer.scan(runtimes);
-		await userSettings.updateJavaConfigRuntimes(runtimes, runtimesOld, latestLtsVersion);
-	} catch (e:any) {
+		await userSettings.updateJavaConfigRuntimes(runtimes, runtimesOld, latestLtsVer);
+	} catch (e: any) {
 		const message = `JDK scan failed. ${e.message ?? e}`;
 		vscode.window.showErrorMessage(message);
 		log.warn(message, e);
 	}
+}
 
-	// Download JDK, Gradle, Maven
+async function download(
+	runtimes: userSettings.IJavaConfigRuntime[],
+	availableVers: number[],
+	targetLtsVers: number[],
+	latestLtsVer: number) {
+
 	if (!userSettings.get('extensions.autoUpdate')) {
-		log.info(`activate END. Download disabled (extensions.autoUpdate: false)`);
-	} else if (!downloadJdk.isTargetPlatform) {
-		log.info(`activate END. Download disabled (${process.platform}/${process.arch})`);
-	} else if (targetLtsVersions.length === 0) {
-		log.info(`activate END. Download disabled (Can't get targetLtsVersions)`);
+		log.info(`Download disabled (extensions.autoUpdate: false)`);
+	} else if (!jdkDownloader.isTargetPlatform) {
+		log.info(`Download disabled (${process.platform}/${process.arch})`);
+	} else if (targetLtsVers.length === 0) {
+		log.info(`Download disabled (Can't get target LTS versions)`);
 	} else {
 		try {
 			const runtimesBeforeDownload = _.cloneDeep(runtimes);
-			const downloadVersions = _.uniq([...targetLtsVersions, _.last(availableVersions) ?? 0]);
-			const promiseArray = downloadVersions.map(v => downloadJdk.download(runtimes, v));
-			promiseArray.push(downloadMaven.download());
-			promiseArray.push(downloadGradle.download());
+			const downloadVers = _.uniq([...targetLtsVers, availableVers.at(-1) ?? 0]);
+			const promiseArray = downloadVers.map(ver => jdkDownloader.execute(runtimes, ver));
+			promiseArray.push(mavenDownloader.execute());
+			promiseArray.push(gradleDownloader.execute());
 			await Promise.allSettled(promiseArray);
-			await userSettings.updateJavaConfigRuntimes(runtimes, runtimesBeforeDownload, latestLtsVersion);
-			log.info('activate END');
-		} catch (e:any) {
+			await userSettings.updateJavaConfigRuntimes(runtimes, runtimesBeforeDownload, latestLtsVer);
+		} catch (e: any) {
 			const message = `Download failed. ${e.request?.path ?? ''} ${e.message ?? e}`;
-			log.info(message, e); // Silent: offline, 404 building, 503 proxy auth error, etc.
+			log.info(message, e);
 		}
 	}
-	addConfigChangeEvent(isFirstStartup, runtimes, runtimesOld);
 }
 
-function getLangPackSuffix(): string | undefined {
-	const osLocale = OS.locale;
-	if (osLocale.match(/^(cs|de|es|fr|it|ja|ko|pl|ru|tr)/)) {
-		return osLocale.substring(0, 2);
-	} else if (osLocale.startsWith('pt-br')) {
-		return 'pt-BR'; // Portuguese (Brazil)
-	} else if (osLocale.match(/^zh-(hk|tw)/)) {
-		return 'zh-hant'; // Chinese (Traditional)
-	} else if (osLocale.startsWith('zh')) {
-		return 'zh-hans'; // Chinese (Simplified)
-	}
-	return undefined;
-}
-
-async function installExtension(extensionId:string) {
-	try {
-		await vscode.commands.executeCommand('workbench.extensions.installExtension', extensionId);
-		log.info('Installed extension', extensionId);
-	} catch (error) {
-		log.info('Failed to install extension.', error); // Silent
-	}
-}
-
-function addConfigChangeEvent(
-	isFirstStartup:boolean,
+function setMessage(
 	runtimesNew:userSettings.IJavaConfigRuntime[],
-	runtimesOld:userSettings.IJavaConfigRuntime[]) {
+	runtimesOld:userSettings.IJavaConfigRuntime[],
+	isFirstStartup:boolean) {
 	
-	const versionsOld = runtimesOld.map(r => javaExtension.versionOf(r.name));
-	const versionsNew = runtimesNew.map(r => javaExtension.versionOf(r.name));
-	log.info(javaExtension.CONFIG_KEY_RUNTIMES, versionsNew);
-	const availableMsg = `${l10n.t('Available Java versions:')} ${versionsNew.join(', ')}`;
+	const oldVers = runtimesOld.map(r => javaExtension.versionOf(r.name));
+	const newVers = runtimesNew.map(r => javaExtension.versionOf(r.name));
+	const defaultVer = javaExtension.versionOf(runtimesNew.find(r => r.default)?.name ?? '');
+	log.info(`${javaExtension.CONFIG_KEY_RUNTIMES} [${newVers}] default ${defaultVer}`);
+	const availableMsg = `${l10n.t('Available Java versions:')} ${newVers.join(', ')}`;
 
 	// First Setup
 	if (isFirstStartup) {
@@ -117,7 +107,7 @@ function addConfigChangeEvent(
 			const langPackId = 'ms-ceintl.vscode-language-pack-' + langPackSuffix;
 			if (!vscode.extensions.getExtension(langPackId)) {
 				installExtension(langPackId); // Restart message
-				setTimeout(showReloadMessage, 15_000); // Delay for above
+				setTimeout(showReloadMessage, 15_000); // Delay for above cancel
 			} else {
 				if (vscode.env.language === 'en') {
 					// Choose display language, restart modal dialog
@@ -131,12 +121,12 @@ function addConfigChangeEvent(
 			showReloadMessage();
 		}
 	} else {
-		const added = _.difference(versionsNew, versionsOld);
+		const added = _.difference(newVers, oldVers);
 		if (added.length > 0) {
 			const msg = l10n.t('The following Java Runtime Configuration added. Version:');
 			vscode.window.showInformationMessage(`${msg} ${added.join(', ')} (${availableMsg})`);
 		} else {
-			const removed = _.difference(versionsOld, versionsNew);
+			const removed = _.difference(oldVers, newVers);
 			if (removed.length > 0) {
 				const msg = l10n.t('The following Java Runtime Configuration removed. Version:');
 				vscode.window.showInformationMessage(`${msg} ${removed.join(', ')} (${availableMsg})`);
@@ -161,6 +151,29 @@ function addConfigChangeEvent(
 			}
 		});
 	}, 5_000); // Prevent update by self
+}
+
+function getLangPackSuffix(): string | undefined {
+	const osLocale = OS.locale;
+	if (osLocale.match(/^(cs|de|es|fr|it|ja|ko|pl|ru|tr)/)) { // Active only
+		return osLocale.substring(0, 2);
+	} else if (osLocale.startsWith('pt-br')) {
+		return 'pt-BR'; // Portuguese (Brazil)
+	} else if (osLocale.match(/^zh-(hk|tw)/)) {
+		return 'zh-hant'; // Chinese (Traditional)
+	} else if (osLocale.startsWith('zh')) {
+		return 'zh-hans'; // Chinese (Simplified)
+	}
+	return undefined;
+}
+
+async function installExtension(extensionId:string) {
+	try {
+		await vscode.commands.executeCommand('workbench.extensions.installExtension', extensionId);
+		log.info('Installed extension', extensionId);
+	} catch (error) {
+		log.info('Failed to install extension.', error); // Silent
+	}
 }
 
 function showReloadMessage() {

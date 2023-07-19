@@ -4,8 +4,8 @@ import * as path from 'path';
 import * as vscode from 'vscode';
 import * as autoContext from './autoContext';
 import { OS, log } from './autoContext';
-import * as downloadGradle from './download/gradle';
-import * as downloadMaven from './download/maven';
+import * as gradleDownloader from './download/gradle';
+import * as mavenDownloader from './download/maven';
 import * as javaExtension from './javaExtension';
 import * as jdkExplorer from './jdkExplorer';
 
@@ -57,13 +57,13 @@ export function getJavaConfigRuntimes(): IJavaConfigRuntime[] {
  * Updates the Java runtime configurations for the VSCode Java extension.
  * @param runtimes An array of Java runtime objects to update the configuration with.
  * @param runtimesOld An array of previous Java runtime objects to compare with `runtimes`.
- * @param latestLtsVersion The latest LTS version.
+ * @param latestLtsVer The latest LTS version.
  * @return A promise that resolves when the configuration is updated.
  */
 export async function updateJavaConfigRuntimes(
 	runtimes:IJavaConfigRuntime[],
 	runtimesOld:IJavaConfigRuntime[],
-	latestLtsVersion:number) {
+	latestLtsVer:number) {
 
 	const CONFIG_KEY_DEPRECATED_JAVA_HOME = 'java.home';
 	if (get(CONFIG_KEY_DEPRECATED_JAVA_HOME) !== null) { // null if no entry or null value
@@ -71,7 +71,7 @@ export async function updateJavaConfigRuntimes(
 	}
 
 	// VSCode LS Java Home (Fix if unsupported old version)
-	const latestLtsRuntime = runtimes.find(r => r.name === javaExtension.nameOf(latestLtsVersion));
+	const latestLtsRuntime = runtimes.find(r => r.name === javaExtension.nameOf(latestLtsVer));
 	if (latestLtsRuntime) {
 		// Reload dialog on change only redhat.java extension (See: extension.ts addConfigChangeEvent)
 		const configKeys = ['java.jdt.ls.java.home'];
@@ -91,7 +91,7 @@ export async function updateJavaConfigRuntimes(
 					// RedHat LS minimum version check: REQUIRED_JDK_VERSION
 					// https://github.com/redhat-developer/vscode-java/blob/master/src/requirements.ts
 					const jdk = await jdkExplorer.findByPath(fixedPath);
-					if (!jdk || jdk.majorVersion < latestLtsVersion) {
+					if (!jdk || jdk.majorVersion < latestLtsVer) {
 						javaHome = latestLtsPath; // Fix unsupported older version
 					} else if (fixedPath !== originPath) {
 						javaHome = fixedPath; // Fix invalid
@@ -160,7 +160,7 @@ export async function updateJavaConfigRuntimes(
 
 	// Terminal Default Environment Variables (Keep if set)
 	let mavenBinDir:string | undefined = undefined;
-	let mvnExePath = get<string>(downloadMaven.CONFIG_KEY_MAVEN_EXE_PATH);
+	let mvnExePath = get<string>(mavenDownloader.CONFIG_KEY_MAVEN_EXE_PATH);
 	if (!mvnExePath && !OS.isWindows) {
 		mvnExePath = await autoContext.whichPath('mvn'); // (*1) For mac/Linux (Windows: Enable PATH)
 	}
@@ -168,7 +168,7 @@ export async function updateJavaConfigRuntimes(
 		mavenBinDir = path.join(mvnExePath, '..');
 	}
 	let gradleBinDir:string | undefined = undefined;
-	const gradleHome = get<string>(downloadGradle.CONFIG_KEY_GRADLE_HOME);
+	const gradleHome = get<string>(gradleDownloader.CONFIG_KEY_GRADLE_HOME);
 	if (gradleHome) {
 		gradleBinDir = path.join(gradleHome, 'bin');
 	} else if (!OS.isWindows) {
@@ -181,7 +181,7 @@ export async function updateJavaConfigRuntimes(
 		const pathArray = [];
 		pathArray.push(path.join(javaHome, 'bin'));
 		// Gradle/Maven: From setting or mac/Linux 'which' (Unsupported older Java version)
-		const javaVersion = javaExtension.versionOf(runtimeName ?? '') || latestLtsVersion;
+		const javaVersion = javaExtension.versionOf(runtimeName ?? '') || latestLtsVer;
 		if (mavenBinDir && (javaVersion >= 8 || autoContext.isUserInstalled(mavenBinDir))) {
 			// Minimum version https://maven.apache.org/developers/compatibility-plan.html
 			pathArray.push(mavenBinDir);

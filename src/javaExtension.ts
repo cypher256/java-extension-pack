@@ -38,14 +38,14 @@ export function versionOf(runtimeName:string): number {
 
 /**
  * Returns the VSCode JDT runtime name that matches the given JDK major version.
- * @param majorVersion The JDK major version.
+ * @param majorVer The JDK major version.
  * @returns The VSCode JDT runtime name.
  */
-export function nameOf(majorVersion:number): string {
-    if (majorVersion <= 5) {
-        return 'J2SE-1.' + majorVersion;
-    } else if (majorVersion <= 8) {
-        return 'JavaSE-1.' + majorVersion;
+export function nameOf(majorVer:number): string {
+    if (majorVer <= 5) {
+        return 'J2SE-1.' + majorVer;
+    } else if (majorVer <= 8) {
+        return 'JavaSE-1.' + majorVer;
     }
-    return 'JavaSE-' + majorVersion;
+    return 'JavaSE-' + majorVer;
 }

@@ -12,7 +12,7 @@ export const CONFIG_KEY_GRADLE_HOME = 'java.import.gradle.home';
  * Downloads and installs the Gradle if it is not already installed.
  * @return A promise that resolves when the Gradle is installed.
  */
-export async function download() {
+export async function execute() {
 	try {
 		const gradleHomeOld = userSettings.get<string>(CONFIG_KEY_GRADLE_HOME);
 		const gradleHomeNew = await downloadProc(gradleHomeOld);

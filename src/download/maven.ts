@@ -1,7 +1,6 @@
 /*! VSCode Extension (c) 2023 Shinji Kashihara (cypher256) @ WILL */
 import axios from 'axios';
 import * as fs from 'fs';
-import * as _ from 'lodash';
 import * as path from 'path';
 import * as autoContext from '../autoContext';
 import { log } from '../autoContext';
@@ -13,7 +12,7 @@ export const CONFIG_KEY_MAVEN_EXE_PATH = 'maven.executable.path';
  * Downloads and installs the Maven if it is not already installed.
  * @return A promise that resolves when the Maven is installed.
  */
-export async function download() {
+export async function execute() {
 	try {
 		const mavenExePathOld = userSettings.get<string>(CONFIG_KEY_MAVEN_EXE_PATH);
 		const mavenExePathNew = await downloadProc(mavenExePathOld);
@@ -64,7 +63,7 @@ async function downloadProc(
     // Get Latest Version
     const URL_PREFIX = 'https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/';
 	const xml = (await axios.get(URL_PREFIX + 'maven-metadata.xml')).data;
-    const versionTag:string = _.last(xml.match(/<version>\d+\.\d+\.\d+<\/version>/g)) ?? '';
+    const versionTag:string = xml.match(/<version>\d+\.\d+\.\d+<\/version>/g).at(-1) ?? '';
     const version = versionTag.replace(/<.+?>/g, '');
 
 	// Check Version File

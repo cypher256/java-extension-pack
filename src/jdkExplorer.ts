@@ -49,9 +49,9 @@ export async function scan(
 
 	// Detect User Installed JDK
 	const detectedLatestMap = new Map<number, IDetectedJdk>();
-	const availableVersions = javaExtension.getAvailableVersions();
+	const availableVers = javaExtension.getAvailableVersions();
 	for (const detectedJdk of await findAll()) {
-		if (!availableVersions.includes(detectedJdk.majorVersion)) {
+		if (!availableVers.includes(detectedJdk.majorVersion)) {
 			continue;
 		}
 		const latestJdk = detectedLatestMap.get(detectedJdk.majorVersion);
@@ -61,17 +61,17 @@ export async function scan(
 	}
 
 	// Detect Auto-Downloaded JDK (Previously downloaded versions)
-	for (const major of availableVersions) {
-		if (detectedLatestMap.has(major)) {
+	for (const majorVer of availableVers) {
+		if (detectedLatestMap.has(majorVer)) {
 			continue; // Prefer user-installed JDK
 		}
-		let versionDir = path.join(autoContext.getGlobalStoragePath(), 'java', String(major));
-		if (await isValidHome(versionDir)) {
-			log.info(`Detected ${major} Auto-downloaded JDK`);
-			detectedLatestMap.set(major, {
-				majorVersion: major,
+		let verDir = path.join(autoContext.getGlobalStoragePath(), 'java', String(majorVer));
+		if (await isValidHome(verDir)) {
+			log.info(`Detected ${majorVer} Auto-downloaded JDK`);
+			detectedLatestMap.set(majorVer, {
+				majorVersion: majorVer,
 				fullVersion: '',
-				homePath: versionDir,
+				homePath: verDir,
 			});
 		}
 	}
@@ -94,10 +94,10 @@ export async function scan(
 	}
 }
 
-function isNewLeft(leftVersion:string, rightVersion:string): boolean {
+function isNewLeft(leftFullVer:string, rightFullVer:string): boolean {
 	try {
 		const optimize = (s:string) => s.replace(/_/g, '.'); // e.g.) 1.8.0_362, 11.0.18
-		return compare(optimize(leftVersion), optimize(rightVersion), '>');
+		return compare(optimize(leftFullVer), optimize(rightFullVer), '>');
 	} catch (e) {
 		log.warn('Failed compare-versions: ' + e);
 		return false;
