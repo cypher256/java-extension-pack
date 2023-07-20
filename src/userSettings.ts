@@ -15,7 +15,8 @@ import * as jdkExplorer from './jdkExplorer';
  * @return The value `section` denotes or `undefined`. null is a valid value.
  */
 export function get<T>(section: string): T | undefined {
-	return vscode.workspace.getConfiguration().get(section);
+	const info = vscode.workspace.getConfiguration().inspect(section);
+	return (info?.globalValue ?? info?.defaultValue) as T;
 }
 
 /**

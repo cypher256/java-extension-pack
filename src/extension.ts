@@ -26,8 +26,8 @@ export async function activate(context:vscode.ExtensionContext) {
 	const availableVers = javaExtension.getAvailableVersions();
 	const ltsFilter = (ver:number) => [8, 11].includes(ver) || (ver >= 17 && (ver - 17) % 4 === 0);
 	const targetLtsVers = availableVers.filter(ltsFilter).slice(-4);
-	const ltsLastVer = targetLtsVers.at(-1);
-	const stableLtsVer = (ltsLastVer === availableVers.at(-1) ? targetLtsVers.at(-2) : ltsLastVer) ?? 0;
+	const latestLtsVer = targetLtsVers.at(-1);
+	const stableLtsVer = (latestLtsVer === availableVers.at(-1) ? targetLtsVers.at(-2) : latestLtsVer) ?? 0;
 	log.info('Supported Java versions', availableVers);
 	log.info(`Target LTS versions [${targetLtsVers}] default ${stableLtsVer}`);
 	
