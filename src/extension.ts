@@ -79,7 +79,7 @@ async function download(
 			await userSettings.updateJavaConfigRuntimes(runtimes, runtimesBeforeDownload, stableLtsVer);
 		} catch (e: any) {
 			const message = `Download failed. ${e.request?.path ?? ''} ${e.message ?? e}`;
-			log.info(message, e);
+			log.info(message, e); // Silent: offline, 404 building, 503 proxy auth error, etc.
 		}
 	}
 }

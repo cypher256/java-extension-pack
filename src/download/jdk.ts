@@ -95,6 +95,7 @@ export async function execute(
 		extractDestDir: homeDir,
 		targetMessage: fullVersion,
 		removeLeadingPath: OS.isMac ? 3 : 1, // Remove leading 'jdk-xxx/Contents/Home/' fot macOS
+		is404Preparation: true,
 	});
 	if (!await jdkExplorer.isValidHome(homeDir)) {
 		log.info('Invalid JDK:', homeDir);

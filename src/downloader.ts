@@ -23,6 +23,7 @@ export interface IDownloaderOptions {
     readonly extractDestDir:string,
     readonly targetMessage:string,
     removeLeadingPath?:number,
+    is404Preparation?:boolean,
 }
 
 /**
@@ -33,8 +34,18 @@ export interface IDownloaderOptions {
 export async function execute(opt:IDownloaderOptions) {
     opt.removeLeadingPath = opt.removeLeadingPath ?? 1;
     await vscode.window.withProgress({location: vscode.ProgressLocation.Window}, async progress => {
-        await download(progress, opt);
-        await extract(progress, opt);
+        try {
+            await download(progress, opt);
+            await extract(progress, opt);
+		} catch (e: any) {
+            // Silent: offline, 404 building, 503 proxy auth error, etc.
+            if (opt.is404Preparation && e?.response?.status === 404) {
+                log.info(`Download preparation. ${opt.downloadUrl}`);
+            } else {
+                log.info(`Download failed. ${opt.downloadUrl}`, e);
+            }
+            throw e;
+		}
     });
     return opt;
 }
@@ -44,9 +55,9 @@ function report(progress:vscode.Progress<{message:string}>, msg:string) {
 }
 
 async function download(progress:vscode.Progress<{message:string}>, opt:IDownloaderOptions) {
-    log.info(`Download START ${opt.targetMessage}`, opt.downloadUrl);
     const workspaceState = autoContext.context.workspaceState;
     const res = await axios.get(opt.downloadUrl, {responseType: 'stream'});
+    log.info(`Download START ${opt.targetMessage}`, opt.downloadUrl);
 
     const isFirstDownload = autoContext.mkdirSyncQuietly(path.dirname(opt.downloadedFile));
     if (isFirstDownload) {
