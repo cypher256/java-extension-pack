@@ -67,7 +67,7 @@ export async function scan(
 		}
 		let verDir = path.join(autoContext.getGlobalStoragePath(), 'java', String(majorVer));
 		if (await isValidHome(verDir)) {
-			log.info(`Detected ${majorVer} Auto-downloaded JDK`);
+			log.info(`Detected Auto-downloaded ${majorVer}`);
 			detectedLatestMap.set(majorVer, {
 				majorVersion: majorVer,
 				fullVersion: '',
@@ -99,7 +99,7 @@ function isNewLeft(leftFullVer:string, rightFullVer:string): boolean {
 		const optimize = (s:string) => s.replace(/_/g, '.'); // e.g.) 1.8.0_362, 11.0.18
 		return compare(optimize(leftFullVer), optimize(rightFullVer), '>');
 	} catch (e) {
-		log.warn('Failed compare-versions: ' + e);
+		log.warn('Failed compare-versions:', e);
 		return false;
 	}
 }
@@ -188,7 +188,7 @@ async function tryGlob(
 			pushJdk(messagePrefix, jdk, jdks);
 		}
 	} catch (error) {
-		log.info('glob error', error); // Silent
+		log.info('glob error:', error); // Silent
 	}
 }
 

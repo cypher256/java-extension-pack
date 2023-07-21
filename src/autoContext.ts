@@ -44,6 +44,7 @@ export async function whichPath(cmd:string) {
 	try {
 		return await which(cmd);
 	} catch (error) {
+		log.info('which check:', error);
 		return undefined;
 	}
 }
@@ -63,7 +64,7 @@ export function readString(file:string): string | undefined {
 export function rmQuietly(p:string) {
 	fs.rm(p, {recursive: true, force: true}, e => {
 		if (e) {
-			log.info('Failed rm: ', e); // Silent
+			log.info('Failed rm:', e); // Silent
 		}
 	});
 }
@@ -72,7 +73,7 @@ export function rmSyncQuietly(p:string) {
 	try {
 		fs.rmSync(p, {recursive: true, force: true});
 	} catch (e) {
-		log.info('Failed rmSync: ' + e); // Silent
+		log.info('Failed rmSync:', e); // Silent
 	}
 }
 
@@ -83,7 +84,7 @@ export function mkdirSyncQuietly(p:string): boolean {
 			return true;
 		}
 	} catch (e) {
-		log.info('Failed mkdirSync: ' + e); // Silent
+		log.info('Failed mkdirSync:', e); // Silent
 	}
 	return false;
 }

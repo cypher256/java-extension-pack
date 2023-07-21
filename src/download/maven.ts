@@ -13,52 +13,56 @@ export const CONFIG_KEY_MAVEN_EXE_PATH = 'maven.executable.path';
  * @return A promise that resolves when the Maven is installed.
  */
 export async function execute() {
+	const homeDir = path.join(autoContext.getGlobalStoragePath(), 'maven', 'latest');
+	const mavenExePathOld = userSettings.get<string>(CONFIG_KEY_MAVEN_EXE_PATH);
+	let mavenExePathNew = await validate(homeDir, mavenExePathOld);
 	try {
-		const mavenExePathOld = userSettings.get<string>(CONFIG_KEY_MAVEN_EXE_PATH);
-		const mavenExePathNew = await downloadProc(mavenExePathOld);
-		if (mavenExePathOld !== mavenExePathNew) {
-			await userSettings.update(CONFIG_KEY_MAVEN_EXE_PATH, mavenExePathNew);
-		}
+		mavenExePathNew = await download(homeDir, mavenExePathNew);
 	} catch (error) {
-		log.info('Failed download Maven', error);
+		// Silent: offline, 404 building, 503 proxy auth error, etc.
+		log.info('Failed download Maven.', error);
+	}
+	if (mavenExePathOld !== mavenExePathNew) {
+		await userSettings.update(CONFIG_KEY_MAVEN_EXE_PATH, mavenExePathNew);
 	}
 }
 
-async function downloadProc(
-	mavenExePathOld:string | undefined): Promise<string | undefined> {
+async function validate(
+	homeDir:string,
+	mavenExePath:string | undefined): Promise<string | undefined> {
 
-	let mavenExePathNew = mavenExePathOld;
-	const storageMavenDir = path.join(autoContext.getGlobalStoragePath(), 'maven');
-    const versionDirName = 'latest';
-	const homeDir = path.join(storageMavenDir, versionDirName);
-
-	// Skip User Installed
-	if (mavenExePathOld) {
-		const fixedPath = fixPath(mavenExePathOld);
+	if (mavenExePath) {
+		const fixedPath = fixPath(mavenExePath);
 		if (!fixedPath) {
-			log.info('Remove invalid settings', CONFIG_KEY_MAVEN_EXE_PATH, mavenExePathOld);
-			mavenExePathNew = undefined;
+			log.info('Remove invalid settings', CONFIG_KEY_MAVEN_EXE_PATH, mavenExePath);
+			mavenExePath = undefined; // Remove config entry
 		} else {
-			if (fixedPath !== mavenExePathOld) {
-				log.info(`Fix ${CONFIG_KEY_MAVEN_EXE_PATH}\n   ${mavenExePathOld}\n-> ${fixedPath}`);
+			if (fixedPath !== mavenExePath) {
+				log.info(`Fix ${CONFIG_KEY_MAVEN_EXE_PATH}\n   ${mavenExePath}\n-> ${fixedPath}`);
 			}
-			mavenExePathNew = fixedPath;
-			if (autoContext.isUserInstalled(mavenExePathNew)) {
-				log.info('Available Maven (User installed)', CONFIG_KEY_MAVEN_EXE_PATH, mavenExePathNew);
-				return mavenExePathNew;
+			mavenExePath = fixedPath;
+			if (autoContext.isUserInstalled(mavenExePath)) {
+				log.info('Available Maven (User installed)', CONFIG_KEY_MAVEN_EXE_PATH, mavenExePath);
+				return mavenExePath;
 			}
 		}
 	}
-	if (!mavenExePathNew) {
+	if (!mavenExePath) {
 		const exeSystemPath = await autoContext.whichPath('mvn');
 		if (exeSystemPath) {
 			log.info('Available Maven (PATH)', exeSystemPath);
-			return mavenExePathNew; // Don't set config (Setting > mvnw > PATH)
+			return mavenExePath; // Don't set config (Setting > mvnw > PATH)
 		}
 		if (isValidHome(homeDir)) {
-			mavenExePathNew = getExePath(homeDir);
+			mavenExePath = getExePath(homeDir);
 		}
 	}
+	return mavenExePath;
+}
+
+async function download(
+	homeDir:string,
+	mavenExePath:string | undefined): Promise<string | undefined> {
 
     // Get Latest Version
     const URL_PREFIX = 'https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/';
@@ -71,7 +75,7 @@ async function downloadProc(
 	const versionOld = autoContext.readString(versionFile);
 	if (version === versionOld && isValidHome(homeDir)) {
 		log.info(`Available Maven ${version} (No updates)`);
-		return mavenExePathNew;
+		return mavenExePath;
 	}
 
     // Download
@@ -83,14 +87,14 @@ async function downloadProc(
 	});
 	if (!isValidHome(homeDir)) {
 		log.info('Invalid Maven:', homeDir);
-		mavenExePathNew = undefined;
-		return mavenExePathNew; // Silent
+		mavenExePath = undefined; // Remove config entry
+		return mavenExePath; // Silent
 	}
-	fs.writeFileSync(versionFile, version);
+	fs.writeFileSync(versionFile, version); // Sync for catch
 
 	// Set Settings
-	mavenExePathNew = getExePath(homeDir);
-	return mavenExePathNew;
+	mavenExePath = getExePath(homeDir);
+	return mavenExePath;
 }
 
 function isValidHome(homeDir:string) {
@@ -102,10 +106,14 @@ function getExePath(homeDir:string) {
 }
 
 function fixPath(exePath:string): string | undefined {
-	if (autoContext.existsFile(exePath)) {return exePath;}
-	let fixedPath = path.join(exePath, 'bin', 'mvn');
-	if (autoContext.existsFile(fixedPath)) {return fixedPath;}
-	fixedPath = path.join(exePath, 'mvn');
-	if (autoContext.existsFile(fixedPath)) {return fixedPath;}
+	for (const fixedPath of [
+		exePath,
+		path.join(exePath, 'mvn'),
+		path.join(exePath, 'bin', 'mvn'),
+	]) {
+		if (autoContext.existsFile(fixedPath)) {
+			return fixedPath;
+		}
+	}
 	return undefined;
 }

@@ -17,28 +17,33 @@ import * as userSettings from './userSettings';
  * @return A promise that resolves when the extension is activated.
  */
 export async function activate(context:vscode.ExtensionContext) {
-	autoContext.init(context);
-	log.info(`activate START ${context.extension?.packageJSON?.version} --------------------`);
-	log.info('JAVA_HOME', process.env.JAVA_HOME);
-	log.info('Global Storage', autoContext.getGlobalStoragePath());
-	userSettings.setDefault();
-
-	const availableVers = javaExtension.getAvailableVersions();
-	const ltsFilter = (ver:number) => [8, 11].includes(ver) || (ver >= 17 && (ver - 17) % 4 === 0);
-	const targetLtsVers = availableVers.filter(ltsFilter).slice(-4);
-	const latestLtsVer = targetLtsVers.at(-1);
-	const stableLtsVer = (latestLtsVer === availableVers.at(-1) ? targetLtsVers.at(-2) : latestLtsVer) ?? 0;
-	log.info('Supported Java versions', availableVers);
-	log.info(`Target LTS versions [${targetLtsVers}] default ${stableLtsVer}`);
+	try {
+		autoContext.init(context);
+		log.info(`activate START ${context.extension?.packageJSON?.version} --------------------`);
+		log.info('JAVA_HOME', process.env.JAVA_HOME);
+		log.info('Global Storage', autoContext.getGlobalStoragePath());
+		userSettings.setDefault();
 	
-	const runtimes = userSettings.getJavaConfigRuntimes();
-	const runtimesOld = _.cloneDeep(runtimes);
-	const isFirstStartup = !autoContext.existsDirectory(autoContext.getGlobalStoragePath()); // Removed on uninstall
-
-	await scan(runtimes, runtimesOld, stableLtsVer);
-	await download(runtimes, availableVers, targetLtsVers, stableLtsVer);
-	setMessage(runtimes, runtimesOld, isFirstStartup);
-	log.info('activate END');
+		const availableVers = javaExtension.getAvailableVersions();
+		const ltsFilter = (ver:number) => [8, 11].includes(ver) || (ver >= 17 && (ver - 17) % 4 === 0);
+		const targetLtsVers = availableVers.filter(ltsFilter).slice(-4);
+		const latestLtsVer = targetLtsVers.at(-1);
+		const stableLtsVer = (latestLtsVer === availableVers.at(-1) ? targetLtsVers.at(-2) : latestLtsVer) ?? 0;
+		log.info('Supported Java versions', availableVers);
+		log.info(`Target LTS versions [${targetLtsVers}] default ${stableLtsVer}`);
+		
+		const runtimes = userSettings.getJavaConfigRuntimes();
+		const runtimesOld = _.cloneDeep(runtimes);
+		const isFirstStartup = !autoContext.existsDirectory(autoContext.getGlobalStoragePath());
+	
+		await scan(runtimes, runtimesOld, stableLtsVer);
+		await download(runtimes, availableVers, targetLtsVers, stableLtsVer);
+		await setMessage(runtimes, runtimesOld, isFirstStartup);
+		log.info('activate END');
+	} catch (e: any) {
+		vscode.window.showErrorMessage(`Auto Config Java failed. ${e.message ?? e}`);
+		log.error(e);
+	}
 }
 
 async function scan(
@@ -46,14 +51,8 @@ async function scan(
 	runtimesOld: userSettings.IJavaConfigRuntime[],
 	stableLtsVer: number) {
 
-	try {
-		await jdkExplorer.scan(runtimes);
-		await userSettings.updateJavaConfigRuntimes(runtimes, runtimesOld, stableLtsVer);
-	} catch (e: any) {
-		const message = `JDK scan failed. ${e.message ?? e}`;
-		vscode.window.showErrorMessage(message);
-		log.warn(message, e);
-	}
+	await jdkExplorer.scan(runtimes);
+	await userSettings.updateJavaConfigRuntimes(runtimes, runtimesOld, stableLtsVer);
 }
 
 async function download(
@@ -69,22 +68,17 @@ async function download(
 	} else if (targetLtsVers.length === 0) {
 		log.info(`Download disabled (Can't get target LTS versions)`);
 	} else {
-		try {
-			const runtimesBeforeDownload = _.cloneDeep(runtimes);
-			const downloadVers = _.uniq([...targetLtsVers, availableVers.at(-1) ?? 0]);
-			const promiseArray = downloadVers.map(ver => jdkDownloader.execute(runtimes, ver));
-			promiseArray.push(mavenDownloader.execute());
-			promiseArray.push(gradleDownloader.execute());
-			await Promise.allSettled(promiseArray);
-			await userSettings.updateJavaConfigRuntimes(runtimes, runtimesBeforeDownload, stableLtsVer);
-		} catch (e: any) {
-			const message = `Download failed. ${e.request?.path ?? ''} ${e.message ?? e}`;
-			log.info(message, e); // Silent: offline, 404 building, 503 proxy auth error, etc.
-		}
+		const runtimesBeforeDownload = _.cloneDeep(runtimes);
+		const downloadVers = _.uniq([...targetLtsVers, availableVers.at(-1) ?? 0]);
+		const promiseArray = downloadVers.map(ver => jdkDownloader.execute(runtimes, ver));
+		promiseArray.push(mavenDownloader.execute());
+		promiseArray.push(gradleDownloader.execute());
+		await Promise.allSettled(promiseArray);
+		await userSettings.updateJavaConfigRuntimes(runtimes, runtimesBeforeDownload, stableLtsVer);
 	}
 }
 
-function setMessage(
+async function setMessage(
 	runtimesNew:userSettings.IJavaConfigRuntime[],
 	runtimesOld:userSettings.IJavaConfigRuntime[],
 	isFirstStartup:boolean) {

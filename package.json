@@ -19,6 +19,7 @@
     "chinese",
     "config",
     "configuration",
+    "command",
     "eclipse",
     "gradle",
     "highlight",
@@ -27,12 +28,15 @@
     "java",
     "JAVA_HOME",
     "jdk",
+    "jre",
     "lombok",
     "maven",
     "multiple",
     "path",
+    "runtime",
     "runtimes",
     "server",
+    "setting",
     "settings",
     "spanish",
     "spring-boot",
@@ -53,9 +57,8 @@
     "vscjava.vscode-java-pack",
     "vmware.vscode-boot-dev-pack",
     "vscjava.vscode-gradle",
-    "esbenp.prettier-vscode",
+    "redhat.vscode-xml",
     "streetsidesoftware.code-spell-checker",
-    "ryanluker.vscode-coverage-gutters",
     "ritwickdey.LiveServer",
     "shardulm94.trailing-spaces",
     "Gruntfuggly.todo-tree",
@@ -103,5 +106,5 @@
     "jdk-utils": "0.x",
     "lodash": "4.x"
   },
-  "version": "2023.720.0"
+  "version": "2023.721.0"
 }

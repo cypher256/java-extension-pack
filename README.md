@@ -64,14 +64,19 @@ The JDKs are auto-configured for the current environment on VSCode startup as fo
 
 |Configuration Name|Configured Value (Priority)|
 |---|---|
-|(*1) [java.jdt.ls.java.home](https://github.com/redhat-developer/vscode-java/wiki/JDK-Requirements#platform-versions)<br>([Issues](https://github.com/redhat-developer/vscode-java/issues?q=is%3Aissue+java.jdt.ls.java.home))|Set latest LTS if unset, Fix if unsupported older version<br>(Setting > `JDK_HOME` > `JAVA_HOME` > `PATH`)|
-|(*1) [spring-boot.ls.java.home](https://github.com/spring-projects/sts4/blob/main/vscode-extensions/vscode-spring-boot/lib/Main.ts#L30)<br>([Issues](https://github.com/spring-projects/sts4/issues?q=is%3Aissue+spring-boot.ls.java.home))|Set latest LTS if unset, Fix if unsupported older version<br>(Setting > `JAVA_HOME` > `PATH`)|
-|(*1) [rsp-ui.rsp.java.home](https://github.com/redhat-developer/vscode-rsp-ui#extension-settings)<br>([Issues](https://github.com/redhat-developer/vscode-rsp-ui/issues?q=is%3Aissue+rsp-ui.rsp.java.home))|Set latest LTS if unset, Fix if unsupported older version<br>(Setting > `JDK_HOME` > `JAVA_HOME`> Windows Registry > `PATH`)|
+|*Language support for Java*|
 |~~[java.home](https://github.com/redhat-developer/vscode-java/wiki/JDK-Requirements#universal-version)~~|Delete due to deprecated entry|
 |[java.configuration.runtimes](https://code.visualstudio.com/docs/java/java-project#_configure-runtime-for-projects)<br>([Issues](https://github.com/redhat-developer/vscode-java/issues?q=is%3Aissue+java.configuration.runtimes))|Set all major JDKs scanned, detected, and downloaded<br>(Setting > `JAVA_HOME`)|
+|(*1) [java.jdt.ls.java.home](https://github.com/redhat-developer/vscode-java/wiki/JDK-Requirements#platform-versions)<br>([Issues](https://github.com/redhat-developer/vscode-java/issues?q=is%3Aissue+java.jdt.ls.java.home))|Set latest LTS if unset, Fix if unsupported older version<br>(Setting > `JDK_HOME` > `JAVA_HOME` > `PATH`)|
+|*Spring Boot Tools*|
+|(*1) [spring-boot.ls.java.home](https://github.com/spring-projects/sts4/blob/main/vscode-extensions/vscode-spring-boot/lib/Main.ts#L30)<br>([Issues](https://github.com/spring-projects/sts4/issues?q=is%3Aissue+spring-boot.ls.java.home))|Set latest LTS if unset, Fix if unsupported older version<br>(Setting > `JAVA_HOME` > `PATH`)|
+|*Runtime Server Protocol UI*|(No included)|
+|(*1) [rsp-ui.rsp.java.home](https://github.com/redhat-developer/vscode-rsp-ui#extension-settings)<br>([Issues](https://github.com/redhat-developer/vscode-rsp-ui/issues?q=is%3Aissue+rsp-ui.rsp.java.home))|Set latest LTS if unset, Fix if unsupported older version<br>(Setting > `JDK_HOME` > `JAVA_HOME`> Windows Registry > `PATH`)|
+|*Gradle for Java*|
 |[java.import.gradle.java.home](https://github.com/redhat-developer/vscode-java/wiki/JDK-Requirements#my-gradle-version-does-not-support-java-17)<br>([Issues](https://github.com/microsoft/vscode-gradle/issues?q=is%3Aissue+java.import.gradle.java.home))|Set `default` (*2) if unset<br>(Setting > `java.jdt.ls.java.home`)|
-|[maven.terminal.customEnv](https://marketplace.visualstudio.com/items?itemName=vscjava.vscode-maven#additional-configurations)<br>([Issues](https://github.com/microsoft/vscode-maven/issues?q=is%3Aissue+maven.terminal.customEnv))|Set `default` (*2) if `JAVA_HOME` environment variable unset<br>(Setting > `JAVA_HOME`)|
 |[java.import.gradle.home](https://github.com/microsoft/vscode-gradle#java-specific-settings)<br>([Issues](https://github.com/microsoft/vscode-gradle/issues?q=is%3Aissue+java.import.gradle.home))|Set latest if not in PATH environment variable<br>(`gradlew` > Setting > `PATH` > `GRADLE_HOME`)|
+|*Maven for Java*|
+|[maven.terminal.customEnv](https://marketplace.visualstudio.com/items?itemName=vscjava.vscode-maven#additional-configurations)<br>([Issues](https://github.com/microsoft/vscode-maven/issues?q=is%3Aissue+maven.terminal.customEnv))|Set `default` (*2) if `JAVA_HOME` environment variable unset<br>(Setting > `JAVA_HOME`)|
 |[maven.executable.path](https://github.com/Microsoft/vscode-maven#settings)<br>([Issues](https://github.com/microsoft/vscode-maven/issues?q=is%3Aissue+maven.executable.path))|Set latest if not in PATH environment variable<br>(Setting > `mvnw` > `PATH`)|
 
 (*1) The language server runtime used by VSCode extensions. Not for building or running projects.<br>
@@ -213,7 +218,7 @@ Entries that do not have the following configuration in the user settings are au
 |Configuration Name|Original Default|Auto Default|
 |---|---|---|
 |[editor.codeActionsOnSave](https://github.com/redhat-developer/vscode-java/pull/3015)|`{}`|See below|
-|[editor.linkedEditing](https://code.visualstudio.com/Docs/languages/html#_auto-update-tags) (like Auto Rename Tag)|`false`|`true`|
+|[editor.linkedEditing](https://code.visualstudio.com/Docs/languages/html#_auto-update-tags) (like *Auto Rename Tag*)|`false`|`true`|
 |[editor.minimap.enabled](https://code.visualstudio.com/docs/getstarted/userinterface#_minimap)|`true`|`false`|
 |[editor.rulers](https://code.visualstudio.com/api/references/theme-color#:~:text=location%20with%20%22-,editor.rulers,-%22)|`[]`|See below|
 |[editor.unicodeHighlight.includeComments](https://code.visualstudio.com/updates/v1_63#_unicode-highlighting)|`inUntrustedWorkspace`|`true`|
@@ -222,10 +227,10 @@ Entries that do not have the following configuration in the user settings are au
 |[workbench.tree.indent](https://code.visualstudio.com/docs/getstarted/settings#:~:text=in%20pixels.%0A%20%20%22-,workbench.tree.indent,-%22%3A%208)|`8`|`20`|
 |(Windows) [files.eol](https://code.visualstudio.com/docs/getstarted/settings#:~:text=line%20character.%0A%20%20%22-,files.eol,-%22%3A%20%22auto)|`auto`|`\n`|
 |(Windows) `[bat]` : `files.eol`|`files.eol`|`\r\n`|
-|Debugger for Java<br>[java.debug.settings.hotCodeReplace](https://code.visualstudio.com/docs/java/java-debugging#_hot-code-replace)|`manual`|`auto`|
-|Language support for Java<br>[java.sources.organizeImports.staticStarThreshold](https://github.com/redhat-developer/vscode-java)|`99`|`1`|
-|Code Spell Checker<br>[cSpell.diagnosticLevel](https://streetsidesoftware.com/vscode-spell-checker/docs/configuration/#cspelldiagnosticlevel)|`Information`|`Hint`|
-|Trailing Spaces<br>[trailing-spaces.includeEmptyLines](https://marketplace.visualstudio.com/items?itemName=shardulm94.trailing-spaces#:~:text=will%20be%20ignored.-,Include%20Empty%20Lines,-Default%3A%20true)|`true`|`false`|
+|*Debugger for Java*<br>[java.debug.settings.hotCodeReplace](https://code.visualstudio.com/docs/java/java-debugging#_hot-code-replace)|`manual`|`auto`|
+|*Language support for Java*<br>[java.sources.organizeImports.staticStarThreshold](https://github.com/redhat-developer/vscode-java)|`99`|`1`|
+|*Code Spell Checker*<br>[cSpell.diagnosticLevel](https://streetsidesoftware.com/vscode-spell-checker/docs/configuration/#cspelldiagnosticlevel)|`Information`|`Hint`|
+|*Trailing Spaces*<br>[trailing-spaces.includeEmptyLines](https://marketplace.visualstudio.com/items?itemName=shardulm94.trailing-spaces#:~:text=will%20be%20ignored.-,Include%20Empty%20Lines,-Default%3A%20true)|`true`|`false`|
 
 ```json
 "editor.codeActionsOnSave": {
@@ -279,10 +284,10 @@ The language pack corresponding to the OS locale is installed at the first start
 
 ## Included Extensions
 
-The `Extension Pack for Java` is required. Other extensions can be [disabled](https://code.visualstudio.com/docs/editor/extension-marketplace#_disable-an-extension) or [uninstalled](https://code.visualstudio.com/docs/editor/extension-marketplace#_uninstall-an-extension) according to your preference. Note that uninstalling this extension will <a href="https://github.com/microsoft/vscode/issues/169109">uninstall all</a> of the following extensions. If you want to set up extensions and configurations by development language, consider [Profile](https://code.visualstudio.com/docs/editor/profiles). (*) indicates that it will be installed if available in that environment at first startup.
+The *`Extension Pack for Java`* is required. Other extensions can be [disabled](https://code.visualstudio.com/docs/editor/extension-marketplace#_disable-an-extension) or [uninstalled](https://code.visualstudio.com/docs/editor/extension-marketplace#_uninstall-an-extension) according to your preference. Note that uninstalling this extension will <a href="https://github.com/microsoft/vscode/issues/169109">uninstall all</a> of the following extensions. If you want to set up extensions and configurations by development language, consider [Profile](https://code.visualstudio.com/docs/editor/profiles). (*) indicates that it will be installed if available in that environment at first startup.
 
 - ![](https://img.shields.io/visual-studio-marketplace/i/vscjava.vscode-java-pack?style=plastic)
-[Extension Pack for Java](https://marketplace.visualstudio.com/items?itemName=vscjava.vscode-java-pack) (Red Hat, Microsoft: MIT) / [VSCode Document](https://code.visualstudio.com/docs/java/java-tutorial#_creating-a-source-code-file)<br>
+[Extension Pack for Java](https://marketplace.visualstudio.com/items?itemName=vscjava.vscode-java-pack) (Red Hat: EPL, Microsoft: MIT) / [VSCode Document](https://code.visualstudio.com/docs/java/java-tutorial#_creating-a-source-code-file)<br>
 Java IntelliSense, debugging, testing, Maven/Gradle support, Lombok and more.<br>
 - ![](https://img.shields.io/visual-studio-marketplace/i/vmware.vscode-boot-dev-pack?style=plastic)
 [Spring Boot Extension Pack](https://marketplace.visualstudio.com/items?itemName=vmware.vscode-boot-dev-pack) (VMWare: EPL) / [VSCode Document](https://code.visualstudio.com/docs/java/java-spring-boot#_create-the-project)<br>
@@ -290,15 +295,12 @@ A collection of extensions for developing Spring Boot applications.<br>
 - ![](https://img.shields.io/visual-studio-marketplace/i/vscjava.vscode-gradle?style=plastic)
 [Gradle for Java](https://marketplace.visualstudio.com/items?itemName=vscjava.vscode-gradle) (Microsoft: MIT) / [VSCode Document](https://code.visualstudio.com/docs/java/java-build#_gradle)<br>
 Manage Gradle Projects, run Gradle tasks and provide better Gradle file authoring experience in VS Code.<br>
-- ![](https://img.shields.io/visual-studio-marketplace/i/ryanluker.vscode-coverage-gutters?style=plastic)
-[Coverage Gutters](https://marketplace.visualstudio.com/items?itemName=ryanluker.vscode-coverage-gutters) (ryanluker: MIT)<br>
-Display test coverage generated by lcov or xml - works with many languages.
+- ![](https://img.shields.io/visual-studio-marketplace/i/redhat.vscode-xml?style=plastic)
+[XML](https://marketplace.visualstudio.com/items?itemName=redhat.vscode-xml) (Red Hat: EPL)<br>
+XML Language Support by Red Hat.
 - ![](https://img.shields.io/visual-studio-marketplace/i/ritwickdey.LiveServer?style=plastic)
 [Live Server](https://marketplace.visualstudio.com/items?itemName=ritwickdey.LiveServer) (Ritwick Dey: MIT)<br>
 Launch a development local Server with live reload feature for static & dynamic pages.
-- ![](https://img.shields.io/visual-studio-marketplace/i/esbenp.prettier-vscode?style=plastic)
-[Prettier - Code formatter](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode) (Prettier: MIT)<br>
-Code formatter using prettier.
 - ![](https://img.shields.io/visual-studio-marketplace/i/streetsidesoftware.code-spell-checker?style=plastic)
 [Code Spell Checker](https://marketplace.visualstudio.com/items?itemName=streetsidesoftware.code-spell-checker) (Street Side Software: GPL)<br>
 Spelling checker for source code.
@@ -328,7 +330,7 @@ A language pack that matches the OS Locale.<br>
 <br>
 <br>
 
-# Recommended Extensions
+# Related Extensions
 
 The following are not included but are very useful extensions. Try to install it if necessary.
 
@@ -338,15 +340,21 @@ Improve highlighting of errors, warnings and other language diagnostics.
 - ![](https://img.shields.io/visual-studio-marketplace/i/SonarSource.sonarlint-vscode?style=plastic)
 [SonarLint](https://marketplace.visualstudio.com/items?itemName=SonarSource.sonarlint-vscode) (SonarSource: GPL) / [VSCode Document](https://code.visualstudio.com/docs/java/java-linting#_sonarlint)<br>
 Detect and fix quality issues as you write code in C, C++, Java, JavaScript, PHP, Python, HTML and TypeScript.
+- ![](https://img.shields.io/visual-studio-marketplace/i/ryanluker.vscode-coverage-gutters?style=plastic)
+[Coverage Gutters](https://marketplace.visualstudio.com/items?itemName=ryanluker.vscode-coverage-gutters) (ryanluker: MIT)<br>
+Display test coverage generated by lcov or xml - works with many languages.
+- ![](https://img.shields.io/visual-studio-marketplace/i/esbenp.prettier-vscode?style=plastic)
+[Prettier - Code formatter](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode) (Prettier: MIT)<br>
+Code formatter using prettier.
 - ![](https://img.shields.io/visual-studio-marketplace/i/juhahinkula.thymeleaf?style=plastic)
 [thymeleaf](https://marketplace.visualstudio.com/items?itemName=juhahinkula.thymeleaf) (Juha Hinkula: Unknown)<br>
 Thymeleaf snippets.
-- ![](https://img.shields.io/visual-studio-marketplace/i/redhat.vscode-community-server-connector?style=plastic)
-[Community Server Connectors](https://marketplace.visualstudio.com/items?itemName=redhat.vscode-community-server-connector) (Red Hat: EPL) / [VSCode Document](https://code.visualstudio.com/docs/java/java-tomcat-jetty)<br>
-This extension can start, stop, publish, and control servers such as Apache Felix, Karaf, and Tomcat..<br>
 - ![](https://img.shields.io/visual-studio-marketplace/i/pthorsson.vscode-jsp?style=plastic)
 [Java Server Pages (JSP)](https://marketplace.visualstudio.com/items?itemName=pthorsson.vscode-jsp) (Patrik Thorsson: MIT)<br>
 (unmaintained) JSP language support for Visual Studio Code, ported from TextMate's JSP bundle.
+- ![](https://img.shields.io/visual-studio-marketplace/i/redhat.vscode-community-server-connector?style=plastic)
+[Community Server Connectors](https://marketplace.visualstudio.com/items?itemName=redhat.vscode-community-server-connector) (Red Hat: EPL) / [VSCode Document](https://code.visualstudio.com/docs/java/java-tomcat-jetty)<br>
+This extension can start, stop, publish, and control servers such as Apache Felix, Karaf, and Tomcat..<br>
 - ![](https://img.shields.io/visual-studio-marketplace/i/vsls-contrib.gistfs?style=plastic)
 [GistPad](https://marketplace.visualstudio.com/items?itemName=vsls-contrib.gistfs) (Jonathan Carter: MIT)<br>
 Manage your code snippets and developer notes using GitHub Gists and repositories.

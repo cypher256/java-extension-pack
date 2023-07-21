@@ -62,18 +62,25 @@ export async function execute(
 	}
 	const arch = archOf(majorVersion);
 	if (!arch) {
-		throw new Error(`Unsupported platform: ${process.platform}/${process.arch}`);
+		log.info(`Unsupported platform: ${process.platform}/${process.arch}`);
+		return;
 	}
 
 	// Get Download URL
 	const URL_PREFIX = `https://github.com/adoptium/temurin${majorVersion}-binaries/releases`;
-	const response = await axios.get(`${URL_PREFIX}/latest`);
-	const redirectedUrl:string = response.request.res.responseUrl;
-	const fullVersion = redirectedUrl.replace(/.+tag\//, '');
-	const storageJavaDir = path.join(autoContext.getGlobalStoragePath(), 'java');
-	const homeDir = path.join(storageJavaDir, String(majorVersion));
+	let fullVersion = undefined;
+	try {
+		const response = await axios.get(`${URL_PREFIX}/latest`);
+		const redirectedUrl:string = response.request.res.responseUrl;
+		fullVersion = redirectedUrl.replace(/.+tag\//, '');
+	} catch (error) {
+		// Silent: offline, 404 building, 503 proxy auth error, etc.
+		log.info('Failed to get JDK download URL.', error);
+		return;
+	}
 
 	// Check Version File
+	const homeDir = path.join(autoContext.getGlobalStoragePath(), 'java', String(majorVersion));
 	const versionFile = path.join(homeDir, 'version.txt');
 	const fullVersionOld = autoContext.readString(versionFile);
 	if (fullVersion === fullVersionOld && await jdkExplorer.isValidHome(homeDir)) {
@@ -102,7 +109,7 @@ export async function execute(
 		_.remove(runtimes, r => r.name === runtimeName);
 		return; // Silent
 	}
-	fs.writeFileSync(versionFile, fullVersion);
+	fs.writeFileSync(versionFile, fullVersion); // Sync for catch
 
 	// Set Runtimes Configuration
 	if (matchedRuntime) {

@@ -111,7 +111,7 @@ async function extract(progress:vscode.Progress<{message:string}>, opt:IDownload
             await decompress(opt.downloadedFile, opt.extractDestDir, {strip: opt.removeLeadingPath});
             autoContext.rmQuietly(opt.downloadedFile);
         } catch (e) {
-            log.info('Failed extract: ' + e); // Validate later
+            log.info('Failed extract:', e); // Validate later
         }
     } finally {
         await workspaceState.update(STATE_EXTRACTING_MSG, undefined);
