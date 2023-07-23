@@ -23,7 +23,7 @@ export interface IDownloaderOptions {
     readonly extractDestDir:string,
     readonly targetMessage:string,
     removeLeadingPath?:number,
-    is404Preparation?:boolean,
+    is404Ignore?:boolean,
 }
 
 /**
@@ -39,12 +39,14 @@ export async function execute(opt:IDownloaderOptions) {
             await extract(progress, opt);
 		} catch (e: any) {
             // Silent: offline, 404 building, 503 proxy auth error, etc.
-            if (opt.is404Preparation && e?.response?.status === 404) {
-                log.info(`Download preparation. ${opt.downloadUrl}`);
+            if (opt.is404Ignore && e?.response?.status === 404) {
+                log.info(`No download target ${opt.targetMessage}`);
+                // Update version file
             } else {
-                log.info(`Download failed. ${opt.downloadUrl}`, e);
+                log.info(`Download failed ${opt.downloadUrl}`, e);
+                // No update version file
+                throw e;
             }
-            throw e;
 		}
     });
     return opt;
