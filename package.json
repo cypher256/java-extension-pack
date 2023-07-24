@@ -42,7 +42,8 @@
     "spring-boot",
     "spring",
     "terminal",
-    "tomcat"
+    "tomcat",
+    "xml"
   ],
   "categories": [
     "Programming Languages",
@@ -106,5 +107,5 @@
     "jdk-utils": "0.x",
     "lodash": "4.x"
   },
-  "version": "2023.723.0"
+  "version": "2023.724.0"
 }

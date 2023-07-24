@@ -18,9 +18,9 @@ export async function execute() {
 	let mavenExePathNew = await validate(homeDir, mavenExePathOld);
 	try {
 		mavenExePathNew = await download(homeDir, mavenExePathNew);
-	} catch (error) {
-		// Silent: offline, 404 building, 503 proxy auth error, etc.
-		log.info('Failed download Maven.', error);
+	} catch (e:any) {
+		// Silent: offline, 404, 503 proxy auth error, or etc.
+		log.info('Failed download Maven.', e, e?.request?.path);
 	}
 	if (mavenExePathOld !== mavenExePathNew) {
 		await userSettings.update(CONFIG_KEY_MAVEN_EXE_PATH, mavenExePathNew);

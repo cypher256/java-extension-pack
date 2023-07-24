@@ -29,7 +29,7 @@ export interface IDownloaderOptions {
 /**
  * Downloads and extracts for the given options.
  * @param opt The options of the downloader.
- * @return opt argument.
+ * @return A promise that resolves when the download and extract are completed.
  */
 export async function execute(opt:IDownloaderOptions) {
     opt.removeLeadingPath = opt.removeLeadingPath ?? 1;
@@ -37,11 +37,11 @@ export async function execute(opt:IDownloaderOptions) {
         try {
             await download(progress, opt);
             await extract(progress, opt);
-		} catch (e: any) {
-            // Silent: offline, 404 building, 503 proxy auth error, etc.
+		} catch (e:any) {
+            // Silent: offline, 404, 503 proxy auth error, or etc.
             if (opt.is404Ignore && e?.response?.status === 404) {
                 log.info(`No download target ${opt.targetMessage}`);
-                // Update version file
+                // Update version file (Skip version)
             } else {
                 log.info(`Download failed ${opt.downloadUrl}`, e);
                 // No update version file
@@ -49,7 +49,6 @@ export async function execute(opt:IDownloaderOptions) {
             }
 		}
     });
-    return opt;
 }
 
 function report(progress:vscode.Progress<{message:string}>, msg:string) {

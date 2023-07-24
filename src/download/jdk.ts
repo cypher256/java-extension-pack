@@ -73,9 +73,9 @@ export async function execute(
 		const response = await axios.get(`${URL_PREFIX}/latest`);
 		const redirectedUrl:string = response.request.res.responseUrl;
 		fullVersion = redirectedUrl.replace(/.+tag\//, '');
-	} catch (error) {
-		// Silent: offline, 404 building, 503 proxy auth error, etc.
-		log.info('Failed to get JDK download URL.', error);
+	} catch (e:any) {
+		// Silent: offline, 404, 503 proxy auth error, or etc.
+		log.info('Failed to get JDK download URL.', e, e?.request?.path);
 		return;
 	}
 

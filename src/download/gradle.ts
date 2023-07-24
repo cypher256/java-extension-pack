@@ -18,9 +18,9 @@ export async function execute() {
 	let gradleHomeNew = await validate(homeDir, gradleHomeOld);
 	try {
 		gradleHomeNew = await download(homeDir, gradleHomeNew);
-	} catch (error) {
-		// Silent: offline, 404 building, 503 proxy auth error, etc.
-		log.info('Failed download Gradle.', error);
+	} catch (e:any) {
+		// Silent: offline, 404, 503 proxy auth error, or etc.
+		log.info('Failed download Gradle.', e, e?.request?.path);
 	}
 	if (gradleHomeOld !== gradleHomeNew) {
 		await userSettings.update(CONFIG_KEY_GRADLE_HOME, gradleHomeNew);

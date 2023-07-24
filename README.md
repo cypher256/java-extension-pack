@@ -33,7 +33,7 @@ The extension greatly reduces the installation, configuration effort, and [JDK c
 Just install this extension and your Java development environment is ready. Let's write some Java source code and press `F5` to run it.
 
 ![Hello World](https://raw.githubusercontent.com/cypher256/java-extension-pack/main/image/hello.jpg)
-* [Create Hello World and run/debug](https://code.visualstudio.com/docs/java/java-tutorial#_creating-a-source-code-file) (No build tools)
+* [Create Hello World and run/debug](https://code.visualstudio.com/docs/java/java-tutorial#_creating-a-source-code-file:~:text=using%20the%20Java%3A-,Create%20Java%20Project,-command.%20Bring%20up) (No build tools)
 * [Create a general Java project](https://code.visualstudio.com/docs/java/java-project#_create-a-new-java-project) (No build tools / Gradle / Maven)
 * [Create a Spring Boot project](https://code.visualstudio.com/docs/java/java-spring-boot#_create-the-project) (Gradle / Maven)
 
@@ -87,9 +87,9 @@ The JDKs are auto-configured for the current environment on VSCode startup as fo
 #### Auto-download Support
 Automatic download is enabled if the [extensions.autoUpdate](https://code.visualstudio.com/docs/editor/extension-marketplace#_extension-autoupdate) configuration is NOT `false`. Java downloads multiple versions, but Gradle/Maven downloads only the latest version. If you use an older version of Gradle/Maven due to compatibility issues, please introduce `gradlew` ([Compatibility](https://docs.gradle.org/current/userguide/compatibility.html)) or `mvnw` ([Compatibility](https://maven.apache.org/developers/compatibility-plan.html)) in your project or manually set `java.import.gradle.home` or `maven.executable.path` in `settings.json`.
 
-- JDK - Download 4 LTS and [non-LTS latest](https://marketplace.visualstudio.com/items?itemName=redhat.java#features) versions if not detected
-- Gradle - Download latest version if not in PATH environment variable
-- Maven - Download latest version if not in PATH environment variable
+- JDK - LTS latest 4 version [available in VSCode](https://marketplace.visualstudio.com/items?itemName=redhat.java#features) if not installed
+- Gradle - Latest version if not in PATH environment variable
+- Maven - Latest version if not in PATH environment variable
 
 JDK auto-download supports the following platforms:
 - Windows x64, Arm (Emulation)

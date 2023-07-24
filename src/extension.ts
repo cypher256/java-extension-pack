@@ -37,11 +37,11 @@ export async function activate(context:vscode.ExtensionContext) {
 		const isFirstStartup = !autoContext.existsDirectory(autoContext.getGlobalStoragePath());
 	
 		await scan(runtimes, runtimesOld, stableLtsVer);
-		await download(runtimes, availableVers, targetLtsVers, stableLtsVer);
+		await download(runtimes, targetLtsVers, stableLtsVer);
 		await setMessage(runtimes, runtimesOld, isFirstStartup);
 		log.info('activate END');
-	} catch (e: any) {
-		vscode.window.showErrorMessage(`Auto Config Java failed. ${e.message ?? e}`);
+	} catch (e:any) {
+		vscode.window.showErrorMessage(`Auto Config Java failed. ${e}`);
 		log.error(e);
 	}
 }
@@ -57,7 +57,6 @@ async function scan(
 
 async function download(
 	runtimes: userSettings.IJavaConfigRuntime[],
-	availableVers: number[],
 	targetLtsVers: number[],
 	stableLtsVer: number) {
 
@@ -69,8 +68,7 @@ async function download(
 		log.info(`Download disabled (Can't get target LTS versions)`);
 	} else {
 		const runtimesBeforeDownload = _.cloneDeep(runtimes);
-		const downloadVers = _.uniq([...targetLtsVers, availableVers.at(-1) ?? 0]);
-		const promiseArray = downloadVers.map(ver => jdkDownloader.execute(runtimes, ver));
+		const promiseArray = targetLtsVers.map(ver => jdkDownloader.execute(runtimes, ver));
 		promiseArray.push(mavenDownloader.execute());
 		promiseArray.push(gradleDownloader.execute());
 		await Promise.allSettled(promiseArray);
@@ -89,7 +87,6 @@ async function setMessage(
 	log.info(`${javaExtension.CONFIG_KEY_RUNTIMES} [${newVers}] default ${defaultVer}`);
 	const availableMsg = `${l10n.t('Available Java versions:')} ${newVers.join(', ')}`;
 
-	// First Setup
 	if (isFirstStartup) {
 		autoContext.mkdirSyncQuietly(autoContext.getGlobalStoragePath());
 		vscode.window.showInformationMessage(availableMsg);
@@ -129,29 +126,12 @@ async function setMessage(
 			}
 		}
 	}
-
-	// User Manual Change Event
-	setTimeout(() => {
-		vscode.workspace.onDidChangeConfiguration(event => {
-			if (
-				// 'java.jdt.ls.java.home' is not defined because redhat.java extension is detected
-				event.affectsConfiguration('spring-boot.ls.java.home') ||
-				event.affectsConfiguration('java.import.gradle.java.home') ||
-				// For Terminal Profiles
-				event.affectsConfiguration('java.import.gradle.home') ||
-				event.affectsConfiguration('maven.executable.path') ||
-				event.affectsConfiguration('maven.terminal.customEnv') ||
-				event.affectsConfiguration('java.configuration.runtimes')
-			) {
-				showReloadMessage();
-			}
-		});
-	}, 5_000); // Prevent update by self
+	setTimeout(setConfigChangedMessage, 5_000); // Delay for prevent self update
 }
 
 function getLangPackSuffix(): string | undefined {
 	const osLocale = OS.locale;
-	if (osLocale.match(/^(cs|de|es|fr|it|ja|ko|pl|ru|tr)/)) { // Active only
+	if (osLocale.match(/^(cs|de|es|fr|it|ja|ko|pl|ru|tr)/)) { // Only active language packs
 		return osLocale.substring(0, 2);
 	} else if (osLocale.startsWith('pt-br')) {
 		return 'pt-BR'; // Portuguese (Brazil)
@@ -178,6 +158,22 @@ function showReloadMessage() {
 	vscode.window.showWarningMessage(msg, actionLabel).then(selection => {
 		if (actionLabel === selection) {
 			vscode.commands.executeCommand('workbench.action.reloadWindow');
+		}
+	});
+}
+
+function setConfigChangedMessage() {
+	vscode.workspace.onDidChangeConfiguration(event => {
+		if (
+			// 'java.jdt.ls.java.home' is not defined because redhat.java extension is detected
+			event.affectsConfiguration('spring-boot.ls.java.home') ||
+			event.affectsConfiguration('java.import.gradle.java.home') ||
+			// For Terminal Profiles
+			event.affectsConfiguration('java.import.gradle.home') ||
+			event.affectsConfiguration('maven.executable.path') ||
+			event.affectsConfiguration('maven.terminal.customEnv') ||
+			event.affectsConfiguration('java.configuration.runtimes')) {
+			showReloadMessage();
 		}
 	});
 }
