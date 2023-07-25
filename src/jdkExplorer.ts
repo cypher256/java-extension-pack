@@ -60,7 +60,7 @@ export async function scan(
 		}
 	}
 
-	// Detect Auto-Downloaded JDK (Previously downloaded versions)
+	// Detect Auto-Downloaded JDK (Support when user install is uninstalled)
 	for (const majorVer of availableVers) {
 		if (detectedLatestMap.has(majorVer)) {
 			continue; // Prefer user-installed JDK
@@ -82,13 +82,16 @@ export async function scan(
 		const configRuntime = runtimes.find(r => r.name === detectedName);
 		if (configRuntime) {
 			if (autoContext.isUserInstalled(configRuntime.path)) {
-				const configJdk = await findByPath(configRuntime.path); // Don't set if same fullVersion
+				const configJdk = await findByPath(configRuntime.path);
 				if (configJdk && isNewLeft(detectedJdk.fullVersion, configJdk.fullVersion)) {
+					// Update to new version
 					configRuntime.path = detectedJdk.homePath;
 				}
-				// else Keep if downloaded or same version
+				// else Keep (Detected is same or older)
 			}
+			// else Keep (Auto-Downloaded)
 		} else {
+			// Add new entry
 			runtimes.push({name: detectedName, path: detectedJdk.homePath});
 		}
 	}
@@ -96,7 +99,7 @@ export async function scan(
 
 function isNewLeft(leftFullVer:string, rightFullVer:string): boolean {
 	try {
-		const optimize = (s:string) => s.replace(/_/g, '.'); // e.g.) 1.8.0_362, 11.0.18
+		const optimize = (s:string) => s.replace(/_/g, '.'); // e.g.) 1.8.0_362 => 1.8.0.362
 		return compare(optimize(leftFullVer), optimize(rightFullVer), '>');
 	} catch (e) {
 		log.warn('Failed compare-versions:', e);
@@ -112,7 +115,7 @@ function isNewLeft(leftFullVer:string, rightFullVer:string): boolean {
 export async function isValidHome(homeDir:string | undefined): Promise<boolean> {
 	if (!homeDir) {return false;}
 	const runtime = await jdkutils.getRuntime(homeDir, { checkJavac: true });
-	return runtime?.hasJavac ? true : false;
+	return !!(runtime?.hasJavac);
 }
 
 /**

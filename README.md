@@ -6,7 +6,7 @@
 ![](https://img.shields.io/visual-studio-marketplace/i/Pleiades.java-extension-pack-jdk?color=blue)
 ![](https://img.shields.io/visual-studio-marketplace/last-updated/Pleiades.java-extension-pack-jdk?color=orange)
 
-The extension greatly reduces the installation, configuration effort, and [JDK configuration errors](https://stackoverflow.com/search?q=vscode+jdk) for general Java developers. There is no need to manually install JDKs, Gradle, or Maven or set environment variables such as `path`. It also comes pre-included with extensions that most Java developers need, such as Spring Boot and Lombok, so you can start developing right out of the box with zero configuration.
+The extension greatly reduces the installation and configuration effort, as well as [JDK-related errors](https://stackoverflow.com/search?q=vscode+jdk) for general Java developers. There is no need to manually install JDKs, Gradle, or Maven or set environment variables, such as the `path`. It also comes pre-included with extensions that most Java developers need, such as Spring Boot and Lombok, so you can start developing right out of the box with zero configuration.
 <br>
 <br>
 <br>
@@ -33,7 +33,7 @@ The extension greatly reduces the installation, configuration effort, and [JDK c
 Just install this extension and your Java development environment is ready. Let's write some Java source code and press `F5` to run it.
 
 ![Hello World](https://raw.githubusercontent.com/cypher256/java-extension-pack/main/image/hello.jpg)
-* [Create Hello World and run/debug](https://code.visualstudio.com/docs/java/java-tutorial#_creating-a-source-code-file:~:text=using%20the%20Java%3A-,Create%20Java%20Project,-command.%20Bring%20up) (No build tools)
+* [Create Hello World and run/debug](https://code.visualstudio.com/docs/java/java-tutorial#:~:text=new%20file.-,You%20can%20also%20create%20a%20Java%20project%20using%20the%20Java%3A%20Create%20Java%20Project%20command.,-Bring%20up%20the) (No build tools)
 * [Create a general Java project](https://code.visualstudio.com/docs/java/java-project#_create-a-new-java-project) (No build tools / Gradle / Maven)
 * [Create a Spring Boot project](https://code.visualstudio.com/docs/java/java-spring-boot#_create-the-project) (Gradle / Maven)
 
@@ -59,7 +59,7 @@ The JDKs are auto-configured for the current environment on VSCode startup as fo
 1. Auto-scan from package managers SDKMAN, jEnv, jabba, ASDF, Gradle, Scoop, Chocolatey, IntelliJ etc...
 1. Auto-scan from installers Adoptium, BellSoft, Corretto, Microsoft, Oracle, Red Hat, Semeru, Zulu etc...
 1. Auto-detect environment variables `JAVA_HOME`, `JDK_HOME` and `PATH`
-1. Auto-download Adoptium LTS JDKs and available latest non-LTS JDK if not installed
+1. Auto-download Adoptium LTS JDKs if not installed
 1. Auto-update auto-downloaded JDKs to the latest version
 
 |Configuration Name|Configured Value (Priority)|
@@ -67,20 +67,21 @@ The JDKs are auto-configured for the current environment on VSCode startup as fo
 |*Language support for Java*|
 |~~[java.home](https://github.com/redhat-developer/vscode-java/wiki/JDK-Requirements#universal-version)~~|Delete due to deprecated entry|
 |[java.configuration.runtimes](https://code.visualstudio.com/docs/java/java-project#_configure-runtime-for-projects)<br>([Issues](https://github.com/redhat-developer/vscode-java/issues?q=is%3Aissue+java.configuration.runtimes))|Set all major JDKs scanned, detected, and downloaded<br>(Setting > `JAVA_HOME`)|
-|(*1) [java.jdt.ls.java.home](https://github.com/redhat-developer/vscode-java/wiki/JDK-Requirements#platform-versions)<br>([Issues](https://github.com/redhat-developer/vscode-java/issues?q=is%3Aissue+java.jdt.ls.java.home))|Set latest LTS if unset, Fix if unsupported older version<br>(Setting > `JDK_HOME` > `JAVA_HOME` > `PATH`)|
+|(*1) [java.jdt.ls.java.home](https://github.com/redhat-developer/vscode-java/wiki/JDK-Requirements#platform-versions)<br>([Issues](https://github.com/redhat-developer/vscode-java/issues?q=is%3Aissue+java.jdt.ls.java.home))|(*2) Set stable LTS if unset, Fix if unsupported older version<br>(Setting > `JDK_HOME` > `JAVA_HOME` > `PATH`)|
 |*Spring Boot Tools*|
-|(*1) [spring-boot.ls.java.home](https://github.com/spring-projects/sts4/blob/main/vscode-extensions/vscode-spring-boot/lib/Main.ts#L30)<br>([Issues](https://github.com/spring-projects/sts4/issues?q=is%3Aissue+spring-boot.ls.java.home))|Set latest LTS if unset, Fix if unsupported older version<br>(Setting > `JAVA_HOME` > `PATH`)|
+|(*1) [spring-boot.ls.java.home](https://github.com/spring-projects/sts4/blob/main/vscode-extensions/vscode-spring-boot/lib/Main.ts#L30)<br>([Issues](https://github.com/spring-projects/sts4/issues?q=is%3Aissue+spring-boot.ls.java.home))|(*2) Set stable LTS if unset, Fix if unsupported older version<br>(Setting > `JAVA_HOME` > `PATH`)|
 |*Runtime Server Protocol UI*|(No included)|
-|(*1) [rsp-ui.rsp.java.home](https://github.com/redhat-developer/vscode-rsp-ui#extension-settings)<br>([Issues](https://github.com/redhat-developer/vscode-rsp-ui/issues?q=is%3Aissue+rsp-ui.rsp.java.home))|Set latest LTS if unset, Fix if unsupported older version<br>(Setting > `JDK_HOME` > `JAVA_HOME`> Windows Registry > `PATH`)|
+|(*1) [rsp-ui.rsp.java.home](https://github.com/redhat-developer/vscode-rsp-ui#extension-settings)<br>([Issues](https://github.com/redhat-developer/vscode-rsp-ui/issues?q=is%3Aissue+rsp-ui.rsp.java.home))|(*2) Set stable LTS if unset, Fix if unsupported older version<br>(Setting > `JDK_HOME` > `JAVA_HOME`> Windows Registry > `PATH`)|
 |*Gradle for Java*|
-|[java.import.gradle.java.home](https://github.com/redhat-developer/vscode-java/wiki/JDK-Requirements#my-gradle-version-does-not-support-java-17)<br>([Issues](https://github.com/microsoft/vscode-gradle/issues?q=is%3Aissue+java.import.gradle.java.home))|Set `default` (*2) if unset<br>(Setting > `java.jdt.ls.java.home`)|
-|[java.import.gradle.home](https://github.com/microsoft/vscode-gradle#java-specific-settings)<br>([Issues](https://github.com/microsoft/vscode-gradle/issues?q=is%3Aissue+java.import.gradle.home))|Set latest if not in PATH environment variable<br>(`gradlew` > Setting > `PATH` > `GRADLE_HOME`)|
+|[java.import.gradle.java.home](https://github.com/redhat-developer/vscode-java/wiki/JDK-Requirements#my-gradle-version-does-not-support-java-17)<br>([Issues](https://github.com/microsoft/vscode-gradle/issues?q=is%3Aissue+java.import.gradle.java.home))|(*3) Set `default` if unset<br>(Setting > `java.jdt.ls.java.home`)|
+|[java.import.gradle.home](https://github.com/microsoft/vscode-gradle#java-specific-settings)<br>([Issues](https://github.com/microsoft/vscode-gradle/issues?q=is%3Aissue+java.import.gradle.home))|Set latest gradle if not in `PATH` environment variable<br>(`gradlew` > Setting > `PATH` > `GRADLE_HOME`)|
 |*Maven for Java*|
-|[maven.terminal.customEnv](https://marketplace.visualstudio.com/items?itemName=vscjava.vscode-maven#additional-configurations)<br>([Issues](https://github.com/microsoft/vscode-maven/issues?q=is%3Aissue+maven.terminal.customEnv))|Set `default` (*2) if `JAVA_HOME` environment variable unset<br>(Setting > `JAVA_HOME`)|
-|[maven.executable.path](https://github.com/Microsoft/vscode-maven#settings)<br>([Issues](https://github.com/microsoft/vscode-maven/issues?q=is%3Aissue+maven.executable.path))|Set latest if not in PATH environment variable<br>(Setting > `mvnw` > `PATH`)|
+|[maven.terminal.customEnv](https://marketplace.visualstudio.com/items?itemName=vscjava.vscode-maven#additional-configurations)<br>([Issues](https://github.com/microsoft/vscode-maven/issues?q=is%3Aissue+maven.terminal.customEnv))|(*3) Set `default` if `JAVA_HOME` environment variable unset<br>(Setting > `JAVA_HOME`)|
+|[maven.executable.path](https://github.com/Microsoft/vscode-maven#settings)<br>([Issues](https://github.com/microsoft/vscode-maven/issues?q=is%3Aissue+maven.executable.path))|Set latest maven if not in `PATH` environment variable<br>(Setting > `mvnw` > `PATH`)|
 
 (*1) The language server runtime used by VSCode extensions. Not for building or running projects.<br>
-(*2) The `path` in the entry marked as `default: true` in `java.configuration.runtimes`.
+(*2) Usually the latest LTS, but the previous LTS if the next non-LTS has not been released.<br>
+(*3) The `path` in the entry marked as `default:true` in `java.configuration.runtimes`.
 <br>
 <br>
 

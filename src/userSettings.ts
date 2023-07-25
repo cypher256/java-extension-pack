@@ -87,15 +87,17 @@ export async function updateJavaConfigRuntimes(
 			const stableLtsPath = stableLtsRuntime.path;
 			let javaHome = null;
 			if (originPath) {
-				const fixedPath = await jdkExplorer.fixPath(originPath);
-				if (fixedPath) {
+				const fixedOriginPath = await jdkExplorer.fixPath(originPath);
+				if (fixedOriginPath) {
 					// RedHat LS minimum version check: REQUIRED_JDK_VERSION
 					// https://github.com/redhat-developer/vscode-java/blob/master/src/requirements.ts
-					const jdk = await jdkExplorer.findByPath(fixedPath);
-					if (!jdk || jdk.majorVersion < stableLtsVer) {
+					const originJdk = await jdkExplorer.findByPath(fixedOriginPath);
+					if (!originJdk || originJdk.majorVersion < stableLtsVer) {
 						javaHome = stableLtsPath; // Fix unsupported older version
-					} else if (fixedPath !== originPath) {
-						javaHome = fixedPath; // Fix invalid
+					} else if (originJdk.majorVersion === stableLtsVer && originJdk.homePath !== stableLtsPath) {
+						javaHome = stableLtsPath; // Same version, different path
+					} else if (fixedOriginPath !== originPath) {
+						javaHome = fixedOriginPath; // Fix invalid
 					} else {
 						// Keep new version
 					}
@@ -107,7 +109,6 @@ export async function updateJavaConfigRuntimes(
 			}
 			if (javaHome) {
 				update(configKey, javaHome);
-
 			}
 		}
 	}
@@ -163,7 +164,7 @@ export async function updateJavaConfigRuntimes(
 	let mavenBinDir:string | undefined = undefined;
 	let mvnExePath = get<string>(mavenDownloader.CONFIG_KEY_MAVEN_EXE_PATH);
 	if (!mvnExePath && !OS.isWindows) {
-		mvnExePath = await autoContext.whichPath('mvn'); // (*1) For mac/Linux (Windows: Enable PATH)
+		mvnExePath = await autoContext.whichPath('mvn'); // For mac/Linux (Windows: Use PATH)
 	}
 	if (mvnExePath) {
 		mavenBinDir = path.join(mvnExePath, '..');
@@ -173,7 +174,7 @@ export async function updateJavaConfigRuntimes(
 	if (gradleHome) {
 		gradleBinDir = path.join(gradleHome, 'bin');
 	} else if (!OS.isWindows) {
-		const gradleExePath = await autoContext.whichPath('gradle'); // (*1)
+		const gradleExePath = await autoContext.whichPath('gradle'); // For mac/Linux (Windows: Use PATH)
 		if (gradleExePath) {
 			gradleBinDir = path.join(gradleExePath, '..');
 		}
