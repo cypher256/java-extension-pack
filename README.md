@@ -33,7 +33,7 @@ The extension greatly reduces the installation and configuration effort, as well
 Just install this extension and your Java development environment is ready. Let's write some Java source code and press `F5` to run it.
 
 ![Hello World](https://raw.githubusercontent.com/cypher256/java-extension-pack/main/image/hello.jpg)
-* [Create Hello World and run/debug](https://code.visualstudio.com/docs/java/java-tutorial#:~:text=new%20file.-,You%20can%20also%20create%20a%20Java%20project%20using%20the%20Java%3A%20Create%20Java%20Project%20command.,-Bring%20up%20the) (No build tools)
+* [Create Hello World and run/debug](https://code.visualstudio.com/docs/java/java-tutorial#_creating-a-source-code-file) (No build tools)
 * [Create a general Java project](https://code.visualstudio.com/docs/java/java-project#_create-a-new-java-project) (No build tools / Gradle / Maven)
 * [Create a Spring Boot project](https://code.visualstudio.com/docs/java/java-spring-boot#_create-the-project) (Gradle / Maven)
 
