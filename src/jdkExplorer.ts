@@ -19,7 +19,7 @@ export async function scan(
 	// Fix JDK path
 	const availableNames = javaExtension.getAvailableNames();
 	let needImmediateUpdate = false;
-	for (let i = runtimes.length - 1; i >= 0; i--) { // Decrement for splice
+	for (let i = runtimes.length - 1; i >= 0; i--) { // Decrement for splice (remove)
 		const runtime = runtimes[i];
 		if (availableNames.length > 0 && !availableNames.includes(runtime.name)) {
 			log.info(`Remove unsupported name ${runtime.name}`);

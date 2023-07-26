@@ -30,7 +30,7 @@ export async function activate(context:vscode.ExtensionContext) {
 		const latestLtsVer = targetLtsVers.at(-1);
 		const stableLtsVer = (latestLtsVer === availableVers.at(-1) ? targetLtsVers.at(-2) : latestLtsVer) ?? 0;
 		log.info('Supported Java versions', availableVers);
-		log.info(`Target LTS versions [${targetLtsVers}] default ${stableLtsVer}`);
+		log.info(`Target LTS versions [${targetLtsVers}] stable ${stableLtsVer}`);
 		
 		const runtimes = userSettings.getJavaConfigRuntimes();
 		const runtimesOld = _.cloneDeep(runtimes);
@@ -77,9 +77,9 @@ async function download(
 }
 
 async function setMessage(
-	runtimesNew:userSettings.IJavaConfigRuntime[],
-	runtimesOld:userSettings.IJavaConfigRuntime[],
-	isFirstStartup:boolean) {
+	runtimesNew: userSettings.IJavaConfigRuntime[],
+	runtimesOld: userSettings.IJavaConfigRuntime[],
+	isFirstStartup: boolean) {
 	
 	const oldVers = runtimesOld.map(r => javaExtension.versionOf(r.name));
 	const newVers = runtimesNew.map(r => javaExtension.versionOf(r.name));

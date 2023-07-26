@@ -29,6 +29,7 @@
     "JAVA_HOME",
     "jdk",
     "jre",
+    "junit",
     "lombok",
     "maven",
     "multiple",
@@ -107,5 +108,5 @@
     "jdk-utils": "0.x",
     "lodash": "4.x"
   },
-  "version": "2023.725.1"
+  "version": "2023.726.0"
 }

@@ -30,7 +30,10 @@ The extension greatly reduces the installation and configuration effort, as well
 <br>
 
 # Getting Started
-Just install this extension and your Java development environment is ready. Let's write some Java source code and press `F5` to run it.
+Just install this extension and your Java development environment is ready. Let's run the Java code right away!
+1. Open command palette (F1 or Ctrl/Cmd + Shift + P) **>Java: Create Java Project...**
+1. No build tools ≫ Specify project parent directory ≫ Enter project name
+1. Open src/App.java ≫ Press F5 to run
 
 ![Hello World](https://raw.githubusercontent.com/cypher256/java-extension-pack/main/image/hello.jpg)
 * [Create Hello World and run/debug](https://code.visualstudio.com/docs/java/java-tutorial#_creating-a-source-code-file) (No build tools)
@@ -59,8 +62,8 @@ The JDKs are auto-configured for the current environment on VSCode startup as fo
 1. Auto-scan from package managers SDKMAN, jEnv, jabba, ASDF, Gradle, Scoop, Chocolatey, IntelliJ etc...
 1. Auto-scan from installers Adoptium, BellSoft, Corretto, Microsoft, Oracle, Red Hat, Semeru, Zulu etc...
 1. Auto-detect environment variables `JAVA_HOME`, `JDK_HOME` and `PATH`
-1. Auto-download Adoptium LTS JDKs if not installed
-1. Auto-update auto-downloaded JDKs to the latest version
+1. Auto-download Adoptium LTS JDKs, Gradle, Maven if not installed
+1. Auto-update auto-downloaded JDKs, Gradle, Maven to the latest version
 
 |Configuration Name|Configured Value (Priority)|
 |---|---|
@@ -298,7 +301,7 @@ A collection of extensions for developing Spring Boot applications.<br>
 Manage Gradle Projects, run Gradle tasks and provide better Gradle file authoring experience in VS Code.<br>
 - ![](https://img.shields.io/visual-studio-marketplace/i/redhat.vscode-xml?style=plastic)
 [XML](https://marketplace.visualstudio.com/items?itemName=redhat.vscode-xml) (Red Hat: EPL)<br>
-XML Language Support by Red Hat.
+XML Language Support by Red Hat (pom.xml etc.).
 - ![](https://img.shields.io/visual-studio-marketplace/i/ritwickdey.LiveServer?style=plastic)
 [Live Server](https://marketplace.visualstudio.com/items?itemName=ritwickdey.LiveServer) (Ritwick Dey: MIT)<br>
 Launch a development local Server with live reload feature for static & dynamic pages.

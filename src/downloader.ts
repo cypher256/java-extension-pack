@@ -44,7 +44,7 @@ export async function execute(opt:IDownloaderOptions) {
                 // Update version file (Skip version)
             } else {
                 log.info(`Download failed ${opt.downloadUrl}`, e);
-                // No update version file
+                // Throw to not update version file
                 throw e;
             }
 		}
