@@ -164,7 +164,7 @@ export async function updateJavaConfigRuntimes(
 	let mavenBinDir:string | undefined = undefined;
 	let mvnExePath = get<string>(mavenDownloader.CONFIG_KEY_MAVEN_EXE_PATH);
 	if (!mvnExePath && !OS.isWindows) {
-		mvnExePath = await autoContext.whichPath('mvn'); // For mac/Linux (Windows: Use PATH)
+		mvnExePath = await autoContext.whichPath('mvn'); // For mac/Linux (Windows: Use ${env:PATH})
 	}
 	if (mvnExePath) {
 		mavenBinDir = path.join(mvnExePath, '..');
@@ -174,7 +174,7 @@ export async function updateJavaConfigRuntimes(
 	if (gradleHome) {
 		gradleBinDir = path.join(gradleHome, 'bin');
 	} else if (!OS.isWindows) {
-		const gradleExePath = await autoContext.whichPath('gradle'); // For mac/Linux (Windows: Use PATH)
+		const gradleExePath = await autoContext.whichPath('gradle'); // For mac/Linux (Windows: Use ${env:PATH})
 		if (gradleExePath) {
 			gradleBinDir = path.join(gradleExePath, '..');
 		}

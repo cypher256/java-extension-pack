@@ -6,7 +6,7 @@
 ![](https://img.shields.io/visual-studio-marketplace/i/Pleiades.java-extension-pack-jdk?color=blue)
 ![](https://img.shields.io/visual-studio-marketplace/last-updated/Pleiades.java-extension-pack-jdk?color=orange)
 
-The extension greatly reduces the installation and configuration effort, as well as [JDK-related errors](https://stackoverflow.com/search?q=vscode+jdk) for general Java developers. There is no need to manually install JDKs, Gradle, or Maven or set environment variables, such as the `path`. It also comes pre-included with extensions that most Java developers need, such as Spring Boot and Lombok, so you can start developing right out of the box with zero configuration.
+The extension greatly reduces the installation and configuration effort, as well as [JDK-related errors](https://stackoverflow.com/search?q=vscode+jdk) for general Java developers. There is no need to manually install JDK, Gradle, or Maven, or set environment variables such as `JAVA_HOME` or `PATH`. It also comes pre-included with extensions that most Java developers need, such as Spring Boot and Lombok, so you can start developing right out of the box with zero configuration.
 <br>
 <br>
 <br>
@@ -54,13 +54,17 @@ mvn -v
 
 # Features
 
+This extension has no specific settings, commands or GUI. As shown below, the JDK, build tools, terminal, and other settings are automatically configured according to the current environment. It does not change OS environment variables or affect the environment as a whole.
+<br>
+<br>
+
 ## JDK Auto-configuration
-The JDKs are auto-configured for the current environment on VSCode startup as follows. You can check the detected JDK in User `settings.json` described later or Output (Ctrl + Shift + U) ≫ Dropdown: `Auto Config Java`. If there are multiple JDKs of the same version, the latest minor version among them is used. If you manually install or update the JDK and want to force update the configuration of VSCode, restart VSCode or execute **>Developer: Reload Window** from the command palette (F1 or Ctrl/Cmd + Shift + P). These apply to User `settings.json` (VSCode global), but can be manually edited to customize them. If you want to customize your settings even further, consider using [workspace settings](https://code.visualstudio.com/docs/getstarted/settings) or [profiles](https://code.visualstudio.com/docs/editor/profiles).
+Automatically configure the JDK and build tools. You can check the detected JDK in User `settings.json` described later or Output (Ctrl + Shift + U) ≫ Dropdown: `Auto Config Java`. If there are multiple JDKs of the same version, the latest minor version among them is used. If you manually install or update the JDK and want to force update the configuration of VSCode, restart VSCode or execute **>Developer: Reload Window** from the command palette (F1 or Ctrl/Cmd + Shift + P). These apply to User `settings.json` (VSCode global), but can be manually edited to customize them. If you want to customize your settings even further, consider using [workspace settings](https://code.visualstudio.com/docs/getstarted/settings) or [profiles](https://code.visualstudio.com/docs/editor/profiles).
 
 1. Auto-fix invalid JDK configuration (e.g. `/jdk17/bin` -> `/jdk17`)
 1. Auto-remove configuration entries when JDK uninstalled or version path changed
-1. Auto-scan from package managers SDKMAN, jEnv, jabba, ASDF, Gradle, Scoop, Chocolatey, IntelliJ etc...
-1. Auto-scan from installers Adoptium, BellSoft, Corretto, Microsoft, Oracle, Red Hat, Semeru, Zulu etc...
+1. Auto-scan from packages SDKMAN, Homebrew, jEnv, jabba, ASDF, Gradle, Scoop, Chocolatey, IntelliJ etc...
+1. Auto-scan from installations Adoptium, BellSoft, Corretto, Microsoft, Oracle, Red Hat, Semeru, Zulu etc...
 1. Auto-detect environment variables `JAVA_HOME`, `JDK_HOME` and `PATH`
 1. Auto-download Adoptium LTS JDKs, Gradle, Maven if not installed
 1. Auto-update auto-downloaded JDKs, Gradle, Maven to the latest version
@@ -123,7 +127,7 @@ Command Palette **>Preferences: Open User Settings (JSON)**
 "java.configuration.runtimes": [
   {
     "name": "JavaSE-1.8", // Adoptium (Auto-download)
-    "path": "c:\\Users\\<UserName>\\AppData\\Roaming\\Code\\User\\globalStorage\\pleiades.java-extension-pack-jdk\\8"
+    "path": "c:\\Users\\<UserName>\\AppData\\Roaming\\Code\\User\\globalStorage\\pleiades.java-extension-pack-jdk\\java\\8"
   },
   {
     "name": "JavaSE-11", // Corretto (Auto-scan)
@@ -195,8 +199,8 @@ Command Palette **>Preferences: Open User Settings (JSON)**
   "JavaSE-1.8": {
       "path": "cmd",
       "env": {
-          "JAVA_HOME": "c:\\Users\\<UserName>\\AppData\\Roaming\\Code\\User\\globalStorage\\pleiades.java-extension-pack-jdk\\8",
-          "PATH": "c:\\Users\\<UserName>\\AppData\\Roaming\\Code\\User\\globalStorage\\pleiades.java-extension-pack-jdk\\8\\bin;${env:PATH}"
+          "JAVA_HOME": "c:\\Users\\<UserName>\\AppData\\Roaming\\Code\\User\\globalStorage\\pleiades.java-extension-pack-jdk\\java\\8",
+          "PATH": "c:\\Users\\<UserName>\\AppData\\Roaming\\Code\\User\\globalStorage\\pleiades.java-extension-pack-jdk\\java\\8\\bin;${env:PATH}"
       },
       "overrideName": true
   },
