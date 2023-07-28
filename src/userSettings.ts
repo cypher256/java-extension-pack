@@ -318,6 +318,7 @@ export function setDefault() {
 	setIfUndefined('terminal.integrated.enablePersistentSessions', false);
 	setIfUndefined('terminal.integrated.tabs.hideCondition', 'never');
 	// Java extensions
+	setIfUndefined('java.configuration.updateBuildConfiguration', 'automatic');
 	setIfUndefined('java.debug.settings.hotCodeReplace', 'auto');
 	setIfUndefined('java.sources.organizeImports.staticStarThreshold', 1);
 	// Third party extensions
