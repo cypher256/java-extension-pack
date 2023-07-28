@@ -26,16 +26,14 @@ npx vsce publish
 #---------------------------------------
 
 JDK download first URL
-https://github.com/adoptium/
-temurin8-binaries/releases/latest
-temurin11-binaries/releases/latest
-temurin17-binaries/releases/latest
+https://github.com/adoptium/temurin8-binaries/releases/latest
+https://github.com/adoptium/temurin11-binaries/releases/latest
+https://github.com/adoptium/temurin17-binaries/releases/latest
 
 redirected URL
-https://github.com/adoptium/
-temurin8-binaries/releases/tag/jdk8u362-b09
-temurin11-binaries/releases/tag/jdk-11.0.18+10
-temurin17-binaries/releases/tag/jdk-17.0.6+10
+https://github.com/adoptium/temurin8-binaries/releases/tag/jdk8u362-b09
+https://github.com/adoptium/temurin11-binaries/releases/tag/jdk-11.0.18+10
+https://github.com/adoptium/temurin17-binaries/releases/tag/jdk-17.0.6+10
 
 download URL
 https://github.com/adoptium/
