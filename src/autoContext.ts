@@ -2,7 +2,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import * as vscode from 'vscode';
-import _ = require('lodash');
 import which = require('which');
 
 export const log: vscode.LogOutputChannel = vscode.window.createOutputChannel('Auto Config Java', {log:true});

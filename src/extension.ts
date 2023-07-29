@@ -38,7 +38,7 @@ export async function activate(context:vscode.ExtensionContext) {
 	
 		await scan(runtimes, runtimesOld, stableLtsVer);
 		await download(runtimes, targetLtsVers, stableLtsVer);
-		await setMessage(runtimes, runtimesOld, isFirstStartup);
+		setMessage(runtimes, runtimesOld, isFirstStartup);
 		log.info('activate END');
 	} catch (e:any) {
 		vscode.window.showErrorMessage(`Auto Config Java failed. ${e}`);
@@ -76,7 +76,7 @@ async function download(
 	}
 }
 
-async function setMessage(
+function setMessage(
 	runtimesNew: userSettings.IJavaConfigRuntime[],
 	runtimesOld: userSettings.IJavaConfigRuntime[],
 	isFirstStartup: boolean) {
