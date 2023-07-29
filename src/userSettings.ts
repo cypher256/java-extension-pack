@@ -321,7 +321,9 @@ export function setDefault() {
 	setIfUndefined('java.configuration.updateBuildConfiguration', 'automatic');
 	setIfUndefined('java.debug.settings.hotCodeReplace', 'auto');
 	setIfUndefined('java.sources.organizeImports.staticStarThreshold', 1);
-	// Third party extensions
+	// Included extensions
 	setIfUndefined('cSpell.diagnosticLevel', 'Hint', 'streetsidesoftware.code-spell-checker');
 	setIfUndefined('trailing-spaces.includeEmptyLines', false, 'shardulm94.trailing-spaces');
+	// Other extensions
+	setIfUndefined('thunder-client.requestLayout', 'Top/Bottom', 'rangav.vscode-thunder-client');
 }
