@@ -309,6 +309,7 @@ export function setDefault() {
 		"editor.wordHighlightBorder": "#FFD700",
 		"editor.selectionHighlightBorder": "#A9A9A9",
 	});
+	setIfUndefined('workbench.editor.revealIfOpen', true);
 	setIfUndefined('workbench.tree.indent', 20);
 	if (OS.isWindows) {
 		setIfUndefined('files.eol', '\n');
