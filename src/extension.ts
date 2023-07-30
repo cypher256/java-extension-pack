@@ -30,7 +30,7 @@ export async function activate(context:vscode.ExtensionContext) {
 		const latestLtsVer = targetLtsVers.at(-1);
 		const stableLtsVer = (latestLtsVer === availableVers.at(-1) ? targetLtsVers.at(-2) : latestLtsVer) ?? 0;
 		log.info('Supported Java versions', availableVers);
-		log.info(`Target LTS versions [${targetLtsVers}] stable ${stableLtsVer}`);
+		log.info(`Target LTS versions [${targetLtsVers}] stable ${stableLtsVer} (for language server)`);
 		
 		const runtimes = userSettings.getJavaConfigRuntimes();
 		const runtimesOld = _.cloneDeep(runtimes);
