@@ -6,7 +6,7 @@
 ![](https://img.shields.io/visual-studio-marketplace/i/Pleiades.java-extension-pack-jdk?color=blue)
 ![](https://img.shields.io/visual-studio-marketplace/last-updated/Pleiades.java-extension-pack-jdk?color=orange)
 
-The extension greatly reduces the installation and configuration effort, as well as [JDK-related errors](https://stackoverflow.com/search?q=vscode+jdk) for general Java developers. There is no need to manually install JDK, Gradle, or Maven, or set environment variables such as `JAVA_HOME` or `PATH`. It also comes pre-included with extensions that most Java developers need, such as Spring Boot and Lombok, so you can start developing right out of the box with zero configuration.
+The extension greatly reduces the installation and configuration effort, as well as [JDK-related errors](https://stackoverflow.com/search?q=vscode+jdk) for general Java developers. There is no need to manually install multiple versions of JDK, Gradle, or Maven, or set environment variables such as `JAVA_HOME` or `PATH`. It also comes pre-included with extensions that most Java developers need, such as Spring Boot and Lombok, so you can start developing right out of the box with zero configuration.
 <br>
 <br>
 <br>
@@ -59,7 +59,7 @@ This extension has no specific settings or commands. As shown below, the JDK, bu
 <br>
 
 ## JDK Auto-configuration
-Automatically configure the JDK and build tools. You can check the detected JDK in User `settings.json` described later or Output (Ctrl + Shift + U) ≫ Dropdown: `Auto Config Java`. If there are multiple JDKs of the same version, the latest minor version among them is used. If you manually install or update the JDK and want to force update the configuration of VSCode, restart VSCode or execute **>Developer: Reload Window** from the command palette (F1 or Ctrl/Cmd + Shift + P). These apply to User `settings.json` (VSCode global), but can be manually edited to customize them. If you want to customize your settings even further, consider using [workspace settings](https://code.visualstudio.com/docs/getstarted/settings) or [profiles](https://code.visualstudio.com/docs/editor/profiles).
+Automatically configure multiple versions of the JDK and build tools. You can check the detected JDK in User `settings.json` described later or Output (Ctrl + Shift + U) ≫ Dropdown: `Auto Config Java`. If there are multiple JDKs of the same version, the latest minor version among them is used. If you manually install or update the JDK and want to force update the configuration of VSCode, restart VSCode or execute **>Developer: Reload Window** from the command palette (F1 or Ctrl/Cmd + Shift + P). These apply to User `settings.json` (VSCode global), but can be manually edited to customize them. If you want to customize your settings even further, consider using [workspace settings](https://code.visualstudio.com/docs/getstarted/settings) or [profiles](https://code.visualstudio.com/docs/editor/profiles).
 
 1. Auto-fix invalid JDK configuration (e.g. `/java/bin` -> `/java`)
 1. Auto-remove configuration entries when JDK uninstalled or version path changed
@@ -123,7 +123,7 @@ Command Palette **>Preferences: Open User Settings (JSON)**
 "spring-boot.ls.java.home": "c:\\Program Files\\java\\jdk-17.0.6",
 ```
 ```json
-// Project Runtimes
+// Project Runtimes (multiple versions)
 "java.configuration.runtimes": [
   {
     "name": "JavaSE-1.8", // Adoptium (Auto-download)
