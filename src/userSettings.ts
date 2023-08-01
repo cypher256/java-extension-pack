@@ -302,9 +302,6 @@ export function setDefault() {
             "tab.unfocusedActiveBorderTop" : "#00FF0088",
             "textCodeBlock.background": "#00000055",
         },
-		"[Default Dark+][Visual Studio Dark]": {
-			"tab.activeBorder": "#0F0",
-		},
 		"editor.wordHighlightStrongBorder": "#FF6347",
 		"editor.wordHighlightBorder": "#FFD700",
 		"editor.selectionHighlightBorder": "#A9A9A9",
