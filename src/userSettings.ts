@@ -19,6 +19,11 @@ export function get<T>(section: string): T | undefined {
 	return (info?.globalValue ?? info?.defaultValue) as T;
 }
 
+function getGlobalOnly<T>(section: string): T | undefined {
+	const info = vscode.workspace.getConfiguration().inspect(section);
+	return info?.globalValue as T;
+}
+
 /**
  * Updates a VSCode user settings entry.
  * @return A promise that resolves when the configuration is updated.
@@ -74,7 +79,7 @@ export async function updateJavaConfigRuntimes(
 	// VSCode LS Java Home (Fix if unsupported old version)
 	const stableLtsRuntime = runtimes.find(r => r.name === javaExtension.nameOf(stableLtsVer));
 	if (stableLtsRuntime) {
-		// Reload dialog on change only redhat.java extension (See: extension.ts addConfigChangeEvent)
+		// Reload dialog on change only redhat.java extension (See: extension.ts onDidChangeConfiguration)
 		const configKeys = ['java.jdt.ls.java.home'];
 		function _pushIf(extensionId:string, configKey:string) {
 			if (vscode.extensions.getExtension(extensionId)) {configKeys.push(configKey);}
@@ -225,9 +230,9 @@ export async function updateJavaConfigRuntimes(
 
 	// Terminal Profiles Dropdown
 	const CONFIG_KEY_TERMINAL_PROFILES = 'terminal.integrated.profiles.' + osConfigName;
-	const profilesOld:any = _.cloneDeep(get(CONFIG_KEY_TERMINAL_PROFILES)); // Proxy to POJO for isEqual
-	const profilesNew:any = Object.fromEntries(Object.entries(profilesOld)
-		.filter(([key, profile]) => !javaExtension.versionOf(key))); // Copy unmanaged profiles only
+	const profilesGlobal = getGlobalOnly(CONFIG_KEY_TERMINAL_PROFILES) ?? {};
+	const profilesOld:any = _.cloneDeep(profilesGlobal); // Proxy to POJO for isEqual
+	const profilesNew:any = _.cloneDeep(profilesOld);
 
 	for (const runtime of runtimes) {
 		const profile:any = _.cloneDeep(profilesOld[runtime.name]) ?? {}; // for isEqual
@@ -246,8 +251,9 @@ export async function updateJavaConfigRuntimes(
 		_setTerminalEnv(profile.env, runtime.path, runtime.name);
 		profilesNew[runtime.name] = profile;
 	}
-	if (!_.isEqual(profilesNew, profilesOld) ) {
-		update(CONFIG_KEY_TERMINAL_PROFILES, profilesNew);
+	const sortedNew = Object.fromEntries(Object.keys(profilesNew).sort().map(key => [key, profilesNew[key]]));
+	if (!_.isEqual(sortedNew, profilesOld) ) {
+		update(CONFIG_KEY_TERMINAL_PROFILES, sortedNew);
 	}
 }
 
