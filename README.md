@@ -32,7 +32,7 @@ The extension greatly reduces the installation and configuration effort, as well
 # Getting Started
 Just install this extension and your Java development environment is ready. Let's run the Java code right away!
 1. Open command palette (F1 or Ctrl/Cmd + Shift + P) **>Java: Create Java Project...**
-1. No build tools ≫ Specify project parent directory ≫ Enter new project name
+1. No build tools ≫ Specify project parent directory ≫ Enter new project name (e.g. HelloWorld)
 1. Open src/App.java ≫ Press F5 to run
 
 ![Hello World](https://raw.githubusercontent.com/cypher256/java-extension-pack/main/image/hello.jpg)

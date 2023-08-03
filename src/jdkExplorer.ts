@@ -102,7 +102,7 @@ function isNewLeft(leftFullVer:string, rightFullVer:string): boolean {
 		const optimize = (s:string) => s.replace(/_/g, '.'); // e.g.) 1.8.0_362 => 1.8.0.362
 		return compare(optimize(leftFullVer), optimize(rightFullVer), '>');
 	} catch (e) {
-		log.warn('Failed compare-versions:', e);
+		log.warn(`Failed compare [${leftFullVer}] [${rightFullVer}]`, e);
 		return false;
 	}
 }
@@ -121,10 +121,9 @@ export async function isValidHome(homeDir:string | undefined): Promise<boolean> 
 /**
  * Returns the fixed dir of the JDK.
  * @param homeDir The home dir of the JDK.
- * @param defaultDir The default dir of the JDK.
- * @returns The fixed dir.
+ * @returns The fixed dir. undefined if cannot fix.
  */
-export async function fixPath(homeDir:string, defaultDir?:string): Promise<string | undefined> {
+export async function fixPath(homeDir:string): Promise<string | undefined> {
 	const MAX_UPPER_LEVEL = 2; // e.g. /jdk/bin/java -> /jdk
 	let d = homeDir;
 	for (let i = 0; i <= MAX_UPPER_LEVEL; i++) {
@@ -137,7 +136,7 @@ export async function fixPath(homeDir:string, defaultDir?:string): Promise<strin
 		const home = path.join(homeDir, 'Home');
 		if (await isValidHome(home)) {return home;}
 	}
-	return defaultDir;
+	return undefined;
 };
 
 /**

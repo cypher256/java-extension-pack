@@ -134,9 +134,9 @@ export async function updateJavaConfigRuntimes(
 		const CONFIG_KEY_GRADLE_JAVA_HOME = 'java.import.gradle.java.home';
 		const originPath = get<string>(CONFIG_KEY_GRADLE_JAVA_HOME);
 		if (originPath) {
-			const fixedPath = await jdkExplorer.fixPath(originPath, defaultRuntime.path);
-			if (fixedPath && fixedPath !== originPath) {
-				update(CONFIG_KEY_GRADLE_JAVA_HOME, fixedPath);
+			const fixedOrDefault = await jdkExplorer.fixPath(originPath) || defaultRuntime.path;
+			if (fixedOrDefault !== originPath) {
+				update(CONFIG_KEY_GRADLE_JAVA_HOME, fixedOrDefault);
 			}
 		} else {
 			update(CONFIG_KEY_GRADLE_JAVA_HOME, defaultRuntime.path);
@@ -154,9 +154,9 @@ export async function updateJavaConfigRuntimes(
 			update(CONFIG_KEY_MAVEN_CUSTOM_ENV, customEnv);
 		}
 		if (mavenJavaHome) {
-			const fixedPath = await jdkExplorer.fixPath(mavenJavaHome.value, defaultRuntime.path);
-			if (fixedPath && fixedPath !== mavenJavaHome.value) {
-				_updateMavenJavaHome(fixedPath);
+			const fixedOrDefault = await jdkExplorer.fixPath(mavenJavaHome.value) || defaultRuntime.path;
+			if (fixedOrDefault !== mavenJavaHome.value) {
+				_updateMavenJavaHome(fixedOrDefault);
 			}
 		} else if (!isValidEnvJavaHome) {
 			mavenJavaHome = {environmentVariable: 'JAVA_HOME'};
@@ -214,10 +214,8 @@ export async function updateJavaConfigRuntimes(
 			}
 		}
 		if (terminalEnv.JAVA_HOME) {
-			const fixedPath = await jdkExplorer.fixPath(terminalEnv.JAVA_HOME, defaultRuntime.path);
-			if (fixedPath) {
-				_updateTerminalDefault(fixedPath);
-			}
+			const fixedOrDefault = await jdkExplorer.fixPath(terminalEnv.JAVA_HOME) || defaultRuntime.path;
+			_updateTerminalDefault(fixedOrDefault);
 		} else if (!isValidEnvJavaHome) {
 			_updateTerminalDefault(defaultRuntime.path);
 		}
