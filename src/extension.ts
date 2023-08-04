@@ -126,7 +126,7 @@ function setMessage(
 			}
 		}
 	}
-	setTimeout(setConfigChangedMessage, 5_000); // Delay for prevent self update
+	setTimeout(setConfigChangedEvent, 5_000); // Delay for prevent self update
 }
 
 function getLangPackSuffix(): string | undefined {
@@ -162,7 +162,7 @@ function showReloadMessage() {
 	});
 }
 
-function setConfigChangedMessage() {
+function setConfigChangedEvent() {
 	vscode.workspace.onDidChangeConfiguration(event => {
 		if (
 			// 'java.jdt.ls.java.home' is not defined because redhat.java extension is detected

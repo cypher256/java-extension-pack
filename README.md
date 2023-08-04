@@ -54,7 +54,7 @@ mvn -v
 
 # Features
 
-This extension has no specific settings or commands. As shown below, the JDK, build tools, terminal, and other settings are automatically configured according to the current environment.
+This extension has no specific settings or commands. As shown below, the JDK, build tools, terminal, and other settings are automatically configured according to the current environment. If you are not interested in how it is auto-configured, you do not need to read the following.
 <br>
 <br>
 
@@ -74,7 +74,7 @@ Automatically configure multiple versions of the JDK and build tools. If there a
 |*Language support for Java*|
 |~~[java.home](https://github.com/redhat-developer/vscode-java/wiki/JDK-Requirements#universal-version)~~|Delete due to deprecated entry|
 |[java.configuration.runtimes](https://code.visualstudio.com/docs/java/java-project#_configure-runtime-for-projects)<br>([Issues](https://github.com/redhat-developer/vscode-java/issues?q=is%3Aissue+java.configuration.runtimes))|Set all major JDKs scanned, detected, and downloaded<br>(Setting > `JAVA_HOME`)|
-|(*1) [java.jdt.ls.java.home](https://github.com/redhat-developer/vscode-java/wiki/JDK-Requirements#platform-versions)<br>([Issues](https://github.com/redhat-developer/vscode-java/issues?q=is%3Aissue+java.jdt.ls.java.home))|(*2) Set stable LTS if unset, Fix if unsupported older version<br>(Setting > `JDK_HOME` > `JAVA_HOME` > `PATH`)|
+|(*1) [java.jdt.ls.java.home](https://github.com/redhat-developer/vscode-java/wiki/JDK-Requirements#platform-versions)<br>([Issues](https://github.com/redhat-developer/vscode-java/issues?q=is%3Aissue+java.jdt.ls.java.home))|(*2) Set stable LTS if unset, Fix if unsupported older version<br>(Setting > Embedded JRE > `JDK_HOME` > `JAVA_HOME` > `PATH`)|
 |*Spring Boot Tools*|
 |(*1) [spring-boot.ls.java.home](https://github.com/spring-projects/sts4/blob/main/vscode-extensions/vscode-spring-boot/lib/Main.ts#L30)<br>([Issues](https://github.com/spring-projects/sts4/issues?q=is%3Aissue+spring-boot.ls.java.home))|(*2) Set stable LTS if unset, Fix if unsupported older version<br>(Setting > `JAVA_HOME` > `PATH`)|
 |*Gradle for Java*|
@@ -290,6 +290,11 @@ The language pack corresponding to the OS locale is installed at the first start
 ## License
 - MIT (c) 2023 Shinji Kashihara (cypher256) @ WILL
 - Adoptium JDK: https://adoptium.net/docs/faq/#_is_temurin_free_to_use
+
+<br>
+
+## Thank you
+A big thank you to the developers of VSCode and its extensions.
 
 <br>
 
