@@ -1,4 +1,4 @@
-/*! VSCode Extension (c) 2023 Shinji Kashihara (cypher256) @ WILL */
+/*! VS Code Extension (c) 2023 Shinji Kashihara (cypher256) @ WILL */
 import axios from 'axios';
 import * as fs from 'fs';
 import * as _ from "lodash";

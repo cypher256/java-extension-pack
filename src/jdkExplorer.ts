@@ -1,4 +1,4 @@
-/*! VSCode Extension (c) 2023 Shinji Kashihara (cypher256) @ WILL */
+/*! VS Code Extension (c) 2023 Shinji Kashihara (cypher256) @ WILL */
 import { compare } from 'compare-versions';
 import { GlobOptionsWithFileTypesUnset, glob } from 'glob';
 import * as jdkutils from 'jdk-utils';

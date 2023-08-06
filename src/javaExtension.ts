@@ -1,11 +1,11 @@
-/*! VSCode Extension (c) 2023 Shinji Kashihara (cypher256) @ WILL */
+/*! VS Code Extension (c) 2023 Shinji Kashihara (cypher256) @ WILL */
 import * as vscode from 'vscode';
 import { log } from './autoContext';
 export const CONFIG_KEY_RUNTIMES = 'java.configuration.runtimes';
 
 /**
- * Returns the names of the available VSCode JDT runtimes.
- * @returns The VSCode JDT runtime names. An array of length 0 if not available.
+ * Returns the names of the available VS Code JDT runtimes.
+ * @returns The VS Code JDT runtime names. An array of length 0 if not available.
  */
 export function getAvailableNames(): string[] {
     // Do not add redhat.java extension to extensionDependencies in package.json,
@@ -20,8 +20,8 @@ export function getAvailableNames(): string[] {
 }
 
 /**
- * Returns the versions of the available VSCode JDT runtimes.
- * @returns The VSCode JDT runtime versions. An array of length 0 if not available.
+ * Returns the versions of the available VS Code JDT runtimes.
+ * @returns The VS Code JDT runtime versions. An array of length 0 if not available.
  */
 export function getAvailableVersions(): number[] {
     return getAvailableNames().map(versionOf).filter(Boolean).sort((a,b) => a-b);
@@ -29,7 +29,7 @@ export function getAvailableVersions(): number[] {
 
 /**
  * Returns the JDK major version that matches the given JDK.
- * @param runtimeName The name of the VSCode JDT runtime.
+ * @param runtimeName The name of the VS Code JDT runtime.
  * @returns The JDK major version. NaN if invalid runtimeName.
  */
 export function versionOf(runtimeName:string): number {
@@ -37,9 +37,9 @@ export function versionOf(runtimeName:string): number {
 }
 
 /**
- * Returns the VSCode JDT runtime name that matches the given JDK major version.
+ * Returns the VS Code JDT runtime name that matches the given JDK major version.
  * @param majorVer The JDK major version.
- * @returns The VSCode JDT runtime name.
+ * @returns The VS Code JDT runtime name.
  */
 export function nameOf(majorVer:number): string {
     if (majorVer <= 5) {

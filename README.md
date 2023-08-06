@@ -12,15 +12,15 @@ The extension greatly reduces the installation and configuration effort, as well
 <br>
 
 # Installation
-## Method 1: VSCode Web Marketplace
+## Method 1: VS Code Web Marketplace
 1. Click Install on the [Marketplace web page](https://marketplace.visualstudio.com/items?itemName=Pleiades.java-extension-pack-jdk) in web browser
-1. Click Install on README opened in VSCode
+1. Click Install on README opened in VS Code
 ## Method 2: Extensions Sidebar
-1. Open Extensions sideBar (Ctrl/CMD + Shift + X) in VSCode
+1. Open Extensions sideBar (Ctrl/CMD + Shift + X) in VS Code
 1. Search for `auto config`
 1. Click Install
 ## Method 3: Quick Pick
-1. Open Quick Pick (Ctrl/CMD + P) in VSCode, paste the following command, and press enter.<br>
+1. Open Quick Pick (Ctrl/CMD + P) in VS Code, paste the following command, and press enter.<br>
 `ext install Pleiades.java-extension-pack-jdk`
 ## Method 4: Command Line
 1. Install from the [command line](https://code.visualstudio.com/docs/editor/command-line).<br>
@@ -59,7 +59,7 @@ This extension has no specific settings or commands. As shown below, the JDK, bu
 <br>
 
 ## JDK Auto-configuration
-Automatically configure multiple versions of the JDK and build tools. If there are multiple JDKs of the same version, the latest minor version among them is used. If you manually install or update the JDK and want to force update the configuration of VSCode, restart VSCode or execute **>Developer: Reload Window** from the command palette (F1 or Ctrl/Cmd + Shift + P). These apply to User `settings.json` (VSCode global), but can be manually edited to customize them. If you want to customize your settings even further, consider using [workspace settings](https://code.visualstudio.com/docs/getstarted/settings) or [profiles](https://code.visualstudio.com/docs/editor/profiles).
+Automatically configure multiple versions of the JDK and build tools. If there are multiple JDKs of the same version, the latest minor version among them is used. If you manually install or update the JDK and want to force update the configuration of VS Code, restart VS Code or execute **>Developer: Reload Window** from the command palette (F1 or Ctrl/Cmd + Shift + P). These apply to User `settings.json` (VS Code global), but can be manually edited to customize them. If you want to customize your settings even further, consider using [workspace settings](https://code.visualstudio.com/docs/getstarted/settings) or [profiles](https://code.visualstudio.com/docs/editor/profiles).
 
 1. Auto-fix invalid JDK configuration (e.g. `/java/bin` -> `/java`)
 1. Auto-remove configuration entries when JDK uninstalled or version path changed
@@ -86,7 +86,7 @@ Automatically configure multiple versions of the JDK and build tools. If there a
 |*Runtime Server Protocol UI*|(No extension included)|
 |(*1) [rsp-ui.rsp.java.home](https://github.com/redhat-developer/vscode-rsp-ui#extension-settings)<br>([Issues](https://github.com/redhat-developer/vscode-rsp-ui/issues?q=is%3Aissue+rsp-ui.rsp.java.home))|(*2) Set stable LTS if unset, Fix if unsupported older version<br>(Setting > `JDK_HOME` > `JAVA_HOME`> Windows Registry > `PATH`)|
 
-(*1) The language server runtime used by VSCode extensions. Not for building or running projects.<br>
+(*1) The language server runtime used by VS Code extensions. Not for building or running projects.<br>
 (*2) Usually the latest LTS, but the previous LTS if the next non-LTS has not been released.<br>
 (*3) The `path` in the entry marked as `default:true` in `java.configuration.runtimes`.
 <br>
@@ -294,7 +294,7 @@ The language pack corresponding to the OS locale is installed at the first start
 <br>
 
 ## Thank you
-A big thank you to the developers of VSCode and its extensions.
+A big thank you to the developers of VS Code and its extensions.
 
 <br>
 
@@ -303,13 +303,13 @@ A big thank you to the developers of VSCode and its extensions.
 The *`Extension Pack for Java`* is required. Other extensions can be [disabled](https://code.visualstudio.com/docs/editor/extension-marketplace#_disable-an-extension) or [uninstalled](https://code.visualstudio.com/docs/editor/extension-marketplace#_uninstall-an-extension) according to your preference. Note that uninstalling this extension will <a href="https://github.com/microsoft/vscode/issues/169109">uninstall all</a> of the following extensions. If you want to set up extensions and configurations by development language, consider [Profile](https://code.visualstudio.com/docs/editor/profiles). (*) indicates that it will be installed if available in that environment at first startup.
 
 - ![](https://img.shields.io/visual-studio-marketplace/i/vscjava.vscode-java-pack?style=plastic)
-[Extension Pack for Java](https://marketplace.visualstudio.com/items?itemName=vscjava.vscode-java-pack) (Red Hat: EPL, Microsoft: MIT) / [VSCode Document](https://code.visualstudio.com/docs/java/java-tutorial#_creating-a-source-code-file)<br>
+[Extension Pack for Java](https://marketplace.visualstudio.com/items?itemName=vscjava.vscode-java-pack) (Red Hat: EPL, Microsoft: MIT) / [VS Code Document](https://code.visualstudio.com/docs/java/java-tutorial#_creating-a-source-code-file)<br>
 Java IntelliSense, debugging, testing, Maven/Gradle support, Lombok and more.<br>
 - ![](https://img.shields.io/visual-studio-marketplace/i/vmware.vscode-boot-dev-pack?style=plastic)
-[Spring Boot Extension Pack](https://marketplace.visualstudio.com/items?itemName=vmware.vscode-boot-dev-pack) (VMWare: EPL) / [VSCode Document](https://code.visualstudio.com/docs/java/java-spring-boot#_create-the-project)<br>
+[Spring Boot Extension Pack](https://marketplace.visualstudio.com/items?itemName=vmware.vscode-boot-dev-pack) (VMWare: EPL) / [VS Code Document](https://code.visualstudio.com/docs/java/java-spring-boot#_create-the-project)<br>
 A collection of extensions for developing Spring Boot applications.<br>
 - ![](https://img.shields.io/visual-studio-marketplace/i/vscjava.vscode-gradle?style=plastic)
-[Gradle for Java](https://marketplace.visualstudio.com/items?itemName=vscjava.vscode-gradle) (Microsoft: MIT) / [VSCode Document](https://code.visualstudio.com/docs/java/java-build#_gradle)<br>
+[Gradle for Java](https://marketplace.visualstudio.com/items?itemName=vscjava.vscode-gradle) (Microsoft: MIT) / [VS Code Document](https://code.visualstudio.com/docs/java/java-build#_gradle)<br>
 Manage Gradle Projects, run Gradle tasks and provide better Gradle file authoring experience in VS Code.<br>
 - ![](https://img.shields.io/visual-studio-marketplace/i/redhat.vscode-xml?style=plastic)
 [XML](https://marketplace.visualstudio.com/items?itemName=redhat.vscode-xml) (Red Hat: EPL)<br>
@@ -337,9 +337,9 @@ Highlight CSV and TSV files, Run SQL-like queries.
 VS Code Extension to set window to transparent on Windows and Linux platforms.
 - ![](https://img.shields.io/visual-studio-marketplace/i/intellsmi.comment-translate?style=plastic)
 (\*) [Comment Translate](https://marketplace.visualstudio.com/items?itemName=intellsmi.comment-translate) (intellsmi: MIT)<br>
-This plugin uses the Google Translate API to translate comments for the VSCode programming language.
+This plugin uses the Google Translate API to translate comments for the VS Code programming language.
 - ![](https://img.shields.io/visual-studio-marketplace/i/MS-CEINTL.vscode-language-pack-zh-hans?style=plastic)
-(\*) [Language Pack](https://marketplace.visualstudio.com/search?target=VSCode&category=Language%20Packs) (Microsoft: MIT) / [VSCode Document](https://code.visualstudio.com/docs/getstarted/locales)<br>
+(\*) [Language Pack](https://marketplace.visualstudio.com/search?target=VS Code&category=Language%20Packs) (Microsoft: MIT) / [VS Code Document](https://code.visualstudio.com/docs/getstarted/locales)<br>
 A language pack that matches the OS Locale.<br>
 
 <br>
@@ -357,10 +357,10 @@ Lightweight Rest API Client for VS Code.
 [Error Lens](https://marketplace.visualstudio.com/items?itemName=usernamehw.errorlens) (Alexander: Unknown)<br>
 Improve highlighting of errors, warnings and other language diagnostics.
 - ![](https://img.shields.io/visual-studio-marketplace/i/SonarSource.sonarlint-vscode?style=plastic)
-[SonarLint](https://marketplace.visualstudio.com/items?itemName=SonarSource.sonarlint-vscode) (SonarSource: GPL) / [VSCode Document](https://code.visualstudio.com/docs/java/java-linting#_sonarlint)<br>
+[SonarLint](https://marketplace.visualstudio.com/items?itemName=SonarSource.sonarlint-vscode) (SonarSource: GPL) / [VS Code Document](https://code.visualstudio.com/docs/java/java-linting#_sonarlint)<br>
 Detect and fix quality issues as you write code in C, C++, Java, JavaScript, PHP, Python, HTML and TypeScript.
 - ![](https://img.shields.io/visual-studio-marketplace/i/shengchen.vscode-checkstyle?style=plastic)
-[Checkstyle](https://marketplace.visualstudio.com/items?itemName=shengchen.vscode-checkstyle) (ShengChen: GPL) / [VSCode Document](https://code.visualstudio.com/docs/java/java-linting#_checkstyle)<br>
+[Checkstyle](https://marketplace.visualstudio.com/items?itemName=shengchen.vscode-checkstyle) (ShengChen: GPL) / [VS Code Document](https://code.visualstudio.com/docs/java/java-linting#_checkstyle)<br>
 Provide real-time feedback about Checkstyle violations and quick fix actions.
 - ![](https://img.shields.io/visual-studio-marketplace/i/ryanluker.vscode-coverage-gutters?style=plastic)
 [Coverage Gutters](https://marketplace.visualstudio.com/items?itemName=ryanluker.vscode-coverage-gutters) (ryanluker: MIT)<br>
@@ -372,13 +372,13 @@ Thymeleaf snippets.
 [Java Server Pages (JSP)](https://marketplace.visualstudio.com/items?itemName=pthorsson.vscode-jsp) (Patrik Thorsson: MIT)<br>
 (unmaintained) JSP language support for Visual Studio Code, ported from TextMate's JSP bundle.
 - ![](https://img.shields.io/visual-studio-marketplace/i/redhat.vscode-community-server-connector?style=plastic)
-[Community Server Connectors](https://marketplace.visualstudio.com/items?itemName=redhat.vscode-community-server-connector) (Red Hat: EPL) / [VSCode Document](https://code.visualstudio.com/docs/java/java-tomcat-jetty)<br>
+[Community Server Connectors](https://marketplace.visualstudio.com/items?itemName=redhat.vscode-community-server-connector) (Red Hat: EPL) / [VS Code Document](https://code.visualstudio.com/docs/java/java-tomcat-jetty)<br>
 This extension can start, stop, publish, and control servers such as Apache Felix, Karaf, and Tomcat..<br>
 - ![](https://img.shields.io/visual-studio-marketplace/i/vsls-contrib.gistfs?style=plastic)
 [GistPad](https://marketplace.visualstudio.com/items?itemName=vsls-contrib.gistfs) (Jonathan Carter: MIT)<br>
 Manage your code snippets and developer notes using GitHub Gists and repositories.
 - ![](https://img.shields.io/visual-studio-marketplace/i/GitHub.copilot?style=plastic)
-[GitHub Copilot](https://marketplace.visualstudio.com/items?itemName=GitHub.copilot) (GitHub: Subscription) / [VSCode Document](https://code.visualstudio.com/docs/editor/artificial-intelligence)<br>
+[GitHub Copilot](https://marketplace.visualstudio.com/items?itemName=GitHub.copilot) (GitHub: Subscription) / [VS Code Document](https://code.visualstudio.com/docs/editor/artificial-intelligence)<br>
 Your AI pair programmer.
 - ![](https://img.shields.io/visual-studio-marketplace/i/GitHub.copilot-chat?style=plastic)
 [GitHub Copilot Chat](https://marketplace.visualstudio.com/items?itemName=GitHub.copilot-chat) (GitHub: Subscription)<br>

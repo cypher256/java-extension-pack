@@ -1,4 +1,4 @@
-/*! VSCode Extension (c) 2023 Shinji Kashihara (cypher256) @ WILL */
+/*! VS Code Extension (c) 2023 Shinji Kashihara (cypher256) @ WILL */
 import * as _ from "lodash";
 import * as path from 'path';
 import * as vscode from 'vscode';
@@ -25,7 +25,7 @@ function getGlobalOnly<T>(section: string): T | undefined {
 }
 
 /**
- * Updates a VSCode user settings entry.
+ * Updates a VS Code user settings entry.
  * @return A promise that resolves when the configuration is updated.
  */
 export async function update(section:string, value:any) {
@@ -35,7 +35,7 @@ export async function update(section:string, value:any) {
 }
 
 /**
- * Removes a VSCode User settings entry.
+ * Removes a VS Code User settings entry.
  * @return A promise that resolves when the configuration is removed.
  */
 export async function remove(section:string) {
@@ -43,7 +43,7 @@ export async function remove(section:string) {
 }
 
 /**
- * An interface for the VSCode Java configuration runtime.
+ * An interface for the VS Code Java configuration runtime.
  */
 export interface IJavaConfigRuntime {
 	readonly name: string;
@@ -52,7 +52,7 @@ export interface IJavaConfigRuntime {
 }
 
 /**
- * Gets the Java runtime configurations for the VSCode Java extension.
+ * Gets the Java runtime configurations for the VS Code Java extension.
  * @returns An array of Java runtime objects. If no entry exists, returns an empty array.
  */
 export function getJavaConfigRuntimes(): IJavaConfigRuntime[] {
@@ -60,7 +60,7 @@ export function getJavaConfigRuntimes(): IJavaConfigRuntime[] {
 }
 
 /**
- * Updates the Java runtime configurations for the VSCode Java extension.
+ * Updates the Java runtime configurations for the VS Code Java extension.
  * @param runtimes An array of Java runtime objects to update the configuration with.
  * @param runtimesOld An array of previous Java runtime objects to compare with `runtimes`.
  * @param stableLtsVer The stable LTS version.
@@ -76,7 +76,7 @@ export async function updateJavaConfigRuntimes(
 		remove(CONFIG_KEY_DEPRECATED_JAVA_HOME);
 	}
 
-	// VSCode LS Java Home (Fix if unsupported old version)
+	// VS Code LS Java Home (Fix if unsupported old version)
 	const stableLtsRuntime = runtimes.find(r => r.name === javaExtension.nameOf(stableLtsVer));
 	if (stableLtsRuntime) {
 		// Reload dialog on change only redhat.java extension (See: extension.ts onDidChangeConfiguration)
@@ -270,11 +270,11 @@ function setIfUndefined(section:string, value:any, extensionName?:string) {
 }
 
 /**
- * Sets default values for VSCode settings.
+ * Sets default values for VS Code settings.
  */
 export function setDefault() {
 	/* eslint-disable @typescript-eslint/naming-convention */
-	// VSCode Editor
+	// VS Code Editor
 	setIfUndefined('editor.codeActionsOnSave', {
 		"source.organizeImports": true
 	});
@@ -295,11 +295,11 @@ export function setDefault() {
 		},
 	]);
 	setIfUndefined('editor.unicodeHighlight.includeComments', true);
-	// VSCode Emmet
+	// VS Code Emmet
 	setIfUndefined('emmet.variables', (section:string) => {
 		update(section, {'lang': OS.locale.substring(0, 2)});
 	});
-	// VSCode Workbench
+	// VS Code Workbench
 	setIfUndefined('workbench.colorCustomizations', {
 		"[Default Dark Modern]": {
             "tab.activeBorderTop": "#00FF00",
@@ -316,7 +316,7 @@ export function setDefault() {
 		setIfUndefined('files.eol', '\n');
 		setIfUndefined('[bat]', {'files.eol': '\r\n'});
 	}
-	// VSCode Terminal
+	// VS Code Terminal
 	setIfUndefined('terminal.integrated.enablePersistentSessions', false);
 	setIfUndefined('terminal.integrated.tabs.hideCondition', 'never');
 	// Java extensions
