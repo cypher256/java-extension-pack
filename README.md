@@ -54,7 +54,7 @@ mvn -v
 
 # Features
 
-This extension has no specific settings or commands. As shown below, the JDK, build tools, terminal, and other settings are automatically configured according to the current environment. If you are not interested in how it is auto-configured, you do not need to read the following.
+This extension has no specific settings or commands. As shown below, the JDK, build tools, terminal and other settings are automatically configured at start-up according to the current environment. If you are not interested in how it is auto-configured, you do not need to read the following.
 <br>
 <br>
 
