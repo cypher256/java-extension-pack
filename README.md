@@ -6,7 +6,7 @@
 ![](https://img.shields.io/visual-studio-marketplace/i/Pleiades.java-extension-pack-jdk?color=blue)
 ![](https://img.shields.io/visual-studio-marketplace/last-updated/Pleiades.java-extension-pack-jdk?color=orange)
 
-The extension greatly reduces the installation and configuration effort, as well as [JDK-related errors](https://stackoverflow.com/search?q=vs+code+java+version) for general Java developers. There is no need to manually install multiple versions of JDK, Gradle, or Maven, or set environment variables such as `JAVA_HOME` or `PATH`. It also comes pre-included with extensions that most Java developers need, such as Spring Boot and Lombok, so you can start developing right out of the box with zero configuration.
+The extension greatly reduces the installation and configuration effort, as well as [JDK-related errors](https://stackoverflow.com/search?q=vscode+java+version) for general Java developers. There is no need to manually install multiple versions of JDK, Gradle, or Maven, or set environment variables such as `JAVA_HOME` or `PATH`. It also comes pre-included with extensions that most Java developers need, such as Spring Boot and Lombok, so you can start developing right out of the box with zero configuration.
 <br>
 <br>
 <br>
@@ -339,7 +339,7 @@ VS Code Extension to set window to transparent on Windows and Linux platforms.
 (\*) [Comment Translate](https://marketplace.visualstudio.com/items?itemName=intellsmi.comment-translate) (intellsmi: MIT)<br>
 This plugin uses the Google Translate API to translate comments for the VS Code programming language.
 - ![](https://img.shields.io/visual-studio-marketplace/i/MS-CEINTL.vscode-language-pack-zh-hans?style=plastic)
-(\*) [Language Pack](https://marketplace.visualstudio.com/search?target=VS Code&category=Language%20Packs) (Microsoft: MIT) / [VS Code Document](https://code.visualstudio.com/docs/getstarted/locales)<br>
+(\*) [Language Pack](https://marketplace.visualstudio.com/search?target=vscode&category=Language%20Packs) (Microsoft: MIT) / [VS Code Document](https://code.visualstudio.com/docs/getstarted/locales)<br>
 A language pack that matches the OS Locale.<br>
 
 <br>
@@ -383,3 +383,18 @@ Your AI pair programmer.
 - ![](https://img.shields.io/visual-studio-marketplace/i/GitHub.copilot-chat?style=plastic)
 [GitHub Copilot Chat](https://marketplace.visualstudio.com/items?itemName=GitHub.copilot-chat) (GitHub: Subscription)<br>
 AI chat features powered by Copilot.
+
+#### For command line installation:
+```sh
+code --install-extension rangav.vscode-thunder-client
+code --install-extension usernamehw.errorlens
+code --install-extension SonarSource.sonarlint-vscode
+code --install-extension shengchen.vscode-checkstyle
+code --install-extension ryanluker.vscode-coverage-gutters
+code --install-extension juhahinkula.thymeleaf
+code --install-extension pthorsson.vscode-jsp
+code --install-extension redhat.vscode-community-server-connector
+code --install-extension vsls-contrib.gistfs
+code --install-extension GitHub.copilot
+code --install-extension GitHub.copilot-chat
+```

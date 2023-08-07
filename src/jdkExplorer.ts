@@ -166,28 +166,26 @@ function createJdk(runtime: jdkutils.IJavaRuntime | undefined): IDetectedJdk | u
 	return undefined;
 }
 
-function pushJdk(managerName: string, jdk: IDetectedJdk | undefined, jdks: IDetectedJdk[]) {
+function pushJdk(logMessage: string, jdk: IDetectedJdk | undefined, jdks: IDetectedJdk[]) {
 	if (jdk) { // undefined if JRE
 		jdks.push(jdk);
-		log.info(`Detected ${managerName} ${jdk.majorVersion} (${jdk.fullVersion}) ${jdk.homePath}`);
+		log.info(`Detected ${logMessage} ${jdk.majorVersion} (${jdk.fullVersion}) ${jdk.homePath}`);
 	}
 }
 
 async function tryGlob(
-	messagePrefix: string,
+	logMessage: string,
 	jdks: IDetectedJdk[],
 	distPattern: string | string[],
 	globOptions?: GlobOptionsWithFileTypesUnset | undefined) {
 
 	try {
-		if (typeof distPattern === 'string') {
-			distPattern = [distPattern];
-		}
+		const patterns = Array.isArray(distPattern) ? distPattern : [distPattern];
 		const JAVA_EXE = '*/bin/java' + (OS.isWindows ? '.exe' : '');
-		const distSlashGlobs = distPattern.map(p => path.join(p, JAVA_EXE).replace(/\\/g, '/'));
-		for (const javaExeFile of await glob(distSlashGlobs, globOptions)) {
+		const slashGlobs = patterns.map(p => path.join(p, JAVA_EXE).replace(/\\/g, '/'));
+		for (const javaExeFile of await glob(slashGlobs, globOptions)) {
 			const jdk = await findByPath(path.join(javaExeFile, '..', '..'));
-			pushJdk(messagePrefix, jdk, jdks);
+			pushJdk(logMessage, jdk, jdks);
 		}
 	} catch (error) {
 		log.info('glob error:', error); // Silent
