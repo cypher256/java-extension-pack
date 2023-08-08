@@ -6,7 +6,7 @@ import * as os from "os";
 import * as path from 'path';
 import * as autoContext from './autoContext';
 import { OS, log } from './autoContext';
-import * as javaExtension from './javaExtension';
+import * as jdtExtension from './jdtExtension';
 import * as userSettings from './userSettings';
 
 /**
@@ -17,7 +17,7 @@ export async function scan(
 	runtimes:userSettings.IJavaConfigRuntime[]) {
 
 	// Fix JDK path
-	const availableNames = javaExtension.getAvailableNames();
+	const availableNames = jdtExtension.getAvailableNames();
 	let needImmediateUpdate = false;
 	for (let i = runtimes.length - 1; i >= 0; i--) { // Decrement for splice (remove)
 		const runtime = runtimes[i];
@@ -44,12 +44,12 @@ export async function scan(
 	}
 	if (needImmediateUpdate) {
 		// Immediate update for suppress invalid path error dialog (without await)
-		userSettings.update(javaExtension.CONFIG_KEY_RUNTIMES, runtimes);
+		userSettings.update(jdtExtension.CONFIG_KEY_RUNTIMES, runtimes);
 	}
 
 	// Detect User Installed JDK
 	const detectedLatestMap = new Map<number, IDetectedJdk>();
-	const availableVers = javaExtension.getAvailableVersions();
+	const availableVers = jdtExtension.getAvailableVersions();
 	for (const detectedJdk of await findAll()) {
 		if (!availableVers.includes(detectedJdk.majorVersion)) {
 			continue;
@@ -78,7 +78,7 @@ export async function scan(
 
 	// Set Runtimes Configuration
 	for (const detectedJdk of detectedLatestMap.values()) {
-		const detectedName = javaExtension.nameOf(detectedJdk.majorVersion);
+		const detectedName = jdtExtension.nameOf(detectedJdk.majorVersion);
 		const configRuntime = runtimes.find(r => r.name === detectedName);
 		if (configRuntime) {
 			if (autoContext.isUserInstalled(configRuntime.path)) {

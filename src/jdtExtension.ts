@@ -3,6 +3,15 @@ import * as vscode from 'vscode';
 import { log } from './autoContext';
 export const CONFIG_KEY_RUNTIMES = 'java.configuration.runtimes';
 
+/*
+Pending: findEmbeddedJRE for LS version settings
+https://github.com/redhat-developer/vscode-java/blob/master/src/requirements.ts#L123
+const redhatJava = vscode.extensions.getExtension('redhat.java');
+const extensionPath = redhatJava?.extensionPath?.fsPath;
+// C:\Users\(UserName)\.vscode\extensions\redhat.java-1.21.0-win32-x64
+// C:\Users\(UserName)\.vscode\extensions\redhat.java-1.21.0-win32-x64\jre\17.0.7-win32-x86_64
+*/
+
 /**
  * Returns the names of the available VS Code JDT runtimes.
  * @returns The VS Code JDT runtime names. An array of length 0 if not available.

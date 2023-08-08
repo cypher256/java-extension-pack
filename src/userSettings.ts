@@ -6,8 +6,8 @@ import * as autoContext from './autoContext';
 import { OS, log } from './autoContext';
 import * as gradleDownloader from './download/gradle';
 import * as mavenDownloader from './download/maven';
-import * as javaExtension from './javaExtension';
 import * as jdkExplorer from './jdkExplorer';
+import * as jdtExtension from './jdtExtension';
 
 /**
  * Return a value from user settings configuration.
@@ -56,7 +56,7 @@ export interface IJavaConfigRuntime {
  * @returns An array of Java runtime objects. If no entry exists, returns an empty array.
  */
 export function getJavaConfigRuntimes(): IJavaConfigRuntime[] {
-	return get(javaExtension.CONFIG_KEY_RUNTIMES) ?? [];
+	return get(jdtExtension.CONFIG_KEY_RUNTIMES) ?? [];
 }
 
 /**
@@ -77,7 +77,7 @@ export async function updateJavaConfigRuntimes(
 	}
 
 	// VS Code LS Java Home (Fix if unsupported old version)
-	const stableLtsRuntime = runtimes.find(r => r.name === javaExtension.nameOf(stableLtsVer));
+	const stableLtsRuntime = runtimes.find(r => r.name === jdtExtension.nameOf(stableLtsVer));
 	if (stableLtsRuntime) {
 		// Reload dialog on change only redhat.java extension (See: extension.ts onDidChangeConfiguration)
 		const configKeys = ['java.jdt.ls.java.home'];
@@ -125,7 +125,7 @@ export async function updateJavaConfigRuntimes(
 			stableLtsRuntime.default = true;
 		}
 		runtimes.sort((a, b) => a.name.localeCompare(b.name));
-		update(javaExtension.CONFIG_KEY_RUNTIMES, runtimes);
+		update(jdtExtension.CONFIG_KEY_RUNTIMES, runtimes);
 	}
 
 	// Gradle Daemon Java Home (Fix if set), Note: If unset use java.jdt.ls.java.home
@@ -188,7 +188,7 @@ export async function updateJavaConfigRuntimes(
 		const pathArray = [];
 		pathArray.push(path.join(javaHome, 'bin'));
 		// Gradle/Maven: From setting or mac/Linux 'which' (Unsupported older Java version)
-		const javaVersion = javaExtension.versionOf(runtimeName ?? '') || Number.MAX_SAFE_INTEGER;
+		const javaVersion = jdtExtension.versionOf(runtimeName ?? '') || Number.MAX_SAFE_INTEGER;
 		if (mavenBinDir && (javaVersion >= 8 || autoContext.isUserInstalled(mavenBinDir))) {
 			// Minimum version https://maven.apache.org/developers/compatibility-plan.html
 			pathArray.push(mavenBinDir);
@@ -241,10 +241,10 @@ export async function updateJavaConfigRuntimes(
 		} else if (OS.isMac) {
 			profile.path ??= 'zsh';
 			profile.args ??= ['-l']; // Disable .zshrc JAVA_HOME in _setTerminalEnv ZDOTDIR
-			profile.env.ZDOTDIR ??= `~/.zsh_jdkauto`; // Disable .zshrc JAVA_HOME
+			profile.env.ZDOTDIR ??= '~/.zsh_jdkauto'; // Disable .zshrc JAVA_HOME
 		} else {
 			profile.path ??= 'bash';
-			profile.args ??= ["--rcfile", "~/.bashrc_jdkauto"]; // Disable .bashrc JAVA_HOME (also WSL)
+			profile.args ??= ['--rcfile', '~/.bashrc_jdkauto']; // Disable .bashrc JAVA_HOME (also WSL)
 		}
 		_setTerminalEnv(profile.env, runtime.path, runtime.name);
 		profilesNew[runtime.name] = profile;

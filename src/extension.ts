@@ -7,8 +7,8 @@ import { OS, log } from './autoContext';
 import * as gradleDownloader from './download/gradle';
 import * as jdkDownloader from './download/jdk';
 import * as mavenDownloader from './download/maven';
-import * as javaExtension from './javaExtension';
 import * as jdkExplorer from './jdkExplorer';
+import * as jdtExtension from './jdtExtension';
 import * as userSettings from './userSettings';
 
 /**
@@ -24,7 +24,7 @@ export async function activate(context:vscode.ExtensionContext) {
 		log.info('Global Storage', autoContext.getGlobalStoragePath());
 		userSettings.setDefault();
 	
-		const availableVers = javaExtension.getAvailableVersions();
+		const availableVers = jdtExtension.getAvailableVersions();
 		const ltsFilter = (ver:number) => [8, 11].includes(ver) || (ver >= 17 && (ver - 17) % 4 === 0);
 		const targetLtsVers = availableVers.filter(ltsFilter).slice(-4);
 		const latestLtsVer = targetLtsVers.at(-1);
@@ -81,10 +81,10 @@ function setMessage(
 	runtimesOld: userSettings.IJavaConfigRuntime[],
 	isFirstStartup: boolean) {
 	
-	const oldVers = runtimesOld.map(r => javaExtension.versionOf(r.name));
-	const newVers = runtimesNew.map(r => javaExtension.versionOf(r.name));
-	const defaultVer = javaExtension.versionOf(runtimesNew.find(r => r.default)?.name ?? '');
-	log.info(`${javaExtension.CONFIG_KEY_RUNTIMES} [${newVers}] default ${defaultVer}`);
+	const oldVers = runtimesOld.map(r => jdtExtension.versionOf(r.name));
+	const newVers = runtimesNew.map(r => jdtExtension.versionOf(r.name));
+	const defaultVer = jdtExtension.versionOf(runtimesNew.find(r => r.default)?.name ?? '');
+	log.info(`${jdtExtension.CONFIG_KEY_RUNTIMES} [${newVers}] default ${defaultVer}`);
 	const availableMsg = `${l10n.t('Available Java versions:')} ${newVers.join(', ')}`;
 
 	if (isFirstStartup) {

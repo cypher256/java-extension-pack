@@ -6,8 +6,8 @@ import * as path from 'path';
 import * as autoContext from '../autoContext';
 import { OS, log } from '../autoContext';
 import * as downloader from '../downloader';
-import * as javaExtension from '../javaExtension';
 import * as jdkExplorer from '../jdkExplorer';
+import * as jdtExtension from '../jdtExtension';
 import * as userSettings from '../userSettings';
 
 /**
@@ -54,7 +54,7 @@ export async function execute(
 	majorVersion:number) {
 
 	// Skip User Installed
-	const runtimeName = javaExtension.nameOf(majorVersion);
+	const runtimeName = jdtExtension.nameOf(majorVersion);
 	const matchedRuntime = runtimes.find(r => r.name === runtimeName);
 	if (matchedRuntime && autoContext.isUserInstalled(matchedRuntime.path)) {
 		log.info(`Available JDK ${majorVersion} (User installed)`);

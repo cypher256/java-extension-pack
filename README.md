@@ -149,7 +149,7 @@ Command Palette **>Preferences: Open User Settings (JSON)**
 ],
 // Gradle Daemon
 "java.import.gradle.java.home": "c:\\Program Files\\java\\jdk-17.0.6",
-// Maven Environment Variables
+// Maven Default Environment Variables
 "maven.terminal.customEnv": [
   {
     "environmentVariable": "JAVA_HOME", // Required for mvn command
