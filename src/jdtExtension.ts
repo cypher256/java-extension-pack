@@ -1,16 +1,56 @@
 /*! VS Code Extension (c) 2023 Shinji Kashihara (cypher256) @ WILL */
+import * as jdkutils from 'jdk-utils';
+import * as path from 'path';
 import * as vscode from 'vscode';
+import * as autoContext from './autoContext';
 import { log } from './autoContext';
 export const CONFIG_KEY_RUNTIMES = 'java.configuration.runtimes';
 
-/*
-Pending: findEmbeddedJRE for LS version settings
-https://github.com/redhat-developer/vscode-java/blob/master/src/requirements.ts#L123
-const redhatJava = vscode.extensions.getExtension('redhat.java');
-const extensionPath = redhatJava?.extensionPath?.fsPath;
-// C:\Users\(UserName)\.vscode\extensions\redhat.java-1.21.0-win32-x64
-// C:\Users\(UserName)\.vscode\extensions\redhat.java-1.21.0-win32-x64\jre\17.0.7-win32-x86_64
-*/
+/**
+ * An interface that represents the JDT supported Java versions.
+ */
+export interface IJdtSupport {
+    readonly targetLtsVers: number[];
+    readonly stableLtsVer: number;
+    readonly embeddedJreVer?: number;
+}
+
+/**
+ * Returns the versions of the available VS Code JDT runtimes.
+ * @returns IJdtSupport object.
+ */
+export async function getJdtSupport(): Promise<IJdtSupport> {
+    const availableVers = getAvailableVersions();
+    const ltsFilter = (ver:number) => [8, 11].includes(ver) || (ver >= 17 && (ver - 17) % 4 === 0);
+    const targetLtsVers = availableVers.filter(ltsFilter).slice(-4);
+    const latestLtsVer = targetLtsVers.at(-1);
+    const jdtSupport = {
+        targetLtsVers: targetLtsVers,
+        stableLtsVer: (latestLtsVer === availableVers.at(-1) ? targetLtsVers.at(-2) : latestLtsVer) ?? 0,
+        embeddedJreVer: await findEmbeddedJREVersion(),
+    };
+    log.info('Supported Java', availableVers);
+    log.info(`Target LTS [${targetLtsVers}] Stable ${jdtSupport.stableLtsVer}, ` +
+        `LS Embedded JRE ${jdtSupport.embeddedJreVer}`);
+    return jdtSupport;
+}
+
+async function findEmbeddedJREVersion(): Promise<number | undefined> {
+    const redhatJava = vscode.extensions.getExtension('redhat.java');
+    const redhatExtDir = redhatJava?.extensionUri?.fsPath;
+    if (redhatExtDir) {
+        // C:\Users\(UserName)\.vscode\extensions\redhat.java-1.21.0-win32-x64
+        // C:\Users\(UserName)\.vscode\extensions\redhat.java-1.21.0-win32-x64\jre\17.0.7-win32-x86_64\bin
+        const javaExePath = path.join(redhatExtDir, 'jre', '*', 'bin', jdkutils.JAVA_FILENAME);
+        const javaExeFiles = await autoContext.globSearch(javaExePath);
+        if (javaExeFiles.length > 0) {
+            const jreHomeDir = path.join(javaExeFiles[0], '..', '..');
+            const runtime = await jdkutils.getRuntime(jreHomeDir, { withVersion: true });
+            return runtime?.version?.major;
+        }
+    }
+    return undefined;
+}
 
 /**
  * Returns the names of the available VS Code JDT runtimes.
@@ -21,7 +61,7 @@ export function getAvailableNames(): string[] {
     // because this extension will not start when redhat activation error occurs.
     const redhatJava = vscode.extensions.getExtension('redhat.java');
     const redhatProp = redhatJava?.packageJSON?.contributes?.configuration?.properties;
-    const jdtRuntimeNames:string[] = redhatProp?.[CONFIG_KEY_RUNTIMES]?.items?.properties?.name?.enum ?? [];
+    const jdtRuntimeNames = redhatProp?.[CONFIG_KEY_RUNTIMES]?.items?.properties?.name?.enum ?? [];
     if (jdtRuntimeNames.length === 0) {
         log.warn('Failed getExtension RedHat', redhatJava);
     }

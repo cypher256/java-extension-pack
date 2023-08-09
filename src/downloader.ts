@@ -56,7 +56,7 @@ function report(progress:vscode.Progress<{message:string}>, msg:string) {
 }
 
 async function download(progress:vscode.Progress<{message:string}>, opt:IDownloaderOptions) {
-    const workspaceState = autoContext.context.workspaceState;
+    const workspaceState = autoContext.getContext().workspaceState;
     const res = await axios.get(opt.downloadUrl, {responseType: 'stream'});
     log.info(`Download START ${opt.targetMessage}`, opt.downloadUrl);
 
@@ -101,7 +101,7 @@ async function download(progress:vscode.Progress<{message:string}>, opt:IDownloa
 
 async function extract(progress:vscode.Progress<{message:string}>, opt:IDownloaderOptions) {
     log.info(`Install START ${opt.targetMessage}`, opt.extractDestDir);
-    const workspaceState = autoContext.context.workspaceState;
+    const workspaceState = autoContext.getContext().workspaceState;
     try {
         const procLabel = autoContext.existsDirectory(opt.extractDestDir) ? l10n.t('Updating') : l10n.t('Installing');
         const msg = `${procLabel}... ${opt.targetMessage}`;

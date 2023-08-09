@@ -1,6 +1,6 @@
 /*! VS Code Extension (c) 2023 Shinji Kashihara (cypher256) @ WILL */
 import { compare } from 'compare-versions';
-import { GlobOptionsWithFileTypesUnset, glob } from 'glob';
+import { GlobOptionsWithFileTypesUnset } from 'glob';
 import * as jdkutils from 'jdk-utils';
 import * as os from "os";
 import * as path from 'path';
@@ -141,11 +141,11 @@ export async function fixPath(homeDir:string): Promise<string | undefined> {
 
 /**
  * Returns the IDetectedJdk object of the JDK.
- * @param homePath The home path of the JDK.
- * @returns The IDetectedJdk object.
+ * @param homeDir The home dir of the JDK.
+ * @returns The IDetectedJdk object. undefined if not found.
  */
-export async function findByPath(homePath: string): Promise<IDetectedJdk | undefined> {
-	const runtime = await jdkutils.getRuntime(homePath, { checkJavac: true, withVersion: true });
+export async function findByPath(homeDir: string): Promise<IDetectedJdk | undefined> {
+	const runtime = await jdkutils.getRuntime(homeDir, { checkJavac: true, withVersion: true });
 	return createJdk(runtime);
 }
 
@@ -173,22 +173,17 @@ function pushJdk(logMessage: string, jdk: IDetectedJdk | undefined, jdks: IDetec
 	}
 }
 
-async function tryGlob(
+async function findBy(
 	logMessage: string,
 	jdks: IDetectedJdk[],
 	distPattern: string | string[],
 	globOptions?: GlobOptionsWithFileTypesUnset | undefined) {
 
-	try {
-		const patterns = Array.isArray(distPattern) ? distPattern : [distPattern];
-		const JAVA_EXE = '*/bin/java' + (OS.isWindows ? '.exe' : '');
-		const slashGlobs = patterns.map(p => path.join(p, JAVA_EXE).replace(/\\/g, '/'));
-		for (const javaExeFile of await glob(slashGlobs, globOptions)) {
-			const jdk = await findByPath(path.join(javaExeFile, '..', '..'));
-			pushJdk(logMessage, jdk, jdks);
-		}
-	} catch (error) {
-		log.info('glob error:', error); // Silent
+	const pats = Array.isArray(distPattern) ? distPattern : [distPattern];
+	const javaExePats = pats.map(p => path.join(p, '*', 'bin', jdkutils.JAVAC_FILENAME));
+	for (const javaExeFile of await autoContext.globSearch(javaExePats, globOptions)) {
+		const jdk = await findByPath(path.join(javaExeFile, '..', '..'));
+		pushJdk(logMessage, jdk, jdks);
 	}
 }
 
@@ -209,7 +204,7 @@ async function findAll(): Promise<IDetectedJdk[]> {
 			for (const programDir of [env.ProgramFiles, env.LOCALAPPDATA].filter(Boolean) as string[]) {
 				const dists = ['BellSoft', 'OpenJDK', 'RedHat', 'Semeru'];
 				const distPats = dists.map(s => path.join(programDir, s));
-				await tryGlob('Windows', jdks, distPats);
+				await findBy('Windows', jdks, distPats);
 			}
 		},
 		async () => {
@@ -220,14 +215,14 @@ async function findAll(): Promise<IDetectedJdk[]> {
 			const userDir = env.SCOOP ?? path.join(os.homedir(), 'scoop');
 			const globalDir = env.SCOOP_GLOBAL ?? path.join(env.ProgramData ?? '', 'scoop');
 			const distPats = [userDir, globalDir].map(s => path.join(s, 'apps/*jdk*'));
-			await tryGlob('Scoop', jdks, distPats, { ignore: '**/current/**' });
+			await findBy('Scoop', jdks, distPats, { ignore: '**/current/**' });
 		},
 		async () => {
 			// IntelliJ (Windows, Linux)
 			// e.g. C:\Users\<UserName>\.jdks\openjdk-20.0.1\bin
 			if (OS.isMac) {return;} // Supported jdk-utils macOS.ts
 			const distPat = path.join(os.homedir(), '.jdks');
-			await tryGlob('IntelliJ', jdks, distPat);
+			await findBy('IntelliJ', jdks, distPat);
 		},
 		async () => {
 			// Pleiades
@@ -235,7 +230,7 @@ async function findAll(): Promise<IDetectedJdk[]> {
 				// e.g.    C:\pleiades\java\17\bin
 				// C:\pleiades\2023-03\java\17\bin
 				const distPats = ['c', 'd'].flatMap(drive => ['', '20*/'].map(p => `${drive}:/pleiades*/${p}java`));
-				await tryGlob('Pleiades', jdks, distPats);
+				await findBy('Pleiades', jdks, distPats);
 			} else if (OS.isMac) {
 				// 2024+ aarch64 new path format (21/Home/bin -> 21/bin)
 				// e.g. /Applications/Eclipse_2024-12.app/Contents/java/21/bin

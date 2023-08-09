@@ -24,20 +24,13 @@ export async function activate(context:vscode.ExtensionContext) {
 		log.info('Global Storage', autoContext.getGlobalStoragePath());
 		userSettings.setDefault();
 	
-		const availableVers = jdtExtension.getAvailableVersions();
-		const ltsFilter = (ver:number) => [8, 11].includes(ver) || (ver >= 17 && (ver - 17) % 4 === 0);
-		const targetLtsVers = availableVers.filter(ltsFilter).slice(-4);
-		const latestLtsVer = targetLtsVers.at(-1);
-		const stableLtsVer = (latestLtsVer === availableVers.at(-1) ? targetLtsVers.at(-2) : latestLtsVer) ?? 0;
-		log.info('Supported Java versions', availableVers);
-		log.info(`Target LTS versions [${targetLtsVers}] stable ${stableLtsVer} (for language server)`);
-		
 		const runtimes = userSettings.getJavaConfigRuntimes();
 		const runtimesOld = _.cloneDeep(runtimes);
+		const jdtSupport = await jdtExtension.getJdtSupport();
 		const isFirstStartup = !autoContext.existsDirectory(autoContext.getGlobalStoragePath());
 	
-		await scan(runtimes, runtimesOld, stableLtsVer);
-		await download(runtimes, targetLtsVers, stableLtsVer);
+		await scan(runtimes, runtimesOld, jdtSupport);
+		await download(runtimes, jdtSupport);
 		setMessage(runtimes, runtimesOld, isFirstStartup);
 		log.info('activate END');
 	} catch (e:any) {
@@ -49,30 +42,29 @@ export async function activate(context:vscode.ExtensionContext) {
 async function scan(
 	runtimes: userSettings.IJavaConfigRuntime[],
 	runtimesOld: userSettings.IJavaConfigRuntime[],
-	stableLtsVer: number) {
+	jdtSupport: jdtExtension.IJdtSupport) {
 
 	await jdkExplorer.scan(runtimes);
-	await userSettings.updateJavaConfigRuntimes(runtimes, runtimesOld, stableLtsVer);
+	await userSettings.updateJavaConfigRuntimes(runtimes, runtimesOld, jdtSupport);
 }
 
 async function download(
 	runtimes: userSettings.IJavaConfigRuntime[],
-	targetLtsVers: number[],
-	stableLtsVer: number) {
+	jdtSupport: jdtExtension.IJdtSupport) {
 
 	if (!userSettings.get('extensions.autoUpdate')) {
 		log.info(`Download disabled (extensions.autoUpdate: false)`);
 	} else if (!jdkDownloader.isTargetPlatform) {
 		log.info(`Download disabled (${process.platform}/${process.arch})`);
-	} else if (targetLtsVers.length === 0) {
+	} else if (jdtSupport.targetLtsVers.length === 0) {
 		log.info(`Download disabled (Can't get target LTS versions)`);
 	} else {
 		const runtimesBeforeDownload = _.cloneDeep(runtimes);
-		const promiseArray = targetLtsVers.map(ver => jdkDownloader.execute(runtimes, ver));
+		const promiseArray = jdtSupport.targetLtsVers.map(ver => jdkDownloader.execute(runtimes, ver));
 		promiseArray.push(mavenDownloader.execute());
 		promiseArray.push(gradleDownloader.execute());
 		await Promise.allSettled(promiseArray);
-		await userSettings.updateJavaConfigRuntimes(runtimes, runtimesBeforeDownload, stableLtsVer);
+		await userSettings.updateJavaConfigRuntimes(runtimes, runtimesBeforeDownload, jdtSupport);
 	}
 }
 

@@ -63,13 +63,13 @@ export function getJavaConfigRuntimes(): IJavaConfigRuntime[] {
  * Updates the Java runtime configurations for the VS Code Java extension.
  * @param runtimes An array of Java runtime objects to update the configuration with.
  * @param runtimesOld An array of previous Java runtime objects to compare with `runtimes`.
- * @param stableLtsVer The stable LTS version.
+ * @param jdtSupport The JDT supported version object.
  * @return A promise that resolves when the configuration is updated.
  */
 export async function updateJavaConfigRuntimes(
 	runtimes:IJavaConfigRuntime[],
 	runtimesOld:IJavaConfigRuntime[],
-	stableLtsVer:number) {
+	jdtSupport: jdtExtension.IJdtSupport) {
 
 	const CONFIG_KEY_DEPRECATED_JAVA_HOME = 'java.home';
 	if (get(CONFIG_KEY_DEPRECATED_JAVA_HOME) !== null) { // null if no entry or null value
@@ -77,8 +77,9 @@ export async function updateJavaConfigRuntimes(
 	}
 
 	// VS Code LS Java Home (Fix if unsupported old version)
-	const stableLtsRuntime = runtimes.find(r => r.name === jdtExtension.nameOf(stableLtsVer));
-	if (stableLtsRuntime) {
+	const lsVer = jdtSupport.embeddedJreVer ?? jdtSupport.stableLtsVer;
+	const lsRuntime = runtimes.find(r => r.name === jdtExtension.nameOf(lsVer));
+	if (lsRuntime) {
 		// Reload dialog on change only redhat.java extension (See: extension.ts onDidChangeConfiguration)
 		const configKeys = ['java.jdt.ls.java.home'];
 		function _pushIf(extensionId:string, configKey:string) {
@@ -89,31 +90,28 @@ export async function updateJavaConfigRuntimes(
 		
 		for (const configKey of configKeys) {
 			const originPath = get<string>(configKey);
-			const stableLtsPath = stableLtsRuntime.path;
-			let javaHome = null;
+			const _updateLs = (p:string) => update(configKey, p);
+			const lsRuntimePath = lsRuntime.path;
 			if (originPath) {
 				const fixedOriginPath = await jdkExplorer.fixPath(originPath);
 				if (fixedOriginPath) {
 					// RedHat LS minimum version check: REQUIRED_JDK_VERSION
 					// https://github.com/redhat-developer/vscode-java/blob/master/src/requirements.ts
 					const originJdk = await jdkExplorer.findByPath(fixedOriginPath);
-					if (!originJdk || originJdk.majorVersion < stableLtsVer) {
-						javaHome = stableLtsPath; // Fix unsupported older version
-					} else if (originJdk.majorVersion === stableLtsVer && originJdk.homePath !== stableLtsPath) {
-						javaHome = stableLtsPath; // Same version, different path
+					if (!originJdk || originJdk.majorVersion < lsVer) {
+						_updateLs(lsRuntimePath); // Fix unsupported older version
+					} else if (originJdk.majorVersion === lsVer && originJdk.homePath !== lsRuntimePath) {
+						_updateLs(lsRuntimePath); // Same version, different path
 					} else if (fixedOriginPath !== originPath) {
-						javaHome = fixedOriginPath; // Fix invalid
+						_updateLs(fixedOriginPath); // Fix invalid
 					} else {
 						// Keep new version
 					}
 				} else {
-					javaHome = stableLtsPath; // Can't fix
+					_updateLs(lsRuntimePath); // Can't fix
 				}
 			} else {
-				javaHome = stableLtsPath; // if unset
-			}
-			if (javaHome) {
-				update(configKey, javaHome);
+				_updateLs(lsRuntimePath); // if unset
 			}
 		}
 	}
@@ -121,8 +119,11 @@ export async function updateJavaConfigRuntimes(
 	// Project Runtimes Default (Keep if set)
 	const isNoDefault = !runtimes.find(r => r.default);
 	if (isNoDefault || !_.isEqual(runtimes, runtimesOld)) {
-		if (isNoDefault && stableLtsRuntime) {
-			stableLtsRuntime.default = true;
+		if (isNoDefault) {
+			const stableLtsRuntime = runtimes.find(r => r.name === jdtExtension.nameOf(jdtSupport.stableLtsVer));
+			if (stableLtsRuntime) {
+				stableLtsRuntime.default = true;
+			}
 		}
 		runtimes.sort((a, b) => a.name.localeCompare(b.name));
 		update(jdtExtension.CONFIG_KEY_RUNTIMES, runtimes);
@@ -259,8 +260,7 @@ function setIfUndefined(section:string, value:any, extensionName?:string) {
 	if (extensionName && !vscode.extensions.getExtension(extensionName)) {
 		return;
 	}
-	const config = vscode.workspace.getConfiguration();
-	if (config.inspect(section)?.globalValue === undefined) {
+	if (getGlobalOnly(section) === undefined) {
 		if (typeof value === 'function') {
 			value(section);
 		} else {
