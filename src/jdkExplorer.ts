@@ -156,7 +156,10 @@ interface IDetectedJdk {
 }
 
 function createJdk(runtime: jdkutils.IJavaRuntime | undefined): IDetectedJdk | undefined {
-	if (runtime?.hasJavac && runtime.version) {
+	if (
+		runtime?.hasJavac && runtime.version &&
+		runtime.homedir !== '/usr' // Exclude macOS alias /usr/bin/java
+	) {
 		return {
 			majorVersion: runtime.version.major,
 			fullVersion: runtime.version.java_version,
