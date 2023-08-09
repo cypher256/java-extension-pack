@@ -12,7 +12,7 @@ export const CONFIG_KEY_RUNTIMES = 'java.configuration.runtimes';
 export interface IJdtSupport {
     readonly targetLtsVers: number[];
     readonly stableLtsVer: number;
-    readonly embeddedJreVer?: number;
+    readonly embeddedJreVer?: number; // undefined: mac Parallels Windows Arm
 }
 
 /**
