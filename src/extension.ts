@@ -40,8 +40,8 @@ export async function activate(context:vscode.ExtensionContext) {
 }
 
 async function scan(
-	runtimes: userSettings.IJavaConfigRuntime[],
-	runtimesOld: userSettings.IJavaConfigRuntime[],
+	runtimes: jdtExtension.JavaConfigRuntimeArray,
+	runtimesOld: jdtExtension.JavaConfigRuntimeArray,
 	jdtSupport: jdtExtension.IJdtSupport) {
 
 	await jdkExplorer.scan(runtimes);
@@ -49,7 +49,7 @@ async function scan(
 }
 
 async function download(
-	runtimes: userSettings.IJavaConfigRuntime[],
+	runtimes: jdtExtension.JavaConfigRuntimeArray,
 	jdtSupport: jdtExtension.IJdtSupport) {
 
 	if (!userSettings.get('extensions.autoUpdate')) {
@@ -69,14 +69,14 @@ async function download(
 }
 
 function setMessage(
-	runtimesNew: userSettings.IJavaConfigRuntime[],
-	runtimesOld: userSettings.IJavaConfigRuntime[],
+	runtimesNew: jdtExtension.JavaConfigRuntimeArray,
+	runtimesOld: jdtExtension.JavaConfigRuntimeArray,
 	isFirstStartup: boolean) {
 	
 	const oldVers = runtimesOld.map(r => jdtExtension.versionOf(r.name));
 	const newVers = runtimesNew.map(r => jdtExtension.versionOf(r.name));
-	const defaultVer = jdtExtension.versionOf(runtimesNew.find(r => r.default)?.name ?? '');
-	log.info(`${jdtExtension.CONFIG_KEY_RUNTIMES} [${newVers}] default ${defaultVer}`);
+	const defaultVer = jdtExtension.versionOf(runtimesNew.findDefault()?.name ?? '');
+	log.info(`${jdtExtension.JavaConfigRuntimeArray.CONFIG_KEY} [${newVers}] default ${defaultVer}`);
 	const availableMsg = `${l10n.t('Available Java versions:')} ${newVers.join(', ')}`;
 
 	if (isFirstStartup) {
@@ -164,7 +164,8 @@ function setConfigChangedEvent() {
 			event.affectsConfiguration('java.import.gradle.home') ||
 			event.affectsConfiguration('maven.executable.path') ||
 			event.affectsConfiguration('maven.terminal.customEnv') ||
-			event.affectsConfiguration('java.configuration.runtimes')) {
+			event.affectsConfiguration('java.configuration.runtimes')
+		) {
 			showReloadMessage();
 		}
 	});

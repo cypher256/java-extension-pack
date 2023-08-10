@@ -8,7 +8,6 @@ import { OS, log } from '../autoContext';
 import * as downloader from '../downloader';
 import * as jdkExplorer from '../jdkExplorer';
 import * as jdtExtension from '../jdtExtension';
-import * as userSettings from '../userSettings';
 
 /**
  * true if the current platform is JDK downloadable.
@@ -50,12 +49,12 @@ function archOf(javaVersion: number): string | undefined {
  * @return A promise that resolves when the JDK is installed.
  */
 export async function execute(
-	runtimes:userSettings.IJavaConfigRuntime[],
+	runtimes:jdtExtension.JavaConfigRuntimeArray,
 	majorVersion:number) {
 
 	// Skip User Installed
 	const runtimeName = jdtExtension.nameOf(majorVersion);
-	const matchedRuntime = runtimes.find(r => r.name === runtimeName);
+	const matchedRuntime = runtimes.findByName(runtimeName);
 	if (matchedRuntime && autoContext.isUserInstalled(matchedRuntime.path)) {
 		log.info(`Available JDK ${majorVersion} (User installed)`);
 		return;
@@ -129,12 +128,12 @@ https://github.com/adoptium/temurin8-binaries/releases/latest
 https://github.com/adoptium/temurin11-binaries/releases/latest
 https://github.com/adoptium/temurin17-binaries/releases/latest
 
-redirected URL
+Redirected URL
 https://github.com/adoptium/temurin8-binaries/releases/tag/jdk8u362-b09
 https://github.com/adoptium/temurin11-binaries/releases/tag/jdk-11.0.18+10
 https://github.com/adoptium/temurin17-binaries/releases/tag/jdk-17.0.6+10
 
-download URL
+Download URL
 https://github.com/adoptium/
 temurin8-binaries/releases/download/jdk8u362-b09/OpenJDK8U-jdk_x64_windows_hotspot_8u362b09.zip
 temurin8-binaries/releases/download/jdk8u362-b09/OpenJDK8U-jdk_x64_mac_hotspot_8u362b09.tar.gz

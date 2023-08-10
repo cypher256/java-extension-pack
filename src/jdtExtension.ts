@@ -4,7 +4,50 @@ import * as path from 'path';
 import * as vscode from 'vscode';
 import * as autoContext from './autoContext';
 import { log } from './autoContext';
-export const CONFIG_KEY_RUNTIMES = 'java.configuration.runtimes';
+
+/**
+ * An interface for the VS Code Java configuration runtime.
+ */
+export interface IJavaConfigRuntime {
+	readonly name: string;
+	path: string;
+	default?: boolean;
+}
+
+/**
+ * A Class for the VS Code Java configuration runtime array.
+ */
+export class JavaConfigRuntimeArray extends Array<IJavaConfigRuntime> {
+	
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    static CONFIG_KEY = 'java.configuration.runtimes';
+
+	/**
+	 * Finds the default Java runtime configuration for the VS Code Java extension.
+	 * @returns A Java runtime object. If no entry exists, returns undefined.
+	 */
+	findDefault(): IJavaConfigRuntime | undefined {
+		return this.find(runtime => runtime.default);
+	}
+
+	/**
+	 * Finds the Java runtime configuration for the VS Code Java extension.
+	 * @param name The Java name to find.
+	 * @returns A Java runtime object. If no entry exists, returns undefined.
+	 */
+	findByName(name: string): IJavaConfigRuntime | undefined {
+		return this.find(runtime => runtime.name === name);
+	}
+
+	/**
+	 * Finds the Java runtime configuration for the VS Code Java extension.
+	 * @param version The Java version to find.
+	 * @returns A Java runtime object. If no entry exists, returns undefined.
+	 */
+	findByVersion(version: number): IJavaConfigRuntime | undefined {
+		return this.findByName(nameOf(version));
+	}
+}
 
 /**
  * An interface that represents the JDT supported Java versions.
@@ -24,7 +67,7 @@ export async function getJdtSupport(): Promise<IJdtSupport> {
     const ltsFilter = (ver:number) => [8, 11].includes(ver) || (ver >= 17 && (ver - 17) % 4 === 0);
     const targetLtsVers = availableVers.filter(ltsFilter).slice(-4);
     const latestLtsVer = targetLtsVers.at(-1);
-    const jdtSupport = {
+    const jdtSupport:IJdtSupport = {
         targetLtsVers: targetLtsVers,
         stableLtsVer: (latestLtsVer === availableVers.at(-1) ? targetLtsVers.at(-2) : latestLtsVer) ?? 0,
         embeddedJreVer: await findEmbeddedJREVersion(),
@@ -36,8 +79,7 @@ export async function getJdtSupport(): Promise<IJdtSupport> {
 }
 
 async function findEmbeddedJREVersion(): Promise<number | undefined> {
-    const redhatJava = vscode.extensions.getExtension('redhat.java');
-    const redhatExtDir = redhatJava?.extensionUri?.fsPath;
+    const redhatExtDir = getRedhatJavaExtension()?.extensionUri?.fsPath;
     if (redhatExtDir) {
         // C:\Users\(UserName)\.vscode\extensions\redhat.java-1.21.0-win32-x64
         // C:\Users\(UserName)\.vscode\extensions\redhat.java-1.21.0-win32-x64\jre\17.0.7-win32-x86_64\bin
@@ -52,6 +94,10 @@ async function findEmbeddedJREVersion(): Promise<number | undefined> {
     return undefined;
 }
 
+function getRedhatJavaExtension(): vscode.Extension<any> | undefined {
+    return vscode.extensions.getExtension('redhat.java');
+}
+
 /**
  * Returns the names of the available VS Code JDT runtimes.
  * @returns The VS Code JDT runtime names. An array of length 0 if not available.
@@ -59,13 +105,13 @@ async function findEmbeddedJREVersion(): Promise<number | undefined> {
 export function getAvailableNames(): string[] {
     // Do not add redhat.java extension to extensionDependencies in package.json,
     // because this extension will not start when redhat activation error occurs.
-    const redhatJava = vscode.extensions.getExtension('redhat.java');
+    const redhatJava = getRedhatJavaExtension();
     const redhatProp = redhatJava?.packageJSON?.contributes?.configuration?.properties;
-    const jdtRuntimeNames = redhatProp?.[CONFIG_KEY_RUNTIMES]?.items?.properties?.name?.enum ?? [];
-    if (jdtRuntimeNames.length === 0) {
+    const runtimeNames = redhatProp?.[JavaConfigRuntimeArray.CONFIG_KEY]?.items?.properties?.name?.enum ?? [];
+    if (runtimeNames.length === 0) {
         log.warn('Failed getExtension RedHat', redhatJava);
     }
-    return jdtRuntimeNames;
+    return runtimeNames;
 }
 
 /**

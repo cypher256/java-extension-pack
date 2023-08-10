@@ -43,20 +43,12 @@ export async function remove(section:string) {
 }
 
 /**
- * An interface for the VS Code Java configuration runtime.
- */
-export interface IJavaConfigRuntime {
-	readonly name: string;
-	path: string;
-	default?: boolean;
-}
-
-/**
  * Gets the Java runtime configurations for the VS Code Java extension.
  * @returns An array of Java runtime objects. If no entry exists, returns an empty array.
  */
-export function getJavaConfigRuntimes(): IJavaConfigRuntime[] {
-	return get(jdtExtension.CONFIG_KEY_RUNTIMES) ?? [];
+export function getJavaConfigRuntimes(): jdtExtension.JavaConfigRuntimeArray {
+	const runtimes:jdtExtension.IJavaConfigRuntime[] = get(jdtExtension.JavaConfigRuntimeArray.CONFIG_KEY) ?? [];
+	return new jdtExtension.JavaConfigRuntimeArray(...runtimes);
 }
 
 /**
@@ -67,8 +59,8 @@ export function getJavaConfigRuntimes(): IJavaConfigRuntime[] {
  * @return A promise that resolves when the configuration is updated.
  */
 export async function updateJavaConfigRuntimes(
-	runtimes:IJavaConfigRuntime[],
-	runtimesOld:IJavaConfigRuntime[],
+	runtimes:jdtExtension.JavaConfigRuntimeArray,
+	runtimesOld:jdtExtension.JavaConfigRuntimeArray,
 	jdtSupport: jdtExtension.IJdtSupport) {
 
 	const CONFIG_KEY_DEPRECATED_JAVA_HOME = 'java.home';
@@ -78,7 +70,7 @@ export async function updateJavaConfigRuntimes(
 
 	// VS Code LS Java Home (Fix if unsupported old version)
 	const lsVer = jdtSupport.embeddedJreVer ?? jdtSupport.stableLtsVer;
-	const lsRuntime = runtimes.find(r => r.name === jdtExtension.nameOf(lsVer));
+	const lsRuntime = runtimes.findByVersion(lsVer);
 	if (lsRuntime) {
 		// Reload dialog on change only redhat.java extension (See: extension.ts onDidChangeConfiguration)
 		const configKeys = ['java.jdt.ls.java.home'];
@@ -117,20 +109,20 @@ export async function updateJavaConfigRuntimes(
 	}
 
 	// Project Runtimes Default (Keep if set)
-	const isNoDefault = !runtimes.find(r => r.default);
+	const isNoDefault = !runtimes.findDefault();
 	if (isNoDefault || !_.isEqual(runtimes, runtimesOld)) {
 		if (isNoDefault) {
-			const stableLtsRuntime = runtimes.find(r => r.name === jdtExtension.nameOf(jdtSupport.stableLtsVer));
+			const stableLtsRuntime = runtimes.findByVersion(jdtSupport.stableLtsVer);
 			if (stableLtsRuntime) {
 				stableLtsRuntime.default = true;
 			}
 		}
 		runtimes.sort((a, b) => a.name.localeCompare(b.name));
-		update(jdtExtension.CONFIG_KEY_RUNTIMES, runtimes);
+		update(jdtExtension.JavaConfigRuntimeArray.CONFIG_KEY, runtimes);
 	}
 
 	// Gradle Daemon Java Home (Fix if set), Note: If unset use java.jdt.ls.java.home
-	const defaultRuntime = runtimes.find(r => r.default);
+	const defaultRuntime = runtimes.findDefault();
 	if (defaultRuntime && vscode.extensions.getExtension('vscjava.vscode-gradle')) {
 		const CONFIG_KEY_GRADLE_JAVA_HOME = 'java.import.gradle.java.home';
 		const originPath = get<string>(CONFIG_KEY_GRADLE_JAVA_HOME);

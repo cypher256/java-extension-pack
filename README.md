@@ -6,7 +6,7 @@
 ![](https://img.shields.io/visual-studio-marketplace/i/Pleiades.java-extension-pack-jdk?color=blue)
 ![](https://img.shields.io/visual-studio-marketplace/last-updated/Pleiades.java-extension-pack-jdk?color=orange)
 
-The extension greatly reduces the installation and configuration effort, as well as [JDK-related errors](https://stackoverflow.com/search?q=vscode+java+version) for general Java developers. There is no need to manually install multiple versions of JDK, Gradle, or Maven, or set environment variables such as `JAVA_HOME` or `PATH`. It also comes pre-included with extensions that most Java developers need, such as Spring Boot and Lombok, so you can start developing right out of the box with zero configuration.
+If JDK, Gradle and Maven are already installed it will be used, otherwise they will be automatically installed in VS Code user directory. Environment variables such as `JAVA_HOME` and `PATH` do not need to be set. It also comes pre-included with extensions that most Java developers need, such as Spring Boot and Lombok, so you can start developing right out of the box with zero configuration.
 <br>
 <br>
 <br>
@@ -68,6 +68,15 @@ Automatically configure multiple versions of the JDK and build tools. If there a
 1. Auto-detect environment variables `JAVA_HOME`, `JDK_HOME` and `PATH`
 1. Auto-download LTS JDKs, Gradle, Maven if not installed
 1. Auto-update auto-downloaded JDKs, Gradle, Maven to the latest version
+
+The above automatically fixes [errors such as](https://stackoverflow.com/search?q=vscode+java+version):
+
+* Java Language Server requires a JDK xx+ to launch itself.
+* This setting is deprecated, please use 'java.jdt.ls.java.home' instead.
+* Invalid runtime for JavaSE-xx: The path points to a missing or inaccessible folder
+* The java.jdt.ls.java.home variable defined in Visual Studio Code settings points to a missing or inaccessible folder
+
+<br>
 
 |Configuration Name|Configured Value (Priority)|
 |---|---|

@@ -10,11 +10,10 @@ import * as jdtExtension from './jdtExtension';
 import * as userSettings from './userSettings';
 
 /**
- * Scan installed JDK on the system and updates the given list of Java runtimes.
+ * Scan installed JDK on the system and updates the given array of Java runtimes.
  * @param runtimes An array of Java configuration runtimes.
  */
-export async function scan(
-	runtimes:userSettings.IJavaConfigRuntime[]) {
+export async function scan(runtimes:jdtExtension.JavaConfigRuntimeArray) {
 
 	// Fix JDK path
 	const availableNames = jdtExtension.getAvailableNames();
@@ -44,7 +43,7 @@ export async function scan(
 	}
 	if (needImmediateUpdate) {
 		// Immediate update for suppress invalid path error dialog (without await)
-		userSettings.update(jdtExtension.CONFIG_KEY_RUNTIMES, runtimes);
+		userSettings.update(jdtExtension.JavaConfigRuntimeArray.CONFIG_KEY, runtimes);
 	}
 
 	// Detect User Installed JDK
@@ -79,7 +78,7 @@ export async function scan(
 	// Set Runtimes Configuration
 	for (const detectedJdk of detectedLatestMap.values()) {
 		const detectedName = jdtExtension.nameOf(detectedJdk.majorVersion);
-		const configRuntime = runtimes.find(r => r.name === detectedName);
+		const configRuntime = runtimes.findByName(detectedName);
 		if (configRuntime) {
 			if (autoContext.isUserInstalled(configRuntime.path)) {
 				const configJdk = await findByPath(configRuntime.path);
