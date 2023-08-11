@@ -49,8 +49,8 @@ mvn -v
 ```
 ![Switch Java Version](https://raw.githubusercontent.com/cypher256/java-extension-pack/main/image/terminal.png)
 
-### Configure the project's Java version
-|Project Type|Configure Java Version|
+### Specify Project Java version
+|Project Type|Configuration File|
 |---|---|
 |No build tools|settings.json > java.configuration.runtimes > default|
 |Gradle|build.gradle|
