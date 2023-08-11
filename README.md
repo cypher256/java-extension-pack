@@ -48,6 +48,14 @@ gradle -v
 mvn -v
 ```
 ![Switch Java Version](https://raw.githubusercontent.com/cypher256/java-extension-pack/main/image/terminal.png)
+
+### Configure the project's Java version
+|Project Type|Configure Java Version|
+|---|---|
+|No build tools|settings.json > java.configuration.runtimes > default|
+|Gradle|build.gradle|
+|Maven|pom.xml|
+
 <br>
 <br>
 <br>
@@ -78,7 +86,7 @@ The above automatically fixes [errors such as](https://stackoverflow.com/search?
 
 <br>
 
-|Configuration Name|Configured Value (Priority)|
+|Configuration Name|Configured Value (Priority Order)|
 |---|---|
 |*Language support for Java*|
 |~~[java.home](https://github.com/redhat-developer/vscode-java/wiki/JDK-Requirements#universal-version)~~|Delete due to deprecated entry|
