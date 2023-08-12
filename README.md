@@ -52,7 +52,7 @@ mvn -v
 ### Specify Project Java Version
 |Project Type|Configuration File|
 |---|---|
-|No build tools|settings.json > `java.configuration.runtimes` > `default`|
+|No build tools|settings.json > `java.configuration.runtimes` > `default: true`|
 |Gradle|build.gradle|
 |Maven|pom.xml|
 
