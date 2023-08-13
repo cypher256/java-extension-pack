@@ -112,7 +112,7 @@ The above automatically fixes [errors such as](https://stackoverflow.com/search?
 #### Auto-download Support
 Automatic download is enabled if the [extensions.autoUpdate](https://code.visualstudio.com/docs/editor/extension-marketplace#_extension-autoupdate) configuration is NOT `false`. Java downloads multiple versions, but Gradle/Maven downloads only the latest version. If you use an older version of Gradle/Maven due to compatibility issues, please introduce `gradlew` ([Compatibility](https://docs.gradle.org/current/userguide/compatibility.html)) or `mvnw` ([Compatibility](https://maven.apache.org/developers/compatibility-plan.html)) in your project or manually set `java.import.gradle.home` or `maven.executable.path` in `settings.json`.
 
-- Adoptium JDK - Latest LTS 4 [versions](https://github.com/redhat-developer/vscode-java#features) if not installed
+- Adoptium JDK - Latest LTS 4 versions if not installed ([VS Code supported versions](https://github.com/redhat-developer/vscode-java#features))
 - Gradle - Latest version if not in PATH environment variable
 - Maven - Latest version if not in PATH environment variable
 
