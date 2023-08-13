@@ -6,7 +6,7 @@
 ![](https://img.shields.io/visual-studio-marketplace/i/Pleiades.java-extension-pack-jdk?color=blue)
 ![](https://img.shields.io/visual-studio-marketplace/last-updated/Pleiades.java-extension-pack-jdk?color=orange)
 
-If JDK, Gradle and Maven are already installed it will be used, otherwise they will be automatically installed in VS Code user directory. Environment variables such as `JAVA_HOME` and `PATH` do not need to be set. It also comes pre-included with extensions that most Java developers need, such as Spring Boot and Lombok, so you can start developing right out of the box with zero configuration.
+If JDK, Gradle and Maven are already installed they will be used, otherwise they will be automatically installed in VS Code user directory. Environment variables such as `JAVA_HOME` and `PATH` do not need to be set. It also comes pre-included with extensions that most Java developers need, such as Spring Boot and Lombok, so you can start developing right out of the box with zero configuration.
 <br>
 <br>
 <br>
