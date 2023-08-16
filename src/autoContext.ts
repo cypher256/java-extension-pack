@@ -11,7 +11,7 @@ import which = require('which');
 export const log: vscode.LogOutputChannel = vscode.window.createOutputChannel('Auto Config Java', {log:true});
 
 /**
- * An interface for the OS information.
+ * A namespace for the OS information.
  */
 export namespace OS {
 	let _locale = 'en';

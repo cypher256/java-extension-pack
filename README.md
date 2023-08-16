@@ -41,7 +41,7 @@ Just install this extension and the JDK is auto-configured. Let's run the Java c
 * [Create a Spring Boot project](https://code.visualstudio.com/docs/java/java-spring-boot#_create-the-project) (Gradle / Maven)
 
 ### Check Version
-Select the Java version from the dropdown in the VSCode terminal and execute the following commands. The terminal Java dropdown items are automatically created by this extension.
+Select the Java version from the dropdown in the VS Code terminal and execute the following commands. The terminal Java dropdown items are automatically created by this extension.
 ```bash
 java -version
 gradle -v
@@ -50,11 +50,13 @@ mvn -v
 ![Switch Java Version](https://raw.githubusercontent.com/cypher256/java-extension-pack/main/image/terminal.png)
 
 ### Specify Project Java Version
-|Project Type|Configuration File|
+The versions defined in `java.configuration.runtimes` are available.
+
+|Project Type|Configuration|
 |---|---|
 |No build tools|settings.json > `java.configuration.runtimes` > `default: true`|
-|Gradle|build.gradle|
-|Maven|pom.xml|
+|Gradle|build.gradle > `java` > `sourceCompatibility`|
+|Maven|pom.xml > `properties` > `java.version`|
 
 <br>
 <br>

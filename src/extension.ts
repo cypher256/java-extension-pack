@@ -23,12 +23,12 @@ export async function activate(context:vscode.ExtensionContext) {
 		log.info('JAVA_HOME', process.env.JAVA_HOME);
 		log.info('Global Storage', autoContext.getGlobalStoragePath());
 		userSettings.setDefault();
-	
+		
 		const runtimes = userSettings.getJavaConfigRuntimes();
 		const runtimesOld = _.cloneDeep(runtimes);
 		const jdtSupport = await jdtExtension.getJdtSupport();
 		const isFirstStartup = !autoContext.existsDirectory(autoContext.getGlobalStoragePath());
-	
+		
 		await scan(runtimes, runtimesOld, jdtSupport);
 		await download(runtimes, jdtSupport);
 		setMessage(runtimes, runtimesOld, isFirstStartup);
@@ -39,6 +39,12 @@ export async function activate(context:vscode.ExtensionContext) {
 	}
 }
 
+/**
+ * Scans the installed Java runtimes and updates the Java configuration.
+ * @param runtimes The Java runtimes to update.
+ * @param runtimesOld The Java runtimes before scan.
+ * @param jdtSupport The JDT supported versions.
+ */
 async function scan(
 	runtimes: jdtExtension.JavaConfigRuntimeArray,
 	runtimesOld: jdtExtension.JavaConfigRuntimeArray,
@@ -48,6 +54,11 @@ async function scan(
 	await userSettings.updateJavaConfigRuntimes(runtimes, runtimesOld, jdtSupport);
 }
 
+/**
+ * Downloads the Java runtimes and updates the Java configuration.
+ * @param runtimes The Java runtimes to update.
+ * @param jdtSupport The JDT supported versions.
+ */
 async function download(
 	runtimes: jdtExtension.JavaConfigRuntimeArray,
 	jdtSupport: jdtExtension.IJdtSupport) {
@@ -68,6 +79,12 @@ async function download(
 	}
 }
 
+/**
+ * Sets the completion message.
+ * @param runtimesNew The Java runtimes after update.
+ * @param runtimesOld The Java runtimes before update.
+ * @param isFirstStartup Whether this is the first startup.
+ */
 function setMessage(
 	runtimesNew: jdtExtension.JavaConfigRuntimeArray,
 	runtimesOld: jdtExtension.JavaConfigRuntimeArray,
@@ -121,6 +138,10 @@ function setMessage(
 	setTimeout(setConfigChangedEvent, 5_000); // Delay for prevent self update
 }
 
+/**
+ * Gets the language pack suffix.
+ * @returns The language pack suffix.
+ */
 function getLangPackSuffix(): string | undefined {
 	const osLocale = OS.locale;
 	if (osLocale.match(/^(cs|de|es|fr|it|ja|ko|pl|ru|tr)/)) { // Only active language packs
@@ -135,6 +156,10 @@ function getLangPackSuffix(): string | undefined {
 	return undefined;
 }
 
+/**
+ * Installs the extension.
+ * @param extensionId The extension id.
+ */
 async function installExtension(extensionId:string) {
 	try {
 		await vscode.commands.executeCommand('workbench.extensions.installExtension', extensionId);
@@ -144,6 +169,9 @@ async function installExtension(extensionId:string) {
 	}
 }
 
+/**
+ * Shows the reload message.
+ */
 function showReloadMessage() {
 	const msg = l10n.t('Configuration changed, please Reload Window.');
 	const actionLabel = l10n.t('Reload');
@@ -154,6 +182,9 @@ function showReloadMessage() {
 	});
 }
 
+/**
+ * Sets the configuration changed event.
+ */
 function setConfigChangedEvent() {
 	vscode.workspace.onDidChangeConfiguration(event => {
 		if (

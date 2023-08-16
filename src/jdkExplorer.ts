@@ -59,7 +59,7 @@ export async function scan(runtimes:jdtExtension.JavaConfigRuntimeArray) {
 		}
 	}
 
-	// Detect Auto-Downloaded JDK (Support when user install is uninstalled)
+	// Detect Auto-Downloaded JDK (Support when user installation is uninstalled)
 	for (const majorVer of availableVers) {
 		if (detectedLatestMap.has(majorVer)) {
 			continue; // Prefer user-installed JDK
@@ -157,7 +157,7 @@ interface IDetectedJdk {
 function createJdk(runtime: jdkutils.IJavaRuntime | undefined): IDetectedJdk | undefined {
 	if (
 		runtime?.hasJavac && runtime.version &&
-		runtime.homedir !== '/usr' // Exclude macOS alias /usr/bin/java
+		runtime.homedir !== '/usr' // Exclude alias /usr/bin/java (Linux, macOS)
 	) {
 		return {
 			majorVersion: runtime.version.major,

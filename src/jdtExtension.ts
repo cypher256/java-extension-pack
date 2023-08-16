@@ -15,7 +15,7 @@ export interface IJavaConfigRuntime {
 }
 
 /**
- * A Class for the VS Code Java configuration runtime array.
+ * A class for the VS Code Java configuration runtime array.
  */
 export class JavaConfigRuntimeArray extends Array<IJavaConfigRuntime> {
 	
@@ -32,7 +32,7 @@ export class JavaConfigRuntimeArray extends Array<IJavaConfigRuntime> {
 
 	/**
 	 * Finds the Java runtime configuration for the VS Code Java extension.
-	 * @param name The Java name to find.
+	 * @param name The Java name to find. See nameOf(majorVer:number).
 	 * @returns A Java runtime object. If no entry exists, returns undefined.
 	 */
 	findByName(name: string): IJavaConfigRuntime | undefined {
