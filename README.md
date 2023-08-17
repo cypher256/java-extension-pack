@@ -262,7 +262,7 @@ Entries that do not have the following configuration in the user settings are au
 |[java.debug.settings.hotCodeReplace](https://code.visualstudio.com/docs/java/java-debugging#_hot-code-replace)|`manual`|`auto`|
 |*Code Spell Checker*|
 |[cSpell.diagnosticLevel](https://streetsidesoftware.com/vscode-spell-checker/docs/configuration/#cspelldiagnosticlevel)|`Information`|`Hint`|
-|*GlassIt-VSC*|
+|*GlassIt-VSC* (For Windows, Linux)|
 |[glassit.alpha](https://github.com/hikarin522/GlassIt-VSC#extension-settings)|`220`|`230`|
 |*Trailing Spaces*|
 |[trailing-spaces.includeEmptyLines](https://marketplace.visualstudio.com/items?itemName=shardulm94.trailing-spaces#:~:text=will%20be%20ignored.-,Include%20Empty%20Lines,-Default%3A%20true)|`true`|`false`|
