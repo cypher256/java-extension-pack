@@ -240,7 +240,7 @@ Command Palette **>Preferences: Open User Settings (JSON)**
 <br>
 
 ## Auto-default Settings
-Entries that do not have the following configuration in the user settings are automatically set to the default values of Auto Config Java. To prevent it from being set, set the entry to empty. Note that a debug run is required to enable Hot Code Replace (Hot Deploy).
+Entries that do not have the following configuration in the user settings are automatically set to the default values of Auto Config Java. To prevent automatic setting, set the Original Default value below. Note that a debug run is required to enable Hot Code Replace (Hot Deploy). To disable transparency, set `glassit.alpha` to `255` or uninstall the *`GlassIt-VSC`* extension.
 
 |Configuration Name|Original Default|Auto Default|
 |---|---|---|
@@ -262,6 +262,8 @@ Entries that do not have the following configuration in the user settings are au
 |[java.debug.settings.hotCodeReplace](https://code.visualstudio.com/docs/java/java-debugging#_hot-code-replace)|`manual`|`auto`|
 |*Code Spell Checker*|
 |[cSpell.diagnosticLevel](https://streetsidesoftware.com/vscode-spell-checker/docs/configuration/#cspelldiagnosticlevel)|`Information`|`Hint`|
+|*GlassIt-VSC*|
+|[glassit.alpha](https://github.com/hikarin522/GlassIt-VSC#extension-settings)|`220`|`230`|
 |*Trailing Spaces*|
 |[trailing-spaces.includeEmptyLines](https://marketplace.visualstudio.com/items?itemName=shardulm94.trailing-spaces#:~:text=will%20be%20ignored.-,Include%20Empty%20Lines,-Default%3A%20true)|`true`|`false`|
 
