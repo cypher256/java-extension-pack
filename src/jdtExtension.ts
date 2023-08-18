@@ -53,7 +53,7 @@ export class JavaConfigRuntimeArray extends Array<IJavaConfigRuntime> {
  * An interface that represents the JDT supported Java versions.
  */
 export interface IJdtSupport {
-    readonly targetLtsVers: number[];
+    readonly targetLtsVers: ReadonlyArray<number>;
     readonly stableLtsVer: number;
     readonly embeddedJreVer?: number; // undefined: mac Parallels Windows Arm
 }

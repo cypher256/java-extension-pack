@@ -47,7 +47,7 @@ java -version
 gradle -v
 mvn -v
 ```
-![Switch Java Version](https://raw.githubusercontent.com/cypher256/java-extension-pack/main/image/terminal.png)
+![Terminal Java Dropdown](https://raw.githubusercontent.com/cypher256/java-extension-pack/main/image/terminal.png)
 
 ### Specify Project Java Version
 The versions defined in `java.configuration.runtimes` are available.
@@ -56,7 +56,7 @@ The versions defined in `java.configuration.runtimes` are available.
 |---|---|
 |No build tools|settings.json > `java.configuration.runtimes` > `default: true`|
 |Gradle|build.gradle > `java` > `sourceCompatibility`|
-|Maven|pom.xml > `properties` > `java.version`|
+|Maven|pom.xml > `properties` > `maven.compiler.source`<br>(Spting Boot: `java.version`)|
 
 <br>
 <br>
@@ -79,7 +79,7 @@ Automatically configure multiple versions of the JDK and build tools. If there a
 1. Auto-download LTS JDKs, Gradle, Maven if not installed
 1. Auto-update auto-downloaded JDKs, Gradle, Maven to the latest version
 
-The above automatically fixes [errors such as](https://stackoverflow.com/search?q=vscode+java+version):
+The feature automatically fixes [errors such as](https://stackoverflow.com/search?q=vscode+java+version):
 
 * Java Language Server requires a JDK xx+ to launch itself.
 * This setting is deprecated, please use 'java.jdt.ls.java.home' instead.
@@ -263,7 +263,7 @@ Entries that do not have the following configuration in the user settings are au
 |*Code Spell Checker*|
 |[cSpell.diagnosticLevel](https://streetsidesoftware.com/vscode-spell-checker/docs/configuration/#cspelldiagnosticlevel)|`Information`|`Hint`|
 |*GlassIt-VSC* (For Windows, Linux)|
-|[glassit.alpha](https://github.com/hikarin522/GlassIt-VSC#extension-settings)|`220`|`230`|
+|[glassit.alpha](https://github.com/hikarin522/GlassIt-VSC#extension-settings)|`220`|`240`|
 |*Trailing Spaces*|
 |[trailing-spaces.includeEmptyLines](https://marketplace.visualstudio.com/items?itemName=shardulm94.trailing-spaces#:~:text=will%20be%20ignored.-,Include%20Empty%20Lines,-Default%3A%20true)|`true`|`false`|
 
