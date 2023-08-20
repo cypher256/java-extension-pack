@@ -76,7 +76,7 @@ Automatically configure multiple versions of the JDK and build tools. If there a
 1. Auto-scan from packages SDKMAN, Homebrew, jEnv, jabba, ASDF, Gradle, Scoop, Chocolatey, IntelliJ etc...
 1. Auto-scan from installations Adoptium, BellSoft, Corretto, Microsoft, Oracle, Red Hat, Semeru, Zulu etc...
 1. Auto-detect environment variables `JAVA_HOME`, `JDK_HOME` and `PATH`
-1. Auto-download LTS JDKs, Gradle, Maven if not installed
+1. Auto-download [LTS JDKs](https://endoflife.date/java), Gradle, Maven if not installed
 1. Auto-update auto-downloaded JDKs, Gradle, Maven to the latest version
 
 The feature automatically fixes [errors such as](https://stackoverflow.com/search?q=vscode+java+version):
