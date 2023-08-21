@@ -41,7 +41,7 @@ Just install this extension and the JDK is auto-configured. Let's run the Java c
 * [Create a Spring Boot project](https://code.visualstudio.com/docs/java/java-spring-boot#_create-the-project) (Gradle / Maven)
 
 ### Check Version
-Select the Java version from the dropdown in the VS Code terminal and execute the following commands. The terminal Java dropdown items are automatically created by this extension.
+Select the Java version from the dropdown in the VS Code terminal and execute the following commands. The terminal Java dropdown items are automatically created by this extension ([Java 21 support](https://github.com/redhat-developer/vscode-java/issues/3177)).
 ```bash
 java -version
 gradle -v
@@ -106,7 +106,7 @@ The feature automatically fixes [errors such as](https://stackoverflow.com/searc
 |(*1) [rsp-ui.rsp.java.home](https://github.com/redhat-developer/vscode-rsp-ui#extension-settings)<br>([Issues](https://github.com/redhat-developer/vscode-rsp-ui/issues?q=is%3Aissue+rsp-ui.rsp.java.home))|(*2) Set stable LTS if unset, Fix if unsupported older version<br>(Setting > `JDK_HOME` > `JAVA_HOME`> Windows Registry > `PATH`)|
 
 (*1) The language server runtime used by VS Code extensions. Not for building or running projects.<br>
-(*2) Usually the latest LTS, but the previous LTS if the next non-LTS has not been released.<br>
+(*2) Usually the same version of the JDK as the Red Hat Java extension Embedded JRE.<br>
 (*3) The `path` in the entry marked as `default:true` in `java.configuration.runtimes`.
 <br>
 <br>

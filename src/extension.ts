@@ -102,6 +102,7 @@ function setMessage(
 
 		if (OS.isWindows || OS.isLinux) {
 			installExtension('s-nlf-fh.glassit');
+			userSettings.setDefault(); // Set alpha
 		}
 		const langPackSuffix = getLangPackSuffix();
 		if (langPackSuffix) {
