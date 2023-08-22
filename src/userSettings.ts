@@ -317,7 +317,6 @@ export function setDefault() {
 	setIfUndefined('java.sources.organizeImports.staticStarThreshold', 1);
 	// Included extensions
 	setIfUndefined('cSpell.diagnosticLevel', 'Hint', 'streetsidesoftware.code-spell-checker');
-	setIfUndefined('glassit.alpha', 240, 's-nlf-fh.glassit');
 	setIfUndefined('trailing-spaces.includeEmptyLines', false, 'shardulm94.trailing-spaces');
 	// Other extensions
 	setIfUndefined('thunder-client.requestLayout', 'Top/Bottom', 'rangav.vscode-thunder-client');

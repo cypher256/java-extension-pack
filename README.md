@@ -56,7 +56,7 @@ The versions defined in `java.configuration.runtimes` are available.
 |---|---|
 |No build tools|settings.json > `java.configuration.runtimes` > `default: true`|
 |Gradle|build.gradle > `java` > `sourceCompatibility`|
-|Maven|pom.xml > `properties` > `maven.compiler.source`<br>(Spting Boot: `java.version`)|
+|Maven|pom.xml > `properties` > `maven.compiler.source/target`<br>(Spting Boot: `java.version`)|
 
 <br>
 <br>
@@ -240,7 +240,7 @@ Command Palette **>Preferences: Open User Settings (JSON)**
 <br>
 
 ## Auto-default Settings
-Entries that do not have the following configuration in the user settings are automatically set to the default values of Auto Config Java. To prevent automatic setting, set the Original Default value below. Note that a debug run is required to enable Hot Code Replace (Hot Deploy). To disable transparency, set `glassit.alpha` to `255` or uninstall the *`GlassIt-VSC`* extension.
+Entries that do not have the following configuration in the user settings are automatically set to the default values of Auto Config Java. To prevent automatic setting, set the Original Default value below. Note that a debug run is required to enable Hot Code Replace (Hot Deploy).
 
 |Configuration Name|Original Default|Auto Default|
 |---|---|---|
@@ -262,8 +262,6 @@ Entries that do not have the following configuration in the user settings are au
 |[java.debug.settings.hotCodeReplace](https://code.visualstudio.com/docs/java/java-debugging#_hot-code-replace)|`manual`|`auto`|
 |*Code Spell Checker*|
 |[cSpell.diagnosticLevel](https://streetsidesoftware.com/vscode-spell-checker/docs/configuration/#cspelldiagnosticlevel)|`Information`|`Hint`|
-|*GlassIt-VSC* (For Windows, Linux)|
-|[glassit.alpha](https://github.com/hikarin522/GlassIt-VSC#extension-settings)|`220`|`240`|
 |*Trailing Spaces*|
 |[trailing-spaces.includeEmptyLines](https://marketplace.visualstudio.com/items?itemName=shardulm94.trailing-spaces#:~:text=will%20be%20ignored.-,Include%20Empty%20Lines,-Default%3A%20true)|`true`|`false`|
 
@@ -353,9 +351,6 @@ Makes indentation easier to read.
 - ![](https://img.shields.io/visual-studio-marketplace/i/mechatroner.rainbow-csv?style=plastic)
 [Rainbow CSV](https://marketplace.visualstudio.com/items?itemName=mechatroner.rainbow-csv) (mechatroner: MIT)<br>
 Highlight CSV and TSV files, Run SQL-like queries.
-- ![](https://img.shields.io/visual-studio-marketplace/i/s-nlf-fh.glassit?style=plastic)
-(\*) [GlassIt-VSC](https://marketplace.visualstudio.com/items?itemName=s-nlf-fh.glassit) (hikarin522: MIT)<br>
-VS Code Extension to set window to transparent on Windows and Linux platforms.
 - ![](https://img.shields.io/visual-studio-marketplace/i/intellsmi.comment-translate?style=plastic)
 (\*) [Comment Translate](https://marketplace.visualstudio.com/items?itemName=intellsmi.comment-translate) (intellsmi: MIT)<br>
 This plugin uses the Google Translate API to translate comments for the VS Code programming language.
@@ -395,6 +390,9 @@ Thymeleaf snippets.
 - ![](https://img.shields.io/visual-studio-marketplace/i/redhat.vscode-community-server-connector?style=plastic)
 [Community Server Connectors](https://marketplace.visualstudio.com/items?itemName=redhat.vscode-community-server-connector) (Red Hat: EPL) / [VS Code Document](https://code.visualstudio.com/docs/java/java-tomcat-jetty)<br>
 This extension can start, stop, publish, and control servers such as Apache Felix, Karaf, and Tomcat..<br>
+- ![](https://img.shields.io/visual-studio-marketplace/i/s-nlf-fh.glassit?style=plastic)
+[GlassIt-VSC](https://marketplace.visualstudio.com/items?itemName=s-nlf-fh.glassit) (hikarin522: MIT)<br>
+VS Code Extension to set window to transparent on Windows and Linux platforms.
 - ![](https://img.shields.io/visual-studio-marketplace/i/vsls-contrib.gistfs?style=plastic)
 [GistPad](https://marketplace.visualstudio.com/items?itemName=vsls-contrib.gistfs) (Jonathan Carter: MIT)<br>
 Manage your code snippets and developer notes using GitHub Gists and repositories.
@@ -415,6 +413,7 @@ code --install-extension ryanluker.vscode-coverage-gutters
 code --install-extension juhahinkula.thymeleaf
 code --install-extension pthorsson.vscode-jsp
 code --install-extension redhat.vscode-community-server-connector
+code --install-extension s-nlf-fh.glassit
 code --install-extension vsls-contrib.gistfs
 code --install-extension GitHub.copilot
 code --install-extension GitHub.copilot-chat

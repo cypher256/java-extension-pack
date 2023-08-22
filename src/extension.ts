@@ -100,10 +100,6 @@ function setMessage(
 		autoContext.mkdirSyncQuietly(autoContext.getGlobalStoragePath());
 		vscode.window.showInformationMessage(availableMsg);
 
-		if (OS.isWindows || OS.isLinux) {
-			installExtension('s-nlf-fh.glassit');
-			userSettings.setDefault(); // Set alpha
-		}
 		const langPackSuffix = getLangPackSuffix();
 		if (langPackSuffix) {
 			installExtension('intellsmi.comment-translate');
@@ -141,7 +137,7 @@ function setMessage(
 
 /**
  * Gets the language pack suffix.
- * @returns The language pack suffix.
+ * @returns The language pack suffix. undefined if en or not detected.
  */
 function getLangPackSuffix(): string | undefined {
 	const osLocale = OS.locale;
