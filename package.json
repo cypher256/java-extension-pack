@@ -22,6 +22,7 @@
     "config",
     "configuration",
     "command",
+    "debug",
     "eclipse",
     "gradle",
     "highlight",
