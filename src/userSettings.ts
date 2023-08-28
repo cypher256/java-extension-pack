@@ -306,8 +306,8 @@ export function setDefault() {
 	setIfUndefined('workbench.tree.indent', 20);
 	if (OS.isWindows) {
 		setIfUndefined('files.eol', '\n');
-		setIfUndefined('[bat]', {'files.eol': '\r\n'});
 	}
+	setIfUndefined('[bat]', {'files.eol': '\r\n'});
 	// VS Code Terminal
 	setIfUndefined('terminal.integrated.enablePersistentSessions', false);
 	setIfUndefined('terminal.integrated.tabs.hideCondition', 'never');

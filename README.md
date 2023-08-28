@@ -41,7 +41,7 @@ Just install this extension and the JDK is auto-configured. Let's run the Java c
 * [Create a Spring Boot project](https://code.visualstudio.com/docs/java/java-spring-boot#_create-the-project) (Gradle / Maven)
 
 ### Check Version
-Select the Java version from the dropdown in the VS Code terminal and execute the following commands. The terminal Java dropdown items are automatically created by this extension ([Java 21 support](https://github.com/redhat-developer/vscode-java/issues/3177)).
+Select the Java version from the dropdown in the VS Code terminal and execute the following commands. The terminal Java dropdown items are automatically created by this extension ([Java 21 support](https://github.com/redhat-developer/vscode-java/issues?q=is%3Aissue+%22JavaSE-21%22)).
 ```bash
 java -version
 gradle -v
@@ -50,7 +50,8 @@ mvn -v
 ![Terminal Java Dropdown](https://raw.githubusercontent.com/cypher256/java-extension-pack/main/image/terminal.png)
 
 ### Specify Project Java Version
-The versions defined in `java.configuration.runtimes` are available.
+The versions defined in `java.configuration.runtimes` are available.<br>
+([Enabling Java preview features](https://github.com/redhat-developer/vscode-java/wiki/Enabling-Java-preview-features))
 
 |Project Type|Configuration|
 |---|---|
@@ -125,7 +126,7 @@ JDK auto-download supports the following platforms:
 
 It is saved in the following location.
 
-|OS|Extension global storage location (For local installation)|
+|OS|Extension global storage location|
 |---|---|
 |Windows|`%APPDATA%\Code\User\globalStorage\pleiades.java-extension-pack-jdk\ `|
 |macOS|`$HOME/Library/Application Support/Code/User/globalStorage/pleiades.java-extension-pack-jdk/`|
@@ -253,8 +254,8 @@ Entries that do not have the following configuration in the user settings are au
 |[workbench.colorCustomizations](https://code.visualstudio.com/api/references/theme-color)|`{}`|See below|
 |[workbench.editor.revealIfOpen](https://code.visualstudio.com/docs/getstarted/settings#:~:text=workbench.editor.revealIfOpen)|`false`|`true`|
 |[workbench.tree.indent](https://code.visualstudio.com/docs/getstarted/settings#:~:text=in%20pixels.%0A%20%20%22-,workbench.tree.indent,-%22%3A%208)|`8`|`20`|
-|(For Windows) [files.eol](https://code.visualstudio.com/docs/getstarted/settings#:~:text=line%20character.%0A%20%20%22-,files.eol,-%22%3A%20%22auto)|`auto`|`\n`|
-|(For Windows) `[bat]` > `files.eol`|`files.eol`|`\r\n`|
+|[files.eol](https://code.visualstudio.com/docs/getstarted/settings#:~:text=line%20character.%0A%20%20%22-,files.eol,-%22%3A%20%22auto) (For Windows)|`auto`|`\n`|
+|`[bat]` > `files.eol`|`auto`|`\r\n`|
 |*Language support for Java*|
 |[java.configuration.updateBuildConfiguration](https://github.com/redhat-developer/vscode-java#supported-vs-code-settings)|`interactive`|`automatic`|
 |[java.sources.organizeImports.staticStarThreshold](https://github.com/redhat-developer/vscode-java#supported-vs-code-settings)|`99`|`1`|
@@ -322,7 +323,7 @@ A big thank you to the developers of VS Code and its extensions.
 The *`Extension Pack for Java`* is required. Other extensions can be [disabled](https://code.visualstudio.com/docs/editor/extension-marketplace#_disable-an-extension) or [uninstalled](https://code.visualstudio.com/docs/editor/extension-marketplace#_uninstall-an-extension) according to your preference. Note that uninstalling this extension will <a href="https://github.com/microsoft/vscode/issues/169109">uninstall all</a> of the following extensions. If you want to set up extensions and configurations by development language, consider [Profile](https://code.visualstudio.com/docs/editor/profiles). (*) indicates that it will be installed if available in that environment at first startup.
 
 - ![](https://img.shields.io/visual-studio-marketplace/i/vscjava.vscode-java-pack?style=plastic)
-[Extension Pack for Java](https://marketplace.visualstudio.com/items?itemName=vscjava.vscode-java-pack) (Red Hat: EPL, Microsoft: MIT) / [VS Code Document](https://code.visualstudio.com/docs/java/java-tutorial#_creating-a-source-code-file)<br>
+[Extension Pack for Java](https://marketplace.visualstudio.com/items?itemName=vscjava.vscode-java-pack) (Microsoft: MIT, Red Hat: EPL) / [VS Code Document](https://code.visualstudio.com/docs/java/java-tutorial#_creating-a-source-code-file)<br>
 Java IntelliSense, debugging, testing, Maven/Gradle support, Lombok and more.<br>
 - ![](https://img.shields.io/visual-studio-marketplace/i/vmware.vscode-boot-dev-pack?style=plastic)
 [Spring Boot Extension Pack](https://marketplace.visualstudio.com/items?itemName=vmware.vscode-boot-dev-pack) (VMWare: EPL) / [VS Code Document](https://code.visualstudio.com/docs/java/java-spring-boot#_create-the-project)<br>
