@@ -109,19 +109,18 @@ export async function updateJavaConfigRuntimes(
 	}
 
 	// Project Runtimes Default (Keep if set)
-	const isNoDefault = !runtimes.findDefault();
-	if (isNoDefault || !_.isEqual(runtimes, runtimesOld)) {
-		if (isNoDefault) {
-			const stableLtsRuntime = runtimes.findByVersion(jdtSupport.stableLtsVer);
-			if (stableLtsRuntime) {
-				stableLtsRuntime.default = true;
-			}
+	if (!runtimes.findDefault()) {
+		const stableLtsRuntime = runtimes.findByVersion(jdtSupport.stableLtsVer);
+		if (stableLtsRuntime) {
+			stableLtsRuntime.default = true;
 		}
+	}
+	if (!_.isEqual(runtimes, runtimesOld)) {
 		runtimes.sort((a, b) => a.name.localeCompare(b.name));
 		update(jdtExtension.JavaConfigRuntimeArray.CONFIG_KEY, runtimes);
 	}
 
-	// Gradle Daemon Java Home (Fix if set), Note: If unset use java.jdt.ls.java.home
+	// Gradle Daemon Java Home (Fix if set), Note: If unset use default
 	const defaultRuntime = runtimes.findDefault();
 	if (defaultRuntime && vscode.extensions.getExtension('vscjava.vscode-gradle')) {
 		const CONFIG_KEY_GRADLE_JAVA_HOME = 'java.import.gradle.java.home';
