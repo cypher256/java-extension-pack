@@ -120,7 +120,7 @@ export async function updateJavaConfigRuntimes(
 		update(jdtExtension.JavaConfigRuntimeArray.CONFIG_KEY, runtimes);
 	}
 
-	// Gradle Daemon Java Home (Fix if set), Note: If unset use default
+	// Gradle Daemon Java Home (Keep if set)
 	const defaultRuntime = runtimes.findDefault();
 	if (defaultRuntime && vscode.extensions.getExtension('vscjava.vscode-gradle')) {
 		const CONFIG_KEY_GRADLE_JAVA_HOME = 'java.import.gradle.java.home';
@@ -130,7 +130,7 @@ export async function updateJavaConfigRuntimes(
 			if (fixedOrDefault !== originPath) {
 				update(CONFIG_KEY_GRADLE_JAVA_HOME, fixedOrDefault);
 			}
-		} else {
+		} else { // If unset use default
 			update(CONFIG_KEY_GRADLE_JAVA_HOME, defaultRuntime.path);
 		}
 	}
