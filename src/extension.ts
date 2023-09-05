@@ -107,14 +107,12 @@ function setMessage(
 			if (!vscode.extensions.getExtension(langPackId)) {
 				installExtension(langPackId); // Restart message
 				setTimeout(showReloadMessage, 15_000); // Delay for above cancel
+			} else if (vscode.env.language === 'en') {
+				// Choose display language, restart modal dialog
+				vscode.commands.executeCommand('workbench.action.configureLocale');
+				setTimeout(showReloadMessage, 15_000); // Delay for cancel selected
 			} else {
-				if (vscode.env.language === 'en') {
-					// Choose display language, restart modal dialog
-					vscode.commands.executeCommand('workbench.action.configureLocale');
-					setTimeout(showReloadMessage, 15_000); // Delay for cancel selected
-				} else {
-					showReloadMessage();
-				}
+				showReloadMessage();
 			}
 		} else {
 			showReloadMessage();
