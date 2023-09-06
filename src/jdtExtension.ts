@@ -54,6 +54,7 @@ export class JavaConfigRuntimeArray extends Array<IJavaConfigRuntime> {
  */
 export interface IJdtSupport {
     readonly targetLtsVers: ReadonlyArray<number>;
+    readonly latestLtsVer: number;
     readonly stableLtsVer: number;
     readonly embeddedJreVer?: number; // undefined: mac Parallels Windows Arm
 }
@@ -69,11 +70,12 @@ export async function getJdtSupport(): Promise<IJdtSupport> {
     const latestLtsVer = targetLtsVers.at(-1);
     const jdtSupport:IJdtSupport = {
         targetLtsVers: targetLtsVers,
+        latestLtsVer: latestLtsVer ?? 0,
         stableLtsVer: (latestLtsVer === availableVers.at(-1) ? targetLtsVers.at(-2) : latestLtsVer) ?? 0,
         embeddedJreVer: await findEmbeddedJREVersion(),
     };
     log.info('Supported Java', availableVers);
-    log.info(`Target LTS [${targetLtsVers}] Stable ${jdtSupport.stableLtsVer}, ` +
+    log.info(`Target LTS [${targetLtsVers}] Latest ${jdtSupport.latestLtsVer}, Stable ${jdtSupport.stableLtsVer}, ` +
         `LS Embedded JRE ${jdtSupport.embeddedJreVer}`);
     return jdtSupport;
 }

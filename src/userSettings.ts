@@ -110,9 +110,9 @@ export async function updateJavaConfigRuntimes(
 
 	// Project Runtimes Default (Keep if set)
 	if (!runtimes.findDefault()) {
-		const stableLtsRuntime = runtimes.findByVersion(jdtSupport.stableLtsVer);
-		if (stableLtsRuntime) {
-			stableLtsRuntime.default = true;
+		const latestLtsRuntime = runtimes.findByVersion(jdtSupport.latestLtsVer);
+		if (latestLtsRuntime) {
+			latestLtsRuntime.default = true;
 		}
 	}
 	if (!_.isEqual(runtimes, runtimesOld)) {

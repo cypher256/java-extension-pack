@@ -127,6 +127,7 @@ JDK download first URL
 https://github.com/adoptium/temurin8-binaries/releases/latest
 https://github.com/adoptium/temurin11-binaries/releases/latest
 https://github.com/adoptium/temurin17-binaries/releases/latest
+https://github.com/adoptium/temurin21-binaries/releases/latest
 
 Redirected URL
 https://github.com/adoptium/temurin8-binaries/releases/tag/jdk8u362-b09
