@@ -45,33 +45,33 @@ function archOf(javaVersion: number): string | undefined {
 /**
  * Downloads and installs a specific version of the JDK if it is not already installed.
  * @param runtimes An array of installed Java runtimes.
- * @param majorVersion The major version of the JDK to download.
+ * @param majorVer The major version of the JDK to download.
  * @return A promise that resolves when the JDK is installed.
  */
 export async function execute(
 	runtimes:jdtExtension.JavaConfigRuntimeArray,
-	majorVersion:number) {
+	majorVer:number) {
 
 	// Skip User Installed
-	const runtimeName = jdtExtension.nameOf(majorVersion);
+	const runtimeName = jdtExtension.nameOf(majorVer);
 	const matchedRuntime = runtimes.findByName(runtimeName);
 	if (matchedRuntime && autoContext.isUserInstalled(matchedRuntime.path)) {
-		log.info(`Available JDK ${majorVersion} (User installed)`);
+		log.info(`Available JDK ${majorVer} (User installed)`);
 		return;
 	}
-	const arch = archOf(majorVersion);
+	const arch = archOf(majorVer);
 	if (!arch) {
 		log.info(`Unsupported platform: ${process.platform}/${process.arch}`);
 		return;
 	}
 
 	// Get Download URL
-	const URL_PREFIX = `https://github.com/adoptium/temurin${majorVersion}-binaries/releases`;
-	let fullVersion = undefined;
+	const URL_PREFIX = `https://github.com/adoptium/temurin${majorVer}-binaries/releases`;
+	let fullVer = undefined;
 	try {
 		const response = await axios.get(`${URL_PREFIX}/latest`);
 		const redirectedUrl:string = response.request.res.responseUrl;
-		fullVersion = redirectedUrl.replace(/.+tag\//, '');
+		fullVer = redirectedUrl.replace(/.+tag\//, '');
 	} catch (e:any) {
 		// Silent: offline, 404, 503 proxy auth error, or etc.
 		log.info('Failed to get JDK download URL.', e, e?.request?.path);
@@ -79,27 +79,28 @@ export async function execute(
 	}
 
 	// Check Version File
-	const homeDir = path.join(autoContext.getGlobalStoragePath(), 'java', String(majorVersion));
+	const homeDir = path.join(autoContext.getGlobalStoragePath(), 'java', String(majorVer));
 	const versionFile = path.join(homeDir, 'version.txt');
-	const fullVersionOld = autoContext.readString(versionFile);
-	if (fullVersion === fullVersionOld && await jdkExplorer.isValidHome(homeDir)) {
-		log.info(`Available JDK ${fullVersion.replace(/jdk-?/, '')} (No updates)`);
+	const fullVerOld = autoContext.readString(versionFile);
+	if (fullVer === fullVerOld && await jdkExplorer.isValidHome(homeDir)) {
+		const mdate = autoContext.mdateSync(versionFile);
+		log.info(`Available JDK ${fullVer.replace(/jdk-?/, '')} (Updated ${mdate})`);
 		return;
 	}
 
 	// Resolve Download URL
-	const p1 = fullVersion.replace('+', '%2B');
-	const p2 = fullVersion.replace('+', '_').replace(/(jdk|-)/g, '');
+	const p1 = fullVer.replace('+', '%2B');
+	const p2 = fullVer.replace('+', '_').replace(/(jdk|-)/g, '');
 	const downloadUrlPrefix = `${URL_PREFIX}/download/${p1}/`;
 	const fileExt = OS.isWindows ? 'zip' : 'tar.gz';
-	const fileName = `OpenJDK${majorVersion}U-jdk_${arch}_${p2}.${fileExt}`;
+	const fileName = `OpenJDK${majorVer}U-jdk_${arch}_${p2}.${fileExt}`;
 
 	// Download
 	await downloader.execute({
 		downloadUrl: downloadUrlPrefix + fileName,
 		downloadedFile: homeDir + '_download_tmp.' + fileExt,
 		extractDestDir: homeDir,
-		targetMessage: fullVersion,
+		targetMessage: fullVer,
 		removeLeadingPath: OS.isMac ? 3 : 1, // Remove leading 'jdk-xxx/Contents/Home/' fot macOS
 		is404Ignore: true,
 	});
@@ -108,7 +109,7 @@ export async function execute(
 		_.remove(runtimes, r => r.name === runtimeName);
 		return; // Silent
 	}
-	fs.writeFileSync(versionFile, fullVersion); // Sync for catch
+	fs.writeFileSync(versionFile, fullVer); // Sync for throw
 
 	// Set Runtimes Configuration
 	if (matchedRuntime) {

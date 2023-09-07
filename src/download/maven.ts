@@ -74,7 +74,8 @@ async function download(
 	const versionFile = path.join(homeDir, 'version.txt');
 	const versionOld = autoContext.readString(versionFile);
 	if (version === versionOld && isValidHome(homeDir)) {
-		log.info(`Available Maven ${version} (No updates)`);
+		const mdate = autoContext.mdateSync(versionFile);
+		log.info(`Available Maven ${version} (Updated ${mdate})`);
 		return mavenExePath;
 	}
 

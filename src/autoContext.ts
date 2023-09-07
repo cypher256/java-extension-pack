@@ -113,6 +113,20 @@ export function readString(file:string): string | undefined {
 }
 
 /**
+ * Returns the file modified date as string.
+ * @param p The path.
+ * @returns The file modified date as string.
+ */
+export function mdateSync(p:string) {
+	try {
+		return fs.statSync(p).mtime.toLocaleDateString();
+	} catch (e) {
+		log.info('Failed statSync:', e); // Silent
+		return undefined;
+	}
+}
+
+/**
  * Remove directory recursively.
  * @param p The directory path.
  */
