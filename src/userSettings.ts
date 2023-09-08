@@ -69,8 +69,16 @@ export async function updateJavaConfigRuntimes(
 	}
 
 	// VS Code LS Java Home (Fix if unsupported old version)
-	const lsVer = jdtSupport.embeddedJreVer ?? jdtSupport.stableLtsVer;
-	const lsRuntime = runtimes.findByVersion(lsVer);
+	let lsRuntime = undefined;
+	let lsVer = 0;
+	if (jdtSupport.embeddedJreVer) {
+		lsRuntime = runtimes.findByVersion(jdtSupport.embeddedJreVer);
+		lsVer = jdtSupport.embeddedJreVer;
+	}
+	if (!lsRuntime) {
+		lsRuntime = runtimes.findByVersion(jdtSupport.stableLtsVer);
+		lsVer = jdtSupport.stableLtsVer;
+	}
 	if (lsRuntime) {
 		// Reload dialog on change only redhat.java extension (See: extension.ts onDidChangeConfiguration)
 		const configKeys = ['java.jdt.ls.java.home'];
