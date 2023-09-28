@@ -192,7 +192,7 @@ async function findBy(
 async function findAll(): Promise<IDetectedJdk[]> {
 	const jdks: IDetectedJdk[] = [];
 	const env = process.env;
-	const scanStrategies = [
+	const promises = [
 		async () => {
 			// jdk-utils: Gradle Toolchains support pull requested
 			// https://github.com/Eskibear/node-jdk-utils/issues/9
@@ -241,6 +241,6 @@ async function findAll(): Promise<IDetectedJdk[]> {
 			}
 		},
 	];
-	await Promise.allSettled(scanStrategies.map(f => f()));
+	await Promise.allSettled(promises.map(p => p()));
 	return jdks;
 }

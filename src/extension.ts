@@ -71,10 +71,10 @@ async function download(
 		log.info(`Download disabled (Can't get target LTS versions)`);
 	} else {
 		const runtimesBeforeDownload = _.cloneDeep(runtimes);
-		const promiseArray = jdtSupport.targetLtsVers.map(ver => jdkDownloader.execute(runtimes, ver));
-		promiseArray.push(mavenDownloader.execute());
-		promiseArray.push(gradleDownloader.execute());
-		await Promise.allSettled(promiseArray);
+		const promises = jdtSupport.targetLtsVers.map(ver => jdkDownloader.execute(runtimes, ver));
+		promises.push(mavenDownloader.execute());
+		promises.push(gradleDownloader.execute());
+		await Promise.allSettled(promises);
 		await userSettings.updateJavaConfigRuntimes(runtimes, runtimesBeforeDownload, jdtSupport);
 	}
 }
