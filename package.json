@@ -95,7 +95,7 @@
     "vscode": "^1.54.0"
   },
   "devDependencies": {
-    "@types/decompress": "^4.2.4",
+    "@types/decompress": "4.x",
     "@types/lodash": "4.x",
     "@types/node": "18.x",
     "@types/vscode": "^1.54.0",
@@ -110,10 +110,10 @@
   "dependencies": {
     "axios": "1.x",
     "compare-versions": "6.x",
-    "decompress": "^4.2.1",
+    "decompress": "4.x",
     "glob": "10.x",
     "jdk-utils": "0.x",
     "lodash": "4.x"
   },
-  "version": "2023.906.0"
+  "version": "2023.1004.0"
 }
