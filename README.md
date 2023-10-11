@@ -120,7 +120,7 @@ Automatic download is enabled if the [extensions.autoUpdate](https://code.visual
 - Maven - Latest version if not in PATH environment variable
 
 JDK auto-download supports the following platforms:
-- Windows x64, Arm Emulation
+- Windows x64, ARM Emulation
 - macOS x64, aarch64
 - Linux x64, aarch64
 
@@ -159,12 +159,8 @@ Command Palette **>Preferences: Open User Settings (JSON)**
     "default": true // Runtime to use for No build tools projects
   },
   {
-    "name": "JavaSE-19", // JAVA_HOME (Auto-detect)
-    "path": "d:\\jdk\\19"
-  },
-  {
-    "name": "JavaSE-20", // Adoptium (Auto-scan)
-    "path": "c:\\Program Files\\Eclipse Adoptium\\jdk-20.0.2.7-hotspot"
+    "name": "JavaSE-21", // Adoptium (Auto-scan)
+    "path": "c:\\Program Files\\Eclipse Adoptium\\jdk-21.0.1-hotspot"
   }
 ],
 // Gradle Daemon
