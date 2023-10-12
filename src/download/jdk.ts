@@ -134,6 +134,7 @@ Redirected URL
 https://github.com/adoptium/temurin8-binaries/releases/tag/jdk8u362-b09
 https://github.com/adoptium/temurin11-binaries/releases/tag/jdk-11.0.18+10
 https://github.com/adoptium/temurin17-binaries/releases/tag/jdk-17.0.6+10
+https://github.com/adoptium/temurin21-binaries/releases/tag/jdk-21+35
 
 Download URL
 https://github.com/adoptium/
@@ -143,6 +144,8 @@ temurin11-binaries/releases/download/jdk-11.0.18%2B10/OpenJDK11U-jdk_x64_windows
 temurin11-binaries/releases/download/jdk-11.0.18%2B10/OpenJDK11U-jdk_x64_mac_hotspot_11.0.18_10.tar.gz
 temurin17-binaries/releases/download/jdk-17.0.6%2B10/OpenJDK17U-jdk_x64_windows_hotspot_17.0.6_10.zip
 temurin17-binaries/releases/download/jdk-17.0.6%2B10/OpenJDK17U-jdk_x64_mac_hotspot_17.0.6_10.tar.gz
+temurin21-binaries/releases/download/jdk-21%2B35/OpenJDK21U-jdk_x64_windows_hotspot_21_35.zip
+temurin21-binaries/releases/download/jdk-21%2B35/OpenJDK21U-jdk_x64_mac_hotspot_21_35.tar.gz
 
 + OpenJDK8U-jdk_aarch64_linux_hotspot_8u362b09.tar.gz
   OpenJDK8U-jdk_arm_linux_hotspot_8u362b09.tar.gz

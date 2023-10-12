@@ -93,7 +93,7 @@ async function findEmbeddedJREVersion(): Promise<number | undefined> {
             return runtime?.version?.major;
         }
     }
-    return undefined;
+    return undefined; // redhat.java test version has no embedded jre
 }
 
 function getRedhatJavaExtension(): vscode.Extension<any> | undefined {

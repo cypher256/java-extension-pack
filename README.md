@@ -41,7 +41,7 @@ Just install this extension and the JDK is auto-configured. Let's run the Java c
 * [Create a Spring Boot project](https://code.visualstudio.com/docs/java/java-spring-boot#_create-the-project) (Gradle / Maven)
 
 ### Check Version
-Select the Java version from the dropdown in the VS Code terminal and execute the following commands. The terminal Java dropdown items are automatically created by this extension ([Java 21 support](https://github.com/redhat-developer/vscode-java/issues?q=%22JavaSE-21%22)). The latest versions of gradle and mvn are available, but wrappers (gradlew, mvnw) are recommended.
+Select the Java version from the dropdown in the VS Code terminal and execute the following commands. The terminal Java dropdown items are automatically created by this extension ([Java 21 support](https://github.com/redhat-developer/vscode-java/issues?q=%22JavaSE-21%22), [Gradle 8.4 support](https://github.com/microsoft/vscode-gradle/pull/1419)). The latest versions of gradle and mvn are available, but wrappers (gradlew, mvnw) are recommended.
 ```bash
 java -version
 gradle -v
