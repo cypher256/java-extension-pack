@@ -100,6 +100,8 @@ function isNewLeft(leftFullVer:string, rightFullVer:string): boolean {
 	try {
 		const optimize = (s:string) => s.replace(/_/g, '.'); // e.g.) 1.8.0_362 => 1.8.0.362
 		return compare(optimize(leftFullVer), optimize(rightFullVer), '>');
+		// 21.0.0 > 21 = false
+		// 21.0.1 > 21 = true
 	} catch (e) {
 		log.warn(`Failed compare [${leftFullVer}] [${rightFullVer}]`, e);
 		return false;
