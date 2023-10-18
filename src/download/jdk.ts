@@ -56,7 +56,10 @@ export async function execute(
 	const runtimeName = jdtExtension.nameOf(majorVer);
 	const matchedRuntime = runtimes.findByName(runtimeName);
 	if (matchedRuntime && autoContext.isUserInstalled(matchedRuntime.path)) {
-		log.info(`Available JDK ${majorVer} (User installed)`);
+		jdkExplorer.findByPath(matchedRuntime.path).then(detectedJdk => {
+			const ver = detectedJdk?.fullVersion || majorVer;
+			log.info(`Available JDK ${ver} (User installed)`);
+		});
 		return;
 	}
 	const arch = archOf(majorVer);

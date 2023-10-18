@@ -36,12 +36,12 @@ Just install this extension and the JDK is auto-configured. Let's run the Java c
 1. Open src/App.java ≫ Press F5 to run
 
 ![Hello World](https://raw.githubusercontent.com/cypher256/java-extension-pack/main/image/hello.jpg)
-* [Create Hello World and run/debug](https://code.visualstudio.com/docs/java/java-tutorial#_creating-a-source-code-file) (No build tools)
+* [Create Hello World and run/debug](https://code.visualstudio.com/docs/java/java-tutorial#_editing-source-code) (No build tools)
 * [Create a general Java project](https://code.visualstudio.com/docs/java/java-project#_create-a-new-java-project) (No build tools / Gradle / Maven)
 * [Create a Spring Boot project](https://code.visualstudio.com/docs/java/java-spring-boot#_create-the-project) (Gradle / Maven)
 
 ### Check Version
-Select the Java version from the dropdown in the VS Code terminal and execute the following commands. The terminal Java dropdown items are automatically created by this extension ([Java 21 support](https://github.com/redhat-developer/vscode-java/issues?q=%22JavaSE-21%22), [Gradle 8.4 support](https://github.com/microsoft/vscode-gradle/issues?q=%22JDK21%22)). The latest versions of gradle and mvn are available, but it is generally recommended to use wrappers (gradlew, mvnw) for each project.
+Select the Java version from the dropdown in the VS Code terminal and execute the following commands. The terminal Java dropdown items are automatically created by this extension ([Java 21 support](https://github.com/redhat-developer/vscode-java/issues?q=%22JavaSE-21%22), [Gradle 8.x support](https://github.com/microsoft/vscode-gradle/issues?q=%22JDK21%22)). The latest versions of gradle and mvn are available, but it is generally recommended to use wrappers (gradlew, mvnw) for each project.
 ```bash
 java -version
 gradle -v
@@ -55,7 +55,7 @@ The versions defined in `java.configuration.runtimes` are available.<br>
 
 |Project Type|Configuration|
 |---|---|
-|No build tools|settings.json > `java.configuration.runtimes` > `default: true`|
+|No build tools|settings.json > `java.configuration.runtimes` > `default: true`<br>(Recommend [Workspace Settings](https://code.visualstudio.com/docs/getstarted/settings) instead of User Settings)|
 |Gradle|build.gradle > `java` > `sourceCompatibility`|
 |Maven|pom.xml > `properties` > `maven.compiler.source/target`<br>(Spring Boot: `java.version`)|
 
@@ -80,7 +80,7 @@ Automatically configure multiple versions of the JDK and build tools. If there a
 1. Auto-download Adoptium LTS JDKs, Gradle, Maven if not installed
 1. Auto-update auto-downloaded JDKs, Gradle, Maven to the latest version
 
-The feature automatically fixes [errors such as](https://stackoverflow.com/search?q=vscode+java+version):
+The feature automatically fixes [errors such as](https://stackoverflow.com/search?q=vs+code+java+version):
 
 * Java Language Server requires a JDK xx+ to launch itself.
 * This setting is deprecated, please use 'java.jdt.ls.java.home' instead.
