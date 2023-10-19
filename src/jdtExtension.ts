@@ -56,7 +56,7 @@ export interface IJdtSupport {
     readonly targetLtsVers: ReadonlyArray<number>;
     readonly latestLtsVer: number;
     readonly stableLtsVer: number;
-    readonly embeddedJreVer?: number; // undefined: mac Parallels Windows Arm
+    readonly embeddedJreVer?: number;
 }
 
 /**
@@ -93,7 +93,9 @@ async function findEmbeddedJREVersion(): Promise<number | undefined> {
             return runtime?.version?.major;
         }
     }
-    return undefined; // redhat.java test version has no embedded jre
+    // mac Parallels Windows Arm
+    // redhat.java test version
+    return undefined;
 }
 
 function getRedhatJavaExtension(): vscode.Extension<any> | undefined {
