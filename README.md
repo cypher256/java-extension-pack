@@ -33,7 +33,7 @@ If JDK, Gradle and Maven are already installed they will be used, otherwise they
 Just install this extension and the JDK is auto-configured. Let's run the Java code right away!
 1. Open command palette (F1 or Ctrl/Cmd + Shift + P) **>Java: Create Java Project...**
 1. No build tools ≫ Specify project parent directory ≫ Enter new project name (e.g. HelloWorld)
-1. Open src/App.java ≫ Press F5 to run
+1. Open src/App.java ≫ Press F5 to debug run
 
 ![Hello World](https://raw.githubusercontent.com/cypher256/java-extension-pack/main/image/hello.jpg)
 * [Create Hello World and run/debug](https://code.visualstudio.com/docs/java/java-tutorial#_editing-source-code) (No build tools)
@@ -41,7 +41,7 @@ Just install this extension and the JDK is auto-configured. Let's run the Java c
 * [Create a Spring Boot project](https://code.visualstudio.com/docs/java/java-spring-boot#_create-the-project) (Gradle / Maven)
 
 ### Check Version
-Select the Java version from the dropdown in the VS Code terminal and execute the following commands. The terminal Java dropdown items are automatically created by this extension ([Java 21 support](https://github.com/redhat-developer/vscode-java/issues?q=%22JavaSE-21%22), [Gradle 8.x support](https://github.com/microsoft/vscode-gradle/issues?q=%22JDK21%22)). The latest versions of gradle and mvn are available, but it is generally recommended to use wrappers (gradlew, mvnw) for each project.
+Select the Java version ([Java 21 support](https://github.com/redhat-developer/vscode-java/issues?q=%22JavaSE-21%22), [Gradle 8.x support](https://github.com/microsoft/vscode-gradle/issues?q=%22JDK21%22)) from the dropdown in the VS Code terminal and execute the following commands. The terminal Java dropdown items are automatically created by this extension. The latest versions of gradle and mvn are available, but it is generally recommended to use wrappers (gradlew, mvnw) for each project.
 ```bash
 java -version
 gradle -v

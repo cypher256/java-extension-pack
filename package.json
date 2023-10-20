@@ -99,7 +99,7 @@
     "@types/lodash": "4.x",
     "@types/node": "18.x",
     "@types/vscode": "^1.54.0",
-    "@types/which": "^3.0.0",
+    "@types/which": "3.x",
     "@typescript-eslint/eslint-plugin": "6.x",
     "@typescript-eslint/parser": "6.x",
     "@vscode/l10n-dev": "0.0.x",
@@ -115,5 +115,5 @@
     "jdk-utils": "0.x",
     "lodash": "4.x"
   },
-  "version": "2023.1018.0"
+  "version": "2023.1020.0"
 }

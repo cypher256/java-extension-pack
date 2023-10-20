@@ -143,7 +143,8 @@ export function versionOf(runtimeName:string): number {
 export function nameOf(majorVer:number): string {
     if (majorVer <= 5) {
         return 'J2SE-1.' + majorVer;
-    } else if (majorVer <= 8) {
+    }
+    if (majorVer <= 8) {
         return 'JavaSE-1.' + majorVer;
     }
     return 'JavaSE-' + majorVer;
