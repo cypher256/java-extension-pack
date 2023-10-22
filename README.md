@@ -367,7 +367,7 @@ The following are not included but are very useful extensions. Try to install it
 [Thunder Client](https://marketplace.visualstudio.com/items?itemName=rangav.vscode-thunder-client) (Ranga Vadhineni: Free)<br>
 Lightweight Rest API Client for VS Code.
 - ![](https://img.shields.io/visual-studio-marketplace/i/usernamehw.errorlens?style=plastic)
-[Error Lens](https://marketplace.visualstudio.com/items?itemName=usernamehw.errorlens) (Alexander: Unknown)<br>
+[Error Lens](https://marketplace.visualstudio.com/items?itemName=usernamehw.errorlens) (Phil Hindle: MIT)<br>
 Improve highlighting of errors, warnings and other language diagnostics.
 - ![](https://img.shields.io/visual-studio-marketplace/i/SonarSource.sonarlint-vscode?style=plastic)
 [SonarLint](https://marketplace.visualstudio.com/items?itemName=SonarSource.sonarlint-vscode) (SonarSource: GPL) / [VS Code Document](https://code.visualstudio.com/docs/java/java-linting#_sonarlint)<br>
