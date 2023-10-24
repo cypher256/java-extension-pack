@@ -70,7 +70,7 @@ This extension has no specific settings or commands. As shown below, the JDK, bu
 <br>
 
 ## JDK Auto-configuration
-Automatically configure multiple versions of the JDK and build tools. If there are multiple JDKs of the same version, the latest minor version among them is used. If you manually install or update the JDK and want to force update the configuration of VS Code, restart VS Code or execute **>Developer: Reload Window** from the command palette (F1 or Ctrl/Cmd + Shift + P). These apply to User `settings.json` (VS Code global), but can be manually edited to customize them. If you want to customize your settings even further, consider using [workspace settings](https://code.visualstudio.com/docs/getstarted/settings) or [profiles](https://code.visualstudio.com/docs/editor/profiles).
+Automatically configure multiple versions of the JDK and build tools. If there are multiple JDKs of the same version, the latest minor version among them is used. If you manually install or update the JDK and want to force update the configuration of VS Code, execute Command Palette **>Java: Clean Java Language Server Workspace ≫ Reload and Delete**. These apply to User `settings.json` (VS Code global), but can be manually edited to customize them. If you want to customize your settings even further, consider using [workspace settings](https://code.visualstudio.com/docs/getstarted/settings) or [profiles](https://code.visualstudio.com/docs/editor/profiles).
 
 1. Auto-fix invalid JDK configuration (e.g. `/java/bin` -> `/java`)
 1. Auto-remove configuration entries when JDK uninstalled or version path changed
