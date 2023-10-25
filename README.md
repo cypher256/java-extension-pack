@@ -40,8 +40,8 @@ Just install this extension and the JDK is auto-configured. Let's run the Java c
 * [Create a general Java project](https://code.visualstudio.com/docs/java/java-project#_create-a-new-java-project) (No build tools / Gradle / Maven)
 * [Create a Spring Boot project](https://code.visualstudio.com/docs/java/java-spring-boot#_create-the-project) (Gradle / Maven)
 
-### Check Version
-Select the Java version ([Java 21 support](https://github.com/redhat-developer/vscode-java/issues?q=%22JavaSE-21%22), [Gradle 8.x support](https://github.com/microsoft/vscode-gradle/issues?q=%22JDK21%22)) from the dropdown in the VS Code terminal and execute the following commands. The terminal Java dropdown items are automatically created by this extension. The latest versions of gradle and mvn are available, but it is generally recommended to use wrappers (gradlew, mvnw) for each project.
+### Run Terminal Command
+This extension adds available Java versions ([Java 21 support](https://github.com/redhat-developer/vscode-java/issues?q=%22JavaSE-21%22)) to a dropdown item in the VS Code Terminal. You can open a Terminal by clicking on the Java version you want to use and check the full version using commands below. The latest versions of gradle and mvn are available, but it is generally recommended to use wrappers (gradlew, mvnw) for each project.
 ```bash
 java -version
 gradle -v
@@ -70,7 +70,7 @@ This extension has no specific settings or commands. As shown below, the JDK, bu
 <br>
 
 ## JDK Auto-configuration
-Automatically configure multiple versions of the JDK and build tools. If there are multiple JDKs of the same version, the latest minor version among them is used. If you manually install or update the JDK and want to force update the configuration of VS Code, execute Command Palette **>Java: Clean Java Language Server Workspace ≫ Reload and Delete**. These apply to User `settings.json` (VS Code global), but can be manually edited to customize them. If you want to customize your settings even further, consider using [workspace settings](https://code.visualstudio.com/docs/getstarted/settings) or [profiles](https://code.visualstudio.com/docs/editor/profiles).
+Automatically configure multiple versions of the JDK and build tools. If there are multiple JDKs of the same version, the latest minor version among them is used. If you installed the JDK manually or encountered a configuration error, restart VS Code or execute Command Palette **>Java: Clean Java Language Server Workspace ≫ Reload and Delete**. These apply to User `settings.json` (VS Code global), but can be manually edited to customize them. If you want to customize your settings even further, consider using [workspace settings](https://code.visualstudio.com/docs/getstarted/settings) or [profiles](https://code.visualstudio.com/docs/editor/profiles).
 
 1. Auto-fix invalid JDK configuration (e.g. `/java/bin` -> `/java`)
 1. Auto-remove configuration entries when JDK uninstalled or version path changed

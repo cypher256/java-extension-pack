@@ -75,8 +75,9 @@ export async function updateJavaConfigRuntimes(
 		lsRuntime = runtimes.findByVersion(jdtSupport.embeddedJreVer);
 		lsVer = jdtSupport.embeddedJreVer;
 	}
-	if (!lsRuntime) {
-		lsRuntime = runtimes.findByVersion(jdtSupport.stableLtsVer);
+	const stableRuntime = runtimes.findByVersion(jdtSupport.stableLtsVer);
+	if (!lsRuntime && stableRuntime) {
+		lsRuntime = stableRuntime;
 		lsVer = jdtSupport.stableLtsVer;
 	}
 	if (lsRuntime) {
@@ -127,19 +128,21 @@ export async function updateJavaConfigRuntimes(
 		runtimes.sort((a, b) => a.name.localeCompare(b.name));
 		update(jdtExtension.JavaConfigRuntimeArray.CONFIG_KEY, runtimes);
 	}
+	const defaultRuntime = runtimes.findDefault();
 
 	// Gradle Daemon Java Home (Keep if set)
-	const defaultRuntime = runtimes.findDefault();
-	if (defaultRuntime && vscode.extensions.getExtension('vscjava.vscode-gradle')) {
+	//const gradleRuntime = defaultRuntime; // Gradle does not support latest Java version
+	const gradleRuntime = stableRuntime;
+	if (gradleRuntime && vscode.extensions.getExtension('vscjava.vscode-gradle')) {
 		const CONFIG_KEY_GRADLE_JAVA_HOME = 'java.import.gradle.java.home';
 		const originPath = get<string>(CONFIG_KEY_GRADLE_JAVA_HOME);
 		if (originPath) {
-			const fixedOrDefault = await jdkExplorer.fixPath(originPath) || defaultRuntime.path;
+			const fixedOrDefault = await jdkExplorer.fixPath(originPath) || gradleRuntime.path;
 			if (fixedOrDefault !== originPath) {
 				update(CONFIG_KEY_GRADLE_JAVA_HOME, fixedOrDefault);
 			}
 		} else { // If unset use default
-			update(CONFIG_KEY_GRADLE_JAVA_HOME, defaultRuntime.path);
+			update(CONFIG_KEY_GRADLE_JAVA_HOME, gradleRuntime.path);
 		}
 	}
 

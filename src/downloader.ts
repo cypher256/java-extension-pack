@@ -40,14 +40,14 @@ export async function execute(opt:IDownloaderOptions) {
 		} catch (e:any) {
             // Silent: offline, 404, 503 proxy auth error, or etc.
             if (opt.is404Ignore && e?.response?.status === 404) {
-                log.info(`No download target ${opt.targetMessage}`);
-                // Update version file (Skip version)
+                // log.info(`Download skip ${opt.targetMessage}`);
+                // return; // Update version file (Skip version, e.g. No Windows version)
+                log.info(`Download 404 Waiting for build ${opt.targetMessage}`);
             } else {
                 log.info(`Download failed ${opt.downloadUrl}`, e);
-                // Throw to not update version file
-                throw e;
             }
-		}
+            throw e; // Do not update version file (Retry next time)
+        }
     });
 }
 
