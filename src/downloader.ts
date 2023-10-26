@@ -42,7 +42,7 @@ export async function execute(opt:IDownloaderOptions) {
             if (opt.is404Ignore && e?.response?.status === 404) {
                 // log.info(`Download skip ${opt.targetMessage}`);
                 // return; // Update version file (Skip version, e.g. No Windows version)
-                log.info(`Download 404 Waiting for build ${opt.targetMessage}`);
+                log.info(`Download 404 skip or waiting for build ${opt.targetMessage}`);
             } else {
                 log.info(`Download failed ${opt.downloadUrl}`, e);
             }
