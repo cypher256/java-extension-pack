@@ -84,11 +84,13 @@ export async function execute(
 	// Check Version File
 	const homeDir = path.join(autoContext.getGlobalStoragePath(), 'java', String(majorVer));
 	const versionFile = path.join(homeDir, 'version.txt');
-	const fullVerOld = autoContext.readString(versionFile);
-	if (fullVer === fullVerOld && await jdkExplorer.isValidHome(homeDir)) {
+	if (await jdkExplorer.isValidHome(homeDir)) {
 		const mdate = autoContext.mdateSync(versionFile);
 		log.info(`Available JDK ${fullVer.replace(/jdk-?/, '')} (Updated ${mdate})`);
-		return;
+		const fullVerOld = autoContext.readString(versionFile);
+		if (fullVer === fullVerOld) {
+			return;
+		}
 	}
 
 	// Resolve Download URL
