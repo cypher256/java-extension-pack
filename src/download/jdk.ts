@@ -86,8 +86,8 @@ export async function execute(
 	const versionFile = path.join(homeDir, 'version.txt');
 	if (await jdkExplorer.isValidHome(homeDir)) {
 		const mdate = autoContext.mdateSync(versionFile);
-		log.info(`Available JDK ${fullVer.replace(/jdk-?/, '')} (Updated ${mdate})`);
-		const fullVerOld = autoContext.readString(versionFile);
+		const fullVerOld = autoContext.readString(versionFile) || '';
+		log.info(`Available JDK ${fullVerOld.replace(/jdk-?/, '')} (Updated ${mdate})`);
 		if (fullVer === fullVerOld) {
 			return;
 		}
@@ -95,7 +95,7 @@ export async function execute(
 
 	// Resolve Download URL
 	const p1 = fullVer.replace('+', '%2B');
-	const p2 = fullVer.replace('+', '_').replace(/(jdk|-)/g, '');
+	const p2 = fullVer.replace('+', '_').replace(/(jdk|-)/g, '').replace(/(_\d+)\.\d+$/g, '$1');
 	const downloadUrlPrefix = `${URL_PREFIX}/download/${p1}/`;
 	const fileExt = OS.isWindows ? 'zip' : 'tar.gz';
 	const fileName = `OpenJDK${majorVer}U-jdk_${arch}_${p2}.${fileExt}`;
@@ -175,4 +175,7 @@ temurin21-binaries/releases/download/jdk-21%2B35/OpenJDK21U-jdk_x64_mac_hotspot_
 + OpenJDK17U-jdk_x64_mac_hotspot_17.0.6_10.tar.gz
 + OpenJDK17U-jdk_x64_windows_hotspot_17.0.6_10.zip
   OpenJDK17U-jdk_x86-32_windows_hotspot_17.0.6_10.zip
+
+    /jdk-17.0.9%2B9/OpenJDK17U-jdk_x64_windows_hotspot_17.0.9_9.zip
+  /jdk-17.0.9%2B9.1/OpenJDK17U-jdk_x64_windows_hotspot_17.0.9_9.zip
 */
