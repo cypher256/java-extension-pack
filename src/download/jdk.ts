@@ -1,6 +1,7 @@
 /*! VS Code Extension (c) 2023 Shinji Kashihara (cypher256) @ WILL */
 import axios from 'axios';
 import * as fs from 'fs';
+// eslint-disable-next-line @typescript-eslint/naming-convention
 import * as _ from "lodash";
 import * as path from 'path';
 import * as autoContext from '../autoContext';
