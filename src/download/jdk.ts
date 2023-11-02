@@ -75,7 +75,8 @@ export async function execute(
 	try {
 		const response = await axios.get(`${URL_PREFIX}/latest`);
 		const redirectedUrl:string = response.request.res.responseUrl;
-		fullVer = redirectedUrl.replace(/.+tag\//, '');
+		fullVer = redirectedUrl.replace(/.+tag\//, '')
+			.replace(/(\+\d+)\.\d+$/g, '$1'); // Workaround HTTP 404: 17.0.9+9.1 -> 17.0.9+9
 	} catch (e:any) {
 		// Silent: offline, 404, 503 proxy auth error, or etc.
 		log.info('Failed to get JDK download URL.', e, e?.request?.path);
@@ -96,7 +97,7 @@ export async function execute(
 
 	// Resolve Download URL
 	const p1 = fullVer.replace('+', '%2B');
-	const p2 = fullVer.replace('+', '_').replace(/(jdk|-)/g, '').replace(/(_\d+)\.\d+$/g, '$1');
+	const p2 = fullVer.replace('+', '_').replace(/(jdk|-)/g, '');
 	const downloadUrlPrefix = `${URL_PREFIX}/download/${p1}/`;
 	const fileExt = OS.isWindows ? 'zip' : 'tar.gz';
 	const fileName = `OpenJDK${majorVer}U-jdk_${arch}_${p2}.${fileExt}`;
