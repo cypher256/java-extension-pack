@@ -96,7 +96,7 @@ export async function execute(
 
 	// Resolve Download URL
 	const p1 = fullVer.replace('+', '%2B');
-	const p2 = fullVer.replace('+', '_').replace(/(jdk|-)/g, '');
+	const p2 = fullVer.replace('+', '_').replace(/(jdk|-)/g, '').replace(/\.\d+$/, ''); // 17.0.9_9.1 -> 17.0.9_9
 	const downloadUrlPrefix = `${URL_PREFIX}/download/${p1}/`;
 	const fileExt = OS.isWindows ? 'zip' : 'tar.gz';
 	const fileName = `OpenJDK${majorVer}U-jdk_${arch}_${p2}.${fileExt}`;
@@ -114,8 +114,8 @@ export async function execute(
 	try {
 		await downloader.execute(options);
 	} catch (e:any) {
-		// Retry fallback previous version: 17.0.9_9.1 -> 17.0.9_9
-		const fallbackUrl = options.downloadUrl.replace(/(.+\d+_\d+)\.\d+/, '$1');
+		// Retry fallback previous version: /jdk-17.0.9%2B9.1/ -> /jdk-17.0.9%2B9/
+		const fallbackUrl = options.downloadUrl.replace(/(\.\d+%2B\d+)\.\d+/, '$1');
 		if (fallbackUrl !== options.downloadUrl && e?.response?.status === 404) {
 			log.info(`Retry fallback:\n${options.downloadUrl}\n${fallbackUrl}`);
 			options.downloadUrl = fallbackUrl;
