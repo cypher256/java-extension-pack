@@ -18,7 +18,7 @@ const STATE_EXTRACTING_MSG = 'STATE_EXTRACTING_MSG';
  * An interface for the options of the downloader.
  */
 export interface IDownloaderOptions {
-    readonly downloadUrl:string,
+    downloadUrl:string,
     readonly downloadedFile:string,
     readonly extractDestDir:string,
     readonly targetMessage:string,

@@ -75,8 +75,7 @@ export async function execute(
 	try {
 		const response = await axios.get(`${URL_PREFIX}/latest`);
 		const redirectedUrl:string = response.request.res.responseUrl;
-		fullVer = redirectedUrl.replace(/.+tag\//, '')
-			.replace(/(\+\d+)\.\d+$/g, '$1'); // Workaround HTTP 404: 17.0.9+9.1 -> 17.0.9+9
+		fullVer = redirectedUrl.replace(/.+tag\//, '');
 	} catch (e:any) {
 		// Silent: offline, 404, 503 proxy auth error, or etc.
 		log.info('Failed to get JDK download URL.', e, e?.request?.path);
@@ -102,15 +101,29 @@ export async function execute(
 	const fileExt = OS.isWindows ? 'zip' : 'tar.gz';
 	const fileName = `OpenJDK${majorVer}U-jdk_${arch}_${p2}.${fileExt}`;
 
-	// Download
-	await downloader.execute({
+	const options = {
 		downloadUrl: downloadUrlPrefix + fileName,
 		downloadedFile: homeDir + '_download_tmp.' + fileExt,
 		extractDestDir: homeDir,
 		targetMessage: fullVer,
 		removeLeadingPath: OS.isMac ? 3 : 1, // Remove leading 'jdk-xxx/Contents/Home/' fot macOS
 		is404Ignore: true,
-	});
+	};
+
+	// Download
+	try {
+		await downloader.execute(options);
+	} catch (e:any) {
+		// Retry fallback previous version: 17.0.9_9.1 -> 17.0.9_9
+		const fallbackUrl = options.downloadUrl.replace(/(.+\d+_\d+)\.\d+/, '$1');
+		if (fallbackUrl !== options.downloadUrl && e?.response?.status === 404) {
+			log.info(`Retry fallback:\n${options.downloadUrl}\n${fallbackUrl}`);
+			options.downloadUrl = fallbackUrl;
+			await downloader.execute(options);
+		} else {
+			throw e;
+		}
+	}
 	if (!await jdkExplorer.isValidHome(homeDir)) {
 		log.info('Invalid JDK:', homeDir);
 		_.remove(runtimes, r => r.name === runtimeName);
