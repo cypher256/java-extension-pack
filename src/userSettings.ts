@@ -1,4 +1,5 @@
 /*! VS Code Extension (c) 2023 Shinji Kashihara (cypher256) @ WILL */
+// eslint-disable-next-line @typescript-eslint/naming-convention
 import * as _ from "lodash";
 import * as path from 'path';
 import * as vscode from 'vscode';
@@ -235,7 +236,17 @@ export async function updateJavaConfigRuntimes(
 	const profilesOld:any = _.cloneDeep(profilesGlobal); // Proxy to POJO for isEqual
 	const profilesNew:any = _.cloneDeep(profilesOld);
 
+	for (const runtimeName of Object.keys(profilesNew)) {
+		// Clean Dropdown (Remove invalid path)
+		if (!runtimes.findByName(runtimeName)) {
+			const javaHome = profilesNew[runtimeName]?.env?.JAVA_HOME;
+			if (javaHome && !await jdkExplorer.isValidHome(javaHome)) {
+				delete profilesNew[runtimeName];
+			}
+		}
+	}
 	for (const runtime of runtimes) {
+		// Set Dropdown from runtimes
 		const profile:any = _.cloneDeep(profilesOld[runtime.name]) ?? {}; // for isEqual
 		profile.overrideName = true;
 		profile.env ??= {};
