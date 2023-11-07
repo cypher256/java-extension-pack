@@ -4,7 +4,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as autoContext from '../autoContext';
 import { log } from '../autoContext';
-import * as downloader from '../downloader';
+import * as httpClient from '../httpClient';
 import * as userSettings from '../userSettings';
 export const CONFIG_KEY_GRADLE_HOME = 'java.import.gradle.home';
 
@@ -12,12 +12,12 @@ export const CONFIG_KEY_GRADLE_HOME = 'java.import.gradle.home';
  * Downloads and installs the Gradle if it is not already installed.
  * @return A promise that resolves when the Gradle is installed.
  */
-export async function execute() {
+export async function download() {
 	const homeDir = path.join(autoContext.getGlobalStoragePath(), 'gradle', 'latest');
 	const gradleHomeOld = userSettings.get<string>(CONFIG_KEY_GRADLE_HOME);
 	let gradleHomeNew = await validate(homeDir, gradleHomeOld);
 	try {
-		gradleHomeNew = await download(homeDir, gradleHomeNew);
+		gradleHomeNew = await httpget(homeDir, gradleHomeNew);
 	} catch (e:any) {
 		// Silent: offline, 404, 503 proxy auth error, or etc.
 		log.info('Failed download Gradle.', e, e?.request?.path);
@@ -60,7 +60,7 @@ async function validate(
 	return gradleHome;
 }
 
-async function download(
+async function httpget(
 	homeDir:string,
 	gradleHome:string | undefined): Promise<string | undefined> {
 
@@ -78,9 +78,9 @@ async function download(
 	}
 
     // Download
-	await downloader.execute({
-		downloadUrl: json.downloadUrl,
-		downloadedFile: homeDir + '_download_tmp.zip',
+	await httpClient.execute({
+		url: json.downloadUrl,
+		storeTempFile: homeDir + '_download_tmp.zip',
 		extractDestDir: homeDir,
 		targetMessage: `Gradle ${version}`,
 	});

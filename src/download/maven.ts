@@ -4,7 +4,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as autoContext from '../autoContext';
 import { log } from '../autoContext';
-import * as downloader from '../downloader';
+import * as httpClient from '../httpClient';
 import * as userSettings from '../userSettings';
 export const CONFIG_KEY_MAVEN_EXE_PATH = 'maven.executable.path';
 
@@ -12,12 +12,12 @@ export const CONFIG_KEY_MAVEN_EXE_PATH = 'maven.executable.path';
  * Downloads and installs the Maven if it is not already installed.
  * @return A promise that resolves when the Maven is installed.
  */
-export async function execute() {
+export async function download() {
 	const homeDir = path.join(autoContext.getGlobalStoragePath(), 'maven', 'latest');
 	const mavenExePathOld = userSettings.get<string>(CONFIG_KEY_MAVEN_EXE_PATH);
 	let mavenExePathNew = await validate(homeDir, mavenExePathOld);
 	try {
-		mavenExePathNew = await download(homeDir, mavenExePathNew);
+		mavenExePathNew = await httpget(homeDir, mavenExePathNew);
 	} catch (e:any) {
 		// Silent: offline, 404, 503 proxy auth error, or etc.
 		log.info('Failed download Maven.', e, e?.request?.path);
@@ -60,7 +60,7 @@ async function validate(
 	return mavenExePath;
 }
 
-async function download(
+async function httpget(
 	homeDir:string,
 	mavenExePath:string | undefined): Promise<string | undefined> {
 
@@ -80,9 +80,9 @@ async function download(
 	}
 
     // Download
-	await downloader.execute({
-		downloadUrl: `${URL_PREFIX}${version}/apache-maven-${version}-bin.tar.gz`,
-		downloadedFile: homeDir + '_download_tmp.tar.gz',
+	await httpClient.execute({
+		url: `${URL_PREFIX}${version}/apache-maven-${version}-bin.tar.gz`,
+		storeTempFile: homeDir + '_download_tmp.tar.gz',
 		extractDestDir: homeDir,
 		targetMessage: `Maven ${version}`,
 	});

@@ -1,5 +1,4 @@
 /*! VS Code Extension (c) 2023 Shinji Kashihara (cypher256) @ WILL */
-// eslint-disable-next-line @typescript-eslint/naming-convention
 import * as _ from "lodash";
 import * as path from 'path';
 import * as vscode from 'vscode';
@@ -59,7 +58,7 @@ export function getJavaConfigRuntimes(): jdtExtension.JavaConfigRuntimeArray {
  * @param jdtSupport The JDT supported version object.
  * @return A promise that resolves when the configuration is updated.
  */
-export async function updateJavaConfigRuntimes(
+export async function updateJavaConfig(
 	runtimes:jdtExtension.JavaConfigRuntimeArray,
 	runtimesOld:jdtExtension.JavaConfigRuntimeArray,
 	jdtSupport: jdtExtension.IJdtSupport) {
@@ -286,7 +285,6 @@ function setIfUndefined(section:string, value:any, extensionName?:string) {
  * Sets default values for VS Code settings.
  */
 export function setDefault() {
-	/* eslint-disable @typescript-eslint/naming-convention */
 	// VS Code Editor
 	setIfUndefined('editor.codeActionsOnSave', {
 		"source.organizeImports": true

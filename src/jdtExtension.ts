@@ -19,7 +19,6 @@ export interface IJavaConfigRuntime {
  */
 export class JavaConfigRuntimeArray extends Array<IJavaConfigRuntime> {
 	
-    // eslint-disable-next-line @typescript-eslint/naming-convention
     static CONFIG_KEY = 'java.configuration.runtimes';
 
 	/**

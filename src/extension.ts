@@ -4,9 +4,9 @@ import * as vscode from 'vscode';
 import { l10n } from 'vscode';
 import * as autoContext from './autoContext';
 import { OS, log } from './autoContext';
-import * as gradleDownloader from './download/gradle';
-import * as jdkDownloader from './download/jdk';
-import * as mavenDownloader from './download/maven';
+import * as gradle from './download/gradle';
+import * as jdk from './download/jdk';
+import * as maven from './download/maven';
 import * as jdkExplorer from './jdkExplorer';
 import * as jdtExtension from './jdtExtension';
 import * as userSettings from './userSettings';
@@ -31,7 +31,7 @@ export async function activate(context:vscode.ExtensionContext) {
 		
 		await scan(runtimes, runtimesOld, jdtSupport);
 		await download(runtimes, jdtSupport);
-		setMessage(runtimes, runtimesOld, isFirstStartup);
+		showMessage(runtimes, runtimesOld, isFirstStartup);
 		log.info('activate END');
 	} catch (e:any) {
 		vscode.window.showErrorMessage(`Auto Config Java failed. ${e}`);
@@ -40,7 +40,7 @@ export async function activate(context:vscode.ExtensionContext) {
 }
 
 /**
- * Scans the installed Java runtimes and updates the Java configuration.
+ * Scans the installed JDK and updates the Java configuration.
  * @param runtimes The Java runtimes to update.
  * @param runtimesOld The Java runtimes before scan.
  * @param jdtSupport The JDT supported versions.
@@ -51,11 +51,11 @@ async function scan(
 	jdtSupport: jdtExtension.IJdtSupport) {
 
 	await jdkExplorer.scan(runtimes);
-	await userSettings.updateJavaConfigRuntimes(runtimes, runtimesOld, jdtSupport);
+	await userSettings.updateJavaConfig(runtimes, runtimesOld, jdtSupport);
 }
 
 /**
- * Downloads the Java runtimes and updates the Java configuration.
+ * Downloads the JDK and updates the Java configuration.
  * @param runtimes The Java runtimes to update.
  * @param jdtSupport The JDT supported versions.
  */
@@ -65,27 +65,27 @@ async function download(
 
 	if (!userSettings.get('extensions.autoUpdate')) {
 		log.info(`Download disabled (extensions.autoUpdate: false)`);
-	} else if (!jdkDownloader.isTargetPlatform) {
+	} else if (!jdk.isTargetPlatform) {
 		log.info(`Download disabled (${process.platform}/${process.arch})`);
 	} else if (jdtSupport.targetLtsVers.length === 0) {
 		log.info(`Download disabled (Can't get target LTS versions)`);
 	} else {
 		const runtimesBeforeDownload = _.cloneDeep(runtimes);
-		const promises = jdtSupport.targetLtsVers.map(ver => jdkDownloader.execute(runtimes, ver));
-		promises.push(mavenDownloader.execute());
-		promises.push(gradleDownloader.execute());
+		const promises = jdtSupport.targetLtsVers.map(ver => jdk.download(runtimes, ver));
+		promises.push(maven.download());
+		promises.push(gradle.download());
 		await Promise.allSettled(promises);
-		await userSettings.updateJavaConfigRuntimes(runtimes, runtimesBeforeDownload, jdtSupport);
+		await userSettings.updateJavaConfig(runtimes, runtimesBeforeDownload, jdtSupport);
 	}
 }
 
 /**
- * Sets the completion message.
+ * Shows the message.
  * @param runtimesNew The Java runtimes after update.
  * @param runtimesOld The Java runtimes before update.
  * @param isFirstStartup Whether this is the first startup.
  */
-function setMessage(
+function showMessage(
 	runtimesNew: jdtExtension.JavaConfigRuntimeArray,
 	runtimesOld: jdtExtension.JavaConfigRuntimeArray,
 	isFirstStartup: boolean) {

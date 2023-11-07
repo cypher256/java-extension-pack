@@ -1,12 +1,11 @@
 /*! VS Code Extension (c) 2023 Shinji Kashihara (cypher256) @ WILL */
 import axios from 'axios';
 import * as fs from 'fs';
-// eslint-disable-next-line @typescript-eslint/naming-convention
 import * as _ from "lodash";
 import * as path from 'path';
 import * as autoContext from '../autoContext';
 import { OS, log } from '../autoContext';
-import * as downloader from '../downloader';
+import * as httpClient from '../httpClient';
 import * as jdkExplorer from '../jdkExplorer';
 import * as jdtExtension from '../jdtExtension';
 
@@ -49,7 +48,7 @@ function archOf(javaVersion: number): string | undefined {
  * @param majorVer The major version of the JDK to download.
  * @return A promise that resolves when the JDK is installed.
  */
-export async function execute(
+export async function download(
 	runtimes:jdtExtension.JavaConfigRuntimeArray,
 	majorVer:number) {
 
@@ -101,9 +100,9 @@ export async function execute(
 	const fileExt = OS.isWindows ? 'zip' : 'tar.gz';
 	const fileName = `OpenJDK${majorVer}U-jdk_${arch}_${p2}.${fileExt}`;
 
-	const options = {
-		downloadUrl: downloadUrlPrefix + fileName,
-		downloadedFile: homeDir + '_download_tmp.' + fileExt,
+	const req:httpClient.IHttpClientRequest = {
+		url: downloadUrlPrefix + fileName,
+		storeTempFile: homeDir + '_download_tmp.' + fileExt,
 		extractDestDir: homeDir,
 		targetMessage: fullVer,
 		removeLeadingPath: OS.isMac ? 3 : 1, // Remove leading 'jdk-xxx/Contents/Home/' fot macOS
@@ -112,14 +111,14 @@ export async function execute(
 
 	// Download
 	try {
-		await downloader.execute(options);
+		await httpClient.execute(req);
 	} catch (e:any) {
 		// Retry fallback previous version: /jdk-17.0.9%2B9.1/ -> /jdk-17.0.9%2B9/
-		const fallbackUrl = options.downloadUrl.replace(/(\.\d+%2B\d+)\.\d+/, '$1');
-		if (fallbackUrl !== options.downloadUrl && e?.response?.status === 404) {
-			log.info(`Retry fallback:\n${options.downloadUrl}\n${fallbackUrl}`);
-			options.downloadUrl = fallbackUrl;
-			await downloader.execute(options);
+		const fallbackUrl = req.url.replace(/(\.\d+%2B\d+)\.\d+/, '$1');
+		if (fallbackUrl !== req.url && e?.response?.status === 404) {
+			log.info(`Retry fallback:\n${req.url}\n${fallbackUrl}`);
+			req.url = fallbackUrl;
+			await httpClient.execute(req);
 		} else {
 			throw e;
 		}
