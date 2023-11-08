@@ -26,6 +26,8 @@ function getGlobalOnly<T>(section: string): T | undefined {
 
 /**
  * Updates a VS Code user settings entry.
+ * @param section Configuration name, supports _dotted_ names.
+ * @param value The new value. Remove configuration entry when passed `undefined`.
  * @return A promise that resolves when the configuration is updated.
  */
 export async function update(section:string, value:any) {
@@ -36,6 +38,7 @@ export async function update(section:string, value:any) {
 
 /**
  * Removes a VS Code User settings entry.
+ * @param section Configuration name, supports _dotted_ names.
  * @return A promise that resolves when the configuration is removed.
  */
 export async function remove(section:string) {
