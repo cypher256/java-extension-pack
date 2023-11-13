@@ -127,6 +127,7 @@ function showMessage(
 			if (removed.length > 0) {
 				const msg = l10n.t('The following Java Runtime Configuration removed. Version:');
 				vscode.window.showInformationMessage(`${msg} ${removed.join(', ')} (${availableMsg})`);
+				showReloadMessage(); // Suppress errors when downgrading Red Hat extension
 			}
 		}
 	}
