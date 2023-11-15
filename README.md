@@ -8,11 +8,12 @@
 
 If JDK, Gradle and Maven are already installed they will be used, otherwise they will be automatically installed in VS Code user directory. Environment variables such as `JAVA_HOME` and `PATH` do not need to be set. It also comes pre-included with extensions that most Java developers need, such as Spring Boot and Lombok, so you can start developing right out of the box with zero configuration.
 
+<br>
+
 > [!WARNING]
 > * [Java 21 support](https://github.com/redhat-developer/vscode-java/issues?q=%22JavaSE-21%22) for `Language Support for Java by Red Hat` will be available from the end of November 2023.
 > * Microsoft `Gradle for Java` [does not yet work with Java 21](https://github.com/microsoft/vscode-gradle/issues?q=is%3Aissue).
 
-<br>
 <br>
 <br>
 
