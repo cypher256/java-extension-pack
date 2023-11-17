@@ -12,7 +12,7 @@ If JDK, Gradle and Maven are already installed they will be used, otherwise they
 
 > [!WARNING]
 > * [Java 21 support](https://github.com/redhat-developer/vscode-java/issues?q=%22JavaSE-21%22) for `Language Support for Java by Red Hat` will be available from the end of November 2023.
-> * Microsoft `Gradle for Java` [does not yet work with Java 21](https://github.com/microsoft/vscode-gradle/issues?q=is%3Aissue).
+> * Microsoft `Gradle for Java` [does not yet work with Java 21](https://github.com/microsoft/vscode-gradle/issues?q=jdk21).
 
 <br>
 <br>
