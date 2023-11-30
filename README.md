@@ -1,4 +1,4 @@
-# Java Extension Pack Auto Config
+# Java 21 Extension Pack Auto Config
 
 [![GitHub Sponsor](https://img.shields.io/static/v1?label=Sponsor&message=%E2%9D%A4&logo=GitHub&color=ff69b4)](https://github.com/sponsors/cypher256)
 ![](https://github.com/cypher256/java-extension-pack/actions/workflows/eslint.yml/badge.svg)
@@ -6,14 +6,14 @@
 ![](https://img.shields.io/visual-studio-marketplace/i/Pleiades.java-extension-pack-jdk?color=blue)
 ![](https://img.shields.io/visual-studio-marketplace/last-updated/Pleiades.java-extension-pack-jdk?color=orange)
 
-This extension includes popular Java extensions from [Microsoft](https://github.com/microsoft/vscode-java-pack/issues?q=is%3Aissue), [VMware](https://github.com/spring-projects/sts4/issues?q=is%3Aissue), and others and automatically configures them so you can start developing right out of the box with zero configuration; no need to install JDKs or set environment variables such as `JAVA_HOME`.
+This extension includes popular Java extensions from Microsoft, Red Hat, and others and automatically configures them so you can start developing right out of the box with zero configuration; no need to install JDKs or set environment variables such as `JAVA_HOME`.
+
+#### Main Extensions Issues:
+* [Extension Pack for Java](https://github.com/microsoft/vscode-java-pack/issues?q=is%3Aissue) (Microsoft)
+* [Language Support for Java by Red Hat](https://github.com/redhat-developer/vscode-java/issues?q=is%3Aissue) (Red Hat)
+* [Spring Boot Extension Pack](https://github.com/spring-projects/sts4/issues?q=is%3Aissue) (VMware)
 
 <br>
-
-> [!WARNING]
-> * [Java 21 support](https://github.com/redhat-developer/vscode-java/issues?q=%22JavaSE-21%22) for `Language Support for Java by Red Hat` will be available from the end of November 2023.
-> * Microsoft `Gradle for Java` [does not yet work with Java 21](https://github.com/microsoft/vscode-gradle/issues?q=jdk21).
-
 <br>
 <br>
 
@@ -46,6 +46,8 @@ Just install this extension and the JDK is auto-configured. Let's run the Java c
 * [Create a general Java project](https://code.visualstudio.com/docs/java/java-project#_create-a-new-java-project) (No build tools / Gradle / Maven)
 * [Create a Spring Boot project](https://code.visualstudio.com/docs/java/java-spring-boot#_create-the-project) (Gradle / Maven)
 
+<br>
+
 ### Run Terminal Command
 This extension adds available Java versions to a dropdown item in the VS Code Terminal. You can open a Terminal by clicking on the Java version you want to use and check the full version using commands below. The latest versions of gradle and mvn are available, but it is generally recommended to use wrappers (gradlew, mvnw) for each project.
 ```bash
@@ -55,6 +57,8 @@ mvn -v
 ```
 ![Terminal Java Dropdown](https://raw.githubusercontent.com/cypher256/java-extension-pack/main/image/terminal.png)
 
+<br>
+
 ### Specify Project Java Version
 The versions defined in `java.configuration.runtimes` are available.<br>
 ([Enabling Java preview features](https://github.com/redhat-developer/vscode-java/wiki/Enabling-Java-preview-features))
@@ -62,7 +66,7 @@ The versions defined in `java.configuration.runtimes` are available.<br>
 |Project Type|Configuration|
 |---|---|
 |No build tools|settings.json > `java.configuration.runtimes` > `default: true`<br>(Recommend [Workspace Settings](https://code.visualstudio.com/docs/getstarted/settings) instead of User Settings)|
-|Gradle|build.gradle > `java` > `sourceCompatibility`|
+|Gradle|build.gradle > `java` > `sourceCompatibility`<br>([Java 21 Support](https://github.com/microsoft/build-server-for-gradle/issues/102))|
 |Maven|pom.xml > `properties` > `maven.compiler.source/target`<br>(Spring Boot: `java.version`)|
 
 <br>
@@ -328,7 +332,7 @@ The *`Extension Pack for Java`* is required. Other extensions can be [disabled](
 [Extension Pack for Java](https://marketplace.visualstudio.com/items?itemName=vscjava.vscode-java-pack) (Microsoft: MIT, Red Hat: EPL) / [VS Code Document](https://code.visualstudio.com/docs/java/java-tutorial#_creating-a-source-code-file)<br>
 Java IntelliSense, debugging, testing, Maven/Gradle support, Lombok and more.<br>
 - ![](https://img.shields.io/visual-studio-marketplace/i/vmware.vscode-boot-dev-pack?style=plastic)
-[Spring Boot Extension Pack](https://marketplace.visualstudio.com/items?itemName=vmware.vscode-boot-dev-pack) (VMWare: EPL) / [VS Code Document](https://code.visualstudio.com/docs/java/java-spring-boot#_create-the-project)<br>
+[Spring Boot Extension Pack](https://marketplace.visualstudio.com/items?itemName=vmware.vscode-boot-dev-pack) (VMware: EPL) / [VS Code Document](https://code.visualstudio.com/docs/java/java-spring-boot#_create-the-project)<br>
 A collection of extensions for developing Spring Boot applications.<br>
 - ![](https://img.shields.io/visual-studio-marketplace/i/vscjava.vscode-gradle?style=plastic)
 [Gradle for Java](https://marketplace.visualstudio.com/items?itemName=vscjava.vscode-gradle) (Microsoft: MIT) / [VS Code Document](https://code.visualstudio.com/docs/java/java-build#_gradle)<br>
@@ -365,7 +369,7 @@ A language pack that matches the OS Locale.<br>
 <br>
 <br>
 
-# Related Extensions
+# Recommended Extensions
 
 The following are not included but are very useful extensions. Try to install it if necessary.
 
@@ -384,12 +388,12 @@ Provide real-time feedback about Checkstyle violations and quick fix actions.
 - ![](https://img.shields.io/visual-studio-marketplace/i/ryanluker.vscode-coverage-gutters?style=plastic)
 [Coverage Gutters](https://marketplace.visualstudio.com/items?itemName=ryanluker.vscode-coverage-gutters) (ryanluker: MIT)<br>
 Display test coverage generated by lcov or xml - works with many languages.
-- ![](https://img.shields.io/visual-studio-marketplace/i/juhahinkula.thymeleaf?style=plastic)
-[thymeleaf](https://marketplace.visualstudio.com/items?itemName=juhahinkula.thymeleaf) (Juha Hinkula: Unknown)<br>
-Thymeleaf snippets.
-- ![](https://img.shields.io/visual-studio-marketplace/i/pthorsson.vscode-jsp?style=plastic)
-[Java Server Pages (JSP)](https://marketplace.visualstudio.com/items?itemName=pthorsson.vscode-jsp) (Patrik Thorsson: MIT)<br>
-(unmaintained) JSP language support for Visual Studio Code, ported from TextMate's JSP bundle.
+- ![](https://img.shields.io/visual-studio-marketplace/i/LalithK90.thymeleaf-html5-snippets?style=plastic)
+[Thymeleaf HTML5 Snippets](https://marketplace.visualstudio.com/items?itemName=LalithK90.thymeleaf-html5-snippets) (Lalith Kahatapitiya: GPL)<br>
+Most common thymeleaf code snippets for .html file
+- ![](https://img.shields.io/visual-studio-marketplace/i/samuel-weinhardt.vscode-jsp-lang)
+[Java Server Pages (JSP)](https://marketplace.visualstudio.com/items?itemName=samuel-weinhardt.vscode-jsp-lang) (Samuel Weinhardt: MIT)<br>
+JSP syntax highlighting for VS Code.
 - ![](https://img.shields.io/visual-studio-marketplace/i/redhat.vscode-community-server-connector?style=plastic)
 [Community Server Connectors](https://marketplace.visualstudio.com/items?itemName=redhat.vscode-community-server-connector) (Red Hat: EPL) / [VS Code Document](https://code.visualstudio.com/docs/java/java-tomcat-jetty)<br>
 This extension can start, stop, publish, and control servers such as Apache Felix, Karaf, and Tomcat..<br>
@@ -413,8 +417,8 @@ code --install-extension usernamehw.errorlens
 code --install-extension SonarSource.sonarlint-vscode
 code --install-extension shengchen.vscode-checkstyle
 code --install-extension ryanluker.vscode-coverage-gutters
-code --install-extension juhahinkula.thymeleaf
-code --install-extension pthorsson.vscode-jsp
+code --install-extension LalithK90.thymeleaf-html5-snippets
+code --install-extension samuel-weinhardt.vscode-jsp-lang
 code --install-extension redhat.vscode-community-server-connector
 code --install-extension s-nlf-fh.glassit
 code --install-extension vsls-contrib.gistfs
