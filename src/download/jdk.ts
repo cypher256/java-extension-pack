@@ -3,11 +3,11 @@ import axios from 'axios';
 import * as fs from 'fs';
 import * as _ from "lodash";
 import * as path from 'path';
-import * as autoContext from '../autoContext';
-import { OS, log } from '../autoContext';
 import * as httpClient from '../httpClient';
 import * as jdkExplorer from '../jdkExplorer';
 import * as jdtExtension from '../jdtExtension';
+import * as system from '../system';
+import { OS, log } from '../system';
 
 /**
  * true if the current platform is JDK downloadable.
@@ -55,7 +55,7 @@ export async function download(
 	// Skip User Installed
 	const runtimeName = jdtExtension.nameOf(majorVer);
 	const matchedRuntime = runtimes.findByName(runtimeName);
-	if (matchedRuntime && autoContext.isUserInstalled(matchedRuntime.path)) {
+	if (matchedRuntime && system.isUserInstalled(matchedRuntime.path)) {
 		jdkExplorer.findByPath(matchedRuntime.path).then(detectedJdk => {
 			const ver = detectedJdk?.fullVersion || majorVer;
 			log.info(`Available JDK ${ver} (User installed)`);
@@ -82,11 +82,11 @@ export async function download(
 	}
 
 	// Check Version File
-	const homeDir = path.join(autoContext.getGlobalStoragePath(), 'java', String(majorVer));
+	const homeDir = path.join(system.getGlobalStoragePath(), 'java', String(majorVer));
 	const versionFile = path.join(homeDir, 'version.txt');
 	if (await jdkExplorer.isValidHome(homeDir)) {
-		const mdate = autoContext.mdateSync(versionFile);
-		const fullVerOld = autoContext.readString(versionFile) || '';
+		const mdate = system.mdateSync(versionFile);
+		const fullVerOld = system.readString(versionFile) || '';
 		log.info(`Available JDK ${fullVerOld.replace(/jdk-?/, '')} (Updated ${mdate})`);
 		if (fullVer === fullVerOld) {
 			return;

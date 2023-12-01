@@ -2,13 +2,13 @@
 import * as _ from "lodash";
 import * as vscode from 'vscode';
 import { l10n } from 'vscode';
-import * as autoContext from './autoContext';
-import { OS, log } from './autoContext';
 import * as gradle from './download/gradle';
 import * as jdk from './download/jdk';
 import * as maven from './download/maven';
 import * as jdkExplorer from './jdkExplorer';
 import * as jdtExtension from './jdtExtension';
+import * as system from './system';
+import { OS, log } from './system';
 import * as userSettings from './userSettings';
 
 /**
@@ -18,20 +18,20 @@ import * as userSettings from './userSettings';
  */
 export async function activate(context:vscode.ExtensionContext) {
 	try {
-		autoContext.init(context);
+		system.init(context);
 		log.info(`activate START ${context.extension?.packageJSON?.version} --------------------`);
 		log.info('JAVA_HOME', process.env.JAVA_HOME);
-		log.info('Global Storage', autoContext.getGlobalStoragePath());
+		log.info('Global Storage', system.getGlobalStoragePath());
 		userSettings.setDefault();
 		
 		const runtimes = userSettings.getJavaConfigRuntimes();
 		const runtimesOld = _.cloneDeep(runtimes);
 		const jdtSupport = await jdtExtension.getJdtSupport();
-		const isFirstStartup = !autoContext.existsDirectory(autoContext.getGlobalStoragePath());
+		const isFirstStartup = !system.existsDirectory(system.getGlobalStoragePath());
 		
 		await scan(runtimes, runtimesOld, jdtSupport);
 		await download(runtimes, jdtSupport);
-		showMessage(runtimes, runtimesOld, isFirstStartup);
+		showMessage(runtimes, runtimesOld, jdtSupport, isFirstStartup);
 		log.info('activate END');
 	} catch (e:any) {
 		vscode.window.showErrorMessage(`Auto Config Java failed. ${e}`);
@@ -83,11 +83,13 @@ async function download(
  * Shows the message.
  * @param runtimesNew The Java runtimes after update.
  * @param runtimesOld The Java runtimes before update.
+ * @param jdtSupport The JDT supported version object.
  * @param isFirstStartup Whether this is the first startup.
  */
 function showMessage(
 	runtimesNew: jdtExtension.JavaConfigRuntimeArray,
 	runtimesOld: jdtExtension.JavaConfigRuntimeArray,
+	jdtSupport: jdtExtension.IJdtSupport,
 	isFirstStartup: boolean) {
 	
 	const oldVers = runtimesOld.map(r => jdtExtension.versionOf(r.name));
@@ -97,7 +99,7 @@ function showMessage(
 	const availableMsg = `${l10n.t('Available Java versions:')} ${newVers.join(', ')}`;
 
 	if (isFirstStartup) {
-		autoContext.mkdirSyncQuietly(autoContext.getGlobalStoragePath());
+		system.mkdirSyncQuietly(system.getGlobalStoragePath());
 		vscode.window.showInformationMessage(availableMsg);
 
 		const langPackSuffix = getLangPackSuffix();
@@ -127,8 +129,12 @@ function showMessage(
 			if (removed.length > 0) {
 				const msg = l10n.t('The following Java Runtime Configuration removed. Version:');
 				vscode.window.showInformationMessage(`${msg} ${removed.join(', ')} (${availableMsg})`);
-				showReloadMessage(); // Suppress errors when downgrading Red Hat extension
+				// Suppress errors when downgrading Red Hat extension
+				jdtSupport.needsReload = true;
 			}
+		}
+		if (jdtSupport.needsReload) {
+			showReloadMessage();
 		}
 	}
 	setTimeout(setConfigChangedEvent, 5_000); // Delay for prevent self update

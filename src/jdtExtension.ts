@@ -2,8 +2,8 @@
 import * as jdkutils from 'jdk-utils';
 import * as path from 'path';
 import * as vscode from 'vscode';
-import * as autoContext from './autoContext';
-import { log } from './autoContext';
+import * as system from './system';
+import { log } from './system';
 
 /**
  * An interface for the VS Code Java configuration runtime.
@@ -19,7 +19,7 @@ export interface IJavaConfigRuntime {
  */
 export class JavaConfigRuntimeArray extends Array<IJavaConfigRuntime> {
 	
-    static CONFIG_KEY = 'java.configuration.runtimes';
+    static readonly CONFIG_KEY = 'java.configuration.runtimes';
 
 	/**
 	 * Finds the default Java runtime configuration for the VS Code Java extension.
@@ -56,6 +56,7 @@ export interface IJdtSupport {
     readonly latestLtsVer: number;
     readonly stableLtsVer: number;
     readonly embeddedJreVer?: number;
+    needsReload?: boolean;
 }
 
 /**
@@ -74,8 +75,8 @@ export async function getJdtSupport(): Promise<IJdtSupport> {
         embeddedJreVer: await findEmbeddedJREVersion(),
     };
     log.info('Supported Java', availableVers);
-    log.info(`Target LTS [${targetLtsVers}] Latest ${jdtSupport.latestLtsVer}, Stable ${jdtSupport.stableLtsVer}, ` +
-        `LS Embedded JRE ${jdtSupport.embeddedJreVer}`);
+    log.info(`Target LTS [${targetLtsVers}] Latest ${jdtSupport.latestLtsVer}, ` +
+        `Stable ${jdtSupport.stableLtsVer}, LS Embedded JRE ${jdtSupport.embeddedJreVer}`);
     return jdtSupport;
 }
 
@@ -85,7 +86,7 @@ async function findEmbeddedJREVersion(): Promise<number | undefined> {
         // C:\Users\(UserName)\.vscode\extensions\redhat.java-1.21.0-win32-x64
         // C:\Users\(UserName)\.vscode\extensions\redhat.java-1.21.0-win32-x64\jre\17.0.7-win32-x86_64\bin
         const javaExePath = path.join(redhatExtDir, 'jre', '*', 'bin', jdkutils.JAVA_FILENAME);
-        const javaExeFiles = await autoContext.globSearch(javaExePath);
+        const javaExeFiles = await system.globSearch(javaExePath);
         if (javaExeFiles.length > 0) {
             const jreHomeDir = path.join(javaExeFiles[0], '..', '..');
             const runtime = await jdkutils.getRuntime(jreHomeDir, { withVersion: true });
@@ -109,8 +110,11 @@ export function getAvailableNames(): string[] {
     // Do not add redhat.java extension to extensionDependencies in package.json,
     // because this extension will not start when redhat activation error occurs.
     const redhatJava = getRedhatJavaExtension();
-    const redhatProp = redhatJava?.packageJSON?.contributes?.configuration?.properties;
-    const runtimeNames = redhatProp?.[JavaConfigRuntimeArray.CONFIG_KEY]?.items?.properties?.name?.enum ?? [];
+    let config = redhatJava?.packageJSON?.contributes?.configuration;
+    if (Array.isArray(config)) {
+        config = config.find(c => c.properties?.[JavaConfigRuntimeArray.CONFIG_KEY]);
+    }
+    const runtimeNames = config?.properties?.[JavaConfigRuntimeArray.CONFIG_KEY]?.items?.properties?.name?.enum ?? [];
     if (runtimeNames.length === 0) {
         log.warn('Failed getExtension RedHat', redhatJava);
     }

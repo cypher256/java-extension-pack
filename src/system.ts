@@ -29,22 +29,22 @@ export namespace OS {
 /**
  * The extension context.
  */
-let context: vscode.ExtensionContext;
+let extensionContext: vscode.ExtensionContext;
 
 /**
  * Initializes the extension context.
- * @param _context The extension context.
+ * @param _extensionContext The extension context.
  */
-export function init(_context: vscode.ExtensionContext) {
-	context = _context;
+export function init(_extensionContext: vscode.ExtensionContext) {
+	extensionContext = _extensionContext;
 }
 
 /**
  * Returns the extension context.
  * @returns The extension context.
  */
-export function getContext() {
-	return context;
+export function getExtensionContext() {
+	return extensionContext;
 }
 
 /**
@@ -52,8 +52,8 @@ export function getContext() {
  * @returns The global storage path.
  */
 export function getGlobalStoragePath(): string {
-	if (!context) {throw new Error('context is not initialized');}
-	return context.globalStorageUri.fsPath;
+	if (!extensionContext) {throw new Error('context is not initialized');}
+	return extensionContext.globalStorageUri.fsPath;
 }
 
 /**

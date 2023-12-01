@@ -2,12 +2,12 @@
 import * as _ from "lodash";
 import * as path from 'path';
 import * as vscode from 'vscode';
-import * as autoContext from './autoContext';
-import { OS, log } from './autoContext';
 import * as gradleDownloader from './download/gradle';
 import * as mavenDownloader from './download/maven';
 import * as jdkExplorer from './jdkExplorer';
 import * as jdtExtension from './jdtExtension';
+import * as system from './system';
+import { OS, log } from './system';
 
 /**
  * Return a value from user settings configuration.
@@ -121,8 +121,8 @@ export async function updateJavaConfig(
 	}
 
 	// Project Runtimes Default (Keep if set)
+	const latestLtsRuntime = runtimes.findByVersion(jdtSupport.latestLtsVer);
 	if (!runtimes.findDefault()) {
-		const latestLtsRuntime = runtimes.findByVersion(jdtSupport.latestLtsVer);
 		if (latestLtsRuntime) {
 			latestLtsRuntime.default = true;
 		}
@@ -135,7 +135,11 @@ export async function updateJavaConfig(
 
 	// Gradle Daemon Java Home (Keep if set)
 	//const gradleRuntime = defaultRuntime; // Gradle does not support latest Java version
-	const gradleRuntime = stableRuntime;
+	let gradleRuntime = stableRuntime;
+	const GRADLE_FULL_SUPPORTED_MAX_JAVA_LTS_VER = 21;
+	if (latestLtsRuntime && jdtSupport.latestLtsVer <= GRADLE_FULL_SUPPORTED_MAX_JAVA_LTS_VER) {
+		gradleRuntime = latestLtsRuntime;
+	}
 	if (gradleRuntime && vscode.extensions.getExtension('vscjava.vscode-gradle')) {
 		const CONFIG_KEY_GRADLE_JAVA_HOME = 'java.import.gradle.java.home';
 		const originPath = get<string>(CONFIG_KEY_GRADLE_JAVA_HOME);
@@ -143,9 +147,11 @@ export async function updateJavaConfig(
 			const fixedOrDefault = await jdkExplorer.fixPath(originPath) || gradleRuntime.path;
 			if (fixedOrDefault !== originPath) {
 				update(CONFIG_KEY_GRADLE_JAVA_HOME, fixedOrDefault);
+				jdtSupport.needsReload = true;
 			}
 		} else { // If unset use default
 			update(CONFIG_KEY_GRADLE_JAVA_HOME, gradleRuntime.path);
+			jdtSupport.needsReload = true;
 		}
 	}
 
@@ -175,7 +181,7 @@ export async function updateJavaConfig(
 	let mavenBinDir:string | undefined = undefined;
 	let mvnExePath = get<string>(mavenDownloader.CONFIG_KEY_MAVEN_EXE_PATH);
 	if (!mvnExePath && !OS.isWindows) {
-		mvnExePath = await autoContext.whichPath('mvn'); // For mac/Linux (Windows: Use ${env:PATH})
+		mvnExePath = await system.whichPath('mvn'); // For mac/Linux (Windows: Use ${env:PATH})
 	}
 	if (mvnExePath) {
 		mavenBinDir = path.join(mvnExePath, '..');
@@ -185,7 +191,7 @@ export async function updateJavaConfig(
 	if (gradleHome) {
 		gradleBinDir = path.join(gradleHome, 'bin');
 	} else if (!OS.isWindows) {
-		const gradleExePath = await autoContext.whichPath('gradle'); // For mac/Linux (Windows: Use ${env:PATH})
+		const gradleExePath = await system.whichPath('gradle'); // For mac/Linux (Windows: Use ${env:PATH})
 		if (gradleExePath) {
 			gradleBinDir = path.join(gradleExePath, '..');
 		}
@@ -195,11 +201,11 @@ export async function updateJavaConfig(
 		pathArray.push(path.join(javaHome, 'bin'));
 		// Gradle/Maven: From setting or mac/Linux 'which' (Unsupported older Java version)
 		const javaVersion = jdtExtension.versionOf(runtimeName ?? '') || Number.MAX_SAFE_INTEGER;
-		if (mavenBinDir && (javaVersion >= 8 || autoContext.isUserInstalled(mavenBinDir))) {
+		if (mavenBinDir && (javaVersion >= 8 || system.isUserInstalled(mavenBinDir))) {
 			// Minimum version https://maven.apache.org/developers/compatibility-plan.html
 			pathArray.push(mavenBinDir);
 		}
-		if (gradleBinDir && (javaVersion >= 8 || autoContext.isUserInstalled(gradleBinDir))) {
+		if (gradleBinDir && (javaVersion >= 8 || system.isUserInstalled(gradleBinDir))) {
 			// Minimum version https://docs.gradle.org/current/userguide/compatibility.html
 			pathArray.push(gradleBinDir);
 		}

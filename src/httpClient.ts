@@ -6,8 +6,8 @@ import * as stream from 'stream';
 import { promisify } from 'util';
 import * as vscode from 'vscode';
 import { l10n } from 'vscode';
-import * as autoContext from './autoContext';
-import { log } from './autoContext';
+import * as system from './system';
+import { log } from './system';
 import decompress = require('decompress');
 import _ = require('lodash');
 
@@ -56,11 +56,11 @@ function report(progress:vscode.Progress<{message:string}>, msg:string) {
 }
 
 async function download(progress:vscode.Progress<{message:string}>, req:IHttpClientRequest) {
-    const workspaceState = autoContext.getContext().workspaceState;
+    const workspaceState = system.getExtensionContext().workspaceState;
     const res = await axios.get(req.url, {responseType: 'stream'});
     log.info(`Download START ${req.targetMessage}`, req.url);
 
-    const isFirstDownload = autoContext.mkdirSyncQuietly(path.dirname(req.storeTempFile));
+    const isFirstDownload = system.mkdirSyncQuietly(path.dirname(req.storeTempFile));
     if (isFirstDownload) {
         const msg = `${l10n.t('Downloading')}... ${req.targetMessage.replace(/[^A-z].*$/, '')}`;
         report(progress, msg);
@@ -101,16 +101,16 @@ async function download(progress:vscode.Progress<{message:string}>, req:IHttpCli
 
 async function extract(progress:vscode.Progress<{message:string}>, opt:IHttpClientRequest) {
     log.info(`Install START ${opt.targetMessage}`, opt.extractDestDir);
-    const workspaceState = autoContext.getContext().workspaceState;
+    const workspaceState = system.getExtensionContext().workspaceState;
     try {
-        const procLabel = autoContext.existsDirectory(opt.extractDestDir) ? l10n.t('Updating') : l10n.t('Installing');
+        const procLabel = system.existsDirectory(opt.extractDestDir) ? l10n.t('Updating') : l10n.t('Installing');
         const msg = `${procLabel}... ${opt.targetMessage}`;
         await workspaceState.update(STATE_EXTRACTING_MSG, msg);
         report(progress, msg);
-        autoContext.rmSyncQuietly(opt.extractDestDir);
+        system.rmSyncQuietly(opt.extractDestDir);
         try {
             await decompress(opt.storeTempFile, opt.extractDestDir, {strip: opt.removeLeadingPath});
-            autoContext.rmQuietly(opt.storeTempFile);
+            system.rmQuietly(opt.storeTempFile);
         } catch (e) {
             log.info('Failed extract:', e); // Validate later
         }

@@ -66,7 +66,7 @@ The versions defined in `java.configuration.runtimes` are available.<br>
 |Project Type|Configuration|
 |---|---|
 |No build tools|settings.json > `java.configuration.runtimes` > `default: true`<br>(Recommend [Workspace Settings](https://code.visualstudio.com/docs/getstarted/settings) instead of User Settings)|
-|Gradle|build.gradle > `java` > `sourceCompatibility`<br>([Java 21 Support](https://github.com/microsoft/build-server-for-gradle/issues/102))|
+|Gradle|build.gradle > `java` > `sourceCompatibility`<br>([error: invalid source release:](https://github.com/microsoft/vscode-java-pack/issues/1270) {Java version})|
 |Maven|pom.xml > `properties` > `maven.compiler.source/target`<br>(Spring Boot: `java.version`)|
 
 <br>
@@ -108,7 +108,7 @@ The feature automatically fixes [errors such as](https://stackoverflow.com/searc
 |*Spring Boot Tools*|
 |(*1) [spring-boot.ls.java.home](https://github.com/spring-projects/sts4/blob/main/vscode-extensions/vscode-spring-boot/lib/Main.ts#L30)<br>([Issues](https://github.com/spring-projects/sts4/issues?q=is%3Aissue+spring-boot.ls.java.home))|(*2) Set stable LTS if unset, Fix if unsupported older version<br>(Setting > `JAVA_HOME` > `PATH`)|
 |*Gradle for Java*|
-|[java.import.gradle.java.home](https://github.com/microsoft/vscode-gradle#java-specific-settings)<br>([Issues](https://github.com/microsoft/vscode-gradle/issues?q=is%3Aissue+java.import.gradle.java.home))|(*3) Set `default` if unset<br>(Setting > `java.jdt.ls.java.home`)|
+|[java.import.gradle.java.home](https://github.com/microsoft/vscode-gradle#java-specific-settings)<br>([Issues](https://github.com/microsoft/vscode-gradle/issues?q=is%3Aissue+java.import.gradle.java.home))|Set supported latest LTS if unset<br>(Setting > `java.jdt.ls.java.home`)|
 |[java.import.gradle.home](https://github.com/microsoft/vscode-gradle#java-specific-settings)<br>([Issues](https://github.com/microsoft/vscode-gradle/issues?q=is%3Aissue+java.import.gradle.home))|Set latest gradle if not in `PATH` environment variable<br>(`gradlew` > Setting > `PATH` > `GRADLE_HOME`)|
 |*Maven for Java*|
 |[maven.terminal.customEnv](https://marketplace.visualstudio.com/items?itemName=vscjava.vscode-maven#additional-configurations)<br>([Issues](https://github.com/microsoft/vscode-maven/issues?q=is%3Aissue+maven.terminal.customEnv))|(*3) Set `default` if `JAVA_HOME` environment variable unset<br>(Setting > `JAVA_HOME`)|

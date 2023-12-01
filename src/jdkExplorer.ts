@@ -4,9 +4,9 @@ import { GlobOptionsWithFileTypesUnset } from 'glob';
 import * as jdkutils from 'jdk-utils';
 import * as os from "os";
 import * as path from 'path';
-import * as autoContext from './autoContext';
-import { OS, log } from './autoContext';
 import * as jdtExtension from './jdtExtension';
+import * as system from './system';
+import { OS, log } from './system';
 import * as userSettings from './userSettings';
 
 /**
@@ -64,7 +64,7 @@ export async function scan(runtimes:jdtExtension.JavaConfigRuntimeArray) {
 		if (detectedLatestMap.has(majorVer)) {
 			continue; // Prefer user-installed JDK
 		}
-		let verDir = path.join(autoContext.getGlobalStoragePath(), 'java', String(majorVer));
+		let verDir = path.join(system.getGlobalStoragePath(), 'java', String(majorVer));
 		if (await isValidHome(verDir)) {
 			log.info(`Detected Auto-downloaded ${majorVer}`);
 			detectedLatestMap.set(majorVer, {
@@ -80,7 +80,7 @@ export async function scan(runtimes:jdtExtension.JavaConfigRuntimeArray) {
 		const detectedName = jdtExtension.nameOf(detectedJdk.majorVersion);
 		const configRuntime = runtimes.findByName(detectedName);
 		if (configRuntime) {
-			if (autoContext.isUserInstalled(configRuntime.path)) {
+			if (system.isUserInstalled(configRuntime.path)) {
 				const configJdk = await findByPath(configRuntime.path);
 				if (configJdk && isNewLeft(detectedJdk.fullVersion, configJdk.fullVersion)) {
 					// Update to new version
@@ -185,7 +185,7 @@ async function findBy(
 
 	const pats = Array.isArray(distPattern) ? distPattern : [distPattern];
 	const javaExePats = pats.map(p => path.join(p, '*', 'bin', jdkutils.JAVAC_FILENAME));
-	for (const javaExeFile of await autoContext.globSearch(javaExePats, globOptions)) {
+	for (const javaExeFile of await system.globSearch(javaExePats, globOptions)) {
 		const jdk = await findByPath(path.join(javaExeFile, '..', '..'));
 		pushJdk(logMessage, jdk, jdks);
 	}

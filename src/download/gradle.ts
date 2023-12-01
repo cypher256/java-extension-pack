@@ -2,9 +2,9 @@
 import axios from 'axios';
 import * as fs from 'fs';
 import * as path from 'path';
-import * as autoContext from '../autoContext';
-import { log } from '../autoContext';
 import * as httpClient from '../httpClient';
+import * as system from '../system';
+import { log } from '../system';
 import * as userSettings from '../userSettings';
 export const CONFIG_KEY_GRADLE_HOME = 'java.import.gradle.home';
 
@@ -13,7 +13,7 @@ export const CONFIG_KEY_GRADLE_HOME = 'java.import.gradle.home';
  * @return A promise that resolves when the Gradle is installed.
  */
 export async function download() {
-	const homeDir = path.join(autoContext.getGlobalStoragePath(), 'gradle', 'latest');
+	const homeDir = path.join(system.getGlobalStoragePath(), 'gradle', 'latest');
 	const gradleHomeOld = userSettings.get<string>(CONFIG_KEY_GRADLE_HOME);
 	let gradleHomeNew = await validate(homeDir, gradleHomeOld);
 	try {
@@ -41,14 +41,14 @@ async function validate(
 				log.info(`Fix ${CONFIG_KEY_GRADLE_HOME}\n   ${gradleHome}\n-> ${fixedPath}`);
 			}
 			gradleHome = fixedPath;
-			if (autoContext.isUserInstalled(gradleHome)) {
+			if (system.isUserInstalled(gradleHome)) {
 				log.info('Available Gradle (User installed)', CONFIG_KEY_GRADLE_HOME, gradleHome);
 				return gradleHome;
 			}
 		}
 	}
 	if (!gradleHome) {
-		const exeSystemPath = await autoContext.whichPath('gradle');
+		const exeSystemPath = await system.whichPath('gradle');
 		if (exeSystemPath) {
 			log.info('Available Gradle (PATH)', exeSystemPath);
 			return gradleHome; // Don't set config (gradlew > Setting > PATH > GRADLE_HOME)
@@ -70,9 +70,9 @@ async function httpget(
 
 	// Check Version File
 	const versionFile = path.join(homeDir, 'version.txt');
-	const versionOld = autoContext.readString(versionFile);
+	const versionOld = system.readString(versionFile);
 	if (version === versionOld && isValidHome(homeDir)) {
-		const mdate = autoContext.mdateSync(versionFile);
+		const mdate = system.mdateSync(versionFile);
 		log.info(`Available Gradle ${version} (Updated ${mdate})`);
 		return gradleHome;
 	}
@@ -97,7 +97,7 @@ async function httpget(
 }
 
 function isValidHome(homeDir:string) {
-    return autoContext.existsFile(getExePath(homeDir));
+    return system.existsFile(getExePath(homeDir));
 }
 
 function getExePath(homeDir:string) {

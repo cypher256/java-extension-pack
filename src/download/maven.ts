@@ -2,9 +2,9 @@
 import axios from 'axios';
 import * as fs from 'fs';
 import * as path from 'path';
-import * as autoContext from '../autoContext';
-import { log } from '../autoContext';
 import * as httpClient from '../httpClient';
+import * as system from '../system';
+import { log } from '../system';
 import * as userSettings from '../userSettings';
 export const CONFIG_KEY_MAVEN_EXE_PATH = 'maven.executable.path';
 
@@ -13,7 +13,7 @@ export const CONFIG_KEY_MAVEN_EXE_PATH = 'maven.executable.path';
  * @return A promise that resolves when the Maven is installed.
  */
 export async function download() {
-	const homeDir = path.join(autoContext.getGlobalStoragePath(), 'maven', 'latest');
+	const homeDir = path.join(system.getGlobalStoragePath(), 'maven', 'latest');
 	const mavenExePathOld = userSettings.get<string>(CONFIG_KEY_MAVEN_EXE_PATH);
 	let mavenExePathNew = await validate(homeDir, mavenExePathOld);
 	try {
@@ -41,14 +41,14 @@ async function validate(
 				log.info(`Fix ${CONFIG_KEY_MAVEN_EXE_PATH}\n   ${mavenExePath}\n-> ${fixedPath}`);
 			}
 			mavenExePath = fixedPath;
-			if (autoContext.isUserInstalled(mavenExePath)) {
+			if (system.isUserInstalled(mavenExePath)) {
 				log.info('Available Maven (User installed)', CONFIG_KEY_MAVEN_EXE_PATH, mavenExePath);
 				return mavenExePath;
 			}
 		}
 	}
 	if (!mavenExePath) {
-		const exeSystemPath = await autoContext.whichPath('mvn');
+		const exeSystemPath = await system.whichPath('mvn');
 		if (exeSystemPath) {
 			log.info('Available Maven (PATH)', exeSystemPath);
 			return mavenExePath; // Don't set config (Setting > mvnw > PATH)
@@ -72,9 +72,9 @@ async function httpget(
 
 	// Check Version File
 	const versionFile = path.join(homeDir, 'version.txt');
-	const versionOld = autoContext.readString(versionFile);
+	const versionOld = system.readString(versionFile);
 	if (version === versionOld && isValidHome(homeDir)) {
-		const mdate = autoContext.mdateSync(versionFile);
+		const mdate = system.mdateSync(versionFile);
 		log.info(`Available Maven ${version} (Updated ${mdate})`);
 		return mavenExePath;
 	}
@@ -99,7 +99,7 @@ async function httpget(
 }
 
 function isValidHome(homeDir:string) {
-    return autoContext.existsFile(getExePath(homeDir));
+    return system.existsFile(getExePath(homeDir));
 }
 
 function getExePath(homeDir:string) {
@@ -112,7 +112,7 @@ function fixPath(exePath:string): string | undefined {
 		path.join(exePath, 'mvn'),
 		path.join(exePath, 'bin', 'mvn'),
 	]) {
-		if (autoContext.existsFile(fixedPath)) {
+		if (system.existsFile(fixedPath)) {
 			return fixedPath;
 		}
 	}
