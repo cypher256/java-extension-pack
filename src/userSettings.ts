@@ -131,10 +131,8 @@ export async function updateJavaConfig(
 		runtimes.sort((a, b) => a.name.localeCompare(b.name));
 		update(jdtExtension.JavaConfigRuntimeArray.CONFIG_KEY, runtimes);
 	}
-	const defaultRuntime = runtimes.findDefault();
 
 	// Gradle Daemon Java Home (Keep if set)
-	//const gradleRuntime = defaultRuntime; // Gradle does not support latest Java version
 	let gradleRuntime = stableRuntime;
 	const GRADLE_FULL_SUPPORTED_MAX_JAVA_LTS_VER = 21;
 	if (latestLtsRuntime && jdtSupport.latestLtsVer <= GRADLE_FULL_SUPPORTED_MAX_JAVA_LTS_VER) {
@@ -156,8 +154,8 @@ export async function updateJavaConfig(
 	}
 
 	// Project Maven Java Home (Keep if set)
-	const isValidEnvJavaHome = await jdkExplorer.isValidHome(process.env.JAVA_HOME);
-	if (defaultRuntime) {
+	const mavenRuntime = latestLtsRuntime || stableRuntime;
+	if (mavenRuntime) {
 		const CONFIG_KEY_MAVEN_CUSTOM_ENV = 'maven.terminal.customEnv';
 		const customEnv:any[] = get(CONFIG_KEY_MAVEN_CUSTOM_ENV) ?? [];
 		let mavenJavaHome = customEnv.find(i => i.environmentVariable === 'JAVA_HOME');
@@ -166,14 +164,14 @@ export async function updateJavaConfig(
 			update(CONFIG_KEY_MAVEN_CUSTOM_ENV, customEnv);
 		}
 		if (mavenJavaHome) {
-			const fixedOrDefault = await jdkExplorer.fixPath(mavenJavaHome.value) || defaultRuntime.path;
+			const fixedOrDefault = await jdkExplorer.fixPath(mavenJavaHome.value) || mavenRuntime.path;
 			if (fixedOrDefault !== mavenJavaHome.value) {
 				_updateMavenJavaHome(fixedOrDefault);
 			}
-		} else if (!isValidEnvJavaHome) {
+		} else {
 			mavenJavaHome = {environmentVariable: 'JAVA_HOME'};
 			customEnv.push(mavenJavaHome);
-			_updateMavenJavaHome(defaultRuntime.path);
+			_updateMavenJavaHome(mavenRuntime.path);
 		}
 	}
 
@@ -215,7 +213,8 @@ export async function updateJavaConfig(
 		env.JAVA_HOME = javaHome;
 	}
 	const osConfigName = OS.isWindows ? 'windows' : OS.isMac ? 'osx' : 'linux';
-	if (defaultRuntime && OS.isWindows) { // Exclude macOS (Support npm scripts)
+	const terminalDefaultRuntime = latestLtsRuntime || stableRuntime;
+	if (terminalDefaultRuntime && OS.isWindows) { // Exclude macOS (Support npm scripts)
 		const CONFIG_KEY_TERMINAL_ENV = 'terminal.integrated.env.' + osConfigName;
 		const terminalEnv:any = _.cloneDeep(get(CONFIG_KEY_TERMINAL_ENV) ?? {}); // Proxy to POJO for isEqual
 		function _updateTerminalDefault(newPath: string) {
@@ -226,10 +225,10 @@ export async function updateJavaConfig(
 			}
 		}
 		if (terminalEnv.JAVA_HOME) {
-			const fixedOrDefault = await jdkExplorer.fixPath(terminalEnv.JAVA_HOME) || defaultRuntime.path;
+			const fixedOrDefault = await jdkExplorer.fixPath(terminalEnv.JAVA_HOME) || terminalDefaultRuntime.path;
 			_updateTerminalDefault(fixedOrDefault);
-		} else if (!isValidEnvJavaHome) {
-			_updateTerminalDefault(defaultRuntime.path);
+		} else {
+			_updateTerminalDefault(terminalDefaultRuntime.path);
 		}
 	}
 
@@ -238,7 +237,7 @@ export async function updateJavaConfig(
 		setIfUndefined('terminal.integrated.defaultProfile.windows', 'Command Prompt');
 	}
 
-	// Terminal Profiles Dropdown
+	// Terminal Profiles Dropdown (Always update)
 	const CONFIG_KEY_TERMINAL_PROFILES = 'terminal.integrated.profiles.' + osConfigName;
 	const profilesGlobal = getGlobalOnly(CONFIG_KEY_TERMINAL_PROFILES) ?? {};
 	const profilesOld:any = _.cloneDeep(profilesGlobal); // Proxy to POJO for isEqual

@@ -20,7 +20,6 @@ export async function activate(context:vscode.ExtensionContext) {
 	try {
 		system.init(context);
 		log.info(`activate START ${context.extension?.packageJSON?.version} --------------------`);
-		log.info('JAVA_HOME', process.env.JAVA_HOME);
 		log.info('Global Storage', system.getGlobalStoragePath());
 		userSettings.setDefault();
 		

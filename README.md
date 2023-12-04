@@ -60,14 +60,16 @@ mvn -v
 <br>
 
 ### Specify Project Java Version
-The versions defined in `java.configuration.runtimes` are available.<br>
-([Enabling Java preview features](https://github.com/redhat-developer/vscode-java/wiki/Enabling-Java-preview-features))
+Specify the javac version and `-source` version ([Enabling Java preview features](https://github.com/redhat-developer/vscode-java/wiki/Enabling-Java-preview-features)). The user `settings.json` is automatically configured at first start up, but if you want to customize them, please edit the files below. The `JAVA_HOME` environment variable, which affects the entire OS, is ignored.
 
 |Project Type|Configuration|
 |---|---|
-|No build tools|settings.json > `java.configuration.runtimes` > `default: true`<br>(Recommend [Workspace Settings](https://code.visualstudio.com/docs/getstarted/settings) instead of User Settings)|
-|Gradle|build.gradle > `java` > `sourceCompatibility`<br>([error: invalid source release:](https://github.com/microsoft/vscode-java-pack/issues/1270) {Java version})|
-|Maven|pom.xml > `properties` > `maven.compiler.source/target`<br>(Spring Boot: `java.version`)|
+|No build tools|(*a) `settings.json` ≫ `java.configuration.runtimes` ≫ `"default": true`|
+|Gradle|(*a) `settings.json` ≫ `java.import.gradle.java.home`<br>(*b) `build.gradle` ≫ `java` ≫ `sourceCompatibility`<br>([error: invalid source release](https://github.com/microsoft/vscode-java-pack/issues/1270))|
+|Maven|(*a) `settings.json` ≫ `maven.terminal.customEnv` ≫ `"JAVA_HOME"`<br>(*b) `pom.xml` ≫ `properties` ≫ `maven.compiler.source/target`<br>　or `java.version` for Spring Boot|
+
+(*a) **javac version**: The `settings.json` [can be configured by workspace (project)]((https://code.visualstudio.com/docs/getstarted/settings)).<br>
+(*b) **javac `-source`**: If the above javac version is different, runtime errors may occur.
 
 <br>
 <br>
@@ -111,14 +113,13 @@ The feature automatically fixes [errors such as](https://stackoverflow.com/searc
 |[java.import.gradle.java.home](https://github.com/microsoft/vscode-gradle#java-specific-settings)<br>([Issues](https://github.com/microsoft/vscode-gradle/issues?q=is%3Aissue+java.import.gradle.java.home))|Set supported latest LTS if unset<br>(Setting > `java.jdt.ls.java.home`)|
 |[java.import.gradle.home](https://github.com/microsoft/vscode-gradle#java-specific-settings)<br>([Issues](https://github.com/microsoft/vscode-gradle/issues?q=is%3Aissue+java.import.gradle.home))|Set latest gradle if not in `PATH` environment variable<br>(`gradlew` > Setting > `PATH` > `GRADLE_HOME`)|
 |*Maven for Java*|
-|[maven.terminal.customEnv](https://marketplace.visualstudio.com/items?itemName=vscjava.vscode-maven#additional-configurations)<br>([Issues](https://github.com/microsoft/vscode-maven/issues?q=is%3Aissue+maven.terminal.customEnv))|(*3) Set `default` if `JAVA_HOME` environment variable unset<br>(Setting > `JAVA_HOME`)|
+|[maven.terminal.customEnv](https://marketplace.visualstudio.com/items?itemName=vscjava.vscode-maven#additional-configurations)<br>([Issues](https://github.com/microsoft/vscode-maven/issues?q=is%3Aissue+maven.terminal.customEnv))|Set latest LTS if unset<br>(Setting > `JAVA_HOME`)|
 |[maven.executable.path](https://github.com/Microsoft/vscode-maven#settings)<br>([Issues](https://github.com/microsoft/vscode-maven/issues?q=is%3Aissue+maven.executable.path))|Set latest maven if not in `PATH` environment variable<br>(Setting > `mvnw` > `PATH`)|
 |*Runtime Server Protocol UI*|(No extension included)|
 |(*1) [rsp-ui.rsp.java.home](https://github.com/redhat-developer/vscode-rsp-ui#extension-settings)<br>([Issues](https://github.com/redhat-developer/vscode-rsp-ui/issues?q=is%3Aissue+rsp-ui.rsp.java.home))|(*2) Set stable LTS if unset, Fix if unsupported older version<br>(Setting > `JDK_HOME` > `JAVA_HOME`> Windows Registry > `PATH`)|
 
 (*1) The language server runtime used by VS Code extensions. Not for building or running projects.<br>
 (*2) Usually the same version of the JDK as the Red Hat Java extension Embedded JRE.<br>
-(*3) The `path` in the entry marked as `default:true` in `java.configuration.runtimes`.
 <br>
 <br>
 
@@ -192,7 +193,7 @@ The terminal dropdown items by Java version are automatically created based on t
 
 |Configuration Name|Configured Value (Original Default)|
 |---|---|
-|[terminal.integrated.env.*](https://code.visualstudio.com/docs/terminal/profiles#_configuring-profiles)<br>([Issues](https://github.com/microsoft/vscode/issues?q=is%3Aissue+terminal.integrated.env+JAVA_HOME))|Set default if JAVA_HOME environment variable unset<br>(Setting > JAVA_HOME)|
+|[terminal.integrated.env.*](https://code.visualstudio.com/docs/terminal/profiles#_configuring-profiles)<br>([Issues](https://github.com/microsoft/vscode/issues?q=is%3Aissue+terminal.integrated.env+JAVA_HOME))|Set latest LTS if unset<br>(Setting > JAVA_HOME)|
 |[terminal.integrated.defaultProfile.windows](https://code.visualstudio.com/docs/terminal/profiles)<br>([Issues](https://github.com/microsoft/vscode/issues?q=is%3Aissue+terminal.integrated.profiles))|Set `Command Prompt` if unset on Windows<br>(`PowerShell`)|
 |[terminal.integrated.profiles.*](https://code.visualstudio.com/docs/terminal/profiles)<br>([Issues](https://github.com/microsoft/vscode/issues?q=is%3Aissue+terminal.integrated.profiles))|Set configured runtimes to terminal<br>(None)|
 |[terminal.integrated.enablePersistentSessions](https://code.visualstudio.com/docs/terminal/advanced#_persistent-sessions)<br>([Issues](https://github.com/microsoft/vscode/issues?q=is%3Aissue+terminal.integrated.enablePersistentSessions))|`false`<br>(`true`)|
@@ -388,9 +389,9 @@ Provide real-time feedback about Checkstyle violations and quick fix actions.
 - ![](https://img.shields.io/visual-studio-marketplace/i/ryanluker.vscode-coverage-gutters?style=plastic)
 [Coverage Gutters](https://marketplace.visualstudio.com/items?itemName=ryanluker.vscode-coverage-gutters) (ryanluker: MIT)<br>
 Display test coverage generated by lcov or xml - works with many languages.
-- ![](https://img.shields.io/visual-studio-marketplace/i/LalithK90.thymeleaf-html5-snippets?style=plastic)
-[Thymeleaf HTML5 Snippets](https://marketplace.visualstudio.com/items?itemName=LalithK90.thymeleaf-html5-snippets) (Lalith Kahatapitiya: GPL)<br>
-Most common thymeleaf code snippets for .html file
+- ![](https://img.shields.io/visual-studio-marketplace/i/juhahinkula.thymeleaf?style=plastic)
+[thymeleaf](https://marketplace.visualstudio.com/items?itemName=juhahinkula.thymeleaf) (Juha Hinkula: MIT)<br>
+Thymeleaf snippets.
 - ![](https://img.shields.io/visual-studio-marketplace/i/samuel-weinhardt.vscode-jsp-lang)
 [Java Server Pages (JSP)](https://marketplace.visualstudio.com/items?itemName=samuel-weinhardt.vscode-jsp-lang) (Samuel Weinhardt: MIT)<br>
 JSP syntax highlighting for VS Code.
