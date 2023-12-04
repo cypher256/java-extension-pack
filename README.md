@@ -68,7 +68,7 @@ Specify the javac version and `-source` version ([Enabling Java preview features
 |Gradle|(*a) `settings.json` ≫ `java.import.gradle.java.home`<br>(*b) `build.gradle` ≫ `java` ≫ `sourceCompatibility`<br>([error: invalid source release](https://github.com/microsoft/vscode-java-pack/issues/1270))|
 |Maven|(*a) `settings.json` ≫ `maven.terminal.customEnv` ≫ `"JAVA_HOME"`<br>(*b) `pom.xml` ≫ `properties` ≫ `maven.compiler.source/target`<br>　or `java.version` for Spring Boot|
 
-(*a) **javac version**: The `settings.json` [can be configured by workspace (project)]((https://code.visualstudio.com/docs/getstarted/settings)).<br>
+(*a) **javac version**: The `settings.json` [can be configured by workspace (project)](https://code.visualstudio.com/docs/getstarted/settings).<br>
 (*b) **javac `-source`**: If the above javac version is different, runtime errors may occur.
 
 <br>
