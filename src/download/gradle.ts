@@ -13,11 +13,11 @@ export const CONFIG_KEY_GRADLE_HOME = 'java.import.gradle.home';
  * @return A promise that resolves when the Gradle is installed.
  */
 export async function download() {
-	const homeDir = path.join(system.getGlobalStoragePath(), 'gradle', 'latest');
+	const latestDir = getLatestDir();
 	const gradleHomeOld = userSettings.get<string>(CONFIG_KEY_GRADLE_HOME);
-	let gradleHomeNew = await validate(homeDir, gradleHomeOld);
+	let gradleHomeNew = await validate(latestDir, gradleHomeOld);
 	try {
-		gradleHomeNew = await httpget(homeDir, gradleHomeNew);
+		gradleHomeNew = await httpget(latestDir, gradleHomeNew);
 	} catch (e:any) {
 		// Silent: offline, 404, 503 proxy auth error, or etc.
 		log.info('Failed download Gradle.', e, e?.request?.path);
@@ -27,76 +27,92 @@ export async function download() {
 	}
 }
 
-async function validate(
-	homeDir:string,
-	gradleHome:string | undefined): Promise<string | undefined> {
+/**
+ * Returns true if Gradle is auto-configured with auto-downloaded path.
+ * @returns true if the Gradle path is auto-configured.
+ */
+export function isAutoConfigured(): boolean {
+	return system.equalsPath(getLatestDir(), userSettings.get<string>(CONFIG_KEY_GRADLE_HOME));
+}
 
-	if (gradleHome) {
-		const fixedPath = fixPath(gradleHome);
+function getLatestDir(): string {
+	return path.join(system.getGlobalStoragePath(), 'gradle', 'latest');
+}
+
+async function validate(
+	latestDir:string,
+	configGradleHome:string | undefined): Promise<string | undefined> {
+
+	if (configGradleHome) {
+		const fixedPath = fixPath(configGradleHome);
 		if (!fixedPath) {
-			log.info('Remove invalid settings', CONFIG_KEY_GRADLE_HOME, gradleHome);
-			gradleHome = undefined; // Remove config entry
+			log.info('Remove invalid settings', CONFIG_KEY_GRADLE_HOME, configGradleHome);
+			configGradleHome = undefined; // Remove config entry
 		} else {
-			if (fixedPath !== gradleHome) {
-				log.info(`Fix ${CONFIG_KEY_GRADLE_HOME}\n   ${gradleHome}\n-> ${fixedPath}`);
+			if (fixedPath !== configGradleHome) {
+				log.info(`Fix ${CONFIG_KEY_GRADLE_HOME}\n   ${configGradleHome}\n-> ${fixedPath}`);
 			}
-			gradleHome = fixedPath;
-			if (system.isUserInstalled(gradleHome)) {
-				log.info('Available Gradle (User installed)', CONFIG_KEY_GRADLE_HOME, gradleHome);
-				return gradleHome;
+			configGradleHome = fixedPath;
+			if (system.isUserInstalled(configGradleHome)) {
+				log.info('Available Gradle (User installed)', CONFIG_KEY_GRADLE_HOME, configGradleHome);
+				return configGradleHome;
 			}
 		}
 	}
-	if (!gradleHome) {
+	if (!configGradleHome) {
+		// Ignore system paths to always keep up to date
+		/*
 		const exeSystemPath = await system.whichPath('gradle');
 		if (exeSystemPath) {
 			log.info('Available Gradle (PATH)', exeSystemPath);
-			return gradleHome; // Don't set config (gradlew > Setting > PATH > GRADLE_HOME)
+			return configGradleHome; // Don't set config (gradlew > Setting > PATH > GRADLE_HOME)
 		}
-		if (isValidHome(homeDir)) {
-			gradleHome = homeDir;
+		*/
+		if (existsExe(latestDir)) {
+			configGradleHome = latestDir;
 		}
+		// This setting is ignored if gradlew is exists
 	}
-	return gradleHome;
+	return configGradleHome;
 }
 
 async function httpget(
-	homeDir:string,
-	gradleHome:string | undefined): Promise<string | undefined> {
+	latestDir:string,
+	configGradleHome:string | undefined): Promise<string | undefined> {
 
     // Get Latest Version
 	const json = (await axios.get('https://services.gradle.org/versions/current')).data;
 	const version = json.version;
 
 	// Check Version File
-	const versionFile = path.join(homeDir, 'version.txt');
+	const versionFile = path.join(latestDir, 'version.txt');
 	const versionOld = system.readString(versionFile);
-	if (version === versionOld && isValidHome(homeDir)) {
+	if (version === versionOld && existsExe(latestDir)) {
 		const mdate = system.mdateSync(versionFile);
 		log.info(`Available Gradle ${version} (Updated ${mdate})`);
-		return gradleHome;
+		return configGradleHome;
 	}
 
     // Download
 	await httpClient.execute({
 		url: json.downloadUrl,
-		storeTempFile: homeDir + '_download_tmp.zip',
-		extractDestDir: homeDir,
+		storeTempFile: latestDir + '_download_tmp.zip',
+		extractDestDir: latestDir,
 		targetMessage: `Gradle ${version}`,
 	});
-	if (!isValidHome(homeDir)) {
-		log.info('Invalid Gradle:', homeDir);
-		gradleHome = undefined; // Remove config entry
-		return gradleHome; // Silent
+	if (!existsExe(latestDir)) {
+		log.info('Invalid Gradle:', latestDir);
+		configGradleHome = undefined; // Remove config entry
+		return configGradleHome; // Silent
 	}
 	fs.writeFileSync(versionFile, version); // Sync for catch
 
 	// Set Settings
-	gradleHome = homeDir;
-	return gradleHome;
+	configGradleHome = latestDir;
+	return configGradleHome;
 }
 
-function isValidHome(homeDir:string) {
+function existsExe(homeDir:string) {
     return system.existsFile(getExePath(homeDir));
 }
 
@@ -108,7 +124,7 @@ function fixPath(homeDir:string): string | undefined {
 	const MAX_UPPER_LEVEL = 2; // e.g. /xxx/bin/gradle -> /xxx
 	let d = homeDir;
 	for (let i = 0; i <= MAX_UPPER_LEVEL; i++) {
-		if (isValidHome(d)) {return d;};
+		if (existsExe(d)) {return d;};
 		d = path.join(d, '..');
 	}
 	return undefined;

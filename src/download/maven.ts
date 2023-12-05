@@ -13,56 +13,74 @@ export const CONFIG_KEY_MAVEN_EXE_PATH = 'maven.executable.path';
  * @return A promise that resolves when the Maven is installed.
  */
 export async function download() {
-	const homeDir = path.join(system.getGlobalStoragePath(), 'maven', 'latest');
-	const mavenExePathOld = userSettings.get<string>(CONFIG_KEY_MAVEN_EXE_PATH);
-	let mavenExePathNew = await validate(homeDir, mavenExePathOld);
+	const latestDir = getLatestDir();
+	const mavenExeOld = userSettings.get<string>(CONFIG_KEY_MAVEN_EXE_PATH);
+	let mavenExeNew = await validate(latestDir, mavenExeOld);
 	try {
-		mavenExePathNew = await httpget(homeDir, mavenExePathNew);
+		mavenExeNew = await httpget(latestDir, mavenExeNew);
 	} catch (e:any) {
 		// Silent: offline, 404, 503 proxy auth error, or etc.
 		log.info('Failed download Maven.', e, e?.request?.path);
 	}
-	if (mavenExePathOld !== mavenExePathNew) {
-		await userSettings.update(CONFIG_KEY_MAVEN_EXE_PATH, mavenExePathNew);
+	if (mavenExeOld !== mavenExeNew) {
+		await userSettings.update(CONFIG_KEY_MAVEN_EXE_PATH, mavenExeNew);
 	}
+}
+
+/**
+ * Returns true if Maven is auto-configured with auto-downloaded path.
+ * @returns true if the Maven path is auto-configured.
+ */
+export function isAutoConfigured(): boolean {
+	const configMavenExe = userSettings.get<string>(CONFIG_KEY_MAVEN_EXE_PATH);
+	if (!configMavenExe) {return false;}
+	return system.equalsPath(getLatestDir(), path.join(configMavenExe, '..', '..'));
+}
+
+function getLatestDir(): string {
+	return path.join(system.getGlobalStoragePath(), 'maven', 'latest');
 }
 
 async function validate(
-	homeDir:string,
-	mavenExePath:string | undefined): Promise<string | undefined> {
+	latestDir:string,
+	configMavenExe:string | undefined): Promise<string | undefined> {
 
-	if (mavenExePath) {
-		const fixedPath = fixPath(mavenExePath);
+	if (configMavenExe) {
+		const fixedPath = fixPath(configMavenExe);
 		if (!fixedPath) {
-			log.info('Remove invalid settings', CONFIG_KEY_MAVEN_EXE_PATH, mavenExePath);
-			mavenExePath = undefined; // Remove config entry
+			log.info('Remove invalid settings', CONFIG_KEY_MAVEN_EXE_PATH, configMavenExe);
+			configMavenExe = undefined; // Remove config entry
 		} else {
-			if (fixedPath !== mavenExePath) {
-				log.info(`Fix ${CONFIG_KEY_MAVEN_EXE_PATH}\n   ${mavenExePath}\n-> ${fixedPath}`);
+			if (fixedPath !== configMavenExe) {
+				log.info(`Fix ${CONFIG_KEY_MAVEN_EXE_PATH}\n   ${configMavenExe}\n-> ${fixedPath}`);
 			}
-			mavenExePath = fixedPath;
-			if (system.isUserInstalled(mavenExePath)) {
-				log.info('Available Maven (User installed)', CONFIG_KEY_MAVEN_EXE_PATH, mavenExePath);
-				return mavenExePath;
+			configMavenExe = fixedPath;
+			if (system.isUserInstalled(configMavenExe)) {
+				log.info('Available Maven (User installed)', CONFIG_KEY_MAVEN_EXE_PATH, configMavenExe);
+				return configMavenExe;
 			}
 		}
 	}
-	if (!mavenExePath) {
+	if (!configMavenExe) {
+		// Ignore system paths to always keep up to date
+		/*
 		const exeSystemPath = await system.whichPath('mvn');
 		if (exeSystemPath) {
 			log.info('Available Maven (PATH)', exeSystemPath);
-			return mavenExePath; // Don't set config (Setting > mvnw > PATH)
+			return configMavenExe; // Don't set config (Setting > mvnw > PATH)
 		}
-		if (isValidHome(homeDir)) {
-			mavenExePath = getExePath(homeDir);
+		*/
+		if (existsExe(latestDir)) {
+			configMavenExe = getExePath(latestDir);
 		}
+		// mvnw is used only if configMavenExe is empty
 	}
-	return mavenExePath;
+	return configMavenExe;
 }
 
 async function httpget(
-	homeDir:string,
-	mavenExePath:string | undefined): Promise<string | undefined> {
+	latestDir:string,
+	configMavenExe:string | undefined): Promise<string | undefined> {
 
     // Get Latest Version
     const URL_PREFIX = 'https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/';
@@ -71,34 +89,34 @@ async function httpget(
     const version = versionTag.replace(/<.+?>/g, '');
 
 	// Check Version File
-	const versionFile = path.join(homeDir, 'version.txt');
+	const versionFile = path.join(latestDir, 'version.txt');
 	const versionOld = system.readString(versionFile);
-	if (version === versionOld && isValidHome(homeDir)) {
+	if (version === versionOld && existsExe(latestDir)) {
 		const mdate = system.mdateSync(versionFile);
 		log.info(`Available Maven ${version} (Updated ${mdate})`);
-		return mavenExePath;
+		return configMavenExe;
 	}
 
     // Download
 	await httpClient.execute({
 		url: `${URL_PREFIX}${version}/apache-maven-${version}-bin.tar.gz`,
-		storeTempFile: homeDir + '_download_tmp.tar.gz',
-		extractDestDir: homeDir,
+		storeTempFile: latestDir + '_download_tmp.tar.gz',
+		extractDestDir: latestDir,
 		targetMessage: `Maven ${version}`,
 	});
-	if (!isValidHome(homeDir)) {
-		log.info('Invalid Maven:', homeDir);
-		mavenExePath = undefined; // Remove config entry
-		return mavenExePath; // Silent
+	if (!existsExe(latestDir)) {
+		log.info('Invalid Maven:', latestDir);
+		configMavenExe = undefined; // Remove config entry
+		return configMavenExe; // Silent
 	}
 	fs.writeFileSync(versionFile, version); // Sync for catch
 
 	// Set Settings
-	mavenExePath = getExePath(homeDir);
-	return mavenExePath;
+	configMavenExe = getExePath(latestDir);
+	return configMavenExe;
 }
 
-function isValidHome(homeDir:string) {
+function existsExe(homeDir:string) {
     return system.existsFile(getExePath(homeDir));
 }
 

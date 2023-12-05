@@ -2,8 +2,8 @@
 import * as _ from "lodash";
 import * as path from 'path';
 import * as vscode from 'vscode';
-import * as gradleDownloader from './download/gradle';
-import * as mavenDownloader from './download/maven';
+import * as gradle from './download/gradle';
+import * as maven from './download/maven';
 import * as jdkExplorer from './jdkExplorer';
 import * as jdtExtension from './jdtExtension';
 import * as system from './system';
@@ -141,19 +141,24 @@ export async function updateJavaConfig(
 	if (gradleRuntime && vscode.extensions.getExtension('vscjava.vscode-gradle')) {
 		const CONFIG_KEY_GRADLE_JAVA_HOME = 'java.import.gradle.java.home';
 		const originPath = get<string>(CONFIG_KEY_GRADLE_JAVA_HOME);
+		function _updateGradleJavaHome(newPath: string) {
+			update(CONFIG_KEY_GRADLE_JAVA_HOME, newPath);
+			jdtSupport.needsReload = true; // Restart Gradle Daemon
+		}
 		if (originPath) {
-			const fixedOrDefault = await jdkExplorer.fixPath(originPath) || gradleRuntime.path;
+			const fixedOrDefault = gradle.isAutoConfigured()
+				? gradleRuntime.path // Always update if latest gradle
+				: await jdkExplorer.fixPath(originPath) || gradleRuntime.path
+			;
 			if (fixedOrDefault !== originPath) {
-				update(CONFIG_KEY_GRADLE_JAVA_HOME, fixedOrDefault);
-				jdtSupport.needsReload = true;
+				_updateGradleJavaHome(fixedOrDefault);
 			}
 		} else { // If unset use default
-			update(CONFIG_KEY_GRADLE_JAVA_HOME, gradleRuntime.path);
-			jdtSupport.needsReload = true;
+			_updateGradleJavaHome(gradleRuntime.path);
 		}
 	}
 
-	// Project Maven Java Home (Keep if set)
+	// Maven Java Home (Keep if set)
 	const mavenRuntime = latestLtsRuntime || stableRuntime;
 	if (mavenRuntime) {
 		const CONFIG_KEY_MAVEN_CUSTOM_ENV = 'maven.terminal.customEnv';
@@ -164,7 +169,10 @@ export async function updateJavaConfig(
 			update(CONFIG_KEY_MAVEN_CUSTOM_ENV, customEnv);
 		}
 		if (mavenJavaHome) {
-			const fixedOrDefault = await jdkExplorer.fixPath(mavenJavaHome.value) || mavenRuntime.path;
+			const fixedOrDefault = maven.isAutoConfigured()
+				? mavenRuntime.path // Always update if latest maven
+				: await jdkExplorer.fixPath(mavenJavaHome.value) || mavenRuntime.path
+			;
 			if (fixedOrDefault !== mavenJavaHome.value) {
 				_updateMavenJavaHome(fixedOrDefault);
 			}
@@ -177,19 +185,19 @@ export async function updateJavaConfig(
 
 	// Terminal Default Environment Variables (Keep if set)
 	let mavenBinDir:string | undefined = undefined;
-	let mvnExePath = get<string>(mavenDownloader.CONFIG_KEY_MAVEN_EXE_PATH);
+	let mvnExePath = get<string>(maven.CONFIG_KEY_MAVEN_EXE_PATH);
 	if (!mvnExePath && !OS.isWindows) {
-		mvnExePath = await system.whichPath('mvn'); // For mac/Linux (Windows: Use ${env:PATH})
+		mvnExePath = await system.whichPath('mvn'); // Fallback for mac/Linux (Windows: Use ${env:PATH})
 	}
 	if (mvnExePath) {
 		mavenBinDir = path.join(mvnExePath, '..');
 	}
 	let gradleBinDir:string | undefined = undefined;
-	const gradleHome = get<string>(gradleDownloader.CONFIG_KEY_GRADLE_HOME);
+	const gradleHome = get<string>(gradle.CONFIG_KEY_GRADLE_HOME);
 	if (gradleHome) {
 		gradleBinDir = path.join(gradleHome, 'bin');
 	} else if (!OS.isWindows) {
-		const gradleExePath = await system.whichPath('gradle'); // For mac/Linux (Windows: Use ${env:PATH})
+		const gradleExePath = await system.whichPath('gradle'); // Fallback for mac/Linux (Windows: Use ${env:PATH})
 		if (gradleExePath) {
 			gradleBinDir = path.join(gradleExePath, '..');
 		}

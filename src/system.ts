@@ -57,18 +57,43 @@ export function getGlobalStoragePath(): string {
 }
 
 /**
- * Returns true if the checkDir is not in the global storage path.
+ * Returns true if checkDir is not included in the global storage path.
  * @param checkDir The directory to check.
  * @returns true if not in the global storage path.
  */
 export function isUserInstalled(checkDir:string): boolean {
-	function _normalizePath (dir:string) {
-		const d = path.normalize(dir);
-		return OS.isWindows ? d.toLowerCase() : d;
-	}
-	const _checkDir = _normalizePath(checkDir);
-	const _globalStoragePath = _normalizePath(getGlobalStoragePath());
-	return !_checkDir.startsWith(_globalStoragePath);
+	return !containsPath(getGlobalStoragePath(), checkDir);
+}
+
+/**
+ * Returns true if subPath is included in basePath.
+ * @param basePath The base path.
+ * @param subPath The sub path to check.
+ * @returns true if subPath is included in basePath.
+ */
+export function containsPath(basePath:string, subPath:string | undefined): boolean {
+	if (!subPath) {return false;}
+	const _subPath = normalizePath(subPath);
+	const _basePath = normalizePath(basePath);
+	return _subPath.startsWith(_basePath);
+}
+
+/**
+ * Returns true if path1 and path2 are equal.
+ * @param path1 The path1 to check.
+ * @param path2 The path2 to check.
+ * @returns true if path1 and path2 are equal.
+ */
+export function equalsPath(path1:string, path2:string | undefined): boolean {
+	if (!path2) {return false;}
+	const _path1 = normalizePath(path2);
+	const _path2 = normalizePath(path1);
+	return _path1 === _path2;
+}
+
+function normalizePath (dir:string) {
+	const d = path.normalize(dir).replace(/[/\\]$/, '');
+	return OS.isWindows ? d.toLowerCase() : d;
 }
 
 /**
@@ -106,7 +131,7 @@ export function existsDirectory(p:string) {
 /**
  * Returns the file content as string.
  * @param file The file path.
- * @returns The file content as string.
+ * @returns The file content as string. undefined if not exists.
  */
 export function readString(file:string): string | undefined {
 	return existsFile(file) ? fs.readFileSync(file).toString() : undefined;

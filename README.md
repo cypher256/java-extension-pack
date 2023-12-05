@@ -60,7 +60,7 @@ mvn -v
 <br>
 
 ### Specify Project Java Version
-Specify the javac version and `-source` version ([Enabling Java preview features](https://github.com/redhat-developer/vscode-java/wiki/Enabling-Java-preview-features)). The user `settings.json` is automatically configured at first start up, but if you want to customize them, please edit the files below. The `JAVA_HOME` environment variable, which affects the entire OS, is ignored.
+Specify the javac version and `-source` version ([Enabling Java preview features](https://github.com/redhat-developer/vscode-java/wiki/Enabling-Java-preview-features)). The user `settings.json` is automatically configured at start up, but if you want to customize them, please edit the files below. The `JAVA_HOME` environment variable, which affects the entire OS, is ignored.
 
 |Project Type|Configuration|
 |---|---|
@@ -110,11 +110,11 @@ The feature automatically fixes [errors such as](https://stackoverflow.com/searc
 |*Spring Boot Tools*|
 |(*1) [spring-boot.ls.java.home](https://github.com/spring-projects/sts4/blob/main/vscode-extensions/vscode-spring-boot/lib/Main.ts#L30)<br>([Issues](https://github.com/spring-projects/sts4/issues?q=is%3Aissue+spring-boot.ls.java.home))|(*2) Set stable LTS if unset, Fix if unsupported older version<br>(Setting > `JAVA_HOME` > `PATH`)|
 |*Gradle for Java*|
-|[java.import.gradle.java.home](https://github.com/microsoft/vscode-gradle#java-specific-settings)<br>([Issues](https://github.com/microsoft/vscode-gradle/issues?q=is%3Aissue+java.import.gradle.java.home))|Set supported latest LTS if unset<br>(Setting > `java.jdt.ls.java.home`)|
-|[java.import.gradle.home](https://github.com/microsoft/vscode-gradle#java-specific-settings)<br>([Issues](https://github.com/microsoft/vscode-gradle/issues?q=is%3Aissue+java.import.gradle.home))|Set latest gradle if not in `PATH` environment variable<br>(`gradlew` > Setting > `PATH` > `GRADLE_HOME`)|
+|[java.import.gradle.java.home](https://github.com/microsoft/vscode-gradle#java-specific-settings)<br>([Issues](https://github.com/microsoft/vscode-gradle/issues?q=is%3Aissue+java.import.gradle.java.home))|Update latest if gradle auto-downloaded<br>(Setting > `java.jdt.ls.java.home`)|
+|[java.import.gradle.home](https://github.com/microsoft/vscode-gradle#java-specific-settings)<br>([Issues](https://github.com/microsoft/vscode-gradle/issues?q=is%3Aissue+java.import.gradle.home))|Set latest gradle if unset<br>(**`gradlew`** > Setting > `PATH` > `GRADLE_HOME`)|
 |*Maven for Java*|
-|[maven.terminal.customEnv](https://marketplace.visualstudio.com/items?itemName=vscjava.vscode-maven#additional-configurations)<br>([Issues](https://github.com/microsoft/vscode-maven/issues?q=is%3Aissue+maven.terminal.customEnv))|Set latest LTS if unset<br>(Setting > `JAVA_HOME`)|
-|[maven.executable.path](https://github.com/Microsoft/vscode-maven#settings)<br>([Issues](https://github.com/microsoft/vscode-maven/issues?q=is%3Aissue+maven.executable.path))|Set latest maven if not in `PATH` environment variable<br>(Setting > `mvnw` > `PATH`)|
+|[maven.terminal.customEnv](https://marketplace.visualstudio.com/items?itemName=vscjava.vscode-maven#additional-configurations)<br>([Issues](https://github.com/microsoft/vscode-maven/issues?q=is%3Aissue+maven.terminal.customEnv))|Update latest if maven auto-downloaded<br>(Setting > `JAVA_HOME`)|
+|[maven.executable.path](https://github.com/Microsoft/vscode-maven#settings)<br>([Issues](https://github.com/microsoft/vscode-maven/issues?q=is%3Aissue+maven.executable.path))|Set latest maven if unset<br>(Setting > `mvnw` > `PATH`)|
 |*Runtime Server Protocol UI*|(No extension included)|
 |(*1) [rsp-ui.rsp.java.home](https://github.com/redhat-developer/vscode-rsp-ui#extension-settings)<br>([Issues](https://github.com/redhat-developer/vscode-rsp-ui/issues?q=is%3Aissue+rsp-ui.rsp.java.home))|(*2) Set stable LTS if unset, Fix if unsupported older version<br>(Setting > `JDK_HOME` > `JAVA_HOME`> Windows Registry > `PATH`)|
 
