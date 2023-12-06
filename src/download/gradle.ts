@@ -28,10 +28,10 @@ export async function download() {
 }
 
 /**
- * Returns true if Gradle is auto-configured with auto-downloaded path.
- * @returns true if the Gradle path is auto-configured.
+ * Returns true if Gradle is auto-updated with auto-downloaded path.
+ * @returns true if the Gradle path is auto-updated.
  */
-export function isAutoConfigured(): boolean {
+export function isAutoUpdate(): boolean {
 	return system.equalsPath(getLatestDir(), userSettings.get<string>(CONFIG_KEY_GRADLE_HOME));
 }
 

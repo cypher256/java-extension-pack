@@ -78,9 +78,9 @@ export async function updateJavaConfig(
 		lsRuntime = runtimes.findByVersion(jdtSupport.embeddedJreVer);
 		lsVer = jdtSupport.embeddedJreVer;
 	}
-	const stableRuntime = runtimes.findByVersion(jdtSupport.stableLtsVer);
-	if (!lsRuntime && stableRuntime) {
-		lsRuntime = stableRuntime;
+	const stableLtsRuntime = runtimes.findByVersion(jdtSupport.stableLtsVer);
+	if (!lsRuntime && stableLtsRuntime) {
+		lsRuntime = stableLtsRuntime;
 		lsVer = jdtSupport.stableLtsVer;
 	}
 	if (lsRuntime) {
@@ -122,10 +122,8 @@ export async function updateJavaConfig(
 
 	// Project Runtimes Default (Keep if set)
 	const latestLtsRuntime = runtimes.findByVersion(jdtSupport.latestLtsVer);
-	if (!runtimes.findDefault()) {
-		if (latestLtsRuntime) {
-			latestLtsRuntime.default = true;
-		}
+	if (latestLtsRuntime && !runtimes.findDefault()) {
+		latestLtsRuntime.default = true;
 	}
 	if (!_.isEqual(runtimes, runtimesOld)) {
 		runtimes.sort((a, b) => a.name.localeCompare(b.name));
@@ -133,12 +131,17 @@ export async function updateJavaConfig(
 	}
 
 	// Gradle Daemon Java Home (Keep if set)
-	let gradleRuntime = stableRuntime;
+	/*
+	let gradleJavaRuntime = stableLtsRuntime;
 	const GRADLE_FULL_SUPPORTED_MAX_JAVA_LTS_VER = 21;
 	if (latestLtsRuntime && jdtSupport.latestLtsVer <= GRADLE_FULL_SUPPORTED_MAX_JAVA_LTS_VER) {
-		gradleRuntime = latestLtsRuntime;
+		gradleJavaRuntime = latestLtsRuntime;
 	}
-	if (gradleRuntime && vscode.extensions.getExtension('vscjava.vscode-gradle')) {
+	*/
+	// Gradle 8.5 can execute on Java 22+
+	// https://github.com/gradle/gradle/issues/26944#issuecomment-1794419074
+	const gradleJavaRuntime = latestLtsRuntime || stableLtsRuntime;
+	if (gradleJavaRuntime && vscode.extensions.getExtension('vscjava.vscode-gradle')) {
 		const CONFIG_KEY_GRADLE_JAVA_HOME = 'java.import.gradle.java.home';
 		const originPath = get<string>(CONFIG_KEY_GRADLE_JAVA_HOME);
 		function _updateGradleJavaHome(newPath: string) {
@@ -146,40 +149,41 @@ export async function updateJavaConfig(
 			jdtSupport.needsReload = true; // Restart Gradle Daemon
 		}
 		if (originPath) {
-			const fixedOrDefault = gradle.isAutoConfigured()
-				? gradleRuntime.path // Always update if latest gradle
-				: await jdkExplorer.fixPath(originPath) || gradleRuntime.path
+			const fixedOrDefault = system.isUserInstalled(originPath) || !gradle.isAutoUpdate()
+				? /* Keep */ await jdkExplorer.fixPath(originPath) || gradleJavaRuntime.path
+				: /* Auto-update */ gradleJavaRuntime.path
 			;
 			if (fixedOrDefault !== originPath) {
 				_updateGradleJavaHome(fixedOrDefault);
 			}
 		} else { // If unset use default
-			_updateGradleJavaHome(gradleRuntime.path);
+			_updateGradleJavaHome(gradleJavaRuntime.path);
 		}
 	}
 
 	// Maven Java Home (Keep if set)
-	const mavenRuntime = latestLtsRuntime || stableRuntime;
-	if (mavenRuntime) {
+	const mavenJavaRuntime = latestLtsRuntime || stableLtsRuntime;
+	if (mavenJavaRuntime) {
 		const CONFIG_KEY_MAVEN_CUSTOM_ENV = 'maven.terminal.customEnv';
 		const customEnv:any[] = get(CONFIG_KEY_MAVEN_CUSTOM_ENV) ?? [];
-		let mavenJavaHome = customEnv.find(i => i.environmentVariable === 'JAVA_HOME');
+		let mavenJavaHomeObj = customEnv.find(i => i.environmentVariable === 'JAVA_HOME');
+		const originPath:string | undefined = mavenJavaHomeObj?.value;
 		function _updateMavenJavaHome(newPath: string) {
-			mavenJavaHome.value = newPath;
+			mavenJavaHomeObj.value = newPath;
 			update(CONFIG_KEY_MAVEN_CUSTOM_ENV, customEnv);
 		}
-		if (mavenJavaHome) {
-			const fixedOrDefault = maven.isAutoConfigured()
-				? mavenRuntime.path // Always update if latest maven
-				: await jdkExplorer.fixPath(mavenJavaHome.value) || mavenRuntime.path
+		if (originPath) {
+			const fixedOrDefault = system.isUserInstalled(originPath) || !maven.isAutoUpdate()
+				? /* Keep */ await jdkExplorer.fixPath(originPath) || mavenJavaRuntime.path
+				: /* Auto-update */ mavenJavaRuntime.path
 			;
-			if (fixedOrDefault !== mavenJavaHome.value) {
+			if (fixedOrDefault !== originPath) {
 				_updateMavenJavaHome(fixedOrDefault);
 			}
-		} else {
-			mavenJavaHome = {environmentVariable: 'JAVA_HOME'};
-			customEnv.push(mavenJavaHome);
-			_updateMavenJavaHome(mavenRuntime.path);
+		} else { // If unset use default
+			mavenJavaHomeObj = {environmentVariable: 'JAVA_HOME'};
+			customEnv.push(mavenJavaHomeObj);
+			_updateMavenJavaHome(mavenJavaRuntime.path);
 		}
 	}
 
@@ -221,7 +225,7 @@ export async function updateJavaConfig(
 		env.JAVA_HOME = javaHome;
 	}
 	const osConfigName = OS.isWindows ? 'windows' : OS.isMac ? 'osx' : 'linux';
-	const terminalDefaultRuntime = latestLtsRuntime || stableRuntime;
+	const terminalDefaultRuntime = latestLtsRuntime || stableLtsRuntime;
 	if (terminalDefaultRuntime && OS.isWindows) { // Exclude macOS (Support npm scripts)
 		const CONFIG_KEY_TERMINAL_ENV = 'terminal.integrated.env.' + osConfigName;
 		const terminalEnv:any = _.cloneDeep(get(CONFIG_KEY_TERMINAL_ENV) ?? {}); // Proxy to POJO for isEqual

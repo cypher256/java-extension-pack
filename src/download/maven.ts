@@ -28,10 +28,10 @@ export async function download() {
 }
 
 /**
- * Returns true if Maven is auto-configured with auto-downloaded path.
- * @returns true if the Maven path is auto-configured.
+ * Returns true if Maven is auto-updated with auto-downloaded path.
+ * @returns true if the Maven path is auto-updated.
  */
-export function isAutoConfigured(): boolean {
+export function isAutoUpdate(): boolean {
 	const configMavenExe = userSettings.get<string>(CONFIG_KEY_MAVEN_EXE_PATH);
 	if (!configMavenExe) {return false;}
 	return system.equalsPath(getLatestDir(), path.join(configMavenExe, '..', '..'));
