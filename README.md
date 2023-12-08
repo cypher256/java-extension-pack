@@ -6,7 +6,7 @@
 ![](https://img.shields.io/visual-studio-marketplace/i/Pleiades.java-extension-pack-jdk?color=blue)
 ![](https://img.shields.io/visual-studio-marketplace/last-updated/Pleiades.java-extension-pack-jdk?color=orange)
 
-This extension includes popular Java extensions from Microsoft, Red Hat, and others and automatically configures them so you can start developing right out of the box with zero configuration; no need to install JDKs or set environment variables such as `JAVA_HOME`.
+This extension includes popular Java extensions from Microsoft, Red Hat, and others and automatically configures them so you can start developing right out of the box with zero configuration; no need to install JDKs or set environment variables such as `JAVA_HOME` and `PATH`.
 
 #### Main Extensions Issues:
 * [Extension Pack for Java](https://github.com/microsoft/vscode-java-pack/issues?q=is%3Aissue) (Microsoft)
