@@ -34,7 +34,8 @@ export class JavaConfigRuntimeArray extends Array<IJavaConfigRuntime> {
 	 * @param name The Java name to find. See nameOf(majorVer:number).
 	 * @returns A Java runtime object. If no entry exists, returns undefined.
 	 */
-	findByName(name: string): IJavaConfigRuntime | undefined {
+	findByName(name: string | undefined): IJavaConfigRuntime | undefined {
+        if (!name) {return undefined;}
 		return this.find(runtime => runtime.name === name);
 	}
 
@@ -43,7 +44,8 @@ export class JavaConfigRuntimeArray extends Array<IJavaConfigRuntime> {
 	 * @param version The Java version to find.
 	 * @returns A Java runtime object. If no entry exists, returns undefined.
 	 */
-	findByVersion(version: number): IJavaConfigRuntime | undefined {
+	findByVersion(version: number | undefined): IJavaConfigRuntime | undefined {
+        if (version === undefined) {return undefined;}
 		return this.findByName(nameOf(version));
 	}
 }

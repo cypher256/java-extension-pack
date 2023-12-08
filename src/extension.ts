@@ -136,7 +136,8 @@ function showMessage(
 			showReloadMessage();
 		}
 	}
-	setTimeout(setConfigChangedEvent, 5_000); // Delay for prevent self update
+	// Delay for prevent self update
+	setTimeout(setConfigChangedEvent, 5_000);
 }
 
 /**

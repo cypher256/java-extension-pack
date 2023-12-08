@@ -1,4 +1,4 @@
-# Java 21 Extension Pack Auto Config
+# Java Extension Pack Auto Config
 
 [![GitHub Sponsor](https://img.shields.io/static/v1?label=Sponsor&message=%E2%9D%A4&logo=GitHub&color=ff69b4)](https://github.com/sponsors/cypher256)
 ![](https://github.com/cypher256/java-extension-pack/actions/workflows/eslint.yml/badge.svg)
@@ -60,16 +60,16 @@ mvn -v
 <br>
 
 ### Specify Project Java Version
-Specify the javac version and `-source` version ([Enabling Java preview features](https://github.com/redhat-developer/vscode-java/wiki/Enabling-Java-preview-features)). The user `settings.json` is automatically configured at start up, but if you want to customize them, please edit the files below. The `JAVA_HOME` environment variable, which affects the entire OS, is ignored.
+Multiple Java versions can be configured. The user `settings.json` is auto-configured at startup by `Java Extension Pack Auto Config`, but if you want to customize it, edit the following files ([Enabling Java preview features](https://github.com/redhat-developer/vscode-java/wiki/Enabling-Java-preview-features)).
 
 |Project Type|Configuration|
 |---|---|
-|No build tools|(*a) `settings.json` ≫ `java.configuration.runtimes` ≫ `"default": true`|
-|Gradle|(*a) `settings.json` ≫ `java.import.gradle.java.home`<br>(*b) `build.gradle` ≫ `java` ≫ `sourceCompatibility`<br>([error: invalid source release](https://github.com/microsoft/vscode-java-pack/issues/1270))|
+|No Build Tools|(*a) `settings.json` ≫ `java.configuration.runtimes` ≫ `"default": true`|
+|Gradle|(*a) `settings.json` ≫ `java.import.gradle.java.home`<br>(*b) `build.gradle` ≫ `java` ≫ `sourceCompatibility`|
 |Maven|(*a) `settings.json` ≫ `maven.terminal.customEnv` ≫ `"JAVA_HOME"`<br>(*b) `pom.xml` ≫ `properties` ≫ `maven.compiler.source/target`<br>　or `java.version` for Spring Boot|
 
-(*a) **javac version**: The `settings.json` [can be configured by workspace (project)](https://code.visualstudio.com/docs/getstarted/settings).<br>
-(*b) **javac `-source`**: If the above javac version is different, runtime errors may occur.
+(*a) **Tool version**: The `settings.json` [can be configured by project (workspace)](https://code.visualstudio.com/docs/getstarted/settings).<br>
+(*b) **javac `-source`**: The `java.configuration.runtimes` that matches this version will be used.
 
 <br>
 <br>
@@ -106,9 +106,9 @@ The feature automatically fixes [errors such as](https://stackoverflow.com/searc
 |*Language support for Java*|
 |~~[java.home](https://github.com/redhat-developer/vscode-java/wiki/JDK-Requirements#universal-version)~~|Delete due to deprecated entry|
 |[java.configuration.runtimes](https://code.visualstudio.com/docs/java/java-project#_configure-runtime-for-projects)<br>([Issues](https://github.com/redhat-developer/vscode-java/issues?q=is%3Aissue+java.configuration.runtimes))|Set all major JDKs scanned, detected, and downloaded<br>(Setting > `JAVA_HOME`)|
-|(*1) [java.jdt.ls.java.home](https://github.com/redhat-developer/vscode-java/wiki/JDK-Requirements#platform-versions)<br>([Issues](https://github.com/redhat-developer/vscode-java/issues?q=is%3Aissue+java.jdt.ls.java.home))|(*2) Set stable LTS if unset, Fix if unsupported older version<br>(Setting > Embedded JRE > `JDK_HOME` > `JAVA_HOME` > `PATH`)|
+|(*1) [java.jdt.ls.java.home](https://github.com/redhat-developer/vscode-java/wiki/JDK-Requirements#platform-versions)<br>([Issues](https://github.com/redhat-developer/vscode-java/issues?q=is%3Aissue+java.jdt.ls.java.home))|Set stable LTS if Red Hat embedded JRE is not exists<br>(Setting > Embedded JRE > `JDK_HOME` > `JAVA_HOME` > `PATH`)|
 |*Spring Boot Tools*|
-|(*1) [spring-boot.ls.java.home](https://github.com/spring-projects/sts4/blob/main/vscode-extensions/vscode-spring-boot/lib/Main.ts#L30)<br>([Issues](https://github.com/spring-projects/sts4/issues?q=is%3Aissue+spring-boot.ls.java.home))|(*2) Set stable LTS if unset, Fix if unsupported older version<br>(Setting > `JAVA_HOME` > `PATH`)|
+|(*1) [spring-boot.ls.java.home](https://github.com/spring-projects/sts4/blob/main/vscode-extensions/commons-vscode/src/launch-util.ts#L140)<br>([Issues](https://github.com/spring-projects/sts4/issues?q=is%3Aissue+spring-boot.ls.java.home))|Set stable LTS if Red Hat embedded JRE is not exists<br>(Setting > Embedded JRE)|
 |*Gradle for Java*|
 |[java.import.gradle.java.home](https://github.com/microsoft/vscode-gradle#java-specific-settings)<br>([Issues](https://github.com/microsoft/vscode-gradle/issues?q=is%3Aissue+java.import.gradle.java.home))|Update latest if gradle auto-downloaded<br>(Setting > `java.jdt.ls.java.home`)|
 |[java.import.gradle.home](https://github.com/microsoft/vscode-gradle#java-specific-settings)<br>([Issues](https://github.com/microsoft/vscode-gradle/issues?q=is%3Aissue+java.import.gradle.home))|Set latest gradle if unset<br>(**`gradlew`** > Setting > `PATH` > `GRADLE_HOME`)|
@@ -116,10 +116,9 @@ The feature automatically fixes [errors such as](https://stackoverflow.com/searc
 |[maven.terminal.customEnv](https://marketplace.visualstudio.com/items?itemName=vscjava.vscode-maven#additional-configurations)<br>([Issues](https://github.com/microsoft/vscode-maven/issues?q=is%3Aissue+maven.terminal.customEnv))|Update latest if maven auto-downloaded<br>(Setting > `JAVA_HOME`)|
 |[maven.executable.path](https://github.com/Microsoft/vscode-maven#settings)<br>([Issues](https://github.com/microsoft/vscode-maven/issues?q=is%3Aissue+maven.executable.path))|Set latest maven if unset<br>(Setting > `mvnw` > `PATH`)|
 |*Runtime Server Protocol UI*|(No extension included)|
-|(*1) [rsp-ui.rsp.java.home](https://github.com/redhat-developer/vscode-rsp-ui#extension-settings)<br>([Issues](https://github.com/redhat-developer/vscode-rsp-ui/issues?q=is%3Aissue+rsp-ui.rsp.java.home))|(*2) Set stable LTS if unset, Fix if unsupported older version<br>(Setting > `JDK_HOME` > `JAVA_HOME`> Windows Registry > `PATH`)|
+|(*1) [rsp-ui.rsp.java.home](https://github.com/redhat-developer/vscode-rsp-ui#extension-settings)<br>([Issues](https://github.com/redhat-developer/vscode-rsp-ui/issues?q=is%3Aissue+rsp-ui.rsp.java.home))|Set stable LTS if unset, Fix if unsupported older version<br>(Setting > `JDK_HOME` > `JAVA_HOME`> Windows Registry > `PATH`)|
 
 (*1) The language server runtime used by VS Code extensions. Not for building or running projects.<br>
-(*2) Usually the same version of the JDK as the Red Hat Java extension Embedded JRE.<br>
 <br>
 <br>
 
@@ -148,12 +147,6 @@ It is saved in the following location.
 #### e.g. Auto-configured User settings.json
 Command Palette **>Preferences: Open User Settings (JSON)**
 ```json
-// JDT Language Server
-"java.jdt.ls.java.home": "c:\\Program Files\\java\\jdk-17.0.6",
-// ST4 Language Server
-"spring-boot.ls.java.home": "c:\\Program Files\\java\\jdk-17.0.6",
-```
-```json
 // Project Runtimes (multiple versions)
 "java.configuration.runtimes": [
   {
@@ -174,12 +167,12 @@ Command Palette **>Preferences: Open User Settings (JSON)**
     "default": true // Runtime to use for No build tools projects
   }
 ],
-// Gradle Daemon
+// Gradle Daemon Java Runtime
 "java.import.gradle.java.home": "c:\\Program Files\\Eclipse Adoptium\\jdk-21.0.1-hotspot",
 // Maven Default Environment Variables
 "maven.terminal.customEnv": [
   {
-    "environmentVariable": "JAVA_HOME", // Required for mvn command
+    "environmentVariable": "JAVA_HOME", // Required for VSCode maven context menu
     "value": "c:\\Program Files\\Eclipse Adoptium\\jdk-21.0.1-hotspot"
   }
 ],
@@ -240,8 +233,6 @@ Command Palette **>Preferences: Open User Settings (JSON)**
       "overrideName": true
   },
   "JavaSE-17": {
-  :
-}
 ```
 
 <br>

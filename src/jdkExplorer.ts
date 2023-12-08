@@ -124,7 +124,8 @@ export async function isValidHome(homeDir:string | undefined): Promise<boolean> 
  * @param homeDir The home dir of the JDK.
  * @returns The fixed dir. undefined if cannot fix.
  */
-export async function fixPath(homeDir:string): Promise<string | undefined> {
+export async function fixPath(homeDir:string | undefined): Promise<string | undefined> {
+	if (!homeDir) {return undefined;}
 	const MAX_UPPER_LEVEL = 2; // e.g. /jdk/bin/java -> /jdk
 	let d = homeDir;
 	for (let i = 0; i <= MAX_UPPER_LEVEL; i++) {

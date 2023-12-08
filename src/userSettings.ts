@@ -16,11 +16,13 @@ import { OS, log } from './system';
  */
 export function get<T>(section: string): T | undefined {
 	const info = vscode.workspace.getConfiguration().inspect(section);
+	// User settings.json or extensions default
 	return (info?.globalValue ?? info?.defaultValue) as T;
 }
 
-function getGlobalOnly<T>(section: string): T | undefined {
+function getDefinition<T>(section: string): T | undefined {
 	const info = vscode.workspace.getConfiguration().inspect(section);
+	// User settings.json only
 	return info?.globalValue as T;
 }
 
@@ -71,55 +73,6 @@ export async function updateJavaConfig(
 		remove(CONFIG_KEY_DEPRECATED_JAVA_HOME);
 	}
 
-	// VS Code LS Java Home (Fix if unsupported old version)
-	let lsRuntime = undefined;
-	let lsVer = 0;
-	if (jdtSupport.embeddedJreVer) {
-		lsRuntime = runtimes.findByVersion(jdtSupport.embeddedJreVer);
-		lsVer = jdtSupport.embeddedJreVer;
-	}
-	const stableLtsRuntime = runtimes.findByVersion(jdtSupport.stableLtsVer);
-	if (!lsRuntime && stableLtsRuntime) {
-		lsRuntime = stableLtsRuntime;
-		lsVer = jdtSupport.stableLtsVer;
-	}
-	if (lsRuntime) {
-		// Reload dialog on change only redhat.java extension (See: extension.ts onDidChangeConfiguration)
-		const configKeys = ['java.jdt.ls.java.home'];
-		function _pushIf(extensionId:string, configKey:string) {
-			if (vscode.extensions.getExtension(extensionId)) {configKeys.push(configKey);}
-		}
-		_pushIf('vmware.vscode-spring-boot', 'spring-boot.ls.java.home');
-		_pushIf('redhat.vscode-rsp-ui', 'rsp-ui.rsp.java.home');
-		
-		for (const configKey of configKeys) {
-			const originPath = get<string>(configKey);
-			const _updateLs = (p:string) => update(configKey, p);
-			const lsRuntimePath = lsRuntime.path;
-			if (originPath) {
-				const fixedOriginPath = await jdkExplorer.fixPath(originPath);
-				if (fixedOriginPath) {
-					// RedHat LS minimum version check: REQUIRED_JDK_VERSION
-					// https://github.com/redhat-developer/vscode-java/blob/master/src/requirements.ts
-					const originJdk = await jdkExplorer.findByPath(fixedOriginPath);
-					if (!originJdk || originJdk.majorVersion < lsVer) {
-						_updateLs(lsRuntimePath); // Fix unsupported older version
-					} else if (originJdk.majorVersion === lsVer && originJdk.homePath !== lsRuntimePath) {
-						_updateLs(lsRuntimePath); // Same version, different path
-					} else if (fixedOriginPath !== originPath) {
-						_updateLs(fixedOriginPath); // Fix invalid
-					} else {
-						// Keep new version
-					}
-				} else {
-					_updateLs(lsRuntimePath); // Can't fix
-				}
-			} else {
-				_updateLs(lsRuntimePath); // if unset
-			}
-		}
-	}
-
 	// Project Runtimes Default (Keep if set)
 	const latestLtsRuntime = runtimes.findByVersion(jdtSupport.latestLtsVer);
 	if (latestLtsRuntime && !runtimes.findDefault()) {
@@ -128,6 +81,47 @@ export async function updateJavaConfig(
 	if (!_.isEqual(runtimes, runtimesOld)) {
 		runtimes.sort((a, b) => a.name.localeCompare(b.name));
 		update(jdtExtension.JavaConfigRuntimeArray.CONFIG_KEY, runtimes);
+	}
+
+	// VS Code LS Java Home (Remove if embedded JRE exists)
+	const stableLtsRuntime = runtimes.findByVersion(jdtSupport.stableLtsVer);
+	async function _updateLsJavaHome(extensionId: string, configKey: string) {
+		if (!vscode.extensions.getExtension(extensionId)) {
+			return;
+		}
+		const originPath = get<string>(configKey);
+		if (jdtSupport.embeddedJreVer) {
+			if (originPath) {
+				remove(configKey); // Use embedded JRE
+			}
+			return;
+		}
+		const fixedOrDefault = stableLtsRuntime?.path || await jdkExplorer.fixPath(originPath);
+		if (fixedOrDefault && fixedOrDefault !== originPath) { // Keep if undefined (= invalid path)
+			update(configKey, fixedOrDefault);
+		}
+	}
+	_updateLsJavaHome('redhat.java', 'java.jdt.ls.java.home');
+	_updateLsJavaHome('vmware.vscode-spring-boot', 'spring-boot.ls.java.home');
+
+	// [Option] RSP Java Home (Keep if set)
+	const rspJavaRuntime = stableLtsRuntime;
+	if (rspJavaRuntime && vscode.extensions.getExtension('redhat.vscode-rsp-ui')) {
+		const CONFIG_KEY_RSP_JAVA_HOME = 'rsp-ui.rsp.java.home';
+		const originPath = get<string>(CONFIG_KEY_RSP_JAVA_HOME);
+		if (originPath) {
+			const fixedOrDefault = system.isUserInstalled(originPath)
+				// Keep
+				? await jdkExplorer.fixPath(originPath) || rspJavaRuntime.path
+				// Update
+				: rspJavaRuntime.path
+			;
+			if (fixedOrDefault !== originPath) {
+				update(CONFIG_KEY_RSP_JAVA_HOME, fixedOrDefault);
+			}
+		} else { // If unset use default
+			update(CONFIG_KEY_RSP_JAVA_HOME, rspJavaRuntime.path);
+		}
 	}
 
 	// Gradle Daemon Java Home (Keep if set)
@@ -150,8 +144,10 @@ export async function updateJavaConfig(
 		}
 		if (originPath) {
 			const fixedOrDefault = system.isUserInstalled(originPath) || !gradle.isAutoUpdate()
-				? /* Keep */ await jdkExplorer.fixPath(originPath) || gradleJavaRuntime.path
-				: /* Auto-update */ gradleJavaRuntime.path
+				// Keep
+				? await jdkExplorer.fixPath(originPath) || gradleJavaRuntime.path
+				// Auto-update
+				: gradleJavaRuntime.path
 			;
 			if (fixedOrDefault !== originPath) {
 				_updateGradleJavaHome(fixedOrDefault);
@@ -161,21 +157,24 @@ export async function updateJavaConfig(
 		}
 	}
 
-	// Maven Java Home (Keep if set)
+	// Maven terminal env for maven options (Keep if set)
+	// -> customEnv JAVA_HOME is required for VSCode maven context menu
 	const mavenJavaRuntime = latestLtsRuntime || stableLtsRuntime;
 	if (mavenJavaRuntime) {
 		const CONFIG_KEY_MAVEN_CUSTOM_ENV = 'maven.terminal.customEnv';
 		const customEnv:any[] = get(CONFIG_KEY_MAVEN_CUSTOM_ENV) ?? [];
 		let mavenJavaHomeObj = customEnv.find(i => i.environmentVariable === 'JAVA_HOME');
-		const originPath:string | undefined = mavenJavaHomeObj?.value;
 		function _updateMavenJavaHome(newPath: string) {
 			mavenJavaHomeObj.value = newPath;
 			update(CONFIG_KEY_MAVEN_CUSTOM_ENV, customEnv);
 		}
+		const originPath:string | undefined = mavenJavaHomeObj?.value;
 		if (originPath) {
 			const fixedOrDefault = system.isUserInstalled(originPath) || !maven.isAutoUpdate()
-				? /* Keep */ await jdkExplorer.fixPath(originPath) || mavenJavaRuntime.path
-				: /* Auto-update */ mavenJavaRuntime.path
+				// Keep
+				? await jdkExplorer.fixPath(originPath) || mavenJavaRuntime.path
+				// Auto-update
+				: mavenJavaRuntime.path
 			;
 			if (fixedOrDefault !== originPath) {
 				_updateMavenJavaHome(fixedOrDefault);
@@ -191,7 +190,7 @@ export async function updateJavaConfig(
 	let mavenBinDir:string | undefined = undefined;
 	let mvnExePath = get<string>(maven.CONFIG_KEY_MAVEN_EXE_PATH);
 	if (!mvnExePath && !OS.isWindows) {
-		mvnExePath = await system.whichPath('mvn'); // Fallback for mac/Linux (Windows: Use ${env:PATH})
+		mvnExePath = await system.whichPath('mvn'); // For mac/Linux (Windows: Use ${env:PATH})
 	}
 	if (mvnExePath) {
 		mavenBinDir = path.join(mvnExePath, '..');
@@ -201,7 +200,7 @@ export async function updateJavaConfig(
 	if (gradleHome) {
 		gradleBinDir = path.join(gradleHome, 'bin');
 	} else if (!OS.isWindows) {
-		const gradleExePath = await system.whichPath('gradle'); // Fallback for mac/Linux (Windows: Use ${env:PATH})
+		const gradleExePath = await system.whichPath('gradle'); // For mac/Linux (Windows: Use ${env:PATH})
 		if (gradleExePath) {
 			gradleBinDir = path.join(gradleExePath, '..');
 		}
@@ -229,18 +228,11 @@ export async function updateJavaConfig(
 	if (terminalDefaultRuntime && OS.isWindows) { // Exclude macOS (Support npm scripts)
 		const CONFIG_KEY_TERMINAL_ENV = 'terminal.integrated.env.' + osConfigName;
 		const terminalEnv:any = _.cloneDeep(get(CONFIG_KEY_TERMINAL_ENV) ?? {}); // Proxy to POJO for isEqual
-		function _updateTerminalDefault(newPath: string) {
-			const terminalEnvOld = _.cloneDeep(terminalEnv);
-			_setTerminalEnv(terminalEnv, newPath);
-			if (!_.isEqual(terminalEnv, terminalEnvOld) ) {
-				update(CONFIG_KEY_TERMINAL_ENV, terminalEnv);
-			}
-		}
-		if (terminalEnv.JAVA_HOME) {
-			const fixedOrDefault = await jdkExplorer.fixPath(terminalEnv.JAVA_HOME) || terminalDefaultRuntime.path;
-			_updateTerminalDefault(fixedOrDefault);
-		} else {
-			_updateTerminalDefault(terminalDefaultRuntime.path);
+		const terminalEnvOld = _.cloneDeep(terminalEnv);
+		const fixedOrDefault = await jdkExplorer.fixPath(terminalEnv.JAVA_HOME) || terminalDefaultRuntime.path;
+		_setTerminalEnv(terminalEnv, fixedOrDefault);
+		if (!_.isEqual(terminalEnv, terminalEnvOld) ) {
+			update(CONFIG_KEY_TERMINAL_ENV, terminalEnv);
 		}
 	}
 
@@ -251,8 +243,8 @@ export async function updateJavaConfig(
 
 	// Terminal Profiles Dropdown (Always update)
 	const CONFIG_KEY_TERMINAL_PROFILES = 'terminal.integrated.profiles.' + osConfigName;
-	const profilesGlobal = getGlobalOnly(CONFIG_KEY_TERMINAL_PROFILES) ?? {};
-	const profilesOld:any = _.cloneDeep(profilesGlobal); // Proxy to POJO for isEqual
+	const profilesDef = getDefinition(CONFIG_KEY_TERMINAL_PROFILES) ?? {};
+	const profilesOld:any = _.cloneDeep(profilesDef); // Proxy to POJO for isEqual
 	const profilesNew:any = _.cloneDeep(profilesOld);
 
 	for (const runtimeName of Object.keys(profilesNew)) {
@@ -292,7 +284,7 @@ function setIfUndefined(section:string, value:any, extensionName?:string) {
 	if (extensionName && !vscode.extensions.getExtension(extensionName)) {
 		return;
 	}
-	if (getGlobalOnly(section) === undefined) {
+	if (getDefinition(section) === undefined) {
 		if (typeof value === 'function') {
 			value(section);
 		} else {
