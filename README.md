@@ -68,7 +68,7 @@ Multiple Java versions can be configured. The user `settings.json` is auto-confi
 |Gradle|(*a) `settings.json` ≫ `java.import.gradle.java.home`<br>(*b) `build.gradle` ≫ `java` ≫ `sourceCompatibility`|
 |Maven|(*a) `settings.json` ≫ `maven.terminal.customEnv` ≫ `"JAVA_HOME"`<br>(*b) `pom.xml` ≫ `properties` ≫ `maven.compiler.source/target`<br>　or `java.version` for Spring Boot|
 
-(*a) **Tool version**: The `settings.json` [can be configured by project (workspace)](https://code.visualstudio.com/docs/getstarted/settings).<br>
+(*a) **Java Home**: The `settings.json` [can be configured by project (workspace)](https://code.visualstudio.com/docs/getstarted/settings).<br>
 (*b) **javac `-source`**: The `java.configuration.runtimes` that matches this version will be used.
 
 <br>
@@ -409,7 +409,7 @@ code --install-extension usernamehw.errorlens
 code --install-extension SonarSource.sonarlint-vscode
 code --install-extension shengchen.vscode-checkstyle
 code --install-extension ryanluker.vscode-coverage-gutters
-code --install-extension LalithK90.thymeleaf-html5-snippets
+code --install-extension juhahinkula.thymeleaf
 code --install-extension samuel-weinhardt.vscode-jsp-lang
 code --install-extension redhat.vscode-community-server-connector
 code --install-extension s-nlf-fh.glassit
