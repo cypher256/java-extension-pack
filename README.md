@@ -6,9 +6,14 @@
 ![](https://img.shields.io/visual-studio-marketplace/i/Pleiades.java-extension-pack-jdk?color=blue)
 ![](https://img.shields.io/visual-studio-marketplace/last-updated/Pleiades.java-extension-pack-jdk?color=orange)
 
-This extension includes popular Java extensions from Microsoft, Red Hat, and others and automatically configures them so you can start developing right out of the box with zero configuration; no need to install JDKs or set environment variables such as `JAVA_HOME` and `PATH`.
+### Overview
+* No need to install JDK, Gradle and Maven, no need to set JAVA_HOME and PATH environment variables.
+* If the JDKs are already installed, they will be detected and auto-configured at startup.
+* Java multiple versions (4 latest LTS) are auto-configured and can be specified by project.
+* Includes extensions for Java development from Microsoft, Red Hat, and others.
+* Auto-configured and ready to use right out of the box with zero configuration.
 
-#### Main Extensions Issues:
+### Core Extensions Issues
 * [Extension Pack for Java](https://github.com/microsoft/vscode-java-pack/issues?q=is%3Aissue) (Microsoft)
 * [Language Support for Java by Red Hat](https://github.com/redhat-developer/vscode-java/issues?q=is%3Aissue) (Red Hat)
 * [Spring Boot Extension Pack](https://github.com/spring-projects/sts4/issues?q=is%3Aissue) (VMware)
@@ -60,7 +65,7 @@ mvn -v
 <br>
 
 ### Specify Project Java Version
-Multiple Java versions can be configured. The user `settings.json` is auto-configured at startup by `Java Extension Pack Auto Config`, but if you want to customize it, edit the following files ([Enabling Java preview features](https://github.com/redhat-developer/vscode-java/wiki/Enabling-Java-preview-features)).
+The user `settings.json` is auto-configured at startup by `Java Extension Pack Auto Config`, but if you want to customize it, edit the following files ([Enabling Java preview features](https://github.com/redhat-developer/vscode-java/wiki/Enabling-Java-preview-features)).
 
 |Project Type|Configuration|
 |---|---|
