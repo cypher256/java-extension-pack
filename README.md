@@ -16,24 +16,24 @@
 ### Core Extensions Issues
 * [Extension Pack for Java](https://github.com/microsoft/vscode-java-pack/issues?q=is%3Aissue) (Microsoft)
 * [Language Support for Java by Red Hat](https://github.com/redhat-developer/vscode-java/issues?q=is%3Aissue) (Red Hat)
-* [Spring Boot Extension Pack](https://github.com/spring-projects/sts4/issues?q=is%3Aissue) (VMware)
+* [Spring Boot Extension Pack](https://github.com/spring-projects/sts4/issues?q=is%3Aissue) (Broadcom)
 
 <br>
 <br>
 <br>
 
 # Installation
-## Method 1: VS Code Web Marketplace
+### 1st way: VS Code Web Marketplace
 1. Click Install on the [Marketplace web page](https://marketplace.visualstudio.com/items?itemName=Pleiades.java-extension-pack-jdk) in web browser
 1. Click Install on README opened in VS Code
-## Method 2: Extensions Sidebar
+### 2nd way: Extensions Sidebar
 1. Open Extensions sideBar (Ctrl/CMD + Shift + X) in VS Code
 1. Search for `auto config`
 1. Click Install
-## Method 3: Quick Pick
+### 3rd way: Quick Pick
 1. Open Quick Pick (Ctrl/CMD + P) in VS Code, paste the following command, and press enter.<br>
 `ext install Pleiades.java-extension-pack-jdk`
-## Method 4: Command Line
+### 4th way: Command Line
 1. Install from the [command line](https://code.visualstudio.com/docs/editor/command-line).<br>
 `code --install-extension Pleiades.java-extension-pack-jdk`
 <br>
@@ -156,29 +156,29 @@ Command Palette **>Preferences: Open User Settings (JSON)**
 "java.configuration.runtimes": [
   {
     "name": "JavaSE-1.8", // Adoptium (Auto-download)
-    "path": "c:\\Users\\<UserName>\\AppData\\Roaming\\Code\\User\\globalStorage\\pleiades.java-extension-pack-jdk\\java\\8"
+    "path": "C:\\Users\\<UserName>\\AppData\\Roaming\\Code\\User\\globalStorage\\pleiades.java-extension-pack-jdk\\java\\8"
   },
   {
     "name": "JavaSE-11", // Corretto (Auto-scan)
-    "path": "c:\\Program Files\\Amazon Corretto\\jdk11.0.18_10"
+    "path": "C:\\Program Files\\Amazon Corretto\\jdk11.0.18_10"
   },
   {
     "name": "JavaSE-17", // Oracle (Auto-scan)
-    "path": "c:\\Program Files\\java\\jdk-17.0.6"
+    "path": "C:\\Program Files\\java\\jdk-17.0.6"
   },
   {
     "name": "JavaSE-21", // Adoptium (Auto-scan)
-    "path": "c:\\Program Files\\Eclipse Adoptium\\jdk-21.0.1-hotspot",
+    "path": "C:\\Program Files\\Eclipse Adoptium\\jdk-21.0.1-hotspot",
     "default": true // Runtime to use for No build tools projects
   }
 ],
 // Gradle Daemon Java Runtime
-"java.import.gradle.java.home": "c:\\Program Files\\Eclipse Adoptium\\jdk-21.0.1-hotspot",
+"java.import.gradle.java.home": "C:\\Program Files\\Eclipse Adoptium\\jdk-21.0.1-hotspot",
 // Maven Default Environment Variables
 "maven.terminal.customEnv": [
   {
     "environmentVariable": "JAVA_HOME", // Required for VSCode maven context menu
-    "value": "c:\\Program Files\\Eclipse Adoptium\\jdk-21.0.1-hotspot"
+    "value": "C:\\Program Files\\Eclipse Adoptium\\jdk-21.0.1-hotspot"
   }
 ],
 ```
@@ -214,8 +214,8 @@ Command Palette **>Preferences: Open User Settings (JSON)**
 ```json
 // Terminal Default Environment Variables
 "terminal.integrated.env.windows": {
-  "JAVA_HOME": "c:\\Program Files\\Eclipse Adoptium\\jdk-21.0.1-hotspot",
-  "PATH": "c:\\Program Files\\Eclipse Adoptium\\jdk-21.0.1-hotspot\\bin;${env:PATH}"
+  "JAVA_HOME": "C:\\Program Files\\Eclipse Adoptium\\jdk-21.0.1-hotspot",
+  "PATH": "C:\\Program Files\\Eclipse Adoptium\\jdk-21.0.1-hotspot\\bin;${env:PATH}"
 },
 // Terminal Default Profile
 "terminal.integrated.defaultProfile.windows": "Command Prompt",
@@ -224,16 +224,16 @@ Command Palette **>Preferences: Open User Settings (JSON)**
   "JavaSE-1.8": {
       "path": "cmd",
       "env": {
-          "JAVA_HOME": "c:\\Users\\<UserName>\\AppData\\Roaming\\Code\\User\\globalStorage\\pleiades.java-extension-pack-jdk\\java\\8",
-          "PATH": "c:\\Users\\<UserName>\\AppData\\Roaming\\Code\\User\\globalStorage\\pleiades.java-extension-pack-jdk\\java\\8\\bin;${env:PATH}"
+          "JAVA_HOME": "C:\\Users\\<UserName>\\AppData\\Roaming\\Code\\User\\globalStorage\\pleiades.java-extension-pack-jdk\\java\\8",
+          "PATH": "C:\\Users\\<UserName>\\AppData\\Roaming\\Code\\User\\globalStorage\\pleiades.java-extension-pack-jdk\\java\\8\\bin;${env:PATH}"
       },
       "overrideName": true
   },
   "JavaSE-11": {
       "path": "cmd",
       "env": {
-          "JAVA_HOME": "c:\\Program Files\\Amazon Corretto\\jdk11.0.18_10",
-          "PATH": "c:\\Program Files\\Amazon Corretto\\jdk11.0.18_10\\bin;${env:PATH}"
+          "JAVA_HOME": "C:\\Program Files\\Amazon Corretto\\jdk11.0.18_10",
+          "PATH": "C:\\Program Files\\Amazon Corretto\\jdk11.0.18_10\\bin;${env:PATH}"
       },
       "overrideName": true
   },
@@ -329,7 +329,7 @@ The *`Extension Pack for Java`* is required. Other extensions can be [disabled](
 [Extension Pack for Java](https://marketplace.visualstudio.com/items?itemName=vscjava.vscode-java-pack) (Microsoft: MIT, Red Hat: EPL) / [VS Code Document](https://code.visualstudio.com/docs/java/java-tutorial#_creating-a-source-code-file)<br>
 Java IntelliSense, debugging, testing, Maven/Gradle support, Lombok and more.<br>
 - ![](https://img.shields.io/visual-studio-marketplace/i/vmware.vscode-boot-dev-pack?style=plastic)
-[Spring Boot Extension Pack](https://marketplace.visualstudio.com/items?itemName=vmware.vscode-boot-dev-pack) (VMware: EPL) / [VS Code Document](https://code.visualstudio.com/docs/java/java-spring-boot#_create-the-project)<br>
+[Spring Boot Extension Pack](https://marketplace.visualstudio.com/items?itemName=vmware.vscode-boot-dev-pack) (Broadcom: EPL) / [VS Code Document](https://code.visualstudio.com/docs/java/java-spring-boot#_create-the-project)<br>
 A collection of extensions for developing Spring Boot applications.<br>
 - ![](https://img.shields.io/visual-studio-marketplace/i/vscjava.vscode-gradle?style=plastic)
 [Gradle for Java](https://marketplace.visualstudio.com/items?itemName=vscjava.vscode-gradle) (Microsoft: MIT) / [VS Code Document](https://code.visualstudio.com/docs/java/java-build#_gradle)<br>

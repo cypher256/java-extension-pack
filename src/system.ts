@@ -53,7 +53,11 @@ export function getExtensionContext() {
  */
 export function getGlobalStoragePath(): string {
 	if (!extensionContext) {throw new Error('context is not initialized');}
-	return extensionContext.globalStorageUri.fsPath;
+	const p = extensionContext.globalStorageUri.fsPath;
+	// Match drive letter case to glob search results
+	return p.replace(/^([a-z])(:.*)/, (m, winDriveLetter:string, dir) => {
+		return winDriveLetter.toUpperCase() + dir;
+	});
 }
 
 /**
