@@ -299,7 +299,7 @@ function setIfUndefined(section:string, value:any, extensionName?:string) {
 export function setDefault() {
 	// VS Code Editor
 	setIfUndefined('editor.codeActionsOnSave', {
-		"source.organizeImports": true
+		"source.organizeImports": 'explicit'
 	});
 	setIfUndefined('editor.linkedEditing', true);
 	setIfUndefined('editor.minimap.enabled', false);
