@@ -9,9 +9,9 @@
 ### Overview
 * No need to install JDK, Gradle and Maven, no need to set JAVA_HOME and PATH environment variables.
 * If the JDKs are already installed, they will be detected and auto-configured at startup.
-* Java multiple versions (4 latest LTS) are auto-configured and can be specified by project.
+* Java multiple versions (4 latest LTS) are auto-configured and can be specified version by project.
 * Includes extensions for Java development from Microsoft, Red Hat, and others.
-* Auto-configured and ready to use right out of the box with zero configuration.
+* Auto-configuration allows you to start developing right out of the box with zero configuration.
 
 ### Core Extensions Issues
 * [Extension Pack for Java](https://github.com/microsoft/vscode-java-pack/issues?q=is%3Aissue) (Microsoft)
