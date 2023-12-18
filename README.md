@@ -8,9 +8,8 @@
 
 ### Overview
 * No need to install JDK, Gradle and Maven, no need to set JAVA_HOME and PATH environment variables.
-* If the JDKs are already installed, they will be detected and auto-configured at startup.
-* Java multiple versions (4 latest LTS) are auto-configured and can be specified version by project.
-* Includes extensions for Java development from Microsoft, Red Hat, and others.
+* Automatically configure, update, and fix multiple Java versions (at least the four latest LTS).
+* Includes extensions for Java development from Microsoft, Red Hat, Broadcom, and others.
 * Auto-configuration allows you to start developing right out of the box with zero configuration.
 
 ### Core Extensions Issues
@@ -40,7 +39,7 @@
 <br>
 <br>
 
-# Getting Started
+# Quick Start
 Just install this extension and the JDK is auto-configured. Let's run the Java code right away!
 1. Open command palette (F1 or Ctrl/Cmd + Shift + P) **>Java: Create Java Project...**
 1. No build tools ≫ Specify project parent directory ≫ Enter new project name (e.g. HelloWorld)
@@ -74,7 +73,7 @@ The user `settings.json` is auto-configured at startup by `Java Extension Pack A
 |Maven|(*a) `settings.json` ≫ `maven.terminal.customEnv` ≫ `"JAVA_HOME"`<br>(*b) `pom.xml` ≫ `properties` ≫ `maven.compiler.source/target`<br>　or `java.version` for Spring Boot|
 
 (*a) **Java Home**: The `settings.json` [can be configured by project (workspace)](https://code.visualstudio.com/docs/getstarted/settings).<br>
-(*b) **javac `-source`**: The `java.configuration.runtimes` that matches this version will be used.
+(*b) **javac `-source`**: The `java.configuration.runtimes` that best matches this version will be used.
 
 <br>
 <br>
