@@ -68,7 +68,7 @@ The user `settings.json` is auto-configured at startup by `Java Extension Pack A
 
 |Project Type|Configuration|
 |---|---|
-|No Build Tools|(*a) `settings.json` ≫ `java.configuration.runtimes` ≫ `"default": true`|
+|No Build Tools|(*a) `settings.json` ≫ `java.configuration.runtimes` ≫ `"default": true`<br>Known Issue: [Cannot specify different Java versions in the same workspace](https://github.com/redhat-developer/vscode-java/issues/2543)|
 |Gradle|(*a) `settings.json` ≫ `java.import.gradle.java.home`<br>(*b) `build.gradle` ≫ `java` ≫ `sourceCompatibility`|
 |Maven|(*a) `settings.json` ≫ `maven.terminal.customEnv` ≫ `"JAVA_HOME"`<br>(*b) `pom.xml` ≫ `properties` ≫ `maven.compiler.source/target`<br>　or `java.version` for Spring Boot|
 
@@ -381,9 +381,9 @@ Detect and fix quality issues as you write code in C, C++, Java, JavaScript, PHP
 - ![](https://img.shields.io/visual-studio-marketplace/i/shengchen.vscode-checkstyle?style=plastic)
 [Checkstyle](https://marketplace.visualstudio.com/items?itemName=shengchen.vscode-checkstyle) (ShengChen: GPL) / [VS Code Document](https://code.visualstudio.com/docs/java/java-linting#_checkstyle)<br>
 Provide real-time feedback about Checkstyle violations and quick fix actions.
-- ![](https://img.shields.io/visual-studio-marketplace/i/juhahinkula.thymeleaf?style=plastic)
-[thymeleaf](https://marketplace.visualstudio.com/items?itemName=juhahinkula.thymeleaf) (Juha Hinkula: MIT)<br>
-Thymeleaf snippets.
+- ![](https://img.shields.io/visual-studio-marketplace/i/LalithK90.thymeleaf-html5-snippets?style=plastic)
+[Thymeleaf HTML5 Snippets](https://marketplace.visualstudio.com/items?itemName=LalithK90.thymeleaf-html5-snippets) (Lalith Kahatapitiya: GPL)<br>
+Most common thymeleaf code snippets for .html file.
 - ![](https://img.shields.io/visual-studio-marketplace/i/samuel-weinhardt.vscode-jsp-lang)
 [Java Server Pages (JSP)](https://marketplace.visualstudio.com/items?itemName=samuel-weinhardt.vscode-jsp-lang) (Samuel Weinhardt: MIT)<br>
 JSP syntax highlighting for VS Code.
@@ -409,7 +409,7 @@ code --install-extension rangav.vscode-thunder-client
 code --install-extension usernamehw.errorlens
 code --install-extension SonarSource.sonarlint-vscode
 code --install-extension shengchen.vscode-checkstyle
-code --install-extension juhahinkula.thymeleaf
+code --install-extension LalithK90.thymeleaf-html5-snippets
 code --install-extension samuel-weinhardt.vscode-jsp-lang
 code --install-extension redhat.vscode-community-server-connector
 code --install-extension s-nlf-fh.glassit
