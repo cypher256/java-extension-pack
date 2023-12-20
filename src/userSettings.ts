@@ -76,7 +76,7 @@ export async function updateJavaConfig(
 	// Project Runtimes Default (Keep if set)
 	const latestLtsRuntime = runtimes.findByVersion(jdtSupport.latestLtsVer);
 	if (latestLtsRuntime && !runtimes.findDefault()) {
-		latestLtsRuntime.default = true;
+		latestLtsRuntime.default = true; // Multiple call safety to set latest
 	}
 	if (!_.isEqual(runtimes, runtimesOld)) {
 		runtimes.sort((a, b) => a.name.localeCompare(b.name));

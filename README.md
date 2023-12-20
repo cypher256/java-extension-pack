@@ -6,13 +6,15 @@
 ![](https://img.shields.io/visual-studio-marketplace/i/Pleiades.java-extension-pack-jdk?color=blue)
 ![](https://img.shields.io/visual-studio-marketplace/last-updated/Pleiades.java-extension-pack-jdk?color=orange)
 
+Just install this extension and start Java development right out of the box with zero configuration.
+
 ### Overview
 * No need to install JDK, Gradle and Maven, no need to set JAVA_HOME and PATH environment variables.
 * Automatically configure, update, and fix multiple Java versions (at least the four latest LTS).
+* You can select a Java version and open VS Code terminals for commands.
 * Includes extensions for Java development from Microsoft, Red Hat, Broadcom, and others.
-* Auto-configuration allows you to start developing right out of the box with zero configuration.
 
-### Core Extensions Issues
+### Main Extensions Issues
 * [Extension Pack for Java](https://github.com/microsoft/vscode-java-pack/issues?q=is%3Aissue) (Microsoft)
 * [Language Support for Java by Red Hat](https://github.com/redhat-developer/vscode-java/issues?q=is%3Aissue) (Red Hat)
 * [Spring Boot Extension Pack](https://github.com/spring-projects/sts4/issues?q=is%3Aissue) (Broadcom)
@@ -40,7 +42,7 @@
 <br>
 
 # Quick Start
-Just install this extension and the JDK is auto-configured. Let's run the Java code right away!
+The JDKs are already auto-configured. Let's run the Java code right away!
 1. Open command palette (F1 or Ctrl/Cmd + Shift + P) **>Java: Create Java Project...**
 1. No build tools ≫ Specify project parent directory ≫ Enter new project name (e.g. HelloWorld)
 1. Open src/App.java ≫ Press F5 to debug run

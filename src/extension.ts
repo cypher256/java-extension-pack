@@ -28,9 +28,9 @@ export async function activate(context:vscode.ExtensionContext) {
 		const jdtSupport = await jdtExtension.getJdtSupport();
 		const isFirstStartup = !system.existsDirectory(system.getGlobalStoragePath());
 		
-		await scan(runtimes, runtimesOld, jdtSupport);
+		await scan(runtimes, jdtSupport);
 		await download(runtimes, jdtSupport);
-		showMessage(runtimes, runtimesOld, jdtSupport, isFirstStartup);
+		onComplete(runtimes, runtimesOld, jdtSupport, isFirstStartup);
 		log.info('activate END');
 	} catch (e:any) {
 		vscode.window.showErrorMessage(`Auto Config Java failed. ${e}`);
@@ -41,16 +41,15 @@ export async function activate(context:vscode.ExtensionContext) {
 /**
  * Scans the installed JDK and updates the Java configuration.
  * @param runtimes The Java runtimes to update.
- * @param runtimesOld The Java runtimes before scan.
  * @param jdtSupport The JDT supported versions.
  */
 async function scan(
 	runtimes: jdtExtension.JavaConfigRuntimeArray,
-	runtimesOld: jdtExtension.JavaConfigRuntimeArray,
 	jdtSupport: jdtExtension.IJdtSupport) {
 
+	const runtimesBefore = _.cloneDeep(runtimes);
 	await jdkExplorer.scan(runtimes);
-	await userSettings.updateJavaConfig(runtimes, runtimesOld, jdtSupport);
+	await userSettings.updateJavaConfig(runtimes, runtimesBefore, jdtSupport);
 }
 
 /**
@@ -69,23 +68,24 @@ async function download(
 	} else if (jdtSupport.targetLtsVers.length === 0) {
 		log.info(`Download disabled (Can't get target LTS versions)`);
 	} else {
-		const runtimesBeforeDownload = _.cloneDeep(runtimes);
-		const promises = jdtSupport.targetLtsVers.map(ver => jdk.download(runtimes, ver));
+		const runtimesBefore = _.cloneDeep(runtimes);
+		const orderDescVers = [...jdtSupport.targetLtsVers].sort((a,b) => b-a);
+		const promises = orderDescVers.map(ver => jdk.download(runtimes, ver));
 		promises.push(maven.download());
 		promises.push(gradle.download());
 		await Promise.allSettled(promises);
-		await userSettings.updateJavaConfig(runtimes, runtimesBeforeDownload, jdtSupport);
+		await userSettings.updateJavaConfig(runtimes, runtimesBefore, jdtSupport);
 	}
 }
 
 /**
- * Shows the message.
+ * Processes the completion of the extension activation.
  * @param runtimesNew The Java runtimes after update.
  * @param runtimesOld The Java runtimes before update.
  * @param jdtSupport The JDT supported version object.
  * @param isFirstStartup Whether this is the first startup.
  */
-function showMessage(
+function onComplete(
 	runtimesNew: jdtExtension.JavaConfigRuntimeArray,
 	runtimesOld: jdtExtension.JavaConfigRuntimeArray,
 	jdtSupport: jdtExtension.IJdtSupport,
@@ -136,6 +136,7 @@ function showMessage(
 			showReloadMessage();
 		}
 	}
+
 	// Delay for prevent self update
 	setTimeout(setConfigChangedEvent, 5_000);
 }
