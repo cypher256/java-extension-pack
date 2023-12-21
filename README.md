@@ -6,56 +6,24 @@
 ![](https://img.shields.io/visual-studio-marketplace/i/Pleiades.java-extension-pack-jdk?color=blue)
 ![](https://img.shields.io/visual-studio-marketplace/last-updated/Pleiades.java-extension-pack-jdk?color=orange)
 
-Just install this extension and start Java development right out of the box with zero configuration.
+<br>
+<br>
 
-### Overview
+# Overview
+Just install this extension and start Java development right out of the box with zero configuration.
 * No need to install JDK, Gradle and Maven, no need to set JAVA_HOME and PATH environment variables.
 * Automatically configure, update, and fix multiple Java versions (at least the four latest LTS).
-* You can select a Java version and open VS Code terminals for commands.
 * Includes extensions for Java development from Microsoft, Red Hat, Broadcom, and others.
-
-### Main Extensions Issues
-* [Extension Pack for Java](https://github.com/microsoft/vscode-java-pack/issues?q=is%3Aissue) (Microsoft)
-* [Language Support for Java by Red Hat](https://github.com/redhat-developer/vscode-java/issues?q=is%3Aissue) (Red Hat)
-* [Spring Boot Extension Pack](https://github.com/spring-projects/sts4/issues?q=is%3Aissue) (Broadcom)
-
-<br>
-<br>
-<br>
-
-# Installation
-### 1st way: VS Code Web Marketplace
-1. Click Install on the [Marketplace web page](https://marketplace.visualstudio.com/items?itemName=Pleiades.java-extension-pack-jdk) in web browser
-1. Click Install on README opened in VS Code
-### 2nd way: Extensions Sidebar
-1. Open Extensions sideBar (Ctrl/CMD + Shift + X) in VS Code
-1. Search for `auto config`
-1. Click Install
-### 3rd way: Quick Pick
-1. Open Quick Pick (Ctrl/CMD + P) in VS Code, paste the following command, and press enter.<br>
-`ext install Pleiades.java-extension-pack-jdk`
-### 4th way: Command Line
-1. Install from the [command line](https://code.visualstudio.com/docs/editor/command-line).<br>
-`code --install-extension Pleiades.java-extension-pack-jdk`
-<br>
-<br>
-<br>
-
-# Quick Start
-The JDKs are already auto-configured. Let's run the Java code right away!
-1. Open command palette (F1 or Ctrl/Cmd + Shift + P) **>Java: Create Java Project...**
-1. No build tools ≫ Specify project parent directory ≫ Enter new project name (e.g. HelloWorld)
-1. Open src/App.java ≫ Press F5 to debug run
-
-![Hello World](https://raw.githubusercontent.com/cypher256/java-extension-pack/main/image/hello.jpg)
-* [Create Hello World and run/debug](https://code.visualstudio.com/docs/java/java-tutorial#_editing-source-code) (No build tools)
-* [Create a general Java project](https://code.visualstudio.com/docs/java/java-project#_create-a-new-java-project) (No build tools / Gradle / Maven)
-* [Create a Spring Boot project](https://code.visualstudio.com/docs/java/java-spring-boot#_create-the-project) (Gradle / Maven)
+<br><br>
+Main Extensions Issues
+  * [Extension Pack for Java](https://github.com/microsoft/vscode-java-pack/issues?q=is%3Aissue) (Microsoft)
+  * [Language Support for Java by Red Hat](https://github.com/redhat-developer/vscode-java/issues?q=is%3Aissue) (Red Hat)
+  * [Spring Boot Extension Pack](https://github.com/spring-projects/sts4/issues?q=is%3Aissue) (Broadcom)
 
 <br>
 
-### Run Terminal Command
-This extension adds available Java versions to a dropdown item in the VS Code Terminal. You can open a Terminal by clicking on the Java version you want to use and check the full version using commands below. The latest versions of gradle and mvn are available, but it is generally recommended to use wrappers (gradlew, mvnw) for each project.
+### Open Terminals by Java Version
+This extension adds the available Java versions to the VS Code terminal dropdown. Select the Java version you want to use, open terminals, and you can check the complete version with the following commands. The latest versions of gradle and mvn are available, but it is generally recommended to use wrappers (gradlew, mvnw) for each project.
 ```bash
 java -version
 gradle -v
@@ -70,12 +38,12 @@ The user `settings.json` is auto-configured at startup by `Java Extension Pack A
 
 |Project Type|Configuration|
 |---|---|
-|No Build Tools|(*a) `settings.json` ≫ `java.configuration.runtimes` ≫ `"default": true`<br>Known Issue: [Cannot specify different Java versions in the same workspace](https://github.com/redhat-developer/vscode-java/issues/2543)|
-|Gradle|(*a) `settings.json` ≫ `java.import.gradle.java.home`<br>(*b) `build.gradle` ≫ `java` ≫ `sourceCompatibility`|
-|Maven|(*a) `settings.json` ≫ `maven.terminal.customEnv` ≫ `"JAVA_HOME"`<br>(*b) `pom.xml` ≫ `properties` ≫ `maven.compiler.source/target`<br>　or `java.version` for Spring Boot|
+|No Build Tools<br>([vscode-java](https://github.com/redhat-developer/vscode-java?tab=readme-ov-file#project-jdks))|`settings.json` ≫ `java.configuration.runtimes` ≫ `"default": true`<br>Known Issue: [Cannot specify different Java versions in the same workspace](https://github.com/redhat-developer/vscode-java/issues/2543)|
+|Gradle<br>([vscode-gradle](https://github.com/microsoft/vscode-gradle?tab=readme-ov-file#java-specific-settings))|(*a) `settings.json` ≫ `java.import.gradle.java.home`<br>(*b) `build.gradle` ≫ `java` ≫ `sourceCompatibility`|
+|Maven<br>([vscode-maven](https://github.com/Microsoft/vscode-maven?tab=readme-ov-file#settings))|(*a) `settings.json` ≫ `maven.terminal.customEnv` or `terminal.integrated.env.{OS}` ≫ `"JAVA_HOME"`<br>(*b) `pom.xml` ≫ `properties` ≫ `maven.compiler.source/target` (or `java.version` for Spring Boot)|
 
-(*a) **Java Home**: The `settings.json` [can be configured by project (workspace)](https://code.visualstudio.com/docs/getstarted/settings).<br>
-(*b) **javac `-source`**: The `java.configuration.runtimes` that best matches this version will be used.
+(*a) Tools Java Home: The `settings.json` [can be configured by project (workspace)](https://code.visualstudio.com/docs/getstarted/settings).<br>
+(*b) The `java.configuration.runtimes` that best matches this version will be used.
 
 <br>
 <br>
@@ -119,7 +87,7 @@ The feature automatically fixes [errors such as](https://stackoverflow.com/searc
 |[java.import.gradle.java.home](https://github.com/microsoft/vscode-gradle#java-specific-settings)<br>([Issues](https://github.com/microsoft/vscode-gradle/issues?q=is%3Aissue+java.import.gradle.java.home))|Update latest if gradle auto-downloaded<br>(Setting > `java.jdt.ls.java.home`)|
 |[java.import.gradle.home](https://github.com/microsoft/vscode-gradle#java-specific-settings)<br>([Issues](https://github.com/microsoft/vscode-gradle/issues?q=is%3Aissue+java.import.gradle.home))|Set latest gradle if unset<br>(**`gradlew`** > Setting > `PATH` > `GRADLE_HOME`)|
 |*Maven for Java*|
-|[maven.terminal.customEnv](https://marketplace.visualstudio.com/items?itemName=vscjava.vscode-maven#additional-configurations)<br>([Issues](https://github.com/microsoft/vscode-maven/issues?q=is%3Aissue+maven.terminal.customEnv))|Update latest if maven auto-downloaded<br>(Setting > `JAVA_HOME`)|
+|[maven.terminal.customEnv](https://marketplace.visualstudio.com/items?itemName=vscjava.vscode-maven#additional-configurations)<br>([Issues](https://github.com/microsoft/vscode-maven/issues?q=is%3Aissue+maven.terminal.customEnv))|Update latest if maven auto-downloaded (for macOS/Linux. For Windows, set to terminal.integrated.env.windows.)<br>(Setting > `JAVA_HOME`)|
 |[maven.executable.path](https://github.com/Microsoft/vscode-maven#settings)<br>([Issues](https://github.com/microsoft/vscode-maven/issues?q=is%3Aissue+maven.executable.path))|Set latest maven if unset<br>(Setting > `mvnw` > `PATH`)|
 |*Runtime Server Protocol UI*|(No extension included)|
 |(*1) [rsp-ui.rsp.java.home](https://github.com/redhat-developer/vscode-rsp-ui#extension-settings)<br>([Issues](https://github.com/redhat-developer/vscode-rsp-ui/issues?q=is%3Aissue+rsp-ui.rsp.java.home))|Set stable LTS if unset, Fix if unsupported older version<br>(Setting > `JDK_HOME` > `JAVA_HOME`> Windows Registry > `PATH`)|
@@ -175,10 +143,10 @@ Command Palette **>Preferences: Open User Settings (JSON)**
 ],
 // Gradle Daemon Java Runtime
 "java.import.gradle.java.home": "C:\\Program Files\\Eclipse Adoptium\\jdk-21.0.1-hotspot",
-// Maven Default Environment Variables
+// Maven Environment Variables (for GUI context menu)
 "maven.terminal.customEnv": [
   {
-    "environmentVariable": "JAVA_HOME", // Required for VSCode maven context menu
+    "environmentVariable": "JAVA_HOME",
     "value": "C:\\Program Files\\Eclipse Adoptium\\jdk-21.0.1-hotspot"
   }
 ],
@@ -404,18 +372,3 @@ Your AI pair programmer.
 - ![](https://img.shields.io/visual-studio-marketplace/i/GitHub.copilot-chat?style=plastic)
 [GitHub Copilot Chat](https://marketplace.visualstudio.com/items?itemName=GitHub.copilot-chat) (GitHub: Subscription)<br>
 AI chat features powered by Copilot.
-
-#### For command line installation:
-```sh
-code --install-extension rangav.vscode-thunder-client
-code --install-extension usernamehw.errorlens
-code --install-extension SonarSource.sonarlint-vscode
-code --install-extension shengchen.vscode-checkstyle
-code --install-extension LalithK90.thymeleaf-html5-snippets
-code --install-extension samuel-weinhardt.vscode-jsp-lang
-code --install-extension redhat.vscode-community-server-connector
-code --install-extension s-nlf-fh.glassit
-code --install-extension vsls-contrib.gistfs
-code --install-extension GitHub.copilot
-code --install-extension GitHub.copilot-chat
-```

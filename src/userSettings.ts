@@ -160,7 +160,7 @@ export async function updateJavaConfig(
 	// Maven terminal env for maven options (Keep if set)
 	// -> customEnv JAVA_HOME is required for VSCode maven context menu
 	const mavenJavaRuntime = latestLtsRuntime || stableLtsRuntime;
-	if (mavenJavaRuntime) {
+	if (mavenJavaRuntime && !OS.isWindows) { // for macOS/Linux (Windows use terminal.integrated.env.windows)
 		const CONFIG_KEY_MAVEN_CUSTOM_ENV = 'maven.terminal.customEnv';
 		const customEnv:any[] = get(CONFIG_KEY_MAVEN_CUSTOM_ENV) ?? [];
 		let mavenJavaHomeObj = customEnv.find(i => i.environmentVariable === 'JAVA_HOME');
@@ -182,7 +182,7 @@ export async function updateJavaConfig(
 		} else { // If unset use default
 			mavenJavaHomeObj = {environmentVariable: 'JAVA_HOME'};
 			customEnv.push(mavenJavaHomeObj);
-			_updateMavenJavaHome(mavenJavaRuntime.path);
+			_updateMavenJavaHome(mavenJavaRuntime.path); // Note1: Either setting for maven
 		}
 	}
 
@@ -232,7 +232,7 @@ export async function updateJavaConfig(
 		const fixedOrDefault = await jdkExplorer.fixPath(terminalEnv.JAVA_HOME) || terminalDefaultRuntime.path;
 		_setTerminalEnv(terminalEnv, fixedOrDefault);
 		if (!_.isEqual(terminalEnv, terminalEnvOld) ) {
-			update(CONFIG_KEY_TERMINAL_ENV, terminalEnv);
+			update(CONFIG_KEY_TERMINAL_ENV, terminalEnv); // Note2: Either setting for maven
 		}
 	}
 
