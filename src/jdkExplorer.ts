@@ -4,6 +4,7 @@ import { GlobOptionsWithFileTypesUnset } from 'glob';
 import * as jdkutils from 'jdk-utils';
 import * as os from "os";
 import * as path from 'path';
+import * as jdk from './download/jdk';
 import * as jdtExtension from './jdtExtension';
 import * as system from './system';
 import { OS, log } from './system';
@@ -20,20 +21,28 @@ export async function scan(runtimes:jdtExtension.JavaConfigRuntimeArray) {
 	let needImmediateUpdate = false;
 	for (let i = runtimes.length - 1; i >= 0; i--) { // Decrement for splice (remove)
 		const runtime = runtimes[i];
+		// Unsupported name
 		if (availableNames.length > 0 && !availableNames.includes(runtime.name)) {
 			log.info(`Remove unsupported name ${runtime.name}`);
-			runtimes.splice(i, 1);
+			runtimes.splice(i, 1); // remove
 			needImmediateUpdate = true;
 			continue;
 		}
+		// Ignore manual setted path for force download (If invalid directory, temporary error)
 		const originPath = runtime.path;
+		const downloadDir = jdk.getDownloadDir(jdtExtension.versionOf(runtime.name));
+		if (system.equalsPath(originPath, downloadDir)) {
+			continue;
+		}
+		// Invalid path
 		const fixedPath = await fixPath(originPath);
 		if (!fixedPath) {
 			log.info(`Remove invalid path ${originPath}`);
-			runtimes.splice(i, 1);
+			runtimes.splice(i, 1); // remove
 			needImmediateUpdate = true;
 			continue;
 		}
+		// Update path
 		if (fixedPath !== originPath) {
 			log.info(`Fix path\n   ${originPath}\n-> ${fixedPath}`);
 			runtime.path = fixedPath;
@@ -61,16 +70,16 @@ export async function scan(runtimes:jdtExtension.JavaConfigRuntimeArray) {
 
 	// Detect Auto-Downloaded JDK (Support when user installation is uninstalled)
 	for (const majorVer of availableVers) {
-		if (detectedLatestMap.has(majorVer)) {
-			continue; // Prefer user-installed JDK
+		if (detectedLatestMap.has(majorVer)) { // TODO: findByVersion
+			continue; // Prefer detected JDK
 		}
-		let verDir = path.join(system.getGlobalStoragePath(), 'java', String(majorVer));
-		if (await isValidHome(verDir)) {
+		let downloadDir = jdk.getDownloadDir(majorVer);
+		if (await isValidHome(downloadDir)) {
 			log.info(`Detected Auto-downloaded ${majorVer}`);
 			detectedLatestMap.set(majorVer, {
 				majorVersion: majorVer,
 				fullVersion: '',
-				homePath: verDir,
+				homePath: downloadDir,
 			});
 		}
 	}
@@ -109,9 +118,8 @@ function isNewLeft(leftFullVer:string, rightFullVer:string): boolean {
 }
 
 /**
- * Returns true if valid JDK dir.
  * @param homeDir The home dir of the JDK.
- * @returns true if valid.
+ * @returns true if valid JDK dir.
  */
 export async function isValidHome(homeDir:string | undefined): Promise<boolean> {
 	if (!homeDir) {return false;}
@@ -120,9 +128,8 @@ export async function isValidHome(homeDir:string | undefined): Promise<boolean> 
 }
 
 /**
- * Returns the fixed dir of the JDK.
  * @param homeDir The home dir of the JDK.
- * @returns The fixed dir. undefined if cannot fix.
+ * @returns The fixed dir of the JDK. undefined if cannot fix.
  */
 export async function fixPath(homeDir:string | undefined): Promise<string | undefined> {
 	if (!homeDir) {return undefined;}
@@ -142,9 +149,8 @@ export async function fixPath(homeDir:string | undefined): Promise<string | unde
 };
 
 /**
- * Returns the IDetectedJdk object of the JDK.
  * @param homeDir The home dir of the JDK.
- * @returns The IDetectedJdk object. undefined if not found.
+ * @returns The IDetectedJdk object of the JDK. undefined if not found.
  */
 export async function findByPath(homeDir: string): Promise<IDetectedJdk | undefined> {
 	const runtime = await jdkutils.getRuntime(homeDir, { checkJavac: true, withVersion: true });

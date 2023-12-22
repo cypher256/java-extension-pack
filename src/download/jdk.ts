@@ -17,7 +17,7 @@ export const isTargetPlatform = archOf(0) !== undefined;
 /**
  * Get the architecture name used as part of the download URL.
  * @param javaVersion The major version of the JDK.
- * @return The architecture name. undefined if the current platform is not JDK downloadable.
+ * @returns The architecture name. undefined if the current platform is not JDK downloadable.
  */
 function archOf(javaVersion: number): string | undefined {
 	const isX64 = process.arch === 'x64';
@@ -43,10 +43,18 @@ function archOf(javaVersion: number): string | undefined {
 }
 
 /**
+ * @param majorVer The major version of the JDK.
+ * @returns The path of the JDK download directory.
+ */
+export function getDownloadDir(majorVer:number): string {
+	return path.join(system.getGlobalStoragePath(), 'java', String(majorVer));
+}
+
+/**
  * Downloads and installs a specific version of the JDK if it is not already installed.
  * @param runtimes An array of installed Java runtimes.
  * @param majorVer The major version of the JDK to download.
- * @return A promise that resolves when the JDK is installed.
+ * @returns A promise that resolves when the JDK is installed.
  */
 export async function download(
 	runtimes:jdtExtension.JavaConfigRuntimeArray,
@@ -82,7 +90,7 @@ export async function download(
 	}
 
 	// Check Version File
-	const homeDir = path.join(system.getGlobalStoragePath(), 'java', String(majorVer));
+	const homeDir = getDownloadDir(majorVer);
 	const versionFile = path.join(homeDir, 'version.txt');
 	if (await jdkExplorer.isValidHome(homeDir)) {
 		const mdate = system.mdateSync(versionFile);

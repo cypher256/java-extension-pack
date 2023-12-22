@@ -14,7 +14,7 @@ import * as userSettings from './userSettings';
 /**
  * Activates the extension.
  * @param context The extension context.
- * @return A promise that resolves when the extension is activated.
+ * @returns A promise that resolves when the extension is activated.
  */
 export async function activate(context:vscode.ExtensionContext) {
 	try {
@@ -70,9 +70,11 @@ async function download(
 	} else {
 		const runtimesBefore = _.cloneDeep(runtimes);
 		const orderDescVers = [...jdtSupport.targetLtsVers].sort((a,b) => b-a);
-		const promises = orderDescVers.map(ver => jdk.download(runtimes, ver));
-		promises.push(maven.download());
-		promises.push(gradle.download());
+		const promises = [
+			...orderDescVers.map(ver => jdk.download(runtimes, ver)),
+			gradle.download(),
+			maven.download(),
+		];
 		await Promise.allSettled(promises);
 		await userSettings.updateJavaConfig(runtimes, runtimesBefore, jdtSupport);
 	}
@@ -142,7 +144,6 @@ function onComplete(
 }
 
 /**
- * Gets the language pack suffix.
  * @returns The language pack suffix. undefined if en or not detected.
  */
 function getLangPackSuffix(): string | undefined {

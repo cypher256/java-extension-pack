@@ -12,7 +12,7 @@ import { OS, log } from './system';
 /**
  * Return a value from user settings configuration.
  * @param section Configuration name, supports _dotted_ names.
- * @return The value `section` denotes or `undefined`. null is a valid value.
+ * @returns The value `section` denotes or `undefined`. null is a valid value.
  */
 export function get<T>(section: string): T | undefined {
 	const info = vscode.workspace.getConfiguration().inspect(section);
@@ -30,7 +30,7 @@ function getDefinition<T>(section: string): T | undefined {
  * Updates a VS Code user settings entry.
  * @param section Configuration name, supports _dotted_ names.
  * @param value The new value. Remove configuration entry when passed `undefined`.
- * @return A promise that resolves when the configuration is updated.
+ * @returns A promise that resolves when the configuration is updated.
  */
 export async function update(section:string, value:any) {
 	log.info('Update settings:', section, _.isObject(value) ? '' : value);
@@ -41,7 +41,7 @@ export async function update(section:string, value:any) {
 /**
  * Removes a VS Code User settings entry.
  * @param section Configuration name, supports _dotted_ names.
- * @return A promise that resolves when the configuration is removed.
+ * @returns A promise that resolves when the configuration is removed.
  */
 export async function remove(section:string) {
 	return await update(section, undefined);
@@ -61,7 +61,7 @@ export function getJavaConfigRuntimes(): jdtExtension.JavaConfigRuntimeArray {
  * @param runtimes An array of Java runtime objects to update the configuration with.
  * @param runtimesOld An array of previous Java runtime objects to compare with `runtimes`.
  * @param jdtSupport The JDT supported version object.
- * @return A promise that resolves when the configuration is updated.
+ * @returns A promise that resolves when the configuration is updated.
  */
 export async function updateJavaConfig(
 	runtimes:jdtExtension.JavaConfigRuntimeArray,
@@ -71,16 +71,6 @@ export async function updateJavaConfig(
 	const CONFIG_KEY_DEPRECATED_JAVA_HOME = 'java.home';
 	if (get(CONFIG_KEY_DEPRECATED_JAVA_HOME) !== null) { // null if no entry or null value
 		remove(CONFIG_KEY_DEPRECATED_JAVA_HOME);
-	}
-
-	// Project Runtimes Default (Keep if set)
-	const latestLtsRuntime = runtimes.findByVersion(jdtSupport.latestLtsVer);
-	if (latestLtsRuntime && !runtimes.findDefault()) {
-		latestLtsRuntime.default = true; // Multiple call safety to set latest
-	}
-	if (!_.isEqual(runtimes, runtimesOld)) {
-		runtimes.sort((a, b) => a.name.localeCompare(b.name));
-		update(jdtExtension.JavaConfigRuntimeArray.CONFIG_KEY, runtimes);
 	}
 
 	// VS Code LS Java Home (Remove if embedded JRE exists)
@@ -124,87 +114,20 @@ export async function updateJavaConfig(
 		}
 	}
 
-	// Gradle Daemon Java Home (Keep if set)
-	/*
-	let gradleJavaRuntime = stableLtsRuntime;
-	const GRADLE_FULL_SUPPORTED_MAX_JAVA_LTS_VER = 21;
-	if (latestLtsRuntime && jdtSupport.latestLtsVer <= GRADLE_FULL_SUPPORTED_MAX_JAVA_LTS_VER) {
-		gradleJavaRuntime = latestLtsRuntime;
+	// Project Runtimes Default (Keep if set)
+	const latestLtsRuntime = runtimes.findByVersion(jdtSupport.latestLtsVer);
+	if (latestLtsRuntime && !runtimes.findDefault()) {
+		latestLtsRuntime.default = true; // Multiple call safety to set latest
 	}
-	*/
-	// Gradle 8.5 can execute on Java 22+
-	// https://github.com/gradle/gradle/issues/26944#issuecomment-1794419074
-	const gradleJavaRuntime = latestLtsRuntime || stableLtsRuntime;
-	if (gradleJavaRuntime && vscode.extensions.getExtension('vscjava.vscode-gradle')) {
-		const CONFIG_KEY_GRADLE_JAVA_HOME = 'java.import.gradle.java.home';
-		const originPath = get<string>(CONFIG_KEY_GRADLE_JAVA_HOME);
-		function _updateGradleJavaHome(newPath: string) {
-			update(CONFIG_KEY_GRADLE_JAVA_HOME, newPath);
-			jdtSupport.needsReload = true; // Restart Gradle Daemon
-		}
-		if (originPath) {
-			const fixedOrDefault = system.isUserInstalled(originPath) || !gradle.isAutoUpdate()
-				// Keep
-				? await jdkExplorer.fixPath(originPath) || gradleJavaRuntime.path
-				// Auto-update
-				: gradleJavaRuntime.path
-			;
-			if (fixedOrDefault !== originPath) {
-				_updateGradleJavaHome(fixedOrDefault);
-			}
-		} else { // If unset use default
-			_updateGradleJavaHome(gradleJavaRuntime.path);
-		}
+	if (!_.isEqual(runtimes, runtimesOld)) {
+		runtimes.sort((a, b) => a.name.localeCompare(b.name));
+		update(jdtExtension.JavaConfigRuntimeArray.CONFIG_KEY, runtimes);
 	}
 
-	// Maven terminal env for maven options (Keep if set)
-	// -> customEnv JAVA_HOME is required for VSCode maven context menu
-	const mavenJavaRuntime = latestLtsRuntime || stableLtsRuntime;
-	if (mavenJavaRuntime && !OS.isWindows) { // for macOS/Linux (Windows use terminal.integrated.env.windows)
-		const CONFIG_KEY_MAVEN_CUSTOM_ENV = 'maven.terminal.customEnv';
-		const customEnv:any[] = get(CONFIG_KEY_MAVEN_CUSTOM_ENV) ?? [];
-		let mavenJavaHomeObj = customEnv.find(i => i.environmentVariable === 'JAVA_HOME');
-		function _updateMavenJavaHome(newPath: string) {
-			mavenJavaHomeObj.value = newPath;
-			update(CONFIG_KEY_MAVEN_CUSTOM_ENV, customEnv);
-		}
-		const originPath:string | undefined = mavenJavaHomeObj?.value;
-		if (originPath) {
-			const fixedOrDefault = system.isUserInstalled(originPath) || !maven.isAutoUpdate()
-				// Keep
-				? await jdkExplorer.fixPath(originPath) || mavenJavaRuntime.path
-				// Auto-update
-				: mavenJavaRuntime.path
-			;
-			if (fixedOrDefault !== originPath) {
-				_updateMavenJavaHome(fixedOrDefault);
-			}
-		} else { // If unset use default
-			mavenJavaHomeObj = {environmentVariable: 'JAVA_HOME'};
-			customEnv.push(mavenJavaHomeObj);
-			_updateMavenJavaHome(mavenJavaRuntime.path); // Note1: Either setting for maven
-		}
-	}
-
-	// Terminal Default Environment Variables (Keep if set)
-	let mavenBinDir:string | undefined = undefined;
-	let mvnExePath = get<string>(maven.CONFIG_KEY_MAVEN_EXE_PATH);
-	if (!mvnExePath && !OS.isWindows) {
-		mvnExePath = await system.whichPath('mvn'); // For mac/Linux (Windows: Use ${env:PATH})
-	}
-	if (mvnExePath) {
-		mavenBinDir = path.join(mvnExePath, '..');
-	}
-	let gradleBinDir:string | undefined = undefined;
-	const gradleHome = get<string>(gradle.CONFIG_KEY_GRADLE_HOME);
-	if (gradleHome) {
-		gradleBinDir = path.join(gradleHome, 'bin');
-	} else if (!OS.isWindows) {
-		const gradleExePath = await system.whichPath('gradle'); // For mac/Linux (Windows: Use ${env:PATH})
-		if (gradleExePath) {
-			gradleBinDir = path.join(gradleExePath, '..');
-		}
-	}
+	// Set Terminal Env Function
+	const useWhich = !OS.isWindows; // true:mac/Linux (Because available ${env:PATH} on Windows)
+	const mavenBinDir = await maven.getBinDir(useWhich);
+	const gradleBinDir = await gradle.getBinDir(useWhich);
 	function _setTerminalEnv(env:any, javaHome:string, runtimeName?:string) {
 		const pathArray = [];
 		pathArray.push(path.join(javaHome, 'bin'));
@@ -223,30 +146,13 @@ export async function updateJavaConfig(
 		env.PATH = pathArray.filter(Boolean).join(OS.isWindows ? ';' : ':');
 		env.JAVA_HOME = javaHome;
 	}
-	const osConfigName = OS.isWindows ? 'windows' : OS.isMac ? 'osx' : 'linux';
-	const terminalDefaultRuntime = latestLtsRuntime || stableLtsRuntime;
-	if (terminalDefaultRuntime && OS.isWindows) { // Exclude macOS (Support npm scripts)
-		const CONFIG_KEY_TERMINAL_ENV = 'terminal.integrated.env.' + osConfigName;
-		const terminalEnv:any = _.cloneDeep(get(CONFIG_KEY_TERMINAL_ENV) ?? {}); // Proxy to POJO for isEqual
-		const terminalEnvOld = _.cloneDeep(terminalEnv);
-		const fixedOrDefault = await jdkExplorer.fixPath(terminalEnv.JAVA_HOME) || terminalDefaultRuntime.path;
-		_setTerminalEnv(terminalEnv, fixedOrDefault);
-		if (!_.isEqual(terminalEnv, terminalEnvOld) ) {
-			update(CONFIG_KEY_TERMINAL_ENV, terminalEnv); // Note2: Either setting for maven
-		}
-	}
-
-	// Terminal Default Profile (Keep if set)
-	if (OS.isWindows) {
-		setIfUndefined('terminal.integrated.defaultProfile.windows', 'Command Prompt');
-	}
 
 	// Terminal Profiles Dropdown (Always update)
+	const osConfigName = OS.isWindows ? 'windows' : OS.isMac ? 'osx' : 'linux';
 	const CONFIG_KEY_TERMINAL_PROFILES = 'terminal.integrated.profiles.' + osConfigName;
 	const profilesDef = getDefinition(CONFIG_KEY_TERMINAL_PROFILES) ?? {};
 	const profilesOld:any = _.cloneDeep(profilesDef); // Proxy to POJO for isEqual
 	const profilesNew:any = _.cloneDeep(profilesOld);
-
 	for (const runtimeName of Object.keys(profilesNew)) {
 		// Clean Dropdown (Remove invalid path)
 		if (!runtimes.findByName(runtimeName)) {
@@ -277,6 +183,81 @@ export async function updateJavaConfig(
 	const sortedNew = Object.fromEntries(Object.keys(profilesNew).sort().map(key => [key, profilesNew[key]]));
 	if (!_.isEqual(sortedNew, profilesOld) ) {
 		update(CONFIG_KEY_TERMINAL_PROFILES, sortedNew);
+	}
+
+	// Terminal Default Environment Variables (Keep if set)
+	const terminalDefaultRuntime = latestLtsRuntime || stableLtsRuntime;
+	if (terminalDefaultRuntime && OS.isWindows) { // for Windows (Excludes macOS/Linux because uses npm scripts)
+		const CONFIG_KEY_TERMINAL_ENV = 'terminal.integrated.env.' + osConfigName;
+		const terminalEnv:any = _.cloneDeep(get(CONFIG_KEY_TERMINAL_ENV) ?? {}); // Proxy to POJO for isEqual
+		const terminalEnvOld = _.cloneDeep(terminalEnv);
+		const fixedOrDefault = await jdkExplorer.fixPath(terminalEnv.JAVA_HOME) || terminalDefaultRuntime.path;
+		_setTerminalEnv(terminalEnv, fixedOrDefault);
+		if (!_.isEqual(terminalEnv, terminalEnvOld) ) {
+			update(CONFIG_KEY_TERMINAL_ENV, terminalEnv);
+		}
+	}
+
+	// Maven terminal common env (Keep if set)
+	// -> JAVA_HOME is required for VSCode maven context menu
+	const mavenJavaRuntime = latestLtsRuntime || stableLtsRuntime;
+	if (mavenJavaRuntime && !OS.isWindows) { // for macOS/Linux (Windows use terminal.integrated.env.windows)
+		const CONFIG_KEY_MAVEN_CUSTOM_ENV = 'maven.terminal.customEnv';
+		const customEnv:any[] = get(CONFIG_KEY_MAVEN_CUSTOM_ENV) ?? [];
+		let mavenJavaHomeObj = customEnv.find(i => i.environmentVariable === 'JAVA_HOME');
+		function _updateMavenJavaHome(newPath: string) {
+			mavenJavaHomeObj.value = newPath;
+			update(CONFIG_KEY_MAVEN_CUSTOM_ENV, customEnv);
+		}
+		const originPath:string | undefined = mavenJavaHomeObj?.value;
+		if (originPath) {
+			const fixedOrDefault = system.isUserInstalled(originPath) || !maven.isAutoUpdate()
+				// Keep
+				? await jdkExplorer.fixPath(originPath) || mavenJavaRuntime.path
+				// Auto-update
+				: mavenJavaRuntime.path
+			;
+			if (fixedOrDefault !== originPath) {
+				_updateMavenJavaHome(fixedOrDefault);
+			}
+		} else { // If unset use default
+			mavenJavaHomeObj = {environmentVariable: 'JAVA_HOME'};
+			customEnv.push(mavenJavaHomeObj);
+			_updateMavenJavaHome(mavenJavaRuntime.path);
+		}
+	}
+
+	// Gradle Daemon Java Home (Keep if set)
+	/*
+	let gradleJavaRuntime = stableLtsRuntime;
+	const GRADLE_FULL_SUPPORTED_MAX_JAVA_LTS_VER = 21;
+	if (latestLtsRuntime && jdtSupport.latestLtsVer <= GRADLE_FULL_SUPPORTED_MAX_JAVA_LTS_VER) {
+		gradleJavaRuntime = latestLtsRuntime;
+	}
+	*/
+	// Gradle 8.5+ can execute on latest Java versions
+	// https://github.com/gradle/gradle/issues/26944#issuecomment-1794419074
+	const gradleJavaRuntime = latestLtsRuntime || stableLtsRuntime;
+	if (gradleJavaRuntime && vscode.extensions.getExtension('vscjava.vscode-gradle')) {
+		const CONFIG_KEY_GRADLE_JAVA_HOME = 'java.import.gradle.java.home';
+		const originPath = get<string>(CONFIG_KEY_GRADLE_JAVA_HOME);
+		function _updateGradleJavaHome(newPath: string) {
+			update(CONFIG_KEY_GRADLE_JAVA_HOME, newPath);
+			jdtSupport.needsReload = true; // Restart Gradle Daemon
+		}
+		if (originPath) {
+			const fixedOrDefault = system.isUserInstalled(originPath) || !gradle.isAutoUpdate()
+				// Keep
+				? await jdkExplorer.fixPath(originPath) || gradleJavaRuntime.path
+				// Auto-update
+				: gradleJavaRuntime.path
+			;
+			if (fixedOrDefault !== originPath) {
+				_updateGradleJavaHome(fixedOrDefault);
+			}
+		} else { // If unset use default
+			_updateGradleJavaHome(gradleJavaRuntime.path);
+		}
 	}
 }
 
@@ -349,6 +330,9 @@ export function setDefault() {
 	// Included extensions
 	setIfUndefined('cSpell.diagnosticLevel', 'Hint', 'streetsidesoftware.code-spell-checker');
 	setIfUndefined('trailing-spaces.includeEmptyLines', false, 'shardulm94.trailing-spaces');
+	if (OS.isWindows) {
+		setIfUndefined('terminal.integrated.defaultProfile.windows', 'Command Prompt');
+	}
 	// Other extensions
 	setIfUndefined('thunder-client.requestLayout', 'Top/Bottom', 'rangav.vscode-thunder-client');
 }

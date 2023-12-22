@@ -40,7 +40,6 @@ export function init(_extensionContext: vscode.ExtensionContext) {
 }
 
 /**
- * Returns the extension context.
  * @returns The extension context.
  */
 export function getExtensionContext() {
@@ -48,7 +47,6 @@ export function getExtensionContext() {
 }
 
 /**
- * Returns the global storage path.
  * @returns The global storage path.
  */
 export function getGlobalStoragePath(): string {
@@ -61,16 +59,14 @@ export function getGlobalStoragePath(): string {
 }
 
 /**
- * Returns true if checkDir is not included in the global storage path.
- * @param checkDir The directory to check.
- * @returns true if not in the global storage path.
+ * @param checkPath The path to check.
+ * @returns true if checkPath is not included in the global storage path.
  */
-export function isUserInstalled(checkDir:string): boolean {
-	return !containsPath(getGlobalStoragePath(), checkDir);
+export function isUserInstalled(checkPath:string): boolean {
+	return !containsPath(getGlobalStoragePath(), checkPath);
 }
 
 /**
- * Returns true if subPath is included in basePath.
  * @param basePath The base path.
  * @param subPath The sub path to check.
  * @returns true if subPath is included in basePath.
@@ -83,7 +79,6 @@ export function containsPath(basePath:string, subPath:string | undefined): boole
 }
 
 /**
- * Returns true if path1 and path2 are equal.
  * @param path1 The path1 to check.
  * @param path2 The path2 to check.
  * @returns true if path1 and path2 are equal.
@@ -115,7 +110,6 @@ export async function whichPath(cmd:string) {
 }
 
 /**
- * Returns true if the path is a file.
  * @param p The path.
  * @returns true if the path is a file.
  */
@@ -124,7 +118,6 @@ export function existsFile(p:string) {
 }
 
 /**
- * Returns true if the path is a directory.
  * @param p The path.
  * @returns true if the path is a directory.
  */
@@ -133,7 +126,6 @@ export function existsDirectory(p:string) {
 }
 
 /**
- * Returns the file content as string.
  * @param file The file path.
  * @returns The file content as string. undefined if not exists.
  */
@@ -142,7 +134,6 @@ export function readString(file:string): string | undefined {
 }
 
 /**
- * Returns the file modified date as string.
  * @param p The path.
  * @returns The file modified date as string.
  */

@@ -29,7 +29,7 @@ export interface IHttpClientRequest {
 /**
  * Downloads and extracts the file.
  * @param req The HTTP client request.
- * @return A promise that resolves when the download and extract are completed.
+ * @returns A promise that resolves when the download and extract are completed.
  */
 export async function execute(req:IHttpClientRequest) {
     req.removeLeadingPath ??= 1;
