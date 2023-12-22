@@ -48,7 +48,7 @@ async function scan(
 	jdtSupport: jdtExtension.IJdtSupport) {
 
 	const runtimesBefore = _.cloneDeep(runtimes);
-	await jdkExplorer.scan(runtimes);
+	await jdkExplorer.scan(runtimes, jdtSupport);
 	await userSettings.updateJavaConfig(runtimes, runtimesBefore, jdtSupport);
 }
 

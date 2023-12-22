@@ -13,8 +13,9 @@ import * as userSettings from './userSettings';
 /**
  * Scan installed JDK on the system and updates the given array of Java runtimes.
  * @param runtimes An array of Java configuration runtimes.
+ * @param jdtSupport The JDT supported versions.
  */
-export async function scan(runtimes:jdtExtension.JavaConfigRuntimeArray) {
+export async function scan(runtimes:jdtExtension.JavaConfigRuntimeArray, jdtSupport: jdtExtension.IJdtSupport) {
 
 	// Fix JDK path
 	const availableNames = jdtExtension.getAvailableNames();
@@ -32,6 +33,9 @@ export async function scan(runtimes:jdtExtension.JavaConfigRuntimeArray) {
 		const originPath = runtime.path;
 		const downloadDir = jdk.getDownloadDir(jdtExtension.versionOf(runtime.name));
 		if (system.equalsPath(originPath, downloadDir)) {
+			if (!(await isValidHome(downloadDir))) { // Not yet downloaded
+				jdtSupport.needsReload = true;
+			}
 			continue;
 		}
 		// Invalid path
@@ -70,15 +74,12 @@ export async function scan(runtimes:jdtExtension.JavaConfigRuntimeArray) {
 
 	// Detect Auto-Downloaded JDK (Support when user installation is uninstalled)
 	for (const majorVer of availableVers) {
-		if (detectedLatestMap.has(majorVer)) { // TODO: findByVersion
-			continue; // Prefer detected JDK
-		}
 		let downloadDir = jdk.getDownloadDir(majorVer);
 		if (await isValidHome(downloadDir)) {
 			log.info(`Detected Auto-downloaded ${majorVer}`);
 			detectedLatestMap.set(majorVer, {
 				majorVersion: majorVer,
-				fullVersion: '',
+				fullVersion: '9999.0.0', // Prefer downloaded JDK
 				homePath: downloadDir,
 			});
 		}
