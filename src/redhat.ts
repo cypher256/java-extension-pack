@@ -54,7 +54,7 @@ export class JavaConfigRuntimeArray extends Array<IJavaConfigRuntime> {
  * An interface that represents the JDT supported Java versions.
  */
 export interface IJdtSupport {
-    readonly targetLtsVers: ReadonlyArray<number>;
+    readonly downloadLtsVers: ReadonlyArray<number>;
     readonly latestLtsVer: number;
     readonly stableLtsVer: number;
     readonly embeddedJreVer?: number;
@@ -68,16 +68,16 @@ export interface IJdtSupport {
 export async function getJdtSupport(): Promise<IJdtSupport> {
     const availableVers = getAvailableVersions();
     const ltsFilter = (ver:number) => [8, 11].includes(ver) || (ver >= 17 && (ver - 17) % 4 === 0);
-    const targetLtsVers = availableVers.filter(ltsFilter).slice(-4);
-    const latestLtsVer = targetLtsVers.at(-1);
+    const downloadLtsVers = availableVers.filter(ltsFilter).slice(-4);
+    const latestLtsVer = downloadLtsVers.at(-1);
     const jdtSupport:IJdtSupport = {
-        targetLtsVers: targetLtsVers,
+        downloadLtsVers: downloadLtsVers,
         latestLtsVer: latestLtsVer ?? 0,
-        stableLtsVer: (latestLtsVer === availableVers.at(-1) ? targetLtsVers.at(-2) : latestLtsVer) ?? 0,
+        stableLtsVer: (latestLtsVer === availableVers.at(-1) ? downloadLtsVers.at(-2) : latestLtsVer) ?? 0,
         embeddedJreVer: await findEmbeddedJREVersion(),
     };
     log.info('Supported Java', availableVers);
-    log.info(`Target LTS [${targetLtsVers}] Latest ${jdtSupport.latestLtsVer}, ` +
+    log.info(`Target LTS [${downloadLtsVers}] Latest ${jdtSupport.latestLtsVer}, ` +
         `Stable ${jdtSupport.stableLtsVer}, LS Embedded JRE ${jdtSupport.embeddedJreVer}`);
     return jdtSupport;
 }

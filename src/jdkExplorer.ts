@@ -5,7 +5,7 @@ import * as jdkutils from 'jdk-utils';
 import * as os from "os";
 import * as path from 'path';
 import * as jdk from './download/jdk';
-import * as jdtExtension from './jdtExtension';
+import * as redhat from './redhat';
 import * as system from './system';
 import { OS, log } from './system';
 import * as userSettings from './userSettings';
@@ -15,10 +15,10 @@ import * as userSettings from './userSettings';
  * @param runtimes An array of Java configuration runtimes.
  * @param jdtSupport The JDT supported versions.
  */
-export async function scan(runtimes:jdtExtension.JavaConfigRuntimeArray, jdtSupport: jdtExtension.IJdtSupport) {
+export async function scan(runtimes:redhat.JavaConfigRuntimeArray, jdtSupport: redhat.IJdtSupport) {
 
 	// Fix JDK path
-	const availableNames = jdtExtension.getAvailableNames();
+	const availableNames = redhat.getAvailableNames();
 	let needImmediateUpdate = false;
 	for (let i = runtimes.length - 1; i >= 0; i--) { // Decrement for splice (remove)
 		const runtime = runtimes[i];
@@ -31,12 +31,15 @@ export async function scan(runtimes:jdtExtension.JavaConfigRuntimeArray, jdtSupp
 		}
 		// Ignore manual setted path for force download (If invalid directory, temporary error)
 		const originPath = runtime.path;
-		const downloadDir = jdk.getDownloadDir(jdtExtension.versionOf(runtime.name));
-		if (system.equalsPath(originPath, downloadDir)) {
-			if (!(await isValidHome(downloadDir))) { // Not yet downloaded
-				jdtSupport.needsReload = true;
+		const majorVer = redhat.versionOf(runtime.name);
+		if (jdtSupport.downloadLtsVers.includes(majorVer)) { // Download LTS only
+			const downloadDir = jdk.getDownloadDir(majorVer);
+			if (system.equalsPath(originPath, downloadDir)) {
+				if (!(await isValidHome(downloadDir))) { // Not yet downloaded
+					jdtSupport.needsReload = true;
+				}
+				continue;
 			}
-			continue;
 		}
 		// Invalid path
 		const fixedPath = await fixPath(originPath);
@@ -56,12 +59,12 @@ export async function scan(runtimes:jdtExtension.JavaConfigRuntimeArray, jdtSupp
 	}
 	if (needImmediateUpdate) {
 		// Immediate update for suppress invalid path error dialog (without await)
-		userSettings.update(jdtExtension.JavaConfigRuntimeArray.CONFIG_KEY, runtimes);
+		userSettings.update(redhat.JavaConfigRuntimeArray.CONFIG_KEY, runtimes);
 	}
 
 	// Detect User Installed JDK
 	const detectedLatestMap = new Map<number, IDetectedJdk>();
-	const availableVers = jdtExtension.getAvailableVersions();
+	const availableVers = redhat.getAvailableVersions();
 	for (const detectedJdk of await findAll()) {
 		if (!availableVers.includes(detectedJdk.majorVersion)) {
 			continue;
@@ -73,8 +76,8 @@ export async function scan(runtimes:jdtExtension.JavaConfigRuntimeArray, jdtSupp
 	}
 
 	// Detect Auto-Downloaded JDK (Support when user installation is uninstalled)
-	for (const majorVer of availableVers) {
-		let downloadDir = jdk.getDownloadDir(majorVer);
+	for (const majorVer of availableVers) { // All versions for no download version
+		const downloadDir = jdk.getDownloadDir(majorVer);
 		if (await isValidHome(downloadDir)) {
 			log.info(`Detected Auto-downloaded ${majorVer}`);
 			detectedLatestMap.set(majorVer, {
@@ -87,7 +90,7 @@ export async function scan(runtimes:jdtExtension.JavaConfigRuntimeArray, jdtSupp
 
 	// Set Runtimes Configuration
 	for (const detectedJdk of detectedLatestMap.values()) {
-		const detectedName = jdtExtension.nameOf(detectedJdk.majorVersion);
+		const detectedName = redhat.nameOf(detectedJdk.majorVersion);
 		const configRuntime = runtimes.findByName(detectedName);
 		if (configRuntime) {
 			if (system.isUserInstalled(configRuntime.path)) {

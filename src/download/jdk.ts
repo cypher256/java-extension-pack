@@ -5,7 +5,7 @@ import * as _ from "lodash";
 import * as path from 'path';
 import * as httpClient from '../httpClient';
 import * as jdkExplorer from '../jdkExplorer';
-import * as jdtExtension from '../jdtExtension';
+import * as redhat from '../redhat';
 import * as system from '../system';
 import { OS, log } from '../system';
 
@@ -57,11 +57,11 @@ export function getDownloadDir(majorVer:number): string {
  * @returns A promise that resolves when the JDK is installed.
  */
 export async function download(
-	runtimes:jdtExtension.JavaConfigRuntimeArray,
+	runtimes:redhat.JavaConfigRuntimeArray,
 	majorVer:number) {
 
 	// Skip User Installed
-	const runtimeName = jdtExtension.nameOf(majorVer);
+	const runtimeName = redhat.nameOf(majorVer);
 	const matchedRuntime = runtimes.findByName(runtimeName);
 	if (matchedRuntime && system.isUserInstalled(matchedRuntime.path)) {
 		jdkExplorer.findByPath(matchedRuntime.path).then(detectedJdk => {

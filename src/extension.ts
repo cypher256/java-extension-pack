@@ -6,7 +6,7 @@ import * as gradle from './download/gradle';
 import * as jdk from './download/jdk';
 import * as maven from './download/maven';
 import * as jdkExplorer from './jdkExplorer';
-import * as jdtExtension from './jdtExtension';
+import * as redhat from './redhat';
 import * as system from './system';
 import { OS, log } from './system';
 import * as userSettings from './userSettings';
@@ -25,7 +25,7 @@ export async function activate(context:vscode.ExtensionContext) {
 		
 		const runtimes = userSettings.getJavaConfigRuntimes();
 		const runtimesOld = _.cloneDeep(runtimes);
-		const jdtSupport = await jdtExtension.getJdtSupport();
+		const jdtSupport = await redhat.getJdtSupport();
 		const isFirstStartup = !system.existsDirectory(system.getGlobalStoragePath());
 		
 		await scan(runtimes, jdtSupport);
@@ -44,8 +44,8 @@ export async function activate(context:vscode.ExtensionContext) {
  * @param jdtSupport The JDT supported versions.
  */
 async function scan(
-	runtimes: jdtExtension.JavaConfigRuntimeArray,
-	jdtSupport: jdtExtension.IJdtSupport) {
+	runtimes: redhat.JavaConfigRuntimeArray,
+	jdtSupport: redhat.IJdtSupport) {
 
 	const runtimesBefore = _.cloneDeep(runtimes);
 	await jdkExplorer.scan(runtimes, jdtSupport);
@@ -58,18 +58,18 @@ async function scan(
  * @param jdtSupport The JDT supported versions.
  */
 async function download(
-	runtimes: jdtExtension.JavaConfigRuntimeArray,
-	jdtSupport: jdtExtension.IJdtSupport) {
+	runtimes: redhat.JavaConfigRuntimeArray,
+	jdtSupport: redhat.IJdtSupport) {
 
 	if (!userSettings.get('extensions.autoUpdate')) {
 		log.info(`Download disabled (extensions.autoUpdate: false)`);
 	} else if (!jdk.isTargetPlatform) {
 		log.info(`Download disabled (${process.platform}/${process.arch})`);
-	} else if (jdtSupport.targetLtsVers.length === 0) {
-		log.info(`Download disabled (Can't get target LTS versions)`);
+	} else if (jdtSupport.downloadLtsVers.length === 0) {
+		log.info(`Download disabled (Can't get download LTS versions)`);
 	} else {
 		const runtimesBefore = _.cloneDeep(runtimes);
-		const orderDescVers = [...jdtSupport.targetLtsVers].sort((a,b) => b-a);
+		const orderDescVers = [...jdtSupport.downloadLtsVers].sort((a,b) => b-a);
 		const promises = [
 			...orderDescVers.map(ver => jdk.download(runtimes, ver)),
 			gradle.download(),
@@ -88,15 +88,15 @@ async function download(
  * @param isFirstStartup Whether this is the first startup.
  */
 function onComplete(
-	runtimesNew: jdtExtension.JavaConfigRuntimeArray,
-	runtimesOld: jdtExtension.JavaConfigRuntimeArray,
-	jdtSupport: jdtExtension.IJdtSupport,
+	runtimesNew: redhat.JavaConfigRuntimeArray,
+	runtimesOld: redhat.JavaConfigRuntimeArray,
+	jdtSupport: redhat.IJdtSupport,
 	isFirstStartup: boolean) {
 	
-	const oldVers = runtimesOld.map(r => jdtExtension.versionOf(r.name));
-	const newVers = runtimesNew.map(r => jdtExtension.versionOf(r.name));
-	const defaultVer = jdtExtension.versionOf(runtimesNew.findDefault()?.name ?? '');
-	log.info(`${jdtExtension.JavaConfigRuntimeArray.CONFIG_KEY} [${newVers}] default ${defaultVer}`);
+	const oldVers = runtimesOld.map(r => redhat.versionOf(r.name));
+	const newVers = runtimesNew.map(r => redhat.versionOf(r.name));
+	const defaultVer = redhat.versionOf(runtimesNew.findDefault()?.name ?? '');
+	log.info(`${redhat.JavaConfigRuntimeArray.CONFIG_KEY} [${newVers}] default ${defaultVer}`);
 	const availableMsg = `${l10n.t('Available Java versions:')} ${newVers.join(', ')}`;
 
 	if (isFirstStartup) {

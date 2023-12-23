@@ -5,7 +5,7 @@ import * as vscode from 'vscode';
 import * as gradle from './download/gradle';
 import * as maven from './download/maven';
 import * as jdkExplorer from './jdkExplorer';
-import * as jdtExtension from './jdtExtension';
+import * as redhat from './redhat';
 import * as system from './system';
 import { OS, log } from './system';
 
@@ -51,9 +51,9 @@ export async function remove(section:string) {
  * Gets the Java runtime configurations for the VS Code Java extension.
  * @returns An array of Java runtime objects. If no entry exists, returns an empty array.
  */
-export function getJavaConfigRuntimes(): jdtExtension.JavaConfigRuntimeArray {
-	const runtimes:jdtExtension.IJavaConfigRuntime[] = get(jdtExtension.JavaConfigRuntimeArray.CONFIG_KEY) ?? [];
-	return new jdtExtension.JavaConfigRuntimeArray(...runtimes);
+export function getJavaConfigRuntimes(): redhat.JavaConfigRuntimeArray {
+	const runtimes:redhat.IJavaConfigRuntime[] = get(redhat.JavaConfigRuntimeArray.CONFIG_KEY) ?? [];
+	return new redhat.JavaConfigRuntimeArray(...runtimes);
 }
 
 /**
@@ -64,9 +64,9 @@ export function getJavaConfigRuntimes(): jdtExtension.JavaConfigRuntimeArray {
  * @returns A promise that resolves when the configuration is updated.
  */
 export async function updateJavaConfig(
-	runtimes:jdtExtension.JavaConfigRuntimeArray,
-	runtimesOld:jdtExtension.JavaConfigRuntimeArray,
-	jdtSupport: jdtExtension.IJdtSupport) {
+	runtimes:redhat.JavaConfigRuntimeArray,
+	runtimesOld:redhat.JavaConfigRuntimeArray,
+	jdtSupport: redhat.IJdtSupport) {
 
 	const CONFIG_KEY_DEPRECATED_JAVA_HOME = 'java.home';
 	if (get(CONFIG_KEY_DEPRECATED_JAVA_HOME) !== null) { // null if no entry or null value
@@ -121,7 +121,7 @@ export async function updateJavaConfig(
 	}
 	if (!_.isEqual(runtimes, runtimesOld)) {
 		runtimes.sort((a, b) => a.name.localeCompare(b.name));
-		update(jdtExtension.JavaConfigRuntimeArray.CONFIG_KEY, runtimes);
+		update(redhat.JavaConfigRuntimeArray.CONFIG_KEY, runtimes);
 	}
 
 	// Set Terminal Env Function
@@ -132,7 +132,7 @@ export async function updateJavaConfig(
 		const pathArray = [];
 		pathArray.push(path.join(javaHome, 'bin'));
 		// Gradle/Maven: From setting or mac/Linux 'which' (Unsupported older Java version)
-		const javaVersion = jdtExtension.versionOf(runtimeName ?? '') || Number.MAX_SAFE_INTEGER;
+		const javaVersion = redhat.versionOf(runtimeName ?? '') || Number.MAX_SAFE_INTEGER;
 		if (mavenBinDir && (javaVersion >= 8 || system.isUserInstalled(mavenBinDir))) {
 			// Minimum version https://maven.apache.org/developers/compatibility-plan.html
 			pathArray.push(mavenBinDir);
