@@ -85,7 +85,7 @@ export async function download(
 		fullVer = redirectedUrl.replace(/.+tag\//, '');
 	} catch (e:any) {
 		// Silent: offline, 404, 503 proxy auth error, or etc.
-		log.info('Failed to get JDK download URL.', e, e?.request?.path);
+		log.info('Failed download JDK.', e);
 		return;
 	}
 

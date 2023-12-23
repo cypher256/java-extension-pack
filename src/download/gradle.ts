@@ -47,7 +47,7 @@ export async function download() {
 			gradleHomeNew = await httpget();
 		} catch (e:any) {
 			// Silent: offline, 404, 503 proxy auth error, or etc.
-			log.info('Failed download Gradle.', e, e?.request?.path);
+			log.info('Failed download Gradle.', e);
 		}
 	}
 	if (gradleHomeOld !== gradleHomeNew) {
