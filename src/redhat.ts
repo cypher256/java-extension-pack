@@ -8,7 +8,7 @@ import { log } from './system';
 /**
  * An interface for the VS Code Java configuration runtime.
  */
-export interface IJavaConfigRuntime {
+export interface IJavaRuntime {
 	readonly name: string;
 	path: string;
 	default?: boolean;
@@ -17,7 +17,7 @@ export interface IJavaConfigRuntime {
 /**
  * A class for the VS Code Java configuration runtime array.
  */
-export class JavaConfigRuntimeArray extends Array<IJavaConfigRuntime> {
+export class JavaRuntimeArray extends Array<IJavaRuntime> {
 	
     static readonly CONFIG_KEY = 'java.configuration.runtimes';
 
@@ -25,7 +25,7 @@ export class JavaConfigRuntimeArray extends Array<IJavaConfigRuntime> {
 	 * Finds the default Java runtime configuration for the VS Code Java extension.
 	 * @returns A Java runtime object. If no entry exists, returns undefined.
 	 */
-	findDefault(): IJavaConfigRuntime | undefined {
+	findDefault(): IJavaRuntime | undefined {
 		return this.find(runtime => runtime.default);
 	}
 
@@ -34,7 +34,7 @@ export class JavaConfigRuntimeArray extends Array<IJavaConfigRuntime> {
 	 * @param name The Java name to find. See nameOf(majorVer:number).
 	 * @returns A Java runtime object. If no entry exists, returns undefined.
 	 */
-	findByName(name: string | undefined): IJavaConfigRuntime | undefined {
+	findByName(name: string | undefined): IJavaRuntime | undefined {
         if (!name) {return undefined;}
 		return this.find(runtime => runtime.name === name);
 	}
@@ -44,16 +44,16 @@ export class JavaConfigRuntimeArray extends Array<IJavaConfigRuntime> {
 	 * @param version The Java version to find.
 	 * @returns A Java runtime object. If no entry exists, returns undefined.
 	 */
-	findByVersion(version: number | undefined): IJavaConfigRuntime | undefined {
+	findByVersion(version: number | undefined): IJavaRuntime | undefined {
         if (version === undefined) {return undefined;}
 		return this.findByName(nameOf(version));
 	}
 }
 
 /**
- * An interface that represents the JDT supported Java versions.
+ * An interface that represents the Java configuration.
  */
-export interface IJdtSupport {
+export interface IJavaConfig {
     readonly downloadLtsVers: ReadonlyArray<number>;
     readonly latestLtsVer: number;
     readonly stableLtsVer: number;
@@ -62,24 +62,22 @@ export interface IJdtSupport {
 }
 
 /**
- * Returns the versions of the available VS Code JDT runtimes.
- * @returns IJdtSupport object.
+ * @returns The Java configuration.
  */
-export async function getJdtSupport(): Promise<IJdtSupport> {
+export async function getJavaConfig(): Promise<IJavaConfig> {
     const availableVers = getAvailableVersions();
     const ltsFilter = (ver:number) => [8, 11].includes(ver) || (ver >= 17 && (ver - 17) % 4 === 0);
     const downloadLtsVers = availableVers.filter(ltsFilter).slice(-4);
     const latestLtsVer = downloadLtsVers.at(-1);
-    const jdtSupport:IJdtSupport = {
+    const javaConfig:IJavaConfig = {
         downloadLtsVers: downloadLtsVers,
         latestLtsVer: latestLtsVer ?? 0,
         stableLtsVer: (latestLtsVer === availableVers.at(-1) ? downloadLtsVers.at(-2) : latestLtsVer) ?? 0,
         embeddedJreVer: await findEmbeddedJREVersion(),
     };
     log.info('Supported Java', availableVers);
-    log.info(`Target LTS [${downloadLtsVers}] Latest ${jdtSupport.latestLtsVer}, ` +
-        `Stable ${jdtSupport.stableLtsVer}, LS Embedded JRE ${jdtSupport.embeddedJreVer}`);
-    return jdtSupport;
+    log.info(JSON.stringify(javaConfig));
+    return javaConfig;
 }
 
 async function findEmbeddedJREVersion(): Promise<number | undefined> {
@@ -114,9 +112,9 @@ export function getAvailableNames(): string[] {
     const redhatJava = getRedhatJavaExtension();
     let config = redhatJava?.packageJSON?.contributes?.configuration;
     if (Array.isArray(config)) {
-        config = config.find(c => c.properties?.[JavaConfigRuntimeArray.CONFIG_KEY]);
+        config = config.find(c => c.properties?.[JavaRuntimeArray.CONFIG_KEY]);
     }
-    const runtimeNames = config?.properties?.[JavaConfigRuntimeArray.CONFIG_KEY]?.items?.properties?.name?.enum ?? [];
+    const runtimeNames = config?.properties?.[JavaRuntimeArray.CONFIG_KEY]?.items?.properties?.name?.enum ?? [];
     if (runtimeNames.length === 0) {
         log.warn('Failed getExtension RedHat', redhatJava);
     }

@@ -8,14 +8,14 @@ import * as jdk from './download/jdk';
 import * as redhat from './redhat';
 import * as system from './system';
 import { OS, log } from './system';
-import * as userSettings from './userSettings';
+import * as userSetting from './userSetting';
 
 /**
  * Scan installed JDK on the system and updates the given array of Java runtimes.
  * @param runtimes An array of Java configuration runtimes.
- * @param jdtSupport The JDT supported versions.
+ * @param javaConfig The Java configuration.
  */
-export async function scan(runtimes:redhat.JavaConfigRuntimeArray, jdtSupport: redhat.IJdtSupport) {
+export async function scan(runtimes:redhat.JavaRuntimeArray, javaConfig: redhat.IJavaConfig) {
 
 	// Fix JDK path
 	const availableNames = redhat.getAvailableNames();
@@ -32,11 +32,11 @@ export async function scan(runtimes:redhat.JavaConfigRuntimeArray, jdtSupport: r
 		// Ignore manual setted path for force download (If invalid directory, temporary error)
 		const originPath = runtime.path;
 		const majorVer = redhat.versionOf(runtime.name);
-		if (jdtSupport.downloadLtsVers.includes(majorVer)) { // Download LTS only
+		if (javaConfig.downloadLtsVers.includes(majorVer)) { // Download LTS only
 			const downloadDir = jdk.getDownloadDir(majorVer);
 			if (system.equalsPath(originPath, downloadDir)) {
 				if (!(await isValidHome(downloadDir))) { // Not yet downloaded
-					jdtSupport.needsReload = true;
+					javaConfig.needsReload = true;
 				}
 				continue;
 			}
@@ -59,7 +59,7 @@ export async function scan(runtimes:redhat.JavaConfigRuntimeArray, jdtSupport: r
 	}
 	if (needImmediateUpdate) {
 		// Immediate update for suppress invalid path error dialog (without await)
-		userSettings.update(redhat.JavaConfigRuntimeArray.CONFIG_KEY, runtimes);
+		userSetting.update(redhat.JavaRuntimeArray.CONFIG_KEY, runtimes);
 	}
 
 	// Detect User Installed JDK

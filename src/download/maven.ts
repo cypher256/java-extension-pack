@@ -5,7 +5,7 @@ import * as path from 'path';
 import * as httpClient from '../httpClient';
 import * as system from '../system';
 import { log } from '../system';
-import * as userSettings from '../userSettings';
+import * as userSetting from '../userSetting';
 const CONFIG_KEY_MAVEN_EXE_PATH = 'maven.executable.path';
 
 /**
@@ -14,7 +14,7 @@ const CONFIG_KEY_MAVEN_EXE_PATH = 'maven.executable.path';
  */
 export async function getBinDir(useWhich:boolean): Promise<string | undefined> {
 	let binDir:string | undefined = undefined;
-	let mvnExePath = userSettings.get<string>(CONFIG_KEY_MAVEN_EXE_PATH);
+	let mvnExePath = userSetting.get<string>(CONFIG_KEY_MAVEN_EXE_PATH);
 	if (!mvnExePath && useWhich) {
 		mvnExePath = await system.whichPath('mvn');
 	}
@@ -28,7 +28,7 @@ export async function getBinDir(useWhich:boolean): Promise<string | undefined> {
  * @returns true if Maven is auto-updated with auto-downloaded path.
  */
 export function isAutoUpdate(): boolean {
-	const configMavenExe = userSettings.get<string>(CONFIG_KEY_MAVEN_EXE_PATH);
+	const configMavenExe = userSetting.get<string>(CONFIG_KEY_MAVEN_EXE_PATH);
 	if (!configMavenExe) {return false;}
 	return system.equalsPath(getDownloadDir(), path.join(configMavenExe, '..', '..'));
 }
@@ -38,7 +38,7 @@ export function isAutoUpdate(): boolean {
  * @returns A promise that resolves when the Maven is installed.
  */
 export async function download() {
-	const mavenExeOld = userSettings.get<string>(CONFIG_KEY_MAVEN_EXE_PATH);
+	const mavenExeOld = userSetting.get<string>(CONFIG_KEY_MAVEN_EXE_PATH);
 	let mavenExeNew = await resolve(mavenExeOld);
 	if (mavenExeNew && system.isUserInstalled(mavenExeNew)) {
 		log.info('Available Maven (User installed)', CONFIG_KEY_MAVEN_EXE_PATH, mavenExeNew);
@@ -51,7 +51,7 @@ export async function download() {
 		}
 	}
 	if (mavenExeOld !== mavenExeNew) {
-		await userSettings.update(CONFIG_KEY_MAVEN_EXE_PATH, mavenExeNew);
+		await userSetting.update(CONFIG_KEY_MAVEN_EXE_PATH, mavenExeNew);
 	}
 	// Note: mvnw is used only if undefined
 }

@@ -5,7 +5,7 @@ import * as path from 'path';
 import * as httpClient from '../httpClient';
 import * as system from '../system';
 import { log } from '../system';
-import * as userSettings from '../userSettings';
+import * as userSetting from '../userSetting';
 const CONFIG_KEY_GRADLE_HOME = 'java.import.gradle.home';
 
 /**
@@ -14,7 +14,7 @@ const CONFIG_KEY_GRADLE_HOME = 'java.import.gradle.home';
  */
 export async function getBinDir(useWhich:boolean): Promise<string | undefined> {
 	let binDir:string | undefined = undefined;
-	const gradleHome = userSettings.get<string>(CONFIG_KEY_GRADLE_HOME);
+	const gradleHome = userSetting.get<string>(CONFIG_KEY_GRADLE_HOME);
 	if (gradleHome) {
 		binDir = path.join(gradleHome, 'bin');
 	} else if (useWhich) {
@@ -30,7 +30,7 @@ export async function getBinDir(useWhich:boolean): Promise<string | undefined> {
  * @returns true if Gradle is auto-updated with auto-downloaded path.
  */
 export function isAutoUpdate(): boolean {
-	return system.equalsPath(getDownloadDir(), userSettings.get<string>(CONFIG_KEY_GRADLE_HOME));
+	return system.equalsPath(getDownloadDir(), userSetting.get<string>(CONFIG_KEY_GRADLE_HOME));
 }
 
 /**
@@ -38,7 +38,7 @@ export function isAutoUpdate(): boolean {
  * @returns A promise that resolves when the Gradle is installed.
  */
 export async function download() {
-	const gradleHomeOld = userSettings.get<string>(CONFIG_KEY_GRADLE_HOME);
+	const gradleHomeOld = userSetting.get<string>(CONFIG_KEY_GRADLE_HOME);
 	let gradleHomeNew = await resolve(gradleHomeOld);
 	if (gradleHomeNew && system.isUserInstalled(gradleHomeNew)) {
 		log.info('Available Gradle (User installed)', CONFIG_KEY_GRADLE_HOME, gradleHomeNew);
@@ -51,7 +51,7 @@ export async function download() {
 		}
 	}
 	if (gradleHomeOld !== gradleHomeNew) {
-		await userSettings.update(CONFIG_KEY_GRADLE_HOME, gradleHomeNew);
+		await userSetting.update(CONFIG_KEY_GRADLE_HOME, gradleHomeNew);
 	}
 	// Note: This setting is ignored if gradlew is exists
 }

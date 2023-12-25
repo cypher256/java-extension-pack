@@ -51,22 +51,22 @@ export async function remove(section:string) {
  * Gets the Java runtime configurations for the VS Code Java extension.
  * @returns An array of Java runtime objects. If no entry exists, returns an empty array.
  */
-export function getJavaConfigRuntimes(): redhat.JavaConfigRuntimeArray {
-	const runtimes:redhat.IJavaConfigRuntime[] = get(redhat.JavaConfigRuntimeArray.CONFIG_KEY) ?? [];
-	return new redhat.JavaConfigRuntimeArray(...runtimes);
+export function getJavaRuntimes(): redhat.JavaRuntimeArray {
+	const runtimes:redhat.IJavaRuntime[] = get(redhat.JavaRuntimeArray.CONFIG_KEY) ?? [];
+	return new redhat.JavaRuntimeArray(...runtimes);
 }
 
 /**
  * Updates the Java runtime configurations for the VS Code Java extension.
+ * @param javaConfig The Java configuration.
  * @param runtimes An array of Java runtime objects to update the configuration with.
  * @param runtimesOld An array of previous Java runtime objects to compare with `runtimes`.
- * @param jdtSupport The JDT supported version object.
  * @returns A promise that resolves when the configuration is updated.
  */
-export async function updateJavaConfig(
-	runtimes:redhat.JavaConfigRuntimeArray,
-	runtimesOld:redhat.JavaConfigRuntimeArray,
-	jdtSupport: redhat.IJdtSupport) {
+export async function updateJavaRuntimes(
+	javaConfig: redhat.IJavaConfig,
+	runtimes:redhat.JavaRuntimeArray,
+	runtimesOld:redhat.JavaRuntimeArray) {
 
 	const CONFIG_KEY_DEPRECATED_JAVA_HOME = 'java.home';
 	if (get(CONFIG_KEY_DEPRECATED_JAVA_HOME) !== null) { // null if no entry or null value
@@ -74,13 +74,13 @@ export async function updateJavaConfig(
 	}
 
 	// VS Code LS Java Home (Remove if embedded JRE exists)
-	const stableLtsRuntime = runtimes.findByVersion(jdtSupport.stableLtsVer);
+	const stableLtsRuntime = runtimes.findByVersion(javaConfig.stableLtsVer);
 	async function _updateLsJavaHome(extensionId: string, configKey: string) {
 		if (!vscode.extensions.getExtension(extensionId)) {
 			return;
 		}
 		const originPath = get<string>(configKey);
-		if (jdtSupport.embeddedJreVer) {
+		if (javaConfig.embeddedJreVer) {
 			if (originPath) {
 				remove(configKey); // Use embedded JRE
 			}
@@ -115,13 +115,13 @@ export async function updateJavaConfig(
 	}
 
 	// Project Runtimes Default (Keep if set)
-	const latestLtsRuntime = runtimes.findByVersion(jdtSupport.latestLtsVer);
+	const latestLtsRuntime = runtimes.findByVersion(javaConfig.latestLtsVer);
 	if (latestLtsRuntime && !runtimes.findDefault()) {
 		latestLtsRuntime.default = true; // Multiple call safety to set latest
 	}
 	if (!_.isEqual(runtimes, runtimesOld)) {
 		runtimes.sort((a, b) => a.name.localeCompare(b.name));
-		update(redhat.JavaConfigRuntimeArray.CONFIG_KEY, runtimes);
+		update(redhat.JavaRuntimeArray.CONFIG_KEY, runtimes);
 	}
 
 	// Set Terminal Env Function
@@ -231,7 +231,7 @@ export async function updateJavaConfig(
 	/*
 	let gradleJavaRuntime = stableLtsRuntime;
 	const GRADLE_FULL_SUPPORTED_MAX_JAVA_LTS_VER = 21;
-	if (latestLtsRuntime && jdtSupport.latestLtsVer <= GRADLE_FULL_SUPPORTED_MAX_JAVA_LTS_VER) {
+	if (latestLtsRuntime && javaConfig.latestLtsVer <= GRADLE_FULL_SUPPORTED_MAX_JAVA_LTS_VER) {
 		gradleJavaRuntime = latestLtsRuntime;
 	}
 	*/
@@ -243,7 +243,7 @@ export async function updateJavaConfig(
 		const originPath = get<string>(CONFIG_KEY_GRADLE_JAVA_HOME);
 		function _updateGradleJavaHome(newPath: string) {
 			update(CONFIG_KEY_GRADLE_JAVA_HOME, newPath);
-			jdtSupport.needsReload = true; // Restart Gradle Daemon
+			javaConfig.needsReload = true; // Restart Gradle Daemon
 		}
 		if (originPath) {
 			const fixedOrDefault = system.isUserInstalled(originPath) || !gradle.isAutoUpdate()
@@ -261,8 +261,8 @@ export async function updateJavaConfig(
 	}
 }
 
-function setIfUndefined(section:string, value:any, extensionName?:string) {
-	if (extensionName && !vscode.extensions.getExtension(extensionName)) {
+function setIfUndefined(section:string, value:any, extensionId?:string) {
+	if (extensionId && !vscode.extensions.getExtension(extensionId)) {
 		return;
 	}
 	if (getDefinition(section) === undefined) {
@@ -276,8 +276,23 @@ function setIfUndefined(section:string, value:any, extensionName?:string) {
 
 /**
  * Sets default values for VS Code settings.
+ * @param jdtSupport The JDT supported versions.
  */
-export function setDefault() {
+export async function setDefault(jdtSupport: redhat.IJavaConfig) {
+
+	// Uninstall extension that cause configuration errors
+	// https://github.com/fabric8-analytics/fabric8-analytics-vscode-extension/issues/503
+	// https://github.com/fabric8-analytics/fabric8-analytics-vscode-extension/issues/665
+	const redhatDependExId = 'redhat.fabric8-analytics';
+	if (vscode.extensions.getExtension(redhatDependExId)) {
+		if (!await jdkExplorer.isValidHome(process.env.JAVA_HOME) ||
+			(!get('redHatDependencyAnalytics.mvn.executable.path') && !(await system.whichPath('mvn')))
+		) {
+			vscode.commands.executeCommand('workbench.extensions.uninstallExtension', redhatDependExId);
+			log.info('Uninstalled extension', redhatDependExId);
+		}
+	}
+
 	// VS Code Editor
 	setIfUndefined('editor.codeActionsOnSave', {
 		"source.organizeImports": 'explicit'

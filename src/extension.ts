@@ -9,7 +9,7 @@ import * as jdkExplorer from './jdkExplorer';
 import * as redhat from './redhat';
 import * as system from './system';
 import { OS, log } from './system';
-import * as userSettings from './userSettings';
+import * as userSetting from './userSetting';
 
 /**
  * Activates the extension.
@@ -21,16 +21,16 @@ export async function activate(context:vscode.ExtensionContext) {
 		system.init(context);
 		log.info(`activate START ${context.extension?.packageJSON?.version} --------------------`);
 		log.info('Global Storage', system.getGlobalStoragePath());
-		userSettings.setDefault();
+		const javaConfig = await redhat.getJavaConfig();
+		userSetting.setDefault(javaConfig);
 		
-		const runtimes = userSettings.getJavaConfigRuntimes();
+		const runtimes = userSetting.getJavaRuntimes();
 		const runtimesOld = _.cloneDeep(runtimes);
-		const jdtSupport = await redhat.getJdtSupport();
 		const isFirstStartup = !system.existsDirectory(system.getGlobalStoragePath());
 		
-		await scan(runtimes, jdtSupport);
-		await download(runtimes, jdtSupport);
-		onComplete(runtimes, runtimesOld, jdtSupport, isFirstStartup);
+		await scan(javaConfig, runtimes);
+		await download(javaConfig, runtimes);
+		onComplete(javaConfig, runtimes, runtimesOld, isFirstStartup);
 		log.info('activate END');
 	} catch (e:any) {
 		vscode.window.showErrorMessage(`Auto Config Java failed. ${e}`);
@@ -40,63 +40,63 @@ export async function activate(context:vscode.ExtensionContext) {
 
 /**
  * Scans the installed JDK and updates the Java configuration.
+ * @param javaConfig The Java configuration.
  * @param runtimes The Java runtimes to update.
- * @param jdtSupport The JDT supported versions.
  */
 async function scan(
-	runtimes: redhat.JavaConfigRuntimeArray,
-	jdtSupport: redhat.IJdtSupport) {
+	javaConfig: redhat.IJavaConfig,
+	runtimes: redhat.JavaRuntimeArray) {
 
 	const runtimesBefore = _.cloneDeep(runtimes);
-	await jdkExplorer.scan(runtimes, jdtSupport);
-	await userSettings.updateJavaConfig(runtimes, runtimesBefore, jdtSupport);
+	await jdkExplorer.scan(runtimes, javaConfig);
+	await userSetting.updateJavaRuntimes(javaConfig, runtimes, runtimesBefore);
 }
 
 /**
  * Downloads the JDK and updates the Java configuration.
+ * @param javaConfig The Java configuration.
  * @param runtimes The Java runtimes to update.
- * @param jdtSupport The JDT supported versions.
  */
 async function download(
-	runtimes: redhat.JavaConfigRuntimeArray,
-	jdtSupport: redhat.IJdtSupport) {
+	javaConfig: redhat.IJavaConfig,
+	runtimes: redhat.JavaRuntimeArray) {
 
-	if (!userSettings.get('extensions.autoUpdate')) {
+	if (!userSetting.get('extensions.autoUpdate')) {
 		log.info(`Download disabled (extensions.autoUpdate: false)`);
-	} else if (!jdk.isTargetPlatform) {
-		log.info(`Download disabled (${process.platform}/${process.arch})`);
-	} else if (jdtSupport.downloadLtsVers.length === 0) {
-		log.info(`Download disabled (Can't get download LTS versions)`);
-	} else {
-		const runtimesBefore = _.cloneDeep(runtimes);
-		const orderDescVers = [...jdtSupport.downloadLtsVers].sort((a,b) => b-a);
-		const promises = [
-			...orderDescVers.map(ver => jdk.download(runtimes, ver)),
-			gradle.download(),
-			maven.download(),
-		];
-		await Promise.allSettled(promises);
-		await userSettings.updateJavaConfig(runtimes, runtimesBefore, jdtSupport);
+		return;
 	}
+	const orderDescVers = [...javaConfig.downloadLtsVers].sort((a,b) => b-a);
+	if (!jdk.isTargetPlatform) {
+		log.info(`Download disabled JDK (${process.platform}/${process.arch})`);
+		orderDescVers.length = 0;
+	}
+	const runtimesBefore = _.cloneDeep(runtimes);
+	const promises = [
+		...orderDescVers.map(ver => jdk.download(runtimes, ver)),
+		gradle.download(),
+		maven.download(),
+	];
+	await Promise.allSettled(promises);
+	await userSetting.updateJavaRuntimes(javaConfig, runtimes, runtimesBefore);
 }
 
 /**
  * Processes the completion of the extension activation.
+ * @param javaConfig The Java configuration.
  * @param runtimesNew The Java runtimes after update.
  * @param runtimesOld The Java runtimes before update.
- * @param jdtSupport The JDT supported version object.
  * @param isFirstStartup Whether this is the first startup.
  */
 function onComplete(
-	runtimesNew: redhat.JavaConfigRuntimeArray,
-	runtimesOld: redhat.JavaConfigRuntimeArray,
-	jdtSupport: redhat.IJdtSupport,
+	javaConfig: redhat.IJavaConfig,
+	runtimesNew: redhat.JavaRuntimeArray,
+	runtimesOld: redhat.JavaRuntimeArray,
 	isFirstStartup: boolean) {
 	
 	const oldVers = runtimesOld.map(r => redhat.versionOf(r.name));
 	const newVers = runtimesNew.map(r => redhat.versionOf(r.name));
 	const defaultVer = redhat.versionOf(runtimesNew.findDefault()?.name ?? '');
-	log.info(`${redhat.JavaConfigRuntimeArray.CONFIG_KEY} [${newVers}] default ${defaultVer}`);
+	log.info(`${redhat.JavaRuntimeArray.CONFIG_KEY} [${newVers}] default ${defaultVer}`);
 	const availableMsg = `${l10n.t('Available Java versions:')} ${newVers.join(', ')}`;
 
 	if (isFirstStartup) {
@@ -131,10 +131,10 @@ function onComplete(
 				const msg = l10n.t('The following Java Runtime Configuration removed. Version:');
 				vscode.window.showInformationMessage(`${msg} ${removed.join(', ')} (${availableMsg})`);
 				// Suppress errors when downgrading Red Hat extension
-				jdtSupport.needsReload = true;
+				javaConfig.needsReload = true;
 			}
 		}
-		if (jdtSupport.needsReload) {
+		if (javaConfig.needsReload) {
 			showReloadMessage();
 		}
 	}

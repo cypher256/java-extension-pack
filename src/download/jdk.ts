@@ -57,7 +57,7 @@ export function getDownloadDir(majorVer:number): string {
  * @returns A promise that resolves when the JDK is installed.
  */
 export async function download(
-	runtimes:redhat.JavaConfigRuntimeArray,
+	runtimes:redhat.JavaRuntimeArray,
 	majorVer:number) {
 
 	// Skip User Installed
