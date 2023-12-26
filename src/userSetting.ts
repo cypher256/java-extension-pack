@@ -171,8 +171,7 @@ export async function updateJavaRuntimes(
 			profile.path ??= 'cmd'; // powershell (legacy), pwsh (non-preinstalled)
 		} else if (OS.isMac) {
 			profile.path ??= 'zsh';
-			//profile.args ??= ['-l'];
-			profile.args = undefined; // -l (login shell) is unnecessary (Add /usr/local/bin before)
+			profile.args = undefined; // Remove previous ['-l'] for login shell (because prepend /usr/bin)
 			profile.env.ZDOTDIR ??= '~/.zsh_autoconfig'; // Disable .zshrc JAVA_HOME
 		} else {
 			profile.path ??= 'bash';
