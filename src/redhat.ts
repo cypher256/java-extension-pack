@@ -67,12 +67,12 @@ export interface IJavaConfig {
 export async function getJavaConfig(): Promise<IJavaConfig> {
     const availableVers = getAvailableVersions();
     const ltsFilter = (ver:number) => [8, 11].includes(ver) || (ver >= 17 && (ver - 17) % 4 === 0);
-    const downloadLtsVers = availableVers.filter(ltsFilter).slice(-4);
-    const latestLtsVer = downloadLtsVers.at(-1);
+    const fourLatestLtsVers = availableVers.filter(ltsFilter).slice(-4);
+    const latestLtsVer = fourLatestLtsVers.at(-1);
     const javaConfig:IJavaConfig = {
-        downloadLtsVers: downloadLtsVers,
+        downloadLtsVers: fourLatestLtsVers,
         latestLtsVer: latestLtsVer ?? 0,
-        stableLtsVer: (latestLtsVer === availableVers.at(-1) ? downloadLtsVers.at(-2) : latestLtsVer) ?? 0,
+        stableLtsVer: (latestLtsVer === availableVers.at(-1) ? fourLatestLtsVers.at(-2) : latestLtsVer) ?? 0,
         embeddedJreVer: await findEmbeddedJREVersion(),
     };
     log.info('Supported Java', availableVers);

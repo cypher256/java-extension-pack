@@ -33,8 +33,9 @@ function getDefinition<T>(section: string): T | undefined {
  * @returns A promise that resolves when the configuration is updated.
  */
 export async function update(section:string, value:any) {
-	log.info('Update settings:', section, _.isObject(value) ? '' : value);
 	const config = vscode.workspace.getConfiguration();
+	value = Array.isArray(value) && value.length === 0 ? undefined : value;
+	log.info(`${value ? 'Update' : 'Remove'} settings:`, section, _.isObject(value) ? '' : value);
 	return await config.update(section, value, vscode.ConfigurationTarget.Global);
 }
 
@@ -162,8 +163,7 @@ export async function updateJavaRuntimes(
 			}
 		}
 	}
-	for (const runtime of runtimes) {
-		// Set Dropdown from runtimes
+	for (const runtime of runtimes) { // Set Dropdown from runtimes
 		const profile:any = _.cloneDeep(profilesOld[runtime.name]) ?? {}; // for isEqual
 		profile.overrideName = true;
 		profile.env ??= {};
@@ -171,23 +171,24 @@ export async function updateJavaRuntimes(
 			profile.path ??= 'cmd'; // powershell (legacy), pwsh (non-preinstalled)
 		} else if (OS.isMac) {
 			profile.path ??= 'zsh';
-			profile.args ??= ['-l']; // Disable .zshrc JAVA_HOME in _setTerminalEnv ZDOTDIR
-			profile.env.ZDOTDIR ??= '~/.zsh_jdkauto'; // Disable .zshrc JAVA_HOME
+			profile.args ??= ['-l']; // login shell
+			profile.env.ZDOTDIR ??= '~/.zsh_autoconfig'; // Disable .zshrc JAVA_HOME
 		} else {
 			profile.path ??= 'bash';
-			profile.args ??= ['--rcfile', '~/.bashrc_jdkauto']; // Disable .bashrc JAVA_HOME (also WSL)
+			profile.args ??= ['--rcfile', '~/.bashrc_autoconfig']; // Disable .bashrc JAVA_HOME (also WSL)
 		}
 		_setTerminalEnv(profile.env, runtime.path, runtime.name);
 		profilesNew[runtime.name] = profile;
 	}
 	const sortedNew = Object.fromEntries(Object.keys(profilesNew).sort().map(key => [key, profilesNew[key]]));
-	if (!_.isEqual(sortedNew, profilesOld) ) {
+	if (!_.isEqual(sortedNew, profilesOld)) {
 		update(CONFIG_KEY_TERMINAL_PROFILES, sortedNew);
 	}
 
 	// Terminal Default Environment Variables (Keep if set)
+	// [Windows] maven context menu JAVA_HOME
 	const terminalDefaultRuntime = latestLtsRuntime || stableLtsRuntime;
-	if (terminalDefaultRuntime && OS.isWindows) { // for Windows (Excludes macOS/Linux because uses npm scripts)
+	if (terminalDefaultRuntime && OS.isWindows) { // Excludes macOS/Linux because uses npm scripts
 		const CONFIG_KEY_TERMINAL_ENV = 'terminal.integrated.env.' + osConfigName;
 		const terminalEnv:any = _.cloneDeep(get(CONFIG_KEY_TERMINAL_ENV) ?? {}); // Proxy to POJO for isEqual
 		const terminalEnvOld = _.cloneDeep(terminalEnv);
@@ -199,25 +200,32 @@ export async function updateJavaRuntimes(
 	}
 
 	// Maven terminal common env (Keep if set)
-	// -> JAVA_HOME is required for VSCode maven context menu
+	// [macOS/Linux] maven context menu JAVA_HOME
 	const mavenJavaRuntime = latestLtsRuntime || stableLtsRuntime;
-	if (mavenJavaRuntime && !OS.isWindows) { // for macOS/Linux (Windows use terminal.integrated.env.windows)
-		const CONFIG_KEY_MAVEN_CUSTOM_ENV = 'maven.terminal.customEnv';
-		const customEnv:any[] = get(CONFIG_KEY_MAVEN_CUSTOM_ENV) ?? [];
-		let mavenJavaHomeObj = customEnv.find(i => i.environmentVariable === 'JAVA_HOME');
+	const CONFIG_KEY_MAVEN_CUSTOM_ENV = 'maven.terminal.customEnv';
+	const customEnv:any[] = get(CONFIG_KEY_MAVEN_CUSTOM_ENV) ?? [];
+	let mavenJavaHomeObj = customEnv.find(i => i.environmentVariable === 'JAVA_HOME');
+	const mavenJavaHome:string | undefined = mavenJavaHomeObj?.value;
+	if (OS.isWindows) {
+		// Remove Linux path when switching from WSL to Windows
+		// https://github.com/microsoft/vscode-maven/issues/991
+		if (mavenJavaHome && !await jdkExplorer.isValidHome(mavenJavaHome)) {
+			customEnv.splice(customEnv.indexOf(mavenJavaHomeObj), 1); // Remove entry
+			update(CONFIG_KEY_MAVEN_CUSTOM_ENV, customEnv);
+		}
+	} else if (mavenJavaRuntime) {
 		function _updateMavenJavaHome(newPath: string) {
 			mavenJavaHomeObj.value = newPath;
 			update(CONFIG_KEY_MAVEN_CUSTOM_ENV, customEnv);
 		}
-		const originPath:string | undefined = mavenJavaHomeObj?.value;
-		if (originPath) {
-			const fixedOrDefault = system.isUserInstalled(originPath) || !maven.isAutoUpdate()
+		if (mavenJavaHome) {
+			const fixedOrDefault = system.isUserInstalled(mavenJavaHome) || !maven.isAutoUpdate()
 				// Keep
-				? await jdkExplorer.fixPath(originPath) || mavenJavaRuntime.path
+				? await jdkExplorer.fixPath(mavenJavaHome) || mavenJavaRuntime.path
 				// Auto-update
 				: mavenJavaRuntime.path
 			;
-			if (fixedOrDefault !== originPath) {
+			if (fixedOrDefault !== mavenJavaHome) {
 				_updateMavenJavaHome(fixedOrDefault);
 			}
 		} else { // If unset use default
@@ -243,7 +251,8 @@ export async function updateJavaRuntimes(
 		const originPath = get<string>(CONFIG_KEY_GRADLE_JAVA_HOME);
 		function _updateGradleJavaHome(newPath: string) {
 			update(CONFIG_KEY_GRADLE_JAVA_HOME, newPath);
-			javaConfig.needsReload = true; // Restart Gradle Daemon
+			javaConfig.needsReload = true;
+			log.info('Needs Reload: Restart Gradle Daemon');
 		}
 		if (originPath) {
 			const fixedOrDefault = system.isUserInstalled(originPath) || !gradle.isAutoUpdate()
@@ -276,11 +285,11 @@ function setIfUndefined(section:string, value:any, extensionId?:string) {
 
 /**
  * Sets default values for VS Code settings.
- * @param jdtSupport The JDT supported versions.
+ * @param javaConfig The Java configuration.
  */
-export async function setDefault(jdtSupport: redhat.IJavaConfig) {
+export async function setDefault(javaConfig: redhat.IJavaConfig) {
 
-	// Uninstall extension that cause configuration errors
+	// Workaround: Uninstall extension that cause configuration errors
 	// https://github.com/fabric8-analytics/fabric8-analytics-vscode-extension/issues/503
 	// https://github.com/fabric8-analytics/fabric8-analytics-vscode-extension/issues/665
 	const redhatDependExId = 'redhat.fabric8-analytics';
@@ -288,8 +297,9 @@ export async function setDefault(jdtSupport: redhat.IJavaConfig) {
 		if (!await jdkExplorer.isValidHome(process.env.JAVA_HOME) ||
 			(!get('redHatDependencyAnalytics.mvn.executable.path') && !(await system.whichPath('mvn')))
 		) {
+			log.warn('Needs Reload: Uninstall extension', redhatDependExId);
 			vscode.commands.executeCommand('workbench.extensions.uninstallExtension', redhatDependExId);
-			log.info('Uninstalled extension', redhatDependExId);
+			javaConfig.needsReload = true;
 		}
 	}
 

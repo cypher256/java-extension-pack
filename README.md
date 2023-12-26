@@ -173,8 +173,8 @@ A non-existent rcfile is specified so that JAVA_HOME and PATH are not overwritte
 |OS|Default Shell|rcfile Location|
 |---|---|---|
 |Windows|cmd|-|
-|macOS|zsh|~/.zsh_jdkauto/.zshrc|
-|Linux or WSL|bash|~/.bashrc_jdkauto|
+|macOS|zsh|~/.zsh_autoconfig/.zshrc|
+|Linux or WSL|bash|~/.bashrc_autoconfig|
 
 <br>
 

@@ -28,7 +28,7 @@ export async function activate(context:vscode.ExtensionContext) {
 		const runtimesOld = _.cloneDeep(runtimes);
 		const isFirstStartup = !system.existsDirectory(system.getGlobalStoragePath());
 		
-		await scan(javaConfig, runtimes);
+		await detect(javaConfig, runtimes);
 		await download(javaConfig, runtimes);
 		onComplete(javaConfig, runtimes, runtimesOld, isFirstStartup);
 		log.info('activate END');
@@ -39,21 +39,21 @@ export async function activate(context:vscode.ExtensionContext) {
 }
 
 /**
- * Scans the installed JDK and updates the Java configuration.
+ * Detects the installed JDK and updates the Java runtimes.
  * @param javaConfig The Java configuration.
  * @param runtimes The Java runtimes to update.
  */
-async function scan(
+async function detect(
 	javaConfig: redhat.IJavaConfig,
 	runtimes: redhat.JavaRuntimeArray) {
 
 	const runtimesBefore = _.cloneDeep(runtimes);
-	await jdkExplorer.scan(runtimes, javaConfig);
+	await jdkExplorer.scan(javaConfig, runtimes);
 	await userSetting.updateJavaRuntimes(javaConfig, runtimes, runtimesBefore);
 }
 
 /**
- * Downloads the JDK and updates the Java configuration.
+ * Downloads the JDK and updates the Java runtimes.
  * @param javaConfig The Java configuration.
  * @param runtimes The Java runtimes to update.
  */

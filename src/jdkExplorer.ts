@@ -11,11 +11,11 @@ import { OS, log } from './system';
 import * as userSetting from './userSetting';
 
 /**
- * Scan installed JDK on the system and updates the given array of Java runtimes.
- * @param runtimes An array of Java configuration runtimes.
+ * Scan installed JDK on the system and updates the given Java runtimes.
  * @param javaConfig The Java configuration.
+ * @param runtimes The Java runtimes.
  */
-export async function scan(runtimes:redhat.JavaRuntimeArray, javaConfig: redhat.IJavaConfig) {
+export async function scan(javaConfig: redhat.IJavaConfig, runtimes:redhat.JavaRuntimeArray) {
 
 	// Fix JDK path
 	const availableNames = redhat.getAvailableNames();
@@ -36,6 +36,7 @@ export async function scan(runtimes:redhat.JavaRuntimeArray, javaConfig: redhat.
 			const downloadDir = jdk.getDownloadDir(majorVer);
 			if (system.equalsPath(originPath, downloadDir)) {
 				if (!(await isValidHome(downloadDir))) { // Not yet downloaded
+					log.info(`Needs Reload: manual set runtime force download: ${originPath}`);
 					javaConfig.needsReload = true;
 				}
 				continue;
@@ -157,8 +158,8 @@ export async function fixPath(homeDir:string | undefined): Promise<string | unde
  * @returns The IDetectedJdk object of the JDK. undefined if not found.
  */
 export async function findByPath(homeDir: string): Promise<IDetectedJdk | undefined> {
-	const runtime = await jdkutils.getRuntime(homeDir, { checkJavac: true, withVersion: true });
-	return createJdk(runtime);
+	const utilRuntime = await jdkutils.getRuntime(homeDir, { checkJavac: true, withVersion: true });
+	return createJdk(utilRuntime);
 }
 
 interface IDetectedJdk {
@@ -167,16 +168,16 @@ interface IDetectedJdk {
 	readonly homePath: string;
 }
 
-function createJdk(runtime: jdkutils.IJavaRuntime | undefined): IDetectedJdk | undefined {
+function createJdk(utilRuntime: jdkutils.IJavaRuntime | undefined): IDetectedJdk | undefined {
 	if (
-		runtime?.hasJavac &&
-		runtime.version &&
-		runtime.homedir !== '/usr' // Exclude alias /usr/bin/java (Linux, macOS)
+		utilRuntime?.hasJavac &&
+		utilRuntime.version &&
+		utilRuntime.homedir !== '/usr' // Exclude alias /usr/bin/java (Linux, macOS)
 	) {
 		return {
-			majorVersion: runtime.version.major,
-			fullVersion: runtime.version.java_version,
-			homePath: runtime.homedir
+			majorVersion: utilRuntime.version.major,
+			fullVersion: utilRuntime.version.java_version,
+			homePath: utilRuntime.homedir
 		};
 	}
 	return undefined;
@@ -210,8 +211,8 @@ async function findAll(): Promise<IDetectedJdk[]> {
 		async () => {
 			// jdk-utils: Gradle Toolchains support pull requested
 			// https://github.com/Eskibear/node-jdk-utils/issues/9
-			const runtimes = await jdkutils.findRuntimes({ checkJavac: true, withVersion: true });
-			runtimes.map(createJdk).forEach(jdk => pushJdk('jdk-utils', jdk, jdks));
+			const utilRuntimes = await jdkutils.findRuntimes({ checkJavac: true, withVersion: true });
+			utilRuntimes.map(createJdk).forEach(jdk => pushJdk('jdk-utils', jdk, jdks));
 		},
 		async () => {
 			// jdk-utils not supported Windows Distributors
