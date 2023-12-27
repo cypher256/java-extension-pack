@@ -7,7 +7,6 @@
 ![](https://img.shields.io/visual-studio-marketplace/last-updated/Pleiades.java-extension-pack-jdk?color=orange)
 
 <br>
-<br>
 
 # Overview
 Just install this extension and start Java development right out of the box with zero configuration.
