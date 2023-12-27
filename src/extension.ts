@@ -20,6 +20,10 @@ export async function activate(context:vscode.ExtensionContext) {
 	try {
 		system.init(context);
 		log.info(`activate START ${context.extension?.packageJSON?.version} --------------------`);
+		if (!userSetting.get('javaAutoConfig.enabled')) {
+			log.info(`javaAutoConfig.enabled: false`);
+			return;
+		}
 		log.info('Global Storage', system.getGlobalStoragePath());
 		const javaConfig = await redhat.getJavaConfig();
 		userSetting.setDefault(javaConfig);
@@ -31,10 +35,13 @@ export async function activate(context:vscode.ExtensionContext) {
 		await detect(javaConfig, runtimes);
 		await download(javaConfig, runtimes);
 		onComplete(javaConfig, runtimes, runtimesOld, isFirstStartup);
-		log.info('activate END');
+
 	} catch (e:any) {
 		vscode.window.showErrorMessage(`Auto Config Java failed. ${e}`);
 		log.error(e);
+		
+	} finally {
+		log.info('activate END');
 	}
 }
 

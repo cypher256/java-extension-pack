@@ -51,7 +51,7 @@ The user `settings.json` is auto-configured at startup by `Java Extension Pack A
 
 # Features
 
-This extension has no specific settings or commands. As shown below, the JDK, build tools, terminal and other settings are automatically configured at start-up according to the current environment. If you are not interested in how it is auto-configured, you do not need to read the following.
+The JDK, build tools, terminal and other settings are automatically configured and updated at startup according to the current environment, as shown below. If you want to disable all auto-configuration features, set `javaAutoConfig.enabled` to `false`.
 <br>
 <br>
 

@@ -79,7 +79,18 @@
   ],
   "main": "./dist/main.js",
   "l10n": "./l10n",
-  "contributes": {},
+  "contributes": {
+    "configuration": {
+        "title": "Java Auto Config",
+        "properties": {
+            "javaAutoConfig.enabled": {
+                "type": "boolean",
+                "default": true,
+                "description": "%description.enabled%"
+            }
+        }
+    }
+  },
   "scripts": {
     "vscode:prepublish": "npm run esbuild-base -- --minify",
     "esbuild-base": "esbuild ./src/extension.ts --bundle --outfile=dist/main.js --external:vscode --format=cjs --platform=node",
@@ -115,5 +126,5 @@
     "jdk-utils": "0.x",
     "lodash": "4.x"
   },
-  "version": "2023.1227.2"
+  "version": "2023.1228.0"
 }
