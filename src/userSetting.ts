@@ -204,13 +204,13 @@ export async function updateJavaRuntimes(
 	const mavenJavaRuntime = latestLtsRuntime || stableLtsRuntime;
 	const CONFIG_KEY_MAVEN_CUSTOM_ENV = 'maven.terminal.customEnv';
 	const customEnv:any[] = get(CONFIG_KEY_MAVEN_CUSTOM_ENV) ?? [];
-	const mavenJavaHomeObj = customEnv.find(i => i.environmentVariable === 'JAVA_HOME');
-	const mavenJavaHome:string | undefined = mavenJavaHomeObj?.value;
+	const mavenJavaHomeElement = customEnv.find(i => i.environmentVariable === 'JAVA_HOME');
+	const mavenJavaHome:string | undefined = mavenJavaHomeElement?.value;
 	if (OS.isWindows) {
 		// Remove Linux JAVA_HOME when switching from WSL to Windows
 		// https://github.com/microsoft/vscode-maven/issues/991
 		if (mavenJavaHome && !await jdkExplorer.isValidHome(mavenJavaHome)) {
-			customEnv.splice(customEnv.indexOf(mavenJavaHomeObj), 1); // Remove
+			customEnv.splice(customEnv.indexOf(mavenJavaHomeElement), 1); // Remove
 			update(CONFIG_KEY_MAVEN_CUSTOM_ENV, customEnv);
 		}
 	} else if (mavenJavaRuntime) {
@@ -223,7 +223,7 @@ export async function updateJavaRuntimes(
 				: mavenJavaRuntime.path
 			;
 			if (fixedOrDefault !== mavenJavaHome) {
-				mavenJavaHomeObj.value = fixedOrDefault;
+				mavenJavaHomeElement.value = fixedOrDefault;
 				modified = true;
 			}
 		} else { // If unset use default
