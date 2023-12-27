@@ -204,20 +204,17 @@ export async function updateJavaRuntimes(
 	const mavenJavaRuntime = latestLtsRuntime || stableLtsRuntime;
 	const CONFIG_KEY_MAVEN_CUSTOM_ENV = 'maven.terminal.customEnv';
 	const customEnv:any[] = get(CONFIG_KEY_MAVEN_CUSTOM_ENV) ?? [];
-	let mavenJavaHomeObj = customEnv.find(i => i.environmentVariable === 'JAVA_HOME');
+	const mavenJavaHomeObj = customEnv.find(i => i.environmentVariable === 'JAVA_HOME');
 	const mavenJavaHome:string | undefined = mavenJavaHomeObj?.value;
 	if (OS.isWindows) {
-		// Remove Linux path when switching from WSL to Windows
+		// Remove Linux JAVA_HOME when switching from WSL to Windows
 		// https://github.com/microsoft/vscode-maven/issues/991
 		if (mavenJavaHome && !await jdkExplorer.isValidHome(mavenJavaHome)) {
-			customEnv.splice(customEnv.indexOf(mavenJavaHomeObj), 1); // Remove entry
+			customEnv.splice(customEnv.indexOf(mavenJavaHomeObj), 1); // Remove
 			update(CONFIG_KEY_MAVEN_CUSTOM_ENV, customEnv);
 		}
 	} else if (mavenJavaRuntime) {
-		function _updateMavenJavaHome(newPath: string) {
-			mavenJavaHomeObj.value = newPath;
-			update(CONFIG_KEY_MAVEN_CUSTOM_ENV, customEnv);
-		}
+		let modified = false;
 		if (mavenJavaHome) {
 			const fixedOrDefault = system.isUserInstalled(mavenJavaHome) || !maven.isAutoUpdate()
 				// Keep
@@ -226,12 +223,27 @@ export async function updateJavaRuntimes(
 				: mavenJavaRuntime.path
 			;
 			if (fixedOrDefault !== mavenJavaHome) {
-				_updateMavenJavaHome(fixedOrDefault);
+				mavenJavaHomeObj.value = fixedOrDefault;
+				modified = true;
 			}
 		} else { // If unset use default
-			mavenJavaHomeObj = {environmentVariable: 'JAVA_HOME'};
-			customEnv.push(mavenJavaHomeObj);
-			_updateMavenJavaHome(mavenJavaRuntime.path);
+			customEnv.push({
+				environmentVariable: 'JAVA_HOME',
+				value: mavenJavaRuntime.path,
+			});
+			modified = true;
+		}
+		if (!customEnv.find(i => i.environmentVariable === 'ZDOTDIR')) {
+			// Disable .zshrc JAVA_HOME (macOS/Linux maven menu only)
+			// https://github.com/microsoft/vscode-maven/issues/495
+			customEnv.push({
+				environmentVariable: 'ZDOTDIR',
+				value: '~/.zsh_autoconfig',
+			});
+			modified = true;
+		}
+		if (modified) {
+			update(CONFIG_KEY_MAVEN_CUSTOM_ENV, customEnv);
 		}
 	}
 
