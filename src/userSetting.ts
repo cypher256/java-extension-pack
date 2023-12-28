@@ -188,7 +188,7 @@ export async function updateJavaRuntimes(
 	// Terminal Default Environment Variables (Keep if set)
 	// [Windows] maven context menu JAVA_HOME
 	const terminalDefaultRuntime = latestLtsRuntime || stableLtsRuntime;
-	if (terminalDefaultRuntime && OS.isWindows) { // Excludes macOS/Linux because uses npm scripts
+	if (terminalDefaultRuntime && OS.isWindows) { // Excludes macOS/Linux because occurs npm error
 		const CONFIG_KEY_TERMINAL_ENV = 'terminal.integrated.env.' + osConfigName;
 		const terminalEnv:any = _.cloneDeep(get(CONFIG_KEY_TERMINAL_ENV) ?? {}); // Proxy to POJO for isEqual
 		const terminalEnvOld = _.cloneDeep(terminalEnv);
