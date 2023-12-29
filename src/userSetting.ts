@@ -194,7 +194,7 @@ export async function updateJavaRuntimes(
 		const terminalEnvOld = _.cloneDeep(terminalEnv);
 		const fixedOrDefault = await jdkExplorer.fixPath(terminalEnv.JAVA_HOME) || terminalDefaultRuntime.path;
 		_setTerminalEnv(terminalEnv, fixedOrDefault);
-		if (!_.isEqual(terminalEnv, terminalEnvOld) ) {
+		if (!_.isEqual(terminalEnv, terminalEnvOld)) {
 			update(CONFIG_KEY_TERMINAL_ENV, terminalEnv);
 		}
 	}
@@ -203,7 +203,8 @@ export async function updateJavaRuntimes(
 	// [macOS/Linux] maven context menu JAVA_HOME
 	const mavenJavaRuntime = latestLtsRuntime || stableLtsRuntime;
 	const CONFIG_KEY_MAVEN_CUSTOM_ENV = 'maven.terminal.customEnv';
-	const customEnv:any[] = get(CONFIG_KEY_MAVEN_CUSTOM_ENV) ?? [];
+	const customEnv:any[] = _.cloneDeep(get(CONFIG_KEY_MAVEN_CUSTOM_ENV) ?? []);
+	const customEnvOld = _.cloneDeep(customEnv);
 	const mavenJavaHomeElement = customEnv.find(i => i.environmentVariable === 'JAVA_HOME');
 	const mavenJavaHome:string | undefined = mavenJavaHomeElement?.value;
 	if (OS.isWindows) {
@@ -214,7 +215,6 @@ export async function updateJavaRuntimes(
 			update(CONFIG_KEY_MAVEN_CUSTOM_ENV, customEnv);
 		}
 	} else if (mavenJavaRuntime) {
-		let modified = false;
 		if (mavenJavaHome) {
 			const fixedOrDefault = system.isUserInstalled(mavenJavaHome) || !maven.isAutoUpdate()
 				// Keep
@@ -224,14 +224,12 @@ export async function updateJavaRuntimes(
 			;
 			if (fixedOrDefault !== mavenJavaHome) {
 				mavenJavaHomeElement.value = fixedOrDefault;
-				modified = true;
 			}
 		} else { // If unset use default
 			customEnv.push({
 				environmentVariable: 'JAVA_HOME',
 				value: mavenJavaRuntime.path,
 			});
-			modified = true;
 		}
 		if (!customEnv.find(i => i.environmentVariable === 'ZDOTDIR')) {
 			// Disable .zshrc JAVA_HOME (macOS/Linux maven menu only)
@@ -240,9 +238,8 @@ export async function updateJavaRuntimes(
 				environmentVariable: 'ZDOTDIR',
 				value: '~/.zsh_autoconfig',
 			});
-			modified = true;
 		}
-		if (modified) {
+		if (!_.isEqual(customEnv, customEnvOld)) {
 			update(CONFIG_KEY_MAVEN_CUSTOM_ENV, customEnv);
 		}
 	}
