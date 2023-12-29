@@ -14,7 +14,7 @@ Just install this extension and start Java development right out of the box with
 * Automatically configure, update, and fix multiple Java versions (at least the four latest LTS).
 * Includes extensions for Java development from Microsoft, Red Hat, Broadcom, and others.
 <br><br>
-Main Extensions Issues
+Issues of the main extensions
   * [Extension Pack for Java](https://github.com/microsoft/vscode-java-pack/issues?q=is%3Aissue) (Microsoft)
   * [Language Support for Java by Red Hat](https://github.com/redhat-developer/vscode-java/issues?q=is%3Aissue) (Red Hat)
   * [Spring Boot Extension Pack](https://github.com/spring-projects/sts4/issues?q=is%3Aissue) (Broadcom)
