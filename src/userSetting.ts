@@ -142,7 +142,7 @@ export async function updateJavaRuntimes(
 			// Minimum version https://docs.gradle.org/current/userguide/compatibility.html
 			pathArray.push(gradleBinDir);
 		}
-		// Add system environment vars (mac/Linux empty for default no rcfile)
+		// Add system environment vars (macOS empty for default no rcfile)
 		pathArray.push('${env:PATH}');
 		env.PATH = pathArray.filter(Boolean).join(OS.isWindows ? ';' : ':');
 		env.JAVA_HOME = javaHome;
@@ -163,6 +163,8 @@ export async function updateJavaRuntimes(
 			}
 		}
 	}
+	const HOME = process.env.HOME ?? process.env.USERPROFILE ?? '';
+	const dummyZdotdir = path.join(HOME, '.zsh_autoconfig'); // Disable .zshrc JAVA_HOME
 	for (const runtime of runtimes) { // Set Dropdown from runtimes
 		const profile:any = _.cloneDeep(profilesOld[runtime.name]) ?? {}; // for isEqual
 		profile.overrideName = true;
@@ -171,11 +173,11 @@ export async function updateJavaRuntimes(
 			profile.path ??= 'cmd'; // powershell (legacy), pwsh (non-preinstalled)
 		} else if (OS.isMac) {
 			profile.path ??= 'zsh';
-			delete profile.args; // Remove previous ['-l'] for login shell (because prepend /usr/bin)
-			profile.env.ZDOTDIR ??= '~/.zsh_autoconfig'; // Disable .zshrc JAVA_HOME
+			delete profile.args; // [BUG] Remove ['-l'] for login shell (because prepend /usr/bin)
+			profile.env.ZDOTDIR = dummyZdotdir;
 		} else {
 			profile.path ??= 'bash';
-			profile.args ??= ['--rcfile', '~/.bashrc_autoconfig']; // Disable .bashrc JAVA_HOME (also WSL)
+			delete profile.args; // [BUG] Remove ['--rcfile', ]
 		}
 		_setTerminalEnv(profile.env, runtime.path, runtime.name);
 		profilesNew[runtime.name] = profile;
@@ -231,12 +233,12 @@ export async function updateJavaRuntimes(
 				value: mavenJavaRuntime.path,
 			});
 		}
-		if (!customEnv.find(i => i.environmentVariable === 'ZDOTDIR')) {
-			// Disable .zshrc JAVA_HOME (macOS/Linux maven menu only)
+		if (OS.isMac && !customEnv.find(i => i.environmentVariable === 'ZDOTDIR')) {
+			// Disable .zshrc JAVA_HOME (macOS maven menu only)
 			// https://github.com/microsoft/vscode-maven/issues/495
 			customEnv.push({
 				environmentVariable: 'ZDOTDIR',
-				value: '~/.zsh_autoconfig',
+				value: dummyZdotdir,
 			});
 		}
 		if (!_.isEqual(customEnv, customEnvOld)) {

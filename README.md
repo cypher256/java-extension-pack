@@ -167,13 +167,13 @@ The terminal dropdown items by Java version are automatically created based on t
 
 <br>
 
-A non-existent rcfile is specified so that JAVA_HOME and PATH are not overwritten at shell startup. If necessary, manually create the following rcfile.
+On macOS, a non-existent rcfile is specified so that JAVA_HOME and PATH are not overwritten when the shell is started. If necessary, create the rcfile manually.
 
 |OS|Default Shell|rcfile Location|
 |---|---|---|
-|Windows|cmd|-|
+|Windows|cmd||
 |macOS|zsh|~/.zsh_autoconfig/.zshrc|
-|Linux or WSL|bash|~/.bashrc_autoconfig|
+|Linux or WSL|bash||
 
 <br>
 
