@@ -10,7 +10,7 @@
 
 # Overview
 Just install this extension and start Java development right out of the box with zero configuration.
-* No need to install JDK, Gradle and Maven, no need to set JAVA_HOME and PATH environment variables.
+* No need to install JDK, Gradle or Maven, no need to set JAVA_HOME or PATH environment variables.
 * Automatically configure, update, and fix multiple Java versions (at least the four latest LTS).
 * Includes extensions for Java development from Microsoft, Red Hat, Broadcom, and others.
 <br><br>
