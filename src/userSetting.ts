@@ -203,10 +203,8 @@ export async function updateJavaRuntimes(
 		} else {
 			// Fallback macOS default terminal (but affects all terminals)
 			const PATH = process.env.PATH || '';
-			const ps = [path.join(terminalDefaultRuntime.path, 'bin'), mavenBinDir, gradleBinDir]
-				.filter(p => p && !PATH.includes(p))
-				.join(':')
-			;
+			const binDirs = [path.join(terminalDefaultRuntime.path, 'bin'), mavenBinDir, gradleBinDir];
+			const ps = binDirs.filter(p => p && !PATH.includes(p)).join(':');
 			if (ps) { // Note: append instead of prepend for versioned terminals
 				system.getExtensionContext().environmentVariableCollection.append('PATH', ':' + ps);
 			}
