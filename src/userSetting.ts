@@ -190,14 +190,26 @@ export async function updateJavaRuntimes(
 	// Terminal Default Environment Variables (Keep if set)
 	// [Windows] maven context menu JAVA_HOME
 	const terminalDefaultRuntime = latestLtsRuntime || stableLtsRuntime;
-	if (terminalDefaultRuntime && OS.isWindows) { // Excludes macOS/Linux because occurs npm error
-		const CONFIG_KEY_TERMINAL_ENV = 'terminal.integrated.env.' + osConfigName;
-		const terminalEnv:any = _.cloneDeep(get(CONFIG_KEY_TERMINAL_ENV) ?? {}); // Proxy to POJO for isEqual
-		const terminalEnvOld = _.cloneDeep(terminalEnv);
-		const fixedOrDefault = await jdkExplorer.fixPath(terminalEnv.JAVA_HOME) || terminalDefaultRuntime.path;
-		_setTerminalEnv(terminalEnv, fixedOrDefault);
-		if (!_.isEqual(terminalEnv, terminalEnvOld)) {
-			update(CONFIG_KEY_TERMINAL_ENV, terminalEnv);
+	if (terminalDefaultRuntime) { // Excludes macOS/Linux because occurs npm error
+		if (OS.isWindows) {
+			const CONFIG_KEY_TERMINAL_ENV = 'terminal.integrated.env.' + osConfigName;
+			const terminalEnv:any = _.cloneDeep(get(CONFIG_KEY_TERMINAL_ENV) ?? {}); // Proxy to POJO for isEqual
+			const terminalEnvOld = _.cloneDeep(terminalEnv);
+			const fixedOrDefault = await jdkExplorer.fixPath(terminalEnv.JAVA_HOME) || terminalDefaultRuntime.path;
+			_setTerminalEnv(terminalEnv, fixedOrDefault);
+			if (!_.isEqual(terminalEnv, terminalEnvOld)) {
+				update(CONFIG_KEY_TERMINAL_ENV, terminalEnv);
+			}
+		} else {
+			// Fallback macOS append PATH
+			const PATH = process.env.PATH || '';
+			const ps = [path.join(terminalDefaultRuntime.path, 'bin'), mavenBinDir, gradleBinDir]
+				.filter(p => p && !PATH.includes(p))
+				.join(':')
+			;
+			if (ps) { // append instead of prepend for versioned terminals
+				system.getExtensionContext().environmentVariableCollection.append('PATH', ':' + ps);
+			}
 		}
 	}
 
