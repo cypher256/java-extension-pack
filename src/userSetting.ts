@@ -201,7 +201,7 @@ export async function updateJavaRuntimes(
 				update(CONFIG_KEY_TERMINAL_ENV, terminalEnv);
 			}
 		} else {
-			// Fallback macOS append PATH
+			// Fallback macOS default terminal
 			const PATH = process.env.PATH || '';
 			const ps = [path.join(terminalDefaultRuntime.path, 'bin'), mavenBinDir, gradleBinDir]
 				.filter(p => p && !PATH.includes(p))
