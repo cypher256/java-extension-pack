@@ -201,13 +201,13 @@ export async function updateJavaRuntimes(
 				update(CONFIG_KEY_TERMINAL_ENV, terminalEnv);
 			}
 		} else {
-			// Fallback macOS default terminal
+			// Fallback macOS default terminal (but affects all terminals)
 			const PATH = process.env.PATH || '';
 			const ps = [path.join(terminalDefaultRuntime.path, 'bin'), mavenBinDir, gradleBinDir]
 				.filter(p => p && !PATH.includes(p))
 				.join(':')
 			;
-			if (ps) { // append instead of prepend for versioned terminals
+			if (ps) { // Note: append instead of prepend for versioned terminals
 				system.getExtensionContext().environmentVariableCollection.append('PATH', ':' + ps);
 			}
 		}
