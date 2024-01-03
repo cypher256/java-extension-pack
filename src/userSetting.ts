@@ -95,25 +95,31 @@ export async function updateJavaRuntimes(
 	_updateLsJavaHome('redhat.java', 'java.jdt.ls.java.home');
 	_updateLsJavaHome('vmware.vscode-spring-boot', 'spring-boot.ls.java.home');
 
-	// [Option] RSP Java Home (Keep if set)
-	const rspJavaRuntime = stableLtsRuntime;
-	if (rspJavaRuntime && vscode.extensions.getExtension('redhat.vscode-rsp-ui')) {
-		const CONFIG_KEY_RSP_JAVA_HOME = 'rsp-ui.rsp.java.home';
-		const originPath = get<string>(CONFIG_KEY_RSP_JAVA_HOME);
+	// Optional Extensions LS Java Home (Keep if set)
+	async function _updateOptionJavaHome(extensionId: string, configKey: string, 
+		optionalRuntime: redhat.IJavaRuntime | undefined)
+	{
+		if (!optionalRuntime || !vscode.extensions.getExtension(extensionId)) {
+			return;
+		}
+		const originPath = get<string>(configKey);
 		if (originPath) {
 			const fixedOrDefault = system.isUserInstalled(originPath)
 				// Keep
-				? await jdkExplorer.fixPath(originPath) || rspJavaRuntime.path
+				? await jdkExplorer.fixPath(originPath) || optionalRuntime.path
 				// Update
-				: rspJavaRuntime.path
+				: optionalRuntime.path
 			;
 			if (fixedOrDefault !== originPath) {
-				update(CONFIG_KEY_RSP_JAVA_HOME, fixedOrDefault);
+				update(configKey, fixedOrDefault);
 			}
 		} else { // If unset use default
-			update(CONFIG_KEY_RSP_JAVA_HOME, rspJavaRuntime.path);
+			update(configKey, optionalRuntime.path);
 		}
 	}
+	const previousLtsRuntime = runtimes.findByVersion(javaConfig.downloadLtsVers.at(-2));
+	_updateOptionJavaHome('salesforce.salesforcedx-vscode', 'salesforcedx-vscode-apex.java.home', previousLtsRuntime);
+	_updateOptionJavaHome('redhat.vscode-rsp-ui', 'rsp-ui.rsp.java.home', stableLtsRuntime);
 
 	// Project Runtimes Default (Keep if set)
 	const latestLtsRuntime = runtimes.findByVersion(javaConfig.latestLtsVer);

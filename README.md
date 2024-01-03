@@ -74,6 +74,8 @@ The feature automatically fixes [errors such as](https://stackoverflow.com/searc
 
 <br>
 
+Included Extensions
+
 |Configuration Name|Configured Value (Priority Order)|
 |---|---|
 |*Language support for Java*|
@@ -88,8 +90,15 @@ The feature automatically fixes [errors such as](https://stackoverflow.com/searc
 |*Maven for Java*|
 |[maven.terminal.customEnv](https://marketplace.visualstudio.com/items?itemName=vscjava.vscode-maven#additional-configurations)<br>([Issues](https://github.com/microsoft/vscode-maven/issues?q=is%3Aissue+maven.terminal.customEnv))|Update latest if maven auto-downloaded (for macOS/Linux. For Windows, set to terminal.integrated.env.windows.)<br>(Setting > `JAVA_HOME`)|
 |[maven.executable.path](https://github.com/Microsoft/vscode-maven#settings)<br>([Issues](https://github.com/microsoft/vscode-maven/issues?q=is%3Aissue+maven.executable.path))|Set latest maven if unset<br>(Setting > `mvnw` > `PATH`)|
-|*Runtime Server Protocol UI*|(No extension included)|
-|(*1) [rsp-ui.rsp.java.home](https://github.com/redhat-developer/vscode-rsp-ui#extension-settings)<br>([Issues](https://github.com/redhat-developer/vscode-rsp-ui/issues?q=is%3Aissue+rsp-ui.rsp.java.home))|Set stable LTS if unset, Fix if unsupported older version<br>(Setting > `JDK_HOME` > `JAVA_HOME`> Windows Registry > `PATH`)|
+
+Optional Extensions
+
+|Configuration Name|Configured Value (Priority Order)|
+|---|---|
+|*Runtime Server Protocol UI*|
+|(*1) [rsp-ui.rsp.java.home](https://github.com/redhat-developer/vscode-rsp-ui#extension-settings)<br>([Issues](https://github.com/redhat-developer/vscode-rsp-ui/issues?q=is%3Aissue+rsp-ui.rsp.java.home))|Set stable LTS if unset<br>(Setting > `JDK_HOME` > `JAVA_HOME`> Windows Registry > `PATH`)|
+|*Salesforce Extension Pack*|
+|(*1) [salesforcedx-vscode-apex.java.home](https://developer.salesforce.com/tools/vscode/en/vscode-desktop/java-setup)<br>([Issues](https://github.com/redhat-developer/vscode-rsp-ui/issues?q=is%3Aissue+rsp-ui.rsp.java.home))|Set previous LTS if unset<br>(Setting > `JDK_HOME` > `JAVA_HOME`> Windows Registry > `PATH`)|
 
 (*1) The language server runtime used by VS Code extensions. Not for building or running projects.<br>
 <br>
