@@ -74,7 +74,7 @@ The feature automatically fixes [errors such as](https://stackoverflow.com/searc
 
 <br>
 
-Included Extensions
+For Included Extensions
 
 |Configuration Name|Configured Value (Priority Order)|
 |---|---|
@@ -91,7 +91,7 @@ Included Extensions
 |[maven.terminal.customEnv](https://marketplace.visualstudio.com/items?itemName=vscjava.vscode-maven#additional-configurations)<br>([Issues](https://github.com/microsoft/vscode-maven/issues?q=is%3Aissue+maven.terminal.customEnv))|Update latest if maven auto-downloaded (for macOS/Linux. For Windows, set to terminal.integrated.env.windows.)<br>(Setting > `JAVA_HOME`)|
 |[maven.executable.path](https://github.com/Microsoft/vscode-maven#settings)<br>([Issues](https://github.com/microsoft/vscode-maven/issues?q=is%3Aissue+maven.executable.path))|Set latest maven if unset<br>(Setting > `mvnw` > `PATH`)|
 
-Optional Extensions
+For Optional Extensions
 
 |Configuration Name|Configured Value (Priority Order)|
 |---|---|
