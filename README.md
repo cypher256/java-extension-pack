@@ -98,7 +98,7 @@ For Optional Extensions
 |*Runtime Server Protocol UI*|
 |(*1) [rsp-ui.rsp.java.home](https://github.com/redhat-developer/vscode-rsp-ui#extension-settings)<br>([Issues](https://github.com/redhat-developer/vscode-rsp-ui/issues?q=is%3Aissue+rsp-ui.rsp.java.home))|Set stable LTS if unset<br>(Setting > `JDK_HOME` > `JAVA_HOME`> Windows Registry > `PATH`)|
 |*Salesforce Extension Pack*|
-|(*1) [salesforcedx-vscode-apex.java.home](https://developer.salesforce.com/tools/vscode/en/vscode-desktop/java-setup)<br>([Issues](https://github.com/redhat-developer/vscode-rsp-ui/issues?q=is%3Aissue+rsp-ui.rsp.java.home))|Set previous LTS if unset<br>(Setting > `JDK_HOME` > `JAVA_HOME`> Windows Registry > `PATH`)|
+|(*1) [salesforcedx-vscode-apex.java.home](https://developer.salesforce.com/tools/vscode/en/vscode-desktop/java-setup)<br>([Issues](https://github.com/forcedotcom/salesforcedx-vscode/issues?q=is%3Aissue+salesforcedx-vscode-apex.java.home))|Set previous LTS if unset<br>(Setting > `JDK_HOME` > `JAVA_HOME`> Windows Registry > `PATH`)|
 
 (*1) The language server runtime used by VS Code extensions. Not for building or running projects.<br>
 <br>
