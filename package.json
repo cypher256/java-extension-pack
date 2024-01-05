@@ -38,6 +38,7 @@
     "maven",
     "multiple",
     "path",
+    "PlantUML",
     "portuguese",
     "runtime",
     "runtimes",
@@ -51,6 +52,7 @@
     "spring",
     "terminal",
     "tomcat",
+    "uml",
     "xml",
     "zsh"
   ],
@@ -127,5 +129,5 @@
     "jdk-utils": "0.x",
     "lodash": "4.x"
   },
-  "version": "2024.104.0"
+  "version": "2024.105.0"
 }

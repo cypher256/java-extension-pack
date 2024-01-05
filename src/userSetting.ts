@@ -1,4 +1,5 @@
 /*! VS Code Extension (c) 2023 Shinji Kashihara (cypher256) @ WILL */
+import * as jdkutils from 'jdk-utils';
 import * as _ from "lodash";
 import * as path from 'path';
 import * as vscode from 'vscode';
@@ -73,56 +74,10 @@ export async function updateJavaRuntimes(
 	if (get(CONFIG_KEY_DEPRECATED_JAVA_HOME) !== null) { // null if no entry or null value
 		remove(CONFIG_KEY_DEPRECATED_JAVA_HOME);
 	}
-
-	// VS Code LS Java Home (Remove if embedded JRE exists)
 	const stableLtsRuntime = runtimes.findByVersion(javaConfig.stableLtsVer);
-	async function _updateLsJavaHome(extensionId: string, configKey: string) {
-		if (!vscode.extensions.getExtension(extensionId)) {
-			return;
-		}
-		const originPath = get<string>(configKey);
-		if (javaConfig.embeddedJreVer) {
-			if (originPath) {
-				remove(configKey); // Use embedded JRE
-			}
-			return;
-		}
-		const fixedOrDefault = stableLtsRuntime?.path || await jdkExplorer.fixPath(originPath);
-		if (fixedOrDefault && fixedOrDefault !== originPath) { // Keep if undefined (= invalid path)
-			update(configKey, fixedOrDefault);
-		}
-	}
-	_updateLsJavaHome('redhat.java', 'java.jdt.ls.java.home');
-	_updateLsJavaHome('vmware.vscode-spring-boot', 'spring-boot.ls.java.home');
-
-	// Optional Extensions LS Java Home (Keep if set)
-	async function _updateOptionJavaHome(extensionId: string, configKey: string, 
-		optionalRuntime: redhat.IJavaRuntime | undefined)
-	{
-		if (!optionalRuntime || !vscode.extensions.getExtension(extensionId)) {
-			return;
-		}
-		const originPath = get<string>(configKey);
-		if (originPath) {
-			const fixedOrDefault = system.isUserInstalled(originPath)
-				// Keep
-				? await jdkExplorer.fixPath(originPath) || optionalRuntime.path
-				// Update
-				: optionalRuntime.path
-			;
-			if (fixedOrDefault !== originPath) {
-				update(configKey, fixedOrDefault);
-			}
-		} else { // If unset use default
-			update(configKey, optionalRuntime.path);
-		}
-	}
-	const previousLtsRuntime = runtimes.findByVersion(javaConfig.downloadLtsVers.at(-2));
-	_updateOptionJavaHome('salesforce.salesforcedx-vscode', 'salesforcedx-vscode-apex.java.home', previousLtsRuntime);
-	_updateOptionJavaHome('redhat.vscode-rsp-ui', 'rsp-ui.rsp.java.home', stableLtsRuntime);
+	const latestLtsRuntime = runtimes.findByVersion(javaConfig.latestLtsVer);
 
 	// Project Runtimes Default (Keep if set)
-	const latestLtsRuntime = runtimes.findByVersion(javaConfig.latestLtsVer);
 	if (latestLtsRuntime && !runtimes.findDefault()) {
 		latestLtsRuntime.default = true; // Multiple call safety to set latest
 	}
@@ -293,6 +248,62 @@ export async function updateJavaRuntimes(
 			}
 		} else { // If unset use default
 			_updateGradleJavaHome(gradleJavaRuntime.path);
+		}
+	}
+
+	// VS Code LS Java Home (Remove if embedded JRE exists)
+	async function _updateLsJavaHome(extensionId: string, configKey: string) {
+		if (!vscode.extensions.getExtension(extensionId)) {
+			return;
+		}
+		const originPath = get<string>(configKey);
+		if (javaConfig.embeddedJreVer) {
+			if (originPath) {
+				remove(configKey); // Use embedded JRE
+			}
+			return;
+		}
+		const fixedOrDefault = stableLtsRuntime?.path || await jdkExplorer.fixPath(originPath);
+		if (fixedOrDefault && fixedOrDefault !== originPath) { // Keep if undefined (= invalid path)
+			update(configKey, fixedOrDefault);
+		}
+	}
+	_updateLsJavaHome('redhat.java', 'java.jdt.ls.java.home');
+	_updateLsJavaHome('vmware.vscode-spring-boot', 'spring-boot.ls.java.home');
+
+	// Optional Extensions LS Java Home (Keep if set)
+	async function _updateOptionJavaHome(extensionId: string, configKey: string, 
+		optionalRuntime: redhat.IJavaRuntime | undefined)
+	{
+		if (!optionalRuntime || !vscode.extensions.getExtension(extensionId)) {
+			return;
+		}
+		const originPath = get<string>(configKey);
+		if (originPath) {
+			const fixedOrDefault = system.isUserInstalled(originPath)
+				// Keep
+				? await jdkExplorer.fixPath(originPath) || optionalRuntime.path
+				// Update
+				: optionalRuntime.path
+			;
+			if (fixedOrDefault !== originPath) {
+				update(configKey, fixedOrDefault);
+			}
+		} else { // If unset use default
+			update(configKey, optionalRuntime.path);
+		}
+	}
+	const previousLtsRuntime = runtimes.findByVersion(javaConfig.downloadLtsVers.at(-2));
+	_updateOptionJavaHome('salesforce.salesforcedx-vscode', 'salesforcedx-vscode-apex.java.home', previousLtsRuntime);
+	_updateOptionJavaHome('redhat.vscode-rsp-ui', 'rsp-ui.rsp.java.home', stableLtsRuntime);
+
+	// Optional Extensions java executable path (Keep if set)
+	if (stableLtsRuntime && vscode.extensions.getExtension('jebbs.plantuml')) {
+		const CONFIG_KEY_PLANTUML_JAVA = 'plantuml.java';
+		const originPath = get<string>(CONFIG_KEY_PLANTUML_JAVA);
+		if (!originPath || !system.existsFile(originPath)) {
+			const newPath = path.join(stableLtsRuntime.path, 'bin', jdkutils.JAVA_FILENAME);
+			update(CONFIG_KEY_PLANTUML_JAVA, newPath);
 		}
 	}
 }
