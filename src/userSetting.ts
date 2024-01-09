@@ -134,8 +134,8 @@ export async function updateJavaRuntimes(
 			profile.path ??= 'cmd'; // powershell (legacy), pwsh (non-preinstalled)
 		} else if (OS.isMac) {
 			profile.path ??= 'zsh';
-			delete profile.args; // [BUG] Remove ['-l'] for login shell (because prepend /usr/bin)
 			profile.env.ZDOTDIR = dummyZdotdir;
+			delete profile.args; // [BUG] Remove ['-l'] for login shell (because prepend /usr/bin)
 		} else {
 			profile.path ??= 'bash';
 			delete profile.args; // [BUG] Remove ['--rcfile', ]
@@ -272,7 +272,7 @@ export async function updateJavaRuntimes(
 	_updateLsJavaHome('vmware.vscode-spring-boot', 'spring-boot.ls.java.home');
 
 	// Optional Extensions LS Java Home (Keep if set)
-	async function _updateOptionJavaHome(extensionId: string, configKey: string, 
+	async function _updateOptionJavaHome(extensionId: string, configKey: string,
 		optionalRuntime: redhat.IJavaRuntime | undefined)
 	{
 		if (!optionalRuntime || !vscode.extensions.getExtension(extensionId)) {
@@ -293,8 +293,8 @@ export async function updateJavaRuntimes(
 			update(configKey, optionalRuntime.path);
 		}
 	}
-	const previousLtsRuntime = runtimes.findByVersion(javaConfig.downloadLtsVers.at(-2));
-	_updateOptionJavaHome('salesforce.salesforcedx-vscode', 'salesforcedx-vscode-apex.java.home', previousLtsRuntime);
+	const prevLtsRuntime = runtimes.findByVersion(javaConfig.downloadLtsVers.at(-2));
+	_updateOptionJavaHome('salesforce.salesforcedx-vscode', 'salesforcedx-vscode-apex.java.home', prevLtsRuntime);
 	_updateOptionJavaHome('redhat.vscode-rsp-ui', 'rsp-ui.rsp.java.home', stableLtsRuntime);
 
 	// Optional Extensions java executable path (Keep if set)
@@ -313,11 +313,7 @@ function setIfUndefined(section:string, value:any, extensionId?:string) {
 		return;
 	}
 	if (getDefinition(section) === undefined) {
-		if (typeof value === 'function') {
-			value(section);
-		} else {
-			update(section, value);
-		}
+		update(section, value);
 	}
 }
 
@@ -363,9 +359,7 @@ export async function setDefault(javaConfig: redhat.IJavaConfig) {
 	]);
 	setIfUndefined('editor.unicodeHighlight.includeComments', true);
 	// VS Code Emmet
-	setIfUndefined('emmet.variables', (section:string) => {
-		update(section, {'lang': OS.locale.substring(0, 2)});
-	});
+	setIfUndefined('emmet.variables', {'lang': OS.locale.substring(0, 2)});
 	// VS Code Workbench
 	setIfUndefined('workbench.colorCustomizations', {
 		"[Default Dark Modern]": {
@@ -396,6 +390,6 @@ export async function setDefault(javaConfig: redhat.IJavaConfig) {
 	if (OS.isWindows) {
 		setIfUndefined('terminal.integrated.defaultProfile.windows', 'Command Prompt');
 	}
-	// Other extensions
+	// Optional extensions
 	setIfUndefined('thunder-client.requestLayout', 'Top/Bottom', 'rangav.vscode-thunder-client');
 }

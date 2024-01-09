@@ -54,6 +54,8 @@ export class JavaRuntimeArray extends Array<IJavaRuntime> {
  * An interface that represents the Java configuration.
  */
 export interface IJavaConfig {
+    readonly availableNames: ReadonlyArray<string>;
+    readonly availableVers: ReadonlyArray<number>;
     readonly downloadLtsVers: ReadonlyArray<number>;
     readonly latestLtsVer: number;
     readonly stableLtsVer: number;
@@ -65,23 +67,27 @@ export interface IJavaConfig {
  * @returns The Java configuration.
  */
 export async function getJavaConfig(): Promise<IJavaConfig> {
-    const availableVers = getAvailableVersions();
+    const redhatExtension = vscode.extensions.getExtension('redhat.java');
+    const _availableNames = getAvailableNames(redhatExtension);
+    const _availableVers = _availableNames.map(versionOf).filter(Boolean).sort((a,b) => a-b);
     const ltsFilter = (ver:number) => [8, 11].includes(ver) || (ver >= 17 && (ver - 17) % 4 === 0);
-    const fourLatestLtsVers = availableVers.filter(ltsFilter).slice(-4);
-    const latestLtsVer = fourLatestLtsVers.at(-1);
+    const fourLatestLtsVers = _availableVers.filter(ltsFilter).slice(-4);
+    const _latestLtsVer = fourLatestLtsVers.at(-1);
     const javaConfig:IJavaConfig = {
+        availableNames: _availableNames,
+        availableVers: _availableVers,
         downloadLtsVers: fourLatestLtsVers,
-        latestLtsVer: latestLtsVer ?? 0,
-        stableLtsVer: (latestLtsVer === availableVers.at(-1) ? fourLatestLtsVers.at(-2) : latestLtsVer) ?? 0,
-        embeddedJreVer: await findEmbeddedJREVersion(),
+        latestLtsVer: _latestLtsVer ?? 0,
+        stableLtsVer: (_latestLtsVer === _availableVers.at(-1) ? fourLatestLtsVers.at(-2) : _latestLtsVer) ?? 0,
+        embeddedJreVer: await findEmbeddedJREVersion(redhatExtension),
     };
-    log.info('Supported Java', availableVers);
-    log.info(JSON.stringify(javaConfig));
+    const {availableNames, ...forLog} = javaConfig;
+    Object.entries(forLog).forEach(([k,v]) => log.info(`JavaConfig ${k}: ${v}`));
     return javaConfig;
 }
 
-async function findEmbeddedJREVersion(): Promise<number | undefined> {
-    const redhatExtDir = getRedhatJavaExtension()?.extensionUri?.fsPath;
+async function findEmbeddedJREVersion(redhatExtension: vscode.Extension<any> | undefined): Promise<number | undefined> {
+    const redhatExtDir = redhatExtension?.extensionUri?.fsPath;
     if (redhatExtDir) {
         // C:\Users\(UserName)\.vscode\extensions\redhat.java-1.21.0-win32-x64
         // C:\Users\(UserName)\.vscode\extensions\redhat.java-1.21.0-win32-x64\jre\17.0.7-win32-x86_64\bin
@@ -98,35 +104,18 @@ async function findEmbeddedJREVersion(): Promise<number | undefined> {
     return undefined;
 }
 
-function getRedhatJavaExtension(): vscode.Extension<any> | undefined {
-    return vscode.extensions.getExtension('redhat.java');
-}
-
-/**
- * Returns the names of the available VS Code JDT runtimes.
- * @returns The VS Code JDT runtime names. An array of length 0 if not available.
- */
-export function getAvailableNames(): string[] {
+function getAvailableNames(redhatExtension: vscode.Extension<any> | undefined): string[] {
     // Do not add redhat.java extension to extensionDependencies in package.json,
     // because this extension will not start when redhat activation error occurs.
-    const redhatJava = getRedhatJavaExtension();
-    let config = redhatJava?.packageJSON?.contributes?.configuration;
+    let config = redhatExtension?.packageJSON?.contributes?.configuration;
     if (Array.isArray(config)) {
         config = config.find(c => c.properties?.[JavaRuntimeArray.CONFIG_KEY]);
     }
     const runtimeNames = config?.properties?.[JavaRuntimeArray.CONFIG_KEY]?.items?.properties?.name?.enum ?? [];
     if (runtimeNames.length === 0) {
-        log.warn('Failed getExtension RedHat', redhatJava);
+        log.warn('Failed getExtension RedHat', redhatExtension);
     }
     return runtimeNames;
-}
-
-/**
- * Returns the versions of the available VS Code JDT runtimes.
- * @returns The VS Code JDT runtime versions. An array of length 0 if not available.
- */
-export function getAvailableVersions(): number[] {
-    return getAvailableNames().map(versionOf).filter(Boolean).sort((a,b) => a-b);
 }
 
 /**

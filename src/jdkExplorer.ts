@@ -18,11 +18,11 @@ import * as userSetting from './userSetting';
 export async function scan(javaConfig: redhat.IJavaConfig, runtimes:redhat.JavaRuntimeArray) {
 
 	// Fix JDK path
-	const availableNames = redhat.getAvailableNames();
 	let needImmediateUpdate = false;
 	for (let i = runtimes.length - 1; i >= 0; i--) { // Decrement for splice (remove)
 		const runtime = runtimes[i];
 		// Unsupported name
+		const availableNames = javaConfig.availableNames;
 		if (availableNames.length > 0 && !availableNames.includes(runtime.name)) {
 			log.info(`Remove unsupported name ${runtime.name}`);
 			runtimes.splice(i, 1); // remove
@@ -65,9 +65,8 @@ export async function scan(javaConfig: redhat.IJavaConfig, runtimes:redhat.JavaR
 
 	// Detect User Installed JDK
 	const detectedLatestMap = new Map<number, IDetectedJdk>();
-	const availableVers = redhat.getAvailableVersions();
 	for (const detectedJdk of await findAll()) {
-		if (!availableVers.includes(detectedJdk.majorVersion)) {
+		if (!javaConfig.availableVers.includes(detectedJdk.majorVersion)) {
 			continue;
 		}
 		const latestJdk = detectedLatestMap.get(detectedJdk.majorVersion);
@@ -77,7 +76,7 @@ export async function scan(javaConfig: redhat.IJavaConfig, runtimes:redhat.JavaR
 	}
 
 	// Detect Auto-Downloaded JDK (Support when user installation is uninstalled)
-	for (const majorVer of availableVers) { // All versions for no download version
+	for (const majorVer of javaConfig.availableVers) { // All versions for no download version
 		const downloadDir = jdk.getDownloadDir(majorVer);
 		if (await isValidHome(downloadDir)) {
 			log.info(`Detected Auto-downloaded ${majorVer}`);
@@ -249,7 +248,7 @@ async function findAll(): Promise<IDetectedJdk[]> {
 				const distPats = ['c', 'd'].flatMap(drive => ['', '20*/'].map(p => `${drive}:/pleiades*/${p}java`));
 				await findBy('Pleiades', jdks, distPats);
 			} else if (OS.isMac) {
-				// 2024+ aarch64 new path format (21/Home/bin -> 21/bin)
+				// Pleiades 2024+ aarch64 new path format (21/Home/bin -> 21/bin)
 				// e.g. /Applications/Eclipse_2024-12.app/Contents/java/21/bin
 				// Pending: Check access dialog on mac
 				// await tryGlob('Pleiades', jdks, '/Applications/Eclipse_20*.app/Contents/java');
