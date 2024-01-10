@@ -154,8 +154,9 @@ export async function updateJavaRuntimes(
 	// Terminal Default Environment Variables (Keep if set)
 	// [Windows] maven context menu JAVA_HOME
 	const terminalDefaultRuntime = latestLtsRuntime || stableLtsRuntime;
-	if (terminalDefaultRuntime) { // Excludes macOS/Linux because occurs npm error
+	if (terminalDefaultRuntime) {
 		if (OS.isWindows) {
+			// Excludes macOS/Linux because occurs npm error (Need rcfile)
 			const CONFIG_KEY_TERMINAL_ENV = 'terminal.integrated.env.' + osConfigName;
 			const terminalEnv:any = _.cloneDeep(get(CONFIG_KEY_TERMINAL_ENV) ?? {}); // Proxy to POJO for isEqual
 			const terminalEnvOld = _.cloneDeep(terminalEnv);
@@ -165,11 +166,13 @@ export async function updateJavaRuntimes(
 				update(CONFIG_KEY_TERMINAL_ENV, terminalEnv);
 			}
 		} else {
-			// Fallback macOS default terminal (but affects all terminals)
+			// Fallback macOS/Linux default terminal (but affects all terminals)
 			const PATH = process.env.PATH || '';
 			const binDirs = [path.join(terminalDefaultRuntime.path, 'bin'), mavenBinDir, gradleBinDir];
 			const addPath = binDirs.filter(p => p && !PATH.includes(p)).join(':');
-			if (addPath) { // Note: append instead of prepend for versioned terminals
+			if (addPath) {
+				// macOS: Append instead of prepend for versioned terminals
+				// Linux: Support for incorrect .bashrc (usually used .bashrc)
 				system.getExtensionContext().environmentVariableCollection.append('PATH', ':' + addPath);
 			}
 		}
@@ -378,11 +381,14 @@ export async function setDefault(javaConfig: redhat.IJavaConfig) {
 	setIfUndefined('workbench.tree.indent', 20);
 	if (OS.isWindows) {
 		setIfUndefined('files.eol', '\n');
+		setIfUndefined('[bat]', {'files.eol': '\r\n'});
 	}
-	setIfUndefined('[bat]', {'files.eol': '\r\n'});
 	// VS Code Terminal
 	setIfUndefined('terminal.integrated.enablePersistentSessions', false);
 	setIfUndefined('terminal.integrated.tabs.hideCondition', 'never');
+	if (OS.isWindows) {
+		setIfUndefined('terminal.integrated.defaultProfile.windows', 'Command Prompt');
+	}
 	// Java extensions
 	setIfUndefined('java.configuration.updateBuildConfiguration', 'automatic');
 	setIfUndefined('java.debug.settings.hotCodeReplace', 'auto');
@@ -390,9 +396,6 @@ export async function setDefault(javaConfig: redhat.IJavaConfig) {
 	// Included extensions
 	setIfUndefined('cSpell.diagnosticLevel', 'Hint', 'streetsidesoftware.code-spell-checker');
 	setIfUndefined('trailing-spaces.includeEmptyLines', false, 'shardulm94.trailing-spaces');
-	if (OS.isWindows) {
-		setIfUndefined('terminal.integrated.defaultProfile.windows', 'Command Prompt');
-	}
 	// Optional extensions
 	setIfUndefined('thunder-client.requestLayout', 'Top/Bottom', 'rangav.vscode-thunder-client');
 }
