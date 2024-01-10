@@ -134,11 +134,14 @@ export async function updateJavaRuntimes(
 			profile.path ??= 'cmd'; // powershell (legacy), pwsh (non-preinstalled)
 		} else if (OS.isMac) {
 			profile.path ??= 'zsh';
-			profile.env.ZDOTDIR = dummyZdotdir;
-			delete profile.args; // [BUG] Remove ['-l'] for login shell (because prepend /usr/bin)
+			profile.env.ZDOTDIR = dummyZdotdir; // Disable .zshrc JAVA_HOME
+			if (Array.isArray(profile.args) && profile.args.includes('-l')) {
+				// [FIX] Remove ['-l'] for login shell (because prepend /usr/bin)
+				profile.args.splice(profile.args.indexOf('-l'), 1);
+			}
 		} else {
 			profile.path ??= 'bash';
-			delete profile.args; // [BUG] Remove ['--rcfile', ]
+			profile.args ??= ['--rcfile', path.join(HOME, '.bashrc_autoconfig')]; // Disable WSL .bashrc JAVA_HOME
 		}
 		_setTerminalEnv(profile.env, runtime.path, runtime.name);
 		profilesNew[runtime.name] = profile;
