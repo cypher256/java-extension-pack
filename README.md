@@ -213,7 +213,7 @@ Command Palette **>Preferences: Open User Settings (JSON)**
 <br>
 
 ## Auto-default Settings
-Entries that do not have the following configuration in the user settings are automatically set to the default values of Auto Config Java. To prevent automatic setting, set the Original Default value below. Note that a debug run is required to enable Hot Code Replace (Hot Deploy).
+Entries that do not have the following configuration in the user settings are automatically set to the default values of `Java Extension Pack Auto Config`. To prevent automatic setting, set the Original Default value below. Note that a debug run is required to enable Hot Code Replace (Hot Deploy).
 
 |Configuration Name|Original Default|Auto Default|
 |---|---|---|
