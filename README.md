@@ -178,16 +178,6 @@ The terminal dropdown items by Java version are automatically created based on t
 
 <br>
 
-On macOS and Linux, a non-existent rcfile is specified so that JAVA_HOME and PATH are not overwritten when the shell is started. If necessary, manually create an rcfile with the following name.
-
-|OS|Default Shell|rcfile Location|
-|---|---|---|
-|Windows|cmd||
-|macOS|zsh|~/.zsh_autoconfig/.zshrc|
-|Linux or WSL|bash|~/.bashrc_autoconfig|
-
-<br>
-
 #### e.g. Auto-configured User settings.json
 Command Palette **>Preferences: Open User Settings (JSON)**
 ```json

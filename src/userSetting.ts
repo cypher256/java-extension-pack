@@ -124,26 +124,23 @@ export async function updateJavaRuntimes(
 			}
 		}
 	}
-	const HOME = process.env.HOME ?? process.env.USERPROFILE ?? '';
-	const dummyZdotdir = path.join(HOME, '.zsh_autoconfig'); // Disable .zshrc JAVA_HOME
+	const resourcesDir = system.getExtensionContext().asAbsolutePath('resources');
 	for (const runtime of runtimes) { // Set Dropdown from runtimes
 		const profile:any = _.cloneDeep(profilesOld[runtime.name]) ?? {}; // for isEqual
 		profile.overrideName = true;
-		profile.env ??= {};
+		profile.env = {};
 		if (OS.isWindows) {
 			profile.path ??= 'cmd'; // powershell (legacy), pwsh (non-preinstalled)
+			_setTerminalEnv(profile.env, runtime.path, runtime.name);
 		} else if (OS.isMac) {
-			profile.path ??= 'zsh';
-			profile.env.ZDOTDIR = dummyZdotdir; // Disable .zshrc JAVA_HOME
-			if (Array.isArray(profile.args) && profile.args.includes('-l')) {
-				// [FIX] Remove ['-l'] for login shell (because prepend /usr/bin)
-				profile.args.splice(profile.args.indexOf('-l'), 1);
-			}
-		} else {
-			profile.path ??= 'bash';
-			profile.args ??= ['--rcfile', path.join(HOME, '.bashrc_autoconfig')]; // Disable WSL .bashrc JAVA_HOME
+			profile.path = 'zsh';
+			profile.env.ZDOTDIR = resourcesDir;
+			profile.env.AUTOCONFIG_JAVA_HOME = runtime.path;
+		} else { // Linux
+			profile.path = 'bash';
+			profile.args = ['--rcfile', path.join(resourcesDir, '.bashrc')];
+			profile.env.AUTOCONFIG_JAVA_HOME = runtime.path;
 		}
-		_setTerminalEnv(profile.env, runtime.path, runtime.name);
 		profilesNew[runtime.name] = profile;
 	}
 	const sortedNew = Object.fromEntries(Object.keys(profilesNew).sort().map(key => [key, profilesNew[key]]));
@@ -152,10 +149,10 @@ export async function updateJavaRuntimes(
 	}
 
 	// Terminal Default Environment Variables (Keep if set)
-	// [Windows] maven context menu JAVA_HOME
 	const terminalDefaultRuntime = latestLtsRuntime || stableLtsRuntime;
 	if (terminalDefaultRuntime) {
 		if (OS.isWindows) {
+			// [Windows] maven context menu JAVA_HOME
 			// Excludes macOS/Linux because occurs npm error (Need rcfile)
 			const CONFIG_KEY_TERMINAL_ENV = 'terminal.integrated.env.' + osConfigName;
 			const terminalEnv:any = _.cloneDeep(get(CONFIG_KEY_TERMINAL_ENV) ?? {}); // Proxy to POJO for isEqual
@@ -166,20 +163,16 @@ export async function updateJavaRuntimes(
 				update(CONFIG_KEY_TERMINAL_ENV, terminalEnv);
 			}
 		} else {
-			// Fallback macOS/Linux default terminal (but affects all terminals)
+			// [macOS/Linux] Note: Affects all terminals
+			// java PATH is prepend in terminal profiles rcfile
 			const PATH = process.env.PATH || '';
 			const binDirs = [path.join(terminalDefaultRuntime.path, 'bin'), mavenBinDir, gradleBinDir];
 			const addPath = binDirs.filter(p => p && !PATH.includes(p)).join(':');
-			if (addPath) {
-				// macOS: Append instead of prepend for versioned terminals
-				// Linux: Support for incorrect .bashrc (usually used .bashrc)
-				system.getExtensionContext().environmentVariableCollection.append('PATH', ':' + addPath);
-			}
+			system.getExtensionContext().environmentVariableCollection.prepend('PATH', addPath + ':');
 		}
 	}
 
 	// Maven terminal common env (Keep if set)
-	// [macOS/Linux] maven context menu JAVA_HOME
 	const mavenJavaRuntime = latestLtsRuntime || stableLtsRuntime;
 	const CONFIG_KEY_MAVEN_CUSTOM_ENV = 'maven.terminal.customEnv';
 	const customEnv:any[] = _.cloneDeep(get(CONFIG_KEY_MAVEN_CUSTOM_ENV) ?? []);
@@ -194,6 +187,7 @@ export async function updateJavaRuntimes(
 			update(CONFIG_KEY_MAVEN_CUSTOM_ENV, customEnv);
 		}
 	} else if (mavenJavaRuntime) {
+		// [macOS/Linux] maven context menu JAVA_HOME
 		if (mavenJavaHome) {
 			const fixedOrDefault = system.isUserInstalled(mavenJavaHome) || !maven.isAutoUpdate()
 				// Keep
@@ -212,10 +206,10 @@ export async function updateJavaRuntimes(
 		}
 		if (OS.isMac && !customEnv.find(i => i.environmentVariable === 'ZDOTDIR')) {
 			// Disable .zshrc JAVA_HOME (macOS maven menu only)
-			// https://github.com/microsoft/vscode-maven/issues/495
+			// https://github.com/microsoft/vscode-maven/issues/495#issuecomment-1869653082
 			customEnv.push({
 				environmentVariable: 'ZDOTDIR',
-				value: dummyZdotdir,
+				value: path.join(process.env.HOME ?? '', '.zdotdir_dummy'),
 			});
 		}
 		if (!_.isEqual(customEnv, customEnvOld)) {
