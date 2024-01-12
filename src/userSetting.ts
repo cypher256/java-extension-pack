@@ -172,7 +172,7 @@ export async function updateJavaRuntimes(
 		}
 	}
 
-	// Maven terminal common env (Keep if set)
+	// Maven Terminal Custom Env (Keep if set)
 	const mavenJavaRuntime = latestLtsRuntime || stableLtsRuntime;
 	const CONFIG_KEY_MAVEN_CUSTOM_ENV = 'maven.terminal.customEnv';
 	const customEnv:any[] = _.cloneDeep(get(CONFIG_KEY_MAVEN_CUSTOM_ENV) ?? []);
