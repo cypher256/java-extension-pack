@@ -9,19 +9,13 @@ import * as userSetting from '../userSetting';
 const CONFIG_KEY_GRADLE_HOME = 'java.import.gradle.home';
 
 /**
- * @param useWhich true to search from system path.
  * @returns The path of the Gradle bin directory.
  */
-export async function getBinDir(useWhich:boolean): Promise<string | undefined> {
+export async function getConfigBinDir(): Promise<string | undefined> {
 	let binDir:string | undefined = undefined;
 	const gradleHome = userSetting.get<string>(CONFIG_KEY_GRADLE_HOME);
 	if (gradleHome) {
 		binDir = path.join(gradleHome, 'bin');
-	} else if (useWhich) {
-		const gradleExePath = await system.whichPath('gradle');
-		if (gradleExePath) {
-			binDir = path.join(gradleExePath, '..');
-		}
 	}
 	return binDir;
 }

@@ -9,15 +9,11 @@ import * as userSetting from '../userSetting';
 const CONFIG_KEY_MAVEN_EXE_PATH = 'maven.executable.path';
 
 /**
- * @param useWhich true to search from system path.
  * @returns The path of the Maven bin directory.
  */
-export async function getBinDir(useWhich:boolean): Promise<string | undefined> {
+export async function getConfigBinDir(): Promise<string | undefined> {
 	let binDir:string | undefined = undefined;
 	let mvnExePath = userSetting.get<string>(CONFIG_KEY_MAVEN_EXE_PATH);
-	if (!mvnExePath && useWhich) {
-		mvnExePath = await system.whichPath('mvn');
-	}
 	if (mvnExePath) {
 		binDir = path.join(mvnExePath, '..');
 	}

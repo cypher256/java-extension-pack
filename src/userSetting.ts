@@ -86,29 +86,6 @@ export async function updateJavaRuntimes(
 		update(redhat.JavaRuntimeArray.CONFIG_KEY, runtimes);
 	}
 
-	// Set Terminal Env Function
-	const useWhich = !OS.isWindows; // true:mac/Linux (Because available ${env:PATH} on Windows)
-	const mavenBinDir = await maven.getBinDir(useWhich);
-	const gradleBinDir = await gradle.getBinDir(useWhich);
-	function _setTerminalEnv(env:any, javaHome:string, runtimeName?:string) {
-		const pathArray = [];
-		pathArray.push(path.join(javaHome, 'bin'));
-		// Gradle/Maven: From setting or mac/Linux 'which' (Unsupported older Java version)
-		const javaVersion = redhat.versionOf(runtimeName ?? '') || Number.MAX_SAFE_INTEGER;
-		if (mavenBinDir && (javaVersion >= 8 || system.isUserInstalled(mavenBinDir))) {
-			// Minimum version https://maven.apache.org/developers/compatibility-plan.html
-			pathArray.push(mavenBinDir);
-		}
-		if (gradleBinDir && (javaVersion >= 8 || system.isUserInstalled(gradleBinDir))) {
-			// Minimum version https://docs.gradle.org/current/userguide/compatibility.html
-			pathArray.push(gradleBinDir);
-		}
-		// Add system environment vars (macOS empty for default no rcfile)
-		pathArray.push('${env:PATH}');
-		env.PATH = pathArray.filter(Boolean).join(OS.isWindows ? ';' : ':');
-		env.JAVA_HOME = javaHome;
-	}
-
 	// Terminal Profiles Dropdown (Always update)
 	const osConfigName = OS.isWindows ? 'windows' : OS.isMac ? 'osx' : 'linux';
 	const CONFIG_KEY_TERMINAL_PROFILES = 'terminal.integrated.profiles.' + osConfigName;
@@ -131,7 +108,8 @@ export async function updateJavaRuntimes(
 		profile.env = {};
 		if (OS.isWindows) {
 			profile.path ??= 'cmd'; // powershell (legacy), pwsh (non-preinstalled)
-			_setTerminalEnv(profile.env, runtime.path, runtime.name);
+			profile.env.PATH = [path.join(runtime.path, 'bin'), '${env:PATH}'].join(path.delimiter);
+			profile.env.JAVA_HOME = runtime.path;
 		} else if (OS.isMac) {
 			profile.path = 'zsh';
 			profile.env.ZDOTDIR = resourcesDir;
@@ -148,9 +126,12 @@ export async function updateJavaRuntimes(
 		update(CONFIG_KEY_TERMINAL_PROFILES, sortedNew);
 	}
 
-	// Terminal Default Environment Variables (Keep if set)
+	// Terminal Default Env Variables (Keep if set)
 	const terminalDefaultRuntime = latestLtsRuntime || stableLtsRuntime;
 	if (terminalDefaultRuntime) {
+		const mavenBinDir = await maven.getConfigBinDir();
+		const gradleBinDir = await gradle.getConfigBinDir();
+		const _p = (p:string[]) => system.getExtensionContext().environmentVariableCollection.prepend('PATH', p + path.delimiter);
 		if (OS.isWindows) {
 			// [Windows] maven context menu JAVA_HOME
 			// Excludes macOS/Linux because occurs npm error (Need rcfile)
@@ -158,17 +139,22 @@ export async function updateJavaRuntimes(
 			const terminalEnv:any = _.cloneDeep(get(CONFIG_KEY_TERMINAL_ENV) ?? {}); // Proxy to POJO for isEqual
 			const terminalEnvOld = _.cloneDeep(terminalEnv);
 			const fixedOrDefault = await jdkExplorer.fixPath(terminalEnv.JAVA_HOME) || terminalDefaultRuntime.path;
-			_setTerminalEnv(terminalEnv, fixedOrDefault);
+			terminalEnv.PATH = [path.join(fixedOrDefault, 'bin'), '${env:PATH}'].join(path.delimiter);
+			terminalEnv.JAVA_HOME = fixedOrDefault;
 			if (!_.isEqual(terminalEnv, terminalEnvOld)) {
 				update(CONFIG_KEY_TERMINAL_ENV, terminalEnv);
 			}
+			// Prepend to Windows Env Variables (Affects all terminals)
+			const PATH = (process.env.PATH || '').toLowerCase();
+			const binDirs = [mavenBinDir, gradleBinDir];
+			const addPath = binDirs.filter(p => p && !PATH.includes(p.toLowerCase())).join(path.delimiter);
+			system.getExtensionContext().environmentVariableCollection.prepend('PATH', addPath + path.delimiter);
 		} else {
-			// [macOS/Linux] Note: Affects all terminals
-			// java PATH is prepend in terminal profiles rcfile
+			// Prepend to macOS/Linux Env Variables (Affects all terminals)
 			const PATH = process.env.PATH || '';
 			const binDirs = [path.join(terminalDefaultRuntime.path, 'bin'), mavenBinDir, gradleBinDir];
-			const addPath = binDirs.filter(p => p && !PATH.includes(p)).join(':');
-			system.getExtensionContext().environmentVariableCollection.prepend('PATH', addPath + ':');
+			const addPath = binDirs.filter(p => p && !PATH.includes(p)).join(path.delimiter);
+			system.getExtensionContext().environmentVariableCollection.prepend('PATH', addPath + path.delimiter);
 		}
 	}
 
