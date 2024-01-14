@@ -131,7 +131,6 @@ export async function updateJavaRuntimes(
 	if (terminalDefaultRuntime) {
 		const mavenBinDir = await maven.getConfigBinDir();
 		const gradleBinDir = await gradle.getConfigBinDir();
-		const _p = (p:string[]) => system.getExtensionContext().environmentVariableCollection.prepend('PATH', p + path.delimiter);
 		if (OS.isWindows) {
 			// [Windows] maven context menu JAVA_HOME
 			// Excludes macOS/Linux because occurs npm error (Need rcfile)
@@ -159,58 +158,48 @@ export async function updateJavaRuntimes(
 	}
 
 	// Maven Terminal Custom Env (Keep if set)
-	const mavenJavaRuntime = latestLtsRuntime || stableLtsRuntime;
-	const CONFIG_KEY_MAVEN_CUSTOM_ENV = 'maven.terminal.customEnv';
-	const customEnv:any[] = _.cloneDeep(get(CONFIG_KEY_MAVEN_CUSTOM_ENV) ?? []);
-	const customEnvOld = _.cloneDeep(customEnv);
-	const mavenJavaHomeElement = customEnv.find(i => i.environmentVariable === 'JAVA_HOME');
-	const mavenJavaHome:string | undefined = mavenJavaHomeElement?.value;
-	if (OS.isWindows) {
-		// Remove Linux JAVA_HOME when switching from WSL to Windows
-		// https://github.com/microsoft/vscode-maven/issues/991
-		if (mavenJavaHome && !await jdkExplorer.isValidHome(mavenJavaHome)) {
-			customEnv.splice(customEnv.indexOf(mavenJavaHomeElement), 1); // Remove
-			update(CONFIG_KEY_MAVEN_CUSTOM_ENV, customEnv);
-		}
-	} else if (mavenJavaRuntime) {
-		// [macOS/Linux] maven context menu JAVA_HOME
-		if (mavenJavaHome) {
-			const fixedOrDefault = system.isUserInstalled(mavenJavaHome) || !maven.isAutoUpdate()
-				// Keep
-				? await jdkExplorer.fixPath(mavenJavaHome) || mavenJavaRuntime.path
-				// Auto-update
-				: mavenJavaRuntime.path
-			;
-			if (fixedOrDefault !== mavenJavaHome) {
-				mavenJavaHomeElement.value = fixedOrDefault;
+	{
+		const mavenJavaRuntime = latestLtsRuntime || stableLtsRuntime;
+		const CONFIG_KEY_MAVEN_CUSTOM_ENV = 'maven.terminal.customEnv';
+		const customEnv:any[] = _.cloneDeep(get(CONFIG_KEY_MAVEN_CUSTOM_ENV) ?? []);
+		const customEnvOld = _.cloneDeep(customEnv);
+		const mavenJavaHomeElement = customEnv.find(i => i.environmentVariable === 'JAVA_HOME');
+		const mavenJavaHome:string | undefined = mavenJavaHomeElement?.value;
+		if (OS.isWindows) {
+			// Remove Linux JAVA_HOME when switching from WSL to Windows
+			// https://github.com/microsoft/vscode-maven/issues/991
+			if (mavenJavaHome && !await jdkExplorer.isValidHome(mavenJavaHome)) {
+				customEnv.splice(customEnv.indexOf(mavenJavaHomeElement), 1); // Remove
+				update(CONFIG_KEY_MAVEN_CUSTOM_ENV, customEnv);
 			}
-		} else { // If unset use default
-			customEnv.push({
-				environmentVariable: 'JAVA_HOME',
-				value: mavenJavaRuntime.path,
-			});
-		}
-		if (OS.isMac && !customEnv.find(i => i.environmentVariable === 'ZDOTDIR')) {
-			// Disable .zshrc JAVA_HOME (macOS maven menu only)
-			// https://github.com/microsoft/vscode-maven/issues/495#issuecomment-1869653082
-			customEnv.push({
-				environmentVariable: 'ZDOTDIR',
-				value: path.join(process.env.HOME ?? '', '.zdotdir_dummy'),
-			});
-		}
-		if (!_.isEqual(customEnv, customEnvOld)) {
-			update(CONFIG_KEY_MAVEN_CUSTOM_ENV, customEnv);
+		} else if (mavenJavaRuntime) {
+			// [macOS/Linux] maven context menu JAVA_HOME
+			if (mavenJavaHome) {
+				const fixedOrDefault = await jdkExplorer.fixPath(mavenJavaHome) || mavenJavaRuntime.path;
+				if (fixedOrDefault !== mavenJavaHome) {
+					mavenJavaHomeElement.value = fixedOrDefault;
+				}
+			} else { // If unset use default
+				customEnv.push({
+					environmentVariable: 'JAVA_HOME',
+					value: mavenJavaRuntime.path,
+				});
+			}
+			if (OS.isMac && !customEnv.find(i => i.environmentVariable === 'ZDOTDIR')) {
+				// Disable .zshrc JAVA_HOME (macOS maven menu only)
+				// https://github.com/microsoft/vscode-maven/issues/495#issuecomment-1869653082
+				customEnv.push({
+					environmentVariable: 'ZDOTDIR',
+					value: path.join(process.env.HOME ?? '', '.zdotdir_dummy'),
+				});
+			}
+			if (!_.isEqual(customEnv, customEnvOld)) {
+				update(CONFIG_KEY_MAVEN_CUSTOM_ENV, customEnv);
+			}
 		}
 	}
 
 	// Gradle Daemon Java Home (Keep if set)
-	/*
-	let gradleJavaRuntime = stableLtsRuntime;
-	const GRADLE_FULL_SUPPORTED_MAX_JAVA_LTS_VER = 21;
-	if (latestLtsRuntime && javaConfig.latestLtsVer <= GRADLE_FULL_SUPPORTED_MAX_JAVA_LTS_VER) {
-		gradleJavaRuntime = latestLtsRuntime;
-	}
-	*/
 	// Gradle 8.5+ can execute on latest Java versions
 	// https://github.com/gradle/gradle/issues/26944#issuecomment-1794419074
 	const gradleJavaRuntime = latestLtsRuntime || stableLtsRuntime;
@@ -223,12 +212,7 @@ export async function updateJavaRuntimes(
 			log.info('Needs Reload: Restart Gradle Daemon');
 		}
 		if (originPath) {
-			const fixedOrDefault = system.isUserInstalled(originPath) || !gradle.isAutoUpdate()
-				// Keep
-				? await jdkExplorer.fixPath(originPath) || gradleJavaRuntime.path
-				// Auto-update
-				: gradleJavaRuntime.path
-			;
+			const fixedOrDefault = await jdkExplorer.fixPath(originPath) || gradleJavaRuntime.path;
 			if (fixedOrDefault !== originPath) {
 				_updateGradleJavaHome(fixedOrDefault);
 			}

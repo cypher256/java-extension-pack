@@ -21,15 +21,6 @@ export async function getConfigBinDir(): Promise<string | undefined> {
 }
 
 /**
- * @returns true if Maven is auto-updated with auto-downloaded path.
- */
-export function isAutoUpdate(): boolean {
-	const configMavenExe = userSetting.get<string>(CONFIG_KEY_MAVEN_EXE_PATH);
-	if (!configMavenExe) {return false;}
-	return system.equalsPath(getDownloadDir(), path.join(configMavenExe, '..', '..'));
-}
-
-/**
  * Downloads and installs the Maven if it is not already installed.
  * @returns A promise that resolves when the Maven is installed.
  */

@@ -21,13 +21,6 @@ export async function getConfigBinDir(): Promise<string | undefined> {
 }
 
 /**
- * @returns true if Gradle is auto-updated with auto-downloaded path.
- */
-export function isAutoUpdate(): boolean {
-	return system.equalsPath(getDownloadDir(), userSetting.get<string>(CONFIG_KEY_GRADLE_HOME));
-}
-
-/**
  * Downloads and installs the Gradle if it is not already installed.
  * @returns A promise that resolves when the Gradle is installed.
  */
