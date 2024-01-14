@@ -164,19 +164,19 @@ export async function updateJavaRuntimes(
 		const customEnv:any[] = _.cloneDeep(get(CONFIG_KEY_MAVEN_CUSTOM_ENV) ?? []);
 		const customEnvOld = _.cloneDeep(customEnv);
 		const mavenJavaHomeElement = customEnv.find(i => i.environmentVariable === 'JAVA_HOME');
-		const mavenJavaHome:string | undefined = mavenJavaHomeElement?.value;
+		const originPath:string | undefined = mavenJavaHomeElement?.value;
 		if (OS.isWindows) {
 			// Remove Linux JAVA_HOME when switching from WSL to Windows
 			// https://github.com/microsoft/vscode-maven/issues/991
-			if (mavenJavaHome && !await jdkExplorer.isValidHome(mavenJavaHome)) {
+			if (originPath && !await jdkExplorer.isValidHome(originPath)) {
 				customEnv.splice(customEnv.indexOf(mavenJavaHomeElement), 1); // Remove
 				update(CONFIG_KEY_MAVEN_CUSTOM_ENV, customEnv);
 			}
 		} else if (mavenJavaRuntime) {
 			// [macOS/Linux] maven context menu JAVA_HOME
-			if (mavenJavaHome) {
-				const fixedOrDefault = await jdkExplorer.fixPath(mavenJavaHome) || mavenJavaRuntime.path;
-				if (fixedOrDefault !== mavenJavaHome) {
+			if (originPath) {
+				const fixedOrDefault = await jdkExplorer.fixPath(originPath) || mavenJavaRuntime.path;
+				if (fixedOrDefault !== originPath) {
 					mavenJavaHomeElement.value = fixedOrDefault;
 				}
 			} else { // If unset use default
