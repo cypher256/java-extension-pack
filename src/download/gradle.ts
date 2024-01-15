@@ -9,15 +9,11 @@ import * as userSetting from '../userSetting';
 const CONFIG_KEY_GRADLE_HOME = 'java.import.gradle.home';
 
 /**
- * @returns The path of the Gradle bin directory.
+ * @returns The bin directory path based on Gradle configuration.
  */
 export async function getConfigBinDir(): Promise<string | undefined> {
-	let binDir:string | undefined = undefined;
 	const gradleHome = userSetting.get<string>(CONFIG_KEY_GRADLE_HOME);
-	if (gradleHome) {
-		binDir = path.join(gradleHome, 'bin');
-	}
-	return binDir;
+	return gradleHome ? path.join(gradleHome, 'bin') : undefined;
 }
 
 /**
@@ -26,7 +22,7 @@ export async function getConfigBinDir(): Promise<string | undefined> {
  */
 export async function download() {
 	const gradleHomeOld = userSetting.get<string>(CONFIG_KEY_GRADLE_HOME);
-	let gradleHomeNew = await resolve(gradleHomeOld);
+	let gradleHomeNew = await resolvePath(gradleHomeOld);
 	if (gradleHomeNew && system.isUserInstalled(gradleHomeNew)) {
 		log.info('Available Gradle (User installed)', CONFIG_KEY_GRADLE_HOME, gradleHomeNew);
 	} else {
@@ -47,9 +43,7 @@ function getDownloadDir(): string {
 	return path.join(system.getGlobalStoragePath(), 'gradle', 'latest');
 }
 
-async function resolve(
-	configGradleHome:string | undefined): Promise<string | undefined> {
-
+async function resolvePath(configGradleHome:string | undefined): Promise<string | undefined> {
 	if (configGradleHome) {
 		const fixedPath = fixPath(configGradleHome);
 		if (!fixedPath) {
@@ -73,8 +67,7 @@ async function resolve(
 		// If undefined, restore from downloaded (Fallback for http connect failures)
 		const downloadDir = getDownloadDir();
 		if (existsExe(downloadDir)) {
-			configGradleHome = downloadDir;
-			return configGradleHome;
+			return downloadDir;
 		}
 	}
 	return configGradleHome; // undefined at first download

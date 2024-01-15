@@ -63,8 +63,25 @@ export async function scan(javaConfig: redhat.IJavaConfig, runtimes:redhat.JavaR
 		userSetting.update(redhat.JavaRuntimeArray.CONFIG_KEY, runtimes);
 	}
 
+	// Detect JDK (Priority: Manual configured > Installed > Auto-Downloaded)
+	const detectedLatestMap = new Map<number, IDetectedJdk>(); // Key: Major Version
+
+	// Detect Auto-Downloaded JDK (Support when user installation is uninstalled)
+	for (const majorVer of javaConfig.availableVers) { // All versions for old version
+		const downloadDir = jdk.getDownloadDir(majorVer);
+		if (await isValidHome(downloadDir)) {
+			log.info(`Detected Auto-downloaded ${majorVer}`);
+			detectedLatestMap.set(majorVer, {
+				majorVersion: majorVer,
+				// Auto-detected download dir has lowest priority
+				// Manually configured download dir has highest priority
+				fullVersion: '0.0.0',
+				homePath: downloadDir,
+			});
+		}
+	}
+
 	// Detect User Installed JDK
-	const detectedLatestMap = new Map<number, IDetectedJdk>();
 	for (const detectedJdk of await findAll()) {
 		if (!javaConfig.availableVers.includes(detectedJdk.majorVersion)) {
 			continue;
@@ -75,20 +92,7 @@ export async function scan(javaConfig: redhat.IJavaConfig, runtimes:redhat.JavaR
 		}
 	}
 
-	// Detect Auto-Downloaded JDK (Support when user installation is uninstalled)
-	for (const majorVer of javaConfig.availableVers) { // All versions for no download version
-		const downloadDir = jdk.getDownloadDir(majorVer);
-		if (await isValidHome(downloadDir)) {
-			log.info(`Detected Auto-downloaded ${majorVer}`);
-			detectedLatestMap.set(majorVer, {
-				majorVersion: majorVer,
-				fullVersion: '9999.0.0', // Prefer downloaded JDK
-				homePath: downloadDir,
-			});
-		}
-	}
-
-	// Set Runtimes Configuration
+	// Check Runtimes Configuration
 	for (const detectedJdk of detectedLatestMap.values()) {
 		const detectedName = redhat.nameOf(detectedJdk.majorVersion);
 		const configRuntime = runtimes.findByName(detectedName);
@@ -96,12 +100,12 @@ export async function scan(javaConfig: redhat.IJavaConfig, runtimes:redhat.JavaR
 			if (system.isUserInstalled(configRuntime.path)) {
 				const configJdk = await findByPath(configRuntime.path);
 				if (configJdk && isNewLeft(detectedJdk.fullVersion, configJdk.fullVersion)) {
-					// Update to new version
+					// Update new version (User installed)
 					configRuntime.path = detectedJdk.homePath;
 				}
 				// else Keep (Detected is same or older)
 			}
-			// else Keep (Auto-Downloaded)
+			// else Keep (Auto-Download dir)
 		} else {
 			// Add new entry
 			runtimes.push({name: detectedName, path: detectedJdk.homePath});

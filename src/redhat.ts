@@ -67,6 +67,8 @@ export interface IJavaConfig {
  * @returns The Java configuration.
  */
 export async function getJavaConfig(): Promise<IJavaConfig> {
+    // Do not add redhat.java extension to extensionDependencies in package.json,
+    // because this extension will not start when redhat activation error occurs.
     const redhatExtension = vscode.extensions.getExtension('redhat.java');
     const _availableNames = getAvailableNames(redhatExtension);
     const _availableVers = _availableNames.map(versionOf).filter(Boolean).sort((a,b) => a-b);
@@ -105,8 +107,6 @@ async function findEmbeddedJREVersion(redhatExtension: vscode.Extension<any> | u
 }
 
 function getAvailableNames(redhatExtension: vscode.Extension<any> | undefined): string[] {
-    // Do not add redhat.java extension to extensionDependencies in package.json,
-    // because this extension will not start when redhat activation error occurs.
     let config = redhatExtension?.packageJSON?.contributes?.configuration;
     if (Array.isArray(config)) {
         config = config.find(c => c.properties?.[JavaRuntimeArray.CONFIG_KEY]);

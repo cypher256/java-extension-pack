@@ -67,6 +67,16 @@ export function isUserInstalled(checkPath:string): boolean {
 }
 
 /**
+ * Prepends the bin directories to the PATH environment variable (Affects all terminals).
+ * @param binDirs The bin directories to prepend.
+ */
+export function prependPathEnv(...binDirs:(string | undefined)[]) {
+	const envPaths = (process.env.PATH || '').split(path.delimiter).map(normalizePath);
+	const addPath = binDirs.filter(p => p && !envPaths.includes(normalizePath(p))).join(path.delimiter);
+	extensionContext.environmentVariableCollection.prepend('PATH', addPath + path.delimiter);
+}
+
+/**
  * @param basePath The base path.
  * @param subPath The sub path to check.
  * @returns true if subPath is included in basePath.
@@ -90,8 +100,8 @@ export function equalsPath(path1:string, path2:string | undefined): boolean {
 	return _path1 === _path2;
 }
 
-function normalizePath (dir:string) {
-	const d = path.normalize(dir).replace(/[/\\]$/, '');
+function normalizePath(dir:string) {
+	const d = path.normalize(dir).replace(/[/\\]$/, ''); // Remove trailing slash
 	return OS.isWindows ? d.toLowerCase() : d;
 }
 

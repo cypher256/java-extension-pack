@@ -143,17 +143,11 @@ export async function updateJavaRuntimes(
 			if (!_.isEqual(terminalEnv, terminalEnvOld)) {
 				update(CONFIG_KEY_TERMINAL_ENV, terminalEnv);
 			}
-			// Prepend to Windows Env Variables (Affects all terminals)
-			const PATH = (process.env.PATH || '').toLowerCase();
-			const binDirs = [mavenBinDir, gradleBinDir];
-			const addPath = binDirs.filter(p => p && !PATH.includes(p.toLowerCase())).join(path.delimiter);
-			system.getExtensionContext().environmentVariableCollection.prepend('PATH', addPath + path.delimiter);
+			// [Windows] Prepend to Terminal Profiles PATH Env Variables
+			system.prependPathEnv(mavenBinDir, gradleBinDir);
 		} else {
-			// Prepend to macOS/Linux Env Variables (Affects all terminals)
-			const PATH = process.env.PATH || '';
-			const binDirs = [path.join(terminalDefaultRuntime.path, 'bin'), mavenBinDir, gradleBinDir];
-			const addPath = binDirs.filter(p => p && !PATH.includes(p)).join(path.delimiter);
-			system.getExtensionContext().environmentVariableCollection.prepend('PATH', addPath + path.delimiter);
+			// [macOS/Linux] Termina Profiles AUTOCONFIG_JAVA_HOME takes precedence over PATH
+			system.prependPathEnv(path.join(terminalDefaultRuntime.path, 'bin'), mavenBinDir, gradleBinDir);
 		}
 	}
 

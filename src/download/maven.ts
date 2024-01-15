@@ -9,15 +9,11 @@ import * as userSetting from '../userSetting';
 const CONFIG_KEY_MAVEN_EXE_PATH = 'maven.executable.path';
 
 /**
- * @returns The path of the Maven bin directory.
+ * @returns The bin directory path based on Maven configuration.
  */
 export async function getConfigBinDir(): Promise<string | undefined> {
-	let binDir:string | undefined = undefined;
-	let mvnExePath = userSetting.get<string>(CONFIG_KEY_MAVEN_EXE_PATH);
-	if (mvnExePath) {
-		binDir = path.join(mvnExePath, '..');
-	}
-	return binDir;
+	const mvnExePath = userSetting.get<string>(CONFIG_KEY_MAVEN_EXE_PATH);
+	return mvnExePath ? path.join(mvnExePath, '..') : undefined;
 }
 
 /**
@@ -26,7 +22,7 @@ export async function getConfigBinDir(): Promise<string | undefined> {
  */
 export async function download() {
 	const mavenExeOld = userSetting.get<string>(CONFIG_KEY_MAVEN_EXE_PATH);
-	let mavenExeNew = await resolve(mavenExeOld);
+	let mavenExeNew = await resolvePath(mavenExeOld);
 	if (mavenExeNew && system.isUserInstalled(mavenExeNew)) {
 		log.info('Available Maven (User installed)', CONFIG_KEY_MAVEN_EXE_PATH, mavenExeNew);
 	} else {
@@ -47,9 +43,7 @@ function getDownloadDir(): string {
 	return path.join(system.getGlobalStoragePath(), 'maven', 'latest');
 }
 
-async function resolve(
-	configMavenExe:string | undefined): Promise<string | undefined> {
-
+async function resolvePath(configMavenExe:string | undefined): Promise<string | undefined> {
 	if (configMavenExe) {
 		const fixedPath = fixPath(configMavenExe);
 		if (!fixedPath) {
@@ -73,8 +67,7 @@ async function resolve(
 		// If undefined, restore from downloaded (Fallback for http connect failures)
 		const downloadDir = getDownloadDir();
 		if (existsExe(downloadDir)) {
-			configMavenExe = getExePath(downloadDir);
-			return configMavenExe;
+			return getExePath(downloadDir);
 		}
 	}
 	return configMavenExe; // undefined at first download
