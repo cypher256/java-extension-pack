@@ -1,5 +1,6 @@
-if [ -f ~/.zshrc ]; then
+if [ -r ~/.zshrc ]; then
+	AUTOCONF_JAVA_HOME=$JAVA_HOME
 	source ~/.zshrc
+	export JAVA_HOME=$AUTOCONF_JAVA_HOME
 fi
-export JAVA_HOME=$AUTOCONFIG_JAVA_HOME
 export PATH="$JAVA_HOME/bin:$PATH"

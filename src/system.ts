@@ -67,7 +67,8 @@ export function isUserInstalled(checkPath:string): boolean {
 }
 
 /**
- * Prepends the bin directories to the PATH environment variable (Affects all terminals).
+ * Prepends to the PATH environment variable (Affects all terminals).
+ * It is always prepended to the original PATH, even if called multiple times.
  * @param binDirs The bin directories to prepend.
  */
 export function prependPathEnv(...binDirs:(string | undefined)[]) {

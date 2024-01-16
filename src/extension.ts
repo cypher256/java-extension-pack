@@ -1,5 +1,6 @@
 /*! VS Code Extension (c) 2023 Shinji Kashihara (cypher256) @ WILL */
 import * as _ from "lodash";
+import * as path from 'path';
 import * as vscode from 'vscode';
 import { l10n } from 'vscode';
 import * as gradle from './download/gradle';
@@ -20,21 +21,23 @@ export async function activate(context:vscode.ExtensionContext) {
 	try {
 		system.init(context);
 		log.info(`activate START ${context.extension?.packageJSON?.version} --------------------`);
-		if (!userSetting.get('javaAutoConfig.enabled')) {
-			log.info(`javaAutoConfig.enabled: false`);
-			return;
-		}
 		log.info('Global Storage', system.getGlobalStoragePath());
 		const javaConfig = await redhat.getJavaConfig();
-		userSetting.setDefault(javaConfig);
-		
 		const runtimes = userSetting.getJavaRuntimes();
-		const runtimesOld = _.cloneDeep(runtimes);
-		const isFirstStartup = !system.existsDirectory(system.getGlobalStoragePath());
-		
-		await detect(javaConfig, runtimes);
-		await download(javaConfig, runtimes);
-		onComplete(javaConfig, runtimes, runtimesOld, isFirstStartup);
+		setEnvVariables(javaConfig, runtimes);
+
+		if (userSetting.get('javaAutoConfig.enabled')) {
+			userSetting.setDefault(javaConfig);
+			const runtimesOld = _.cloneDeep(runtimes);
+			const isFirstStartup = !system.existsDirectory(system.getGlobalStoragePath());
+			
+			await detect(javaConfig, runtimes);
+			await download(javaConfig, runtimes);
+			onComplete(javaConfig, runtimes, runtimesOld, isFirstStartup);
+		} else {
+			log.info(`javaAutoConfig.enabled: false`);
+		}
+		setEnvVariables(javaConfig, runtimes);
 
 	} catch (e:any) {
 		vscode.window.showErrorMessage(`Auto Config Java failed. ${e}`);
@@ -42,6 +45,39 @@ export async function activate(context:vscode.ExtensionContext) {
 		
 	} finally {
 		log.info('activate END');
+	}
+}
+
+/**
+ * Sets the environment variables.
+ * @param javaConfig The Java configuration.
+ * @param runtimes The Java runtimes.
+ */
+async function setEnvVariables(
+	javaConfig: redhat.IJavaConfig,
+	runtimes: redhat.JavaRuntimeArray) {
+
+	const mavenBinDir = await maven.getConfigBinDir();
+	const gradleBinDir = await gradle.getConfigBinDir();
+
+	// Terminal all profiles common PATH prefix
+	if (OS.isWindows) {
+		// [Windows]
+		// prependPathEnv (without default JAVA_HOME) > profiles JAVA_HOME > original PATH
+		system.prependPathEnv(mavenBinDir, gradleBinDir);
+	} else {
+		// [macOS/Linux] Use custom rcfile
+		// profiles JAVA_HOME > jbang > prependPathEnv (with default JAVA_HOME) > original PATH
+		const stableLtsRuntime = runtimes.findByVersion(javaConfig.stableLtsVer);
+		const latestLtsRuntime = runtimes.findByVersion(javaConfig.latestLtsVer);
+		const terminalDefaultRuntime = latestLtsRuntime || stableLtsRuntime;
+		let defaultJavaBinDir = undefined;
+		if (terminalDefaultRuntime) {
+			defaultJavaBinDir = path.join(terminalDefaultRuntime.path, 'bin');
+		}
+		system.prependPathEnv(defaultJavaBinDir, mavenBinDir, gradleBinDir);
+		// Prepending PATH env var with environmentVariableCollection doesn't work on macOS
+		// https://github.com/microsoft/vscode/issues/99878#issuecomment-1378990687
 	}
 }
 
