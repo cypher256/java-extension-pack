@@ -147,43 +147,44 @@ export async function updateJavaRuntimes(
 		const CONFIG_KEY_MAVEN_CUSTOM_ENV = 'maven.terminal.customEnv';
 		const customEnv:any[] = _.cloneDeep(get(CONFIG_KEY_MAVEN_CUSTOM_ENV) ?? []);
 		const customEnvOld = _.cloneDeep(customEnv);
-		const mavenJavaHomeElement = customEnv.find(i => i.environmentVariable === 'JAVA_HOME');
-		const originPath:string | undefined = mavenJavaHomeElement?.value;
+		const JAVA_HOME_ENV_NAME = 'JAVA_HOME';
+		function _getEnvElement(envName: string) {
+			return customEnv.find(i => i.environmentVariable === envName);
+		}
 		if (OS.isWindows) {
-			// Remove Linux JAVA_HOME when switching from WSL to Windows
+			// Remove when switching from WSL to Windows
 			// Change the scope of maven.terminal.customEnv to machine-overridable
 			// https://github.com/microsoft/vscode-maven/issues/991
-			if (originPath && !await jdkExplorer.isValidHome(originPath)) {
-				customEnv.splice(customEnv.indexOf(mavenJavaHomeElement), 1); // Remove
-				update(CONFIG_KEY_MAVEN_CUSTOM_ENV, customEnv);
+			const javaHomeElement = _getEnvElement(JAVA_HOME_ENV_NAME);
+			const javaHome = javaHomeElement?.value;
+			if (javaHome && !await jdkExplorer.isValidHome(javaHome)) {
+				customEnv.splice(customEnv.indexOf(javaHomeElement), 1); // Remove
 			}
+
 		} else if (mavenJavaRuntime) {
+
 			// [macOS/Linux] maven context menu JAVA_HOME
-			if (originPath) {
-				const fixedOrDefault = await jdkExplorer.fixPath(originPath) || mavenJavaRuntime.path;
-				if (fixedOrDefault !== originPath) {
-					mavenJavaHomeElement.value = fixedOrDefault;
-				}
-			} else { // If unset use default
-				customEnv.push({
-					environmentVariable: 'JAVA_HOME',
-					value: mavenJavaRuntime.path,
-				});
+			let javaHomeElement = _getEnvElement(JAVA_HOME_ENV_NAME);
+			if (!javaHomeElement) {
+				javaHomeElement = {environmentVariable: JAVA_HOME_ENV_NAME};
+				customEnv.push(javaHomeElement);
 			}
-			if (OS.isMac && !customEnv.find(i => i.environmentVariable === 'ZDOTDIR')) {
+			javaHomeElement.value = await jdkExplorer.fixPath(javaHomeElement.value) || mavenJavaRuntime.path;
+
+			if (OS.isMac) {
+				// Custom .zshrc for JAVA_HOME (macOS maven menu)
 				// maven.terminal.useJavaHome doesnt work if JAVA_HOME already set by shell startup scripts
 				// https://github.com/microsoft/vscode-maven/issues/495#issuecomment-1869653082
-				customEnv.push({
-					//// Disable .zshrc JAVA_HOME (macOS maven menu only) //TODO remove
-					// Custom .zshrc for JAVA_HOME (macOS maven menu)
-					environmentVariable: 'ZDOTDIR',
-					//value: path.join(process.env.HOME ?? '', '.zdotdir_dummy'), //TODO remove
-					value: resourcesDir,
-				});
+				let zdotdirElement = _getEnvElement('ZDOTDIR');
+				if (!zdotdirElement) {
+					zdotdirElement = {environmentVariable: 'ZDOTDIR'};
+					customEnv.push(zdotdirElement);
+				}
+				zdotdirElement.value = resourcesDir;
 			}
-			if (!_.isEqual(customEnv, customEnvOld)) {
-				update(CONFIG_KEY_MAVEN_CUSTOM_ENV, customEnv);
-			}
+		}
+		if (!_.isEqual(customEnv, customEnvOld)) {
+			update(CONFIG_KEY_MAVEN_CUSTOM_ENV, customEnv);
 		}
 	}
 

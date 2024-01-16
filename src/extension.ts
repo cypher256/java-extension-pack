@@ -68,6 +68,8 @@ async function setEnvVariables(
 	} else {
 		// [macOS/Linux] Use custom rcfile
 		// profiles JAVA_HOME > jbang > prependPathEnv (with default JAVA_HOME) > original PATH
+		// Prepending PATH env var with environmentVariableCollection doesn't work on macOS
+		// https://github.com/microsoft/vscode/issues/99878#issuecomment-1378990687
 		const stableLtsRuntime = runtimes.findByVersion(javaConfig.stableLtsVer);
 		const latestLtsRuntime = runtimes.findByVersion(javaConfig.latestLtsVer);
 		const terminalDefaultRuntime = latestLtsRuntime || stableLtsRuntime;
@@ -76,8 +78,6 @@ async function setEnvVariables(
 			defaultJavaBinDir = path.join(terminalDefaultRuntime.path, 'bin');
 		}
 		system.prependPathEnv(defaultJavaBinDir, mavenBinDir, gradleBinDir);
-		// Prepending PATH env var with environmentVariableCollection doesn't work on macOS
-		// https://github.com/microsoft/vscode/issues/99878#issuecomment-1378990687
 	}
 }
 
