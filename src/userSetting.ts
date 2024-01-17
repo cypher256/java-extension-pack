@@ -144,9 +144,14 @@ export async function updateJavaRuntimes(
 			profile.args = ['--rcfile', path.join(resourcesDir, '.bashrc')];
 		}
 	}
-	const sortedNew = Object.fromEntries(Object.keys(profilesNew).sort().map(key => [key, profilesNew[key]]));
-	if (!_.isEqual(sortedNew, profilesOld)) {
-		update(CONFIG_KEY_TERMINAL_PROFILES, sortedNew);
+	const names = Object.keys(profilesNew);
+	const sortedNames = [
+		...names.filter(name => !javaConfig.availableNames.includes(name)),
+		...names.filter(name => javaConfig.availableNames.includes(name)).sort(),
+	];
+	const sortedProfiles = Object.fromEntries(sortedNames.map(name => [name, profilesNew[name]]));
+	if (!_.isEqual(sortedProfiles, profilesOld)) {
+		update(CONFIG_KEY_TERMINAL_PROFILES, sortedProfiles);
 	}
 
 	//-------------------------------------------------------------------------
@@ -181,6 +186,7 @@ export async function updateJavaRuntimes(
 		function _getEnvElement(envName: string) {
 			return customEnv.find(i => i.environmentVariable === envName);
 		}
+		// [Windows/macOS/Linux]
 		// Maven context menu JAVA_HOME (Update when switching from WSL to Windows)
 		// Change the scope of maven.terminal.customEnv to machine-overridable
 		// https://github.com/microsoft/vscode-maven/issues/991
@@ -191,27 +197,20 @@ export async function updateJavaRuntimes(
 		}
 		javaHomeElement.value = await jdkExplorer.fixPath(javaHomeElement.value) || mavenJavaRuntime.path;
 
-		// [macOS/Linux] Maven uses the Java version of the default profile rcfile
-		// JAVA_HOME: customEnv > profile
+		// [Linux] JAVA_HOME: customEnv > profile
+		// Maven uses the Java version of the default profile rcfile
 		setIfUndefined('terminal.integrated.defaultProfile.' + osConfigName, mavenJavaRuntime.name);
 
+		// [macOS] Custom .zshrc for JAVA_HOME (macOS maven menu)
+		// maven.terminal.useJavaHome doesnt work if JAVA_HOME already set by shell startup scripts
+		// https://github.com/microsoft/vscode-maven/issues/495#issuecomment-1869653082
 		if (OS.isMac) {
-			/*
-			// Custom .zshrc for JAVA_HOME (macOS maven menu)
-			// maven.terminal.useJavaHome doesnt work if JAVA_HOME already set by shell startup scripts
-			// https://github.com/microsoft/vscode-maven/issues/495#issuecomment-1869653082
 			let zdotdirElement = _getEnvElement('ZDOTDIR');
 			if (!zdotdirElement) {
 				zdotdirElement = {environmentVariable: 'ZDOTDIR'};
 				customEnv.push(zdotdirElement);
 			}
 			zdotdirElement.value = resourcesDir;
-			*/
-			// Remove workaround from previous version
-			const zdotdirElement = _getEnvElement('ZDOTDIR');
-			if (zdotdirElement) {
-				customEnv.splice(customEnv.indexOf(zdotdirElement), 1); // Remove
-			}
 		}
 		if (!_.isEqual(customEnv, customEnvOld)) {
 			update(CONFIG_KEY_MAVEN_CUSTOM_ENV, customEnv);

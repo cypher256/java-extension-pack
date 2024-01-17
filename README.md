@@ -39,7 +39,7 @@ The user `settings.json` is auto-configured at startup by `Java Extension Pack A
 |---|---|
 |No Build Tools<br>([vscode-java](https://github.com/redhat-developer/vscode-java?tab=readme-ov-file#project-jdks))|`settings.json` ≫ `java.configuration.runtimes` ≫ `"default": true`<br>Known Issue: [Cannot specify different Java versions in the same workspace](https://github.com/redhat-developer/vscode-java/issues/2543)|
 |Gradle<br>([vscode-gradle](https://github.com/microsoft/vscode-gradle?tab=readme-ov-file#java-specific-settings))|(*a) `settings.json` ≫ `java.import.gradle.java.home`<br>(*b) `build.gradle` ≫ `java` ≫ `sourceCompatibility`|
-|Maven<br>([vscode-maven](https://github.com/Microsoft/vscode-maven?tab=readme-ov-file#settings))|(*a) `settings.json` ≫ `maven.terminal.customEnv` or `terminal.integrated.env.{OS}` ≫ `"JAVA_HOME"`<br>(*b) `pom.xml` ≫ `properties` ≫ `maven.compiler.source/target` (or `java.version` for Spring Boot)|
+|Maven<br>([vscode-maven](https://github.com/Microsoft/vscode-maven?tab=readme-ov-file#settings))|(*a) `settings.json` ≫ `maven.terminal.customEnv` ≫ `"JAVA_HOME"`<br>(*b) `pom.xml` ≫ `properties` ≫ `maven.compiler.source/target` (or `java.version` for Spring Boot)|
 
 (*a) Tools Java Home: The `settings.json` [can be configured by project (workspace)](https://code.visualstudio.com/docs/getstarted/settings).<br>
 (*b) The `java.configuration.runtimes` that best matches this version will be used.
