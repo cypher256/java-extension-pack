@@ -84,28 +84,21 @@ export async function updateJavaRuntimes(
 		update(redhat.JavaRuntimeArray.CONFIG_KEY, runtimes);
 	}
 
-	// Terminal Profiles Dropdown (Always update)
+	//-------------------------------------------------------------------------
+	// Terminal Profiles Dropdown
 	const osConfigName = OS.isWindows ? 'windows' : OS.isMac ? 'osx' : 'linux';
 	const CONFIG_KEY_TERMINAL_PROFILES = 'terminal.integrated.profiles.' + osConfigName;
 	const profilesDef = getDefinition(CONFIG_KEY_TERMINAL_PROFILES) ?? {};
 	const profilesOld:any = _.cloneDeep(profilesDef); // Proxy to POJO for isEqual
 	const profilesNew:any = _.cloneDeep(profilesOld);
-	for (const runtimeName of Object.keys(profilesNew)) {
-		// Clean Dropdown (Remove invalid path)
-		if (!runtimes.findByName(runtimeName)) {
-			const javaHome = profilesNew[runtimeName]?.env?.JAVA_HOME;
-			if (javaHome && !await jdkExplorer.isValidHome(javaHome)) {
-				delete profilesNew[runtimeName];
-			}
-		}
-	}
 	const resourcesDir = system.getExtensionContext().asAbsolutePath('resources');
-	for (const runtime of runtimes) { // Set Dropdown from runtimes
+	for (const runtime of runtimes) {
+		// Create from config runtimes (Always overwrite)
 		const profile:any = _.cloneDeep(profilesOld[runtime.name]) ?? {}; // for isEqual
 		profile.overrideName = true;
 		profile.env = {};
 		if (OS.isWindows) {
-			profile.path ??= 'cmd'; // powershell (legacy), pwsh (non-preinstalled)
+			profile.path ||= 'cmd'; // powershell (legacy), pwsh (non-preinstalled)
 			profile.env.PATH = [path.join(runtime.path, 'bin'), '${env:PATH}'].join(path.delimiter);
 		} else if (OS.isMac) {
 			profile.path = 'zsh';
@@ -118,17 +111,50 @@ export async function updateJavaRuntimes(
 		profile.env.JAVA_HOME = runtime.path;
 		profilesNew[runtime.name] = profile;
 	}
+	for (const runtimeName of Object.keys(profilesNew)) {
+		// Fix except config runtimes (Remove invalid env JAVA_HOME)
+		if (!runtimes.findByName(runtimeName)) {
+			const javaHome = profilesNew[runtimeName]?.env?.JAVA_HOME;
+			if (javaHome) {
+				const fixed = await jdkExplorer.fixPath(javaHome);
+				if (fixed) {
+					profilesNew[runtimeName].env.JAVA_HOME = fixed;
+				} else {
+					delete profilesNew[runtimeName];
+				}
+			}
+		}
+	}
+	const terminalDefaultRuntime = latestLtsRuntime || stableLtsRuntime;
+	if (terminalDefaultRuntime) {
+		// Create or update default zsh/bash profiles
+		async function _setDefaultProfile(name: string, defaultJavaHome: string): Promise<any> {
+			const profile = profilesNew[name] || {};
+			profile.path = name;
+			profile.env ||= {};
+			profile.env.JAVA_HOME ||= defaultJavaHome;
+			profilesNew[name] = profile;
+			return profile;
+		}
+		if (OS.isMac) {
+			const profile = await _setDefaultProfile('zsh', terminalDefaultRuntime.path);
+			profile.env.ZDOTDIR = resourcesDir;
+		} else if (OS.isLinux) {
+			const profile = await _setDefaultProfile('bash', terminalDefaultRuntime.path);
+			profile.args = ['--rcfile', path.join(resourcesDir, '.bashrc')];
+		}
+	}
 	const sortedNew = Object.fromEntries(Object.keys(profilesNew).sort().map(key => [key, profilesNew[key]]));
 	if (!_.isEqual(sortedNew, profilesOld)) {
 		update(CONFIG_KEY_TERMINAL_PROFILES, sortedNew);
 	}
 
+	//-------------------------------------------------------------------------
 	// Terminal Default Env Variables (Keep if set)
-	const terminalDefaultRuntime = latestLtsRuntime || stableLtsRuntime;
 	if (terminalDefaultRuntime) {
+		// [Windows] Default Command Prompt
+		// prependPathEnv (without default JAVA_HOME) > terminal.integrated.env > original PATH
 		if (OS.isWindows) {
-			// [Windows] Maven Context Menu
-			// prependPathEnv (without default JAVA_HOME) > terminal.integrated.env > original PATH
 			const CONFIG_KEY_TERMINAL_ENV = 'terminal.integrated.env.' + osConfigName;
 			const terminalEnv:any = _.cloneDeep(get(CONFIG_KEY_TERMINAL_ENV) ?? {}); // Proxy to POJO for isEqual
 			const terminalEnvOld = _.cloneDeep(terminalEnv);
@@ -139,11 +165,15 @@ export async function updateJavaRuntimes(
 				update(CONFIG_KEY_TERMINAL_ENV, terminalEnv);
 			}
 		}
+		// [macOS/Linux] Default zsh/bash
+		// Set by prependPathEnv because rcfile cannot be specified here (but preferred rcfile)
+		// profile JAVA_HOME > prependPathEnv (with default JAVA_HOME) > original PATH
 	}
 
+	//-------------------------------------------------------------------------
 	// Maven Terminal Custom Env (Keep if set)
-	{
-		const mavenJavaRuntime = latestLtsRuntime || stableLtsRuntime;
+	const mavenJavaRuntime = latestLtsRuntime || stableLtsRuntime;
+	if (mavenJavaRuntime) {
 		const CONFIG_KEY_MAVEN_CUSTOM_ENV = 'maven.terminal.customEnv';
 		const customEnv:any[] = _.cloneDeep(get(CONFIG_KEY_MAVEN_CUSTOM_ENV) ?? []);
 		const customEnvOld = _.cloneDeep(customEnv);
@@ -151,36 +181,36 @@ export async function updateJavaRuntimes(
 		function _getEnvElement(envName: string) {
 			return customEnv.find(i => i.environmentVariable === envName);
 		}
-		if (OS.isWindows) {
-			// Remove when switching from WSL to Windows
-			// Change the scope of maven.terminal.customEnv to machine-overridable
-			// https://github.com/microsoft/vscode-maven/issues/991
-			const javaHomeElement = _getEnvElement(JAVA_HOME_ENV_NAME);
-			const javaHome = javaHomeElement?.value;
-			if (javaHome && !await jdkExplorer.isValidHome(javaHome)) {
-				customEnv.splice(customEnv.indexOf(javaHomeElement), 1); // Remove
+		// Maven context menu JAVA_HOME (Update when switching from WSL to Windows)
+		// Change the scope of maven.terminal.customEnv to machine-overridable
+		// https://github.com/microsoft/vscode-maven/issues/991
+		let javaHomeElement = _getEnvElement(JAVA_HOME_ENV_NAME);
+		if (!javaHomeElement) {
+			javaHomeElement = {environmentVariable: JAVA_HOME_ENV_NAME};
+			customEnv.push(javaHomeElement);
+		}
+		javaHomeElement.value = await jdkExplorer.fixPath(javaHomeElement.value) || mavenJavaRuntime.path;
+
+		// [macOS/Linux] Maven uses the Java version of the default profile rcfile
+		// JAVA_HOME: customEnv > profile
+		setIfUndefined('terminal.integrated.defaultProfile.' + osConfigName, mavenJavaRuntime.name);
+
+		if (OS.isMac) {
+			/*
+			// Custom .zshrc for JAVA_HOME (macOS maven menu)
+			// maven.terminal.useJavaHome doesnt work if JAVA_HOME already set by shell startup scripts
+			// https://github.com/microsoft/vscode-maven/issues/495#issuecomment-1869653082
+			let zdotdirElement = _getEnvElement('ZDOTDIR');
+			if (!zdotdirElement) {
+				zdotdirElement = {environmentVariable: 'ZDOTDIR'};
+				customEnv.push(zdotdirElement);
 			}
-
-		} else if (mavenJavaRuntime) {
-
-			// [macOS/Linux] maven context menu JAVA_HOME
-			let javaHomeElement = _getEnvElement(JAVA_HOME_ENV_NAME);
-			if (!javaHomeElement) {
-				javaHomeElement = {environmentVariable: JAVA_HOME_ENV_NAME};
-				customEnv.push(javaHomeElement);
-			}
-			javaHomeElement.value = await jdkExplorer.fixPath(javaHomeElement.value) || mavenJavaRuntime.path;
-
-			if (OS.isMac) {
-				// Custom .zshrc for JAVA_HOME (macOS maven menu)
-				// maven.terminal.useJavaHome doesnt work if JAVA_HOME already set by shell startup scripts
-				// https://github.com/microsoft/vscode-maven/issues/495#issuecomment-1869653082
-				let zdotdirElement = _getEnvElement('ZDOTDIR');
-				if (!zdotdirElement) {
-					zdotdirElement = {environmentVariable: 'ZDOTDIR'};
-					customEnv.push(zdotdirElement);
-				}
-				zdotdirElement.value = resourcesDir;
+			zdotdirElement.value = resourcesDir;
+			*/
+			// Remove workaround from previous version
+			const zdotdirElement = _getEnvElement('ZDOTDIR');
+			if (zdotdirElement) {
+				customEnv.splice(customEnv.indexOf(zdotdirElement), 1); // Remove
 			}
 		}
 		if (!_.isEqual(customEnv, customEnvOld)) {
@@ -188,6 +218,7 @@ export async function updateJavaRuntimes(
 		}
 	}
 
+	//-------------------------------------------------------------------------
 	// Gradle Daemon Java Home (Keep if set)
 	// Gradle 8.5+ can execute on latest Java versions
 	// https://github.com/gradle/gradle/issues/26944#issuecomment-1794419074
@@ -210,6 +241,7 @@ export async function updateJavaRuntimes(
 		}
 	}
 
+	//-------------------------------------------------------------------------
 	// VS Code LS Java Home (Remove if embedded JRE exists)
 	async function _updateLsJavaHome(extensionId: string, configKey: string) {
 		if (!vscode.extensions.getExtension(extensionId)) {
@@ -230,6 +262,7 @@ export async function updateJavaRuntimes(
 	_updateLsJavaHome('redhat.java', 'java.jdt.ls.java.home');
 	_updateLsJavaHome('vmware.vscode-spring-boot', 'spring-boot.ls.java.home');
 
+	//-------------------------------------------------------------------------
 	// Optional Extensions LS Java Home (Keep if set)
 	async function _updateOptionJavaHome(extensionId: string, configKey: string,
 		optionalRuntime: redhat.IJavaRuntime | undefined)
@@ -256,6 +289,7 @@ export async function updateJavaRuntimes(
 	_updateOptionJavaHome('salesforce.salesforcedx-vscode', 'salesforcedx-vscode-apex.java.home', prevLtsRuntime);
 	_updateOptionJavaHome('redhat.vscode-rsp-ui', 'rsp-ui.rsp.java.home', stableLtsRuntime);
 
+	//-------------------------------------------------------------------------
 	// Optional Extensions java executable path (Keep if set)
 	if (stableLtsRuntime && vscode.extensions.getExtension('jebbs.plantuml')) {
 		const CONFIG_KEY_PLANTUML_JAVA = 'plantuml.java';
@@ -339,9 +373,6 @@ export async function setDefault(javaConfig: redhat.IJavaConfig) {
 	// VS Code Terminal
 	setIfUndefined('terminal.integrated.enablePersistentSessions', false);
 	setIfUndefined('terminal.integrated.tabs.hideCondition', 'never');
-	if (OS.isWindows) {
-		setIfUndefined('terminal.integrated.defaultProfile.windows', 'Command Prompt');
-	}
 	// Java extensions
 	setIfUndefined('java.configuration.updateBuildConfiguration', 'automatic');
 	setIfUndefined('java.debug.settings.hotCodeReplace', 'auto');

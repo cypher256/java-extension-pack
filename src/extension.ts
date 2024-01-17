@@ -24,7 +24,7 @@ export async function activate(context:vscode.ExtensionContext) {
 		log.info('Global Storage', system.getGlobalStoragePath());
 		const javaConfig = await redhat.getJavaConfig();
 		const runtimes = userSetting.getJavaRuntimes();
-		setEnvVariables(javaConfig, runtimes);
+		setEnvVar(javaConfig, runtimes);
 
 		if (userSetting.get('javaAutoConfig.enabled')) {
 			userSetting.setDefault(javaConfig);
@@ -37,7 +37,7 @@ export async function activate(context:vscode.ExtensionContext) {
 		} else {
 			log.info(`javaAutoConfig.enabled: false`);
 		}
-		setEnvVariables(javaConfig, runtimes);
+		setEnvVar(javaConfig, runtimes);
 
 	} catch (e:any) {
 		vscode.window.showErrorMessage(`Auto Config Java failed. ${e}`);
@@ -53,7 +53,7 @@ export async function activate(context:vscode.ExtensionContext) {
  * @param javaConfig The Java configuration.
  * @param runtimes The Java runtimes.
  */
-async function setEnvVariables(
+async function setEnvVar(
 	javaConfig: redhat.IJavaConfig,
 	runtimes: redhat.JavaRuntimeArray) {
 
@@ -68,8 +68,6 @@ async function setEnvVariables(
 	} else {
 		// [macOS/Linux] Use custom rcfile
 		// profiles JAVA_HOME > jbang > prependPathEnv (with default JAVA_HOME) > original PATH
-		// Prepending PATH env var with environmentVariableCollection doesn't work on macOS
-		// https://github.com/microsoft/vscode/issues/99878#issuecomment-1378990687
 		const stableLtsRuntime = runtimes.findByVersion(javaConfig.stableLtsVer);
 		const latestLtsRuntime = runtimes.findByVersion(javaConfig.latestLtsVer);
 		const terminalDefaultRuntime = latestLtsRuntime || stableLtsRuntime;
@@ -77,6 +75,8 @@ async function setEnvVariables(
 		if (terminalDefaultRuntime) {
 			defaultJavaBinDir = path.join(terminalDefaultRuntime.path, 'bin');
 		}
+		// Prepending PATH env var with environmentVariableCollection doesn't work on macOS
+		// https://github.com/microsoft/vscode/issues/99878#issuecomment-1378990687
 		system.prependPathEnv(defaultJavaBinDir, mavenBinDir, gradleBinDir);
 	}
 }
