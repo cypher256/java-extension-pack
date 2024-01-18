@@ -133,7 +133,7 @@ export async function download(
 	}
 	if (!await jdkExplorer.isValidHome(homeDir)) {
 		log.info('Invalid JDK:', homeDir);
-		_.remove(runtimes, r => r.name === runtimeName);
+		_.remove(runtimes, {name: runtimeName});
 		return; // Silent
 	}
 	fs.writeFileSync(versionFile, fullVer); // Sync for throw

@@ -26,17 +26,17 @@ export async function activate(context:vscode.ExtensionContext) {
 		const runtimes = userSetting.getJavaRuntimes();
 		setEnvVariable(javaConfig, runtimes);
 
-		if (userSetting.get('javaAutoConfig.enabled')) {
-			userSetting.setDefault(javaConfig);
-			const runtimesOld = _.cloneDeep(runtimes);
-			const isFirstStartup = !system.existsDirectory(system.getGlobalStoragePath());
-			
-			await detect(javaConfig, runtimes);
-			await download(javaConfig, runtimes);
-			onComplete(javaConfig, runtimes, runtimesOld, isFirstStartup);
-		} else {
+		if (!userSetting.get('javaAutoConfig.enabled')) {
 			log.info(`javaAutoConfig.enabled: false`);
+			return;
 		}
+		userSetting.setDefault(javaConfig);
+		const runtimesOld = _.cloneDeep(runtimes);
+		const isFirstStartup = !system.existsDirectory(system.getGlobalStoragePath());
+		
+		await detect(javaConfig, runtimes);
+		await download(javaConfig, runtimes);
+		onComplete(javaConfig, runtimes, runtimesOld, isFirstStartup);
 		setEnvVariable(javaConfig, runtimes);
 
 	} catch (e:any) {
