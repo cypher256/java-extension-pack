@@ -24,7 +24,7 @@ export async function activate(context:vscode.ExtensionContext) {
 		log.info('Global Storage', system.getGlobalStoragePath());
 		const javaConfig = await redhat.getJavaConfig();
 		const runtimes = userSetting.getJavaRuntimes();
-		setEnvVar(javaConfig, runtimes);
+		setEnvVariable(javaConfig, runtimes);
 
 		if (userSetting.get('javaAutoConfig.enabled')) {
 			userSetting.setDefault(javaConfig);
@@ -37,7 +37,7 @@ export async function activate(context:vscode.ExtensionContext) {
 		} else {
 			log.info(`javaAutoConfig.enabled: false`);
 		}
-		setEnvVar(javaConfig, runtimes);
+		setEnvVariable(javaConfig, runtimes);
 
 	} catch (e:any) {
 		vscode.window.showErrorMessage(`Auto Config Java failed. ${e}`);
@@ -53,7 +53,7 @@ export async function activate(context:vscode.ExtensionContext) {
  * @param javaConfig The Java configuration.
  * @param runtimes The Java runtimes.
  */
-async function setEnvVar(
+async function setEnvVariable(
 	javaConfig: redhat.IJavaConfig,
 	runtimes: redhat.JavaRuntimeArray) {
 

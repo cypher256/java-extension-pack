@@ -170,9 +170,9 @@ The terminal dropdown items by Java version are automatically created based on t
 
 |Configuration Name|Configured Value (Original Default)|
 |---|---|
-|[terminal.integrated.env.*](https://code.visualstudio.com/docs/terminal/profiles#_configuring-profiles)<br>([Issues](https://github.com/microsoft/vscode/issues?q=is%3Aissue+terminal.integrated.env+JAVA_HOME))|Set latest LTS if unset<br>(Setting > JAVA_HOME)|
-|[terminal.integrated.defaultProfile.windows](https://code.visualstudio.com/docs/terminal/profiles)<br>([Issues](https://github.com/microsoft/vscode/issues?q=is%3Aissue+terminal.integrated.profiles))|Set `Command Prompt` if unset on Windows<br>(`PowerShell`)|
-|[terminal.integrated.profiles.*](https://code.visualstudio.com/docs/terminal/profiles)<br>([Issues](https://github.com/microsoft/vscode/issues?q=is%3Aissue+terminal.integrated.profiles))|Set configured runtimes to terminal<br>(None)|
+|[terminal.integrated.env.{OS name}](https://code.visualstudio.com/docs/terminal/profiles#_configuring-profiles)<br>([Issues](https://github.com/microsoft/vscode/issues?q=is%3Aissue+terminal.integrated.env+JAVA_HOME))|Set latest LTS if unset<br>(None)|
+|[terminal.integrated.defaultProfile.{OS name}](https://code.visualstudio.com/docs/terminal/profiles)<br>([Issues](https://github.com/microsoft/vscode/issues?q=is%3Aissue+terminal.integrated.profiles))|Set latest LTS runtime name<br>(Windows:`PowerShell`, Mac:`zsh`, Linux:`bash`)|
+|[terminal.integrated.profiles.{OS name}](https://code.visualstudio.com/docs/terminal/profiles)<br>([Issues](https://github.com/microsoft/vscode/issues?q=is%3Aissue+terminal.integrated.profiles))|Set configured runtimes to terminal<br>(None)|
 |[terminal.integrated.enablePersistentSessions](https://code.visualstudio.com/docs/terminal/advanced#_persistent-sessions)<br>([Issues](https://github.com/microsoft/vscode/issues?q=is%3Aissue+terminal.integrated.enablePersistentSessions))|`false`<br>(`true`)|
 |[terminal.integrated.tabs.hideCondition](https://code.visualstudio.com/docs/terminal/appearance#_visibility)<br>([Issues](https://github.com/microsoft/vscode/issues?q=is%3Aissue+terminal.integrated.tabs.hideCondition))|`never`<br>(`singleTerminal`)|
 
@@ -187,7 +187,7 @@ Command Palette **>Preferences: Open User Settings (JSON)**
   "PATH": "C:\\Program Files\\Eclipse Adoptium\\jdk-21.0.1-hotspot\\bin;${env:PATH}"
 },
 // Terminal Default Profile
-"terminal.integrated.defaultProfile.windows": "Command Prompt",
+"terminal.integrated.defaultProfile.windows": "JavaSE-21",
 // Terminal Profiles Dropdown
 "terminal.integrated.profiles.windows": {
   "JavaSE-1.8": {
