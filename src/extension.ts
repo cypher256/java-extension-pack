@@ -1,6 +1,5 @@
 /*! VS Code Extension (c) 2023 Shinji Kashihara (cypher256) @ WILL */
 import * as _ from "lodash";
-import * as path from 'path';
 import * as vscode from 'vscode';
 import { l10n } from 'vscode';
 import * as gradle from './download/gradle';
@@ -63,21 +62,18 @@ async function setEnvVariable(
 	// Terminal all profiles common PATH prefix
 	if (OS.isWindows) {
 		// [Windows]
-		// prependPathEnv (without default JAVA_HOME) > profiles JAVA_HOME > original PATH
+		// prependPathEnv (without JAVA_HOME) > profiles JAVA_HOME > original PATH
 		system.prependPathEnv(mavenBinDir, gradleBinDir);
 	} else {
 		// [macOS/Linux] Use custom rcfile
-		// profiles JAVA_HOME > jbang > prependPathEnv (with default JAVA_HOME) > original PATH
-		const stableLtsRuntime = runtimes.findByVersion(javaConfig.stableLtsVer);
+		// profile rcfile JAVA_HOME > jbang > prependPathEnv (with latest JAVA_HOME) > original PATH
 		const latestLtsRuntime = runtimes.findByVersion(javaConfig.latestLtsVer);
+		const stableLtsRuntime = runtimes.findByVersion(javaConfig.stableLtsVer);
 		const terminalDefaultRuntime = latestLtsRuntime || stableLtsRuntime;
-		let defaultJavaBinDir = undefined;
-		if (terminalDefaultRuntime) {
-			defaultJavaBinDir = path.join(terminalDefaultRuntime.path, 'bin');
-		}
-		// Prepending PATH env var with environmentVariableCollection doesn't work on macOS
-		// https://github.com/microsoft/vscode/issues/99878#issuecomment-1378990687
-		system.prependPathEnv(defaultJavaBinDir, mavenBinDir, gradleBinDir);
+		const javaBinDir = system.joinPathUndefiend(terminalDefaultRuntime?.path, 'bin');
+		// Issue: Prepending PATH env var with environmentVariableCollection doesn't work on macOS
+		// Closed) https://github.com/microsoft/vscode/issues/99878#issuecomment-1378990687
+		system.prependPathEnv(javaBinDir, mavenBinDir, gradleBinDir);
 	}
 }
 
@@ -236,13 +232,14 @@ function setConfigChangedEvent() {
 	vscode.workspace.onDidChangeConfiguration(event => {
 		if (
 			// 'java.jdt.ls.java.home' is not defined because redhat.java extension is detected
-			event.affectsConfiguration('spring-boot.ls.java.home') ||
-			event.affectsConfiguration('java.import.gradle.java.home') ||
+			event.affectsConfiguration('spring-boot.ls.java.home')
+			|| event.affectsConfiguration('java.import.gradle.java.home')
 			// For Terminal Profiles
-			event.affectsConfiguration('java.import.gradle.home') ||
-			event.affectsConfiguration('maven.executable.path') ||
-			event.affectsConfiguration('maven.terminal.customEnv') ||
-			event.affectsConfiguration('java.configuration.runtimes')
+			|| event.affectsConfiguration('java.import.gradle.home')
+			|| event.affectsConfiguration('maven.executable.path')
+			|| event.affectsConfiguration('java.configuration.runtimes')
+			// Frequent switches between Windows and WSL (NOT machine-overridable)
+			// || event.affectsConfiguration('maven.terminal.customEnv')
 		) {
 			showReloadMessage();
 		}

@@ -79,6 +79,16 @@ export function prependPathEnv(...binDirs:(string | undefined)[]) {
 
 /**
  * @param basePath The base path.
+ * @param paths The paths to join.
+ * @returns The joined path. undefined if basePath is undefined.
+ */
+export function joinPathUndefiend(basePath:string | undefined, ...paths:string[]) {
+	if (!basePath) {return undefined;}
+	return path.join(basePath, ...paths);
+}
+
+/**
+ * @param basePath The base path.
  * @param subPath The sub path to check.
  * @returns true if subPath is included in basePath.
  */

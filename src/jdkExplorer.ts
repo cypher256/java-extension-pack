@@ -63,7 +63,7 @@ export async function scan(javaConfig: redhat.IJavaConfig, runtimes:redhat.JavaR
 		userSetting.update(redhat.JavaRuntimeArray.CONFIG_KEY, runtimes);
 	}
 
-	// Detect JDK (Priority: Manual configured > Installed > Auto-Downloaded)
+	// Detect JDK (Priority: Current Setting > Installed > Auto-Downloaded)
 	const detectedLatestMap = new Map<number, IDetectedJdk>(); // Key: Major Version
 
 	// Detect Auto-Downloaded JDK (Support when user installation is uninstalled)
@@ -213,7 +213,7 @@ async function findAll(): Promise<IDetectedJdk[]> {
 	const promises = [
 		async () => {
 			// jdk-utils: Gradle Toolchains support pull requested
-			// https://github.com/Eskibear/node-jdk-utils/issues/9
+			// Closed) https://github.com/Eskibear/node-jdk-utils/issues/9
 			const utilRuntimes = await jdkutils.findRuntimes({ checkJavac: true, withVersion: true });
 			utilRuntimes.map(createJdk).forEach(jdk => pushJdk('jdk-utils', jdk, jdks));
 		},

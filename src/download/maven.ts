@@ -13,7 +13,7 @@ const CONFIG_KEY_MAVEN_EXE_PATH = 'maven.executable.path';
  */
 export async function getConfigBinDir(): Promise<string | undefined> {
 	const mvnExePath = userSetting.get<string>(CONFIG_KEY_MAVEN_EXE_PATH);
-	return mvnExePath ? path.join(mvnExePath, '..') : undefined;
+	return system.joinPathUndefiend(mvnExePath, '..');
 }
 
 /**

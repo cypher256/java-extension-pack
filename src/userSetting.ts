@@ -107,7 +107,7 @@ export async function updateJavaRuntimes(
 		} else { // Linux
 			profile.path = 'bash';
 			profile.args = ['--rcfile', path.join(resourcesDir, '.bashrc')];
-			// On macOS/Linux, npm error occurs if rcfile is disabled
+			// Do not use --login because disables --rcfile
 		}
 		profile.env.JAVA_HOME = runtime.path;
 		profilesNew[runtime.name] = profile;
@@ -129,19 +129,20 @@ export async function updateJavaRuntimes(
 	const terminalDefaultRuntime = latestLtsRuntime || stableLtsRuntime;
 	if (terminalDefaultRuntime) {
 		// Create or update default zsh/bash profiles
-		async function _setDefaultProfile(name: string, defaultJavaHome: string): Promise<any> {
+		// On macOS/Linux, npm error occurs if rcfile is disabled
+		const _setDefaultProfile = (name: string) => {
 			const profile = profilesNew[name] || {};
 			profile.path = name;
 			profile.env ||= {};
-			profile.env.JAVA_HOME ||= defaultJavaHome;
+			profile.env.JAVA_HOME ||= terminalDefaultRuntime.path;
 			profilesNew[name] = profile;
 			return profile;
-		}
+		};
 		if (OS.isMac) {
-			const profile = await _setDefaultProfile('zsh', terminalDefaultRuntime.path);
+			const profile = _setDefaultProfile('zsh');
 			profile.env.ZDOTDIR = resourcesDir;
 		} else if (OS.isLinux) {
-			const profile = await _setDefaultProfile('bash', terminalDefaultRuntime.path);
+			const profile = _setDefaultProfile('bash');
 			profile.args = ['--rcfile', path.join(resourcesDir, '.bashrc')];
 		}
 	}
@@ -159,22 +160,21 @@ export async function updateJavaRuntimes(
 	//-------------------------------------------------------------------------
 	// Terminal Default Env Variables (Keep if set)
 	if (terminalDefaultRuntime) {
-		// [Windows] Default Command Prompt
-		// prependPathEnv (without default JAVA_HOME) > terminal.integrated.env > original PATH
+		// [Windows] Default cmd/powershell/gitbash, run/debug
+		// prependPathEnv (without JAVA_HOME) > terminal.integrated.env > original PATH
 		if (OS.isWindows) {
 			const CONFIG_KEY_TERMINAL_ENV = 'terminal.integrated.env.' + osConfigName;
 			const terminalEnv:any = _.cloneDeep(get(CONFIG_KEY_TERMINAL_ENV) ?? {}); // Proxy to POJO for isEqual
 			const terminalEnvOld = _.cloneDeep(terminalEnv);
-			const fixedOrDefault = await jdkExplorer.fixPath(terminalEnv.JAVA_HOME) || terminalDefaultRuntime.path;
-			terminalEnv.JAVA_HOME = fixedOrDefault;
-			terminalEnv.PATH = _createPathPrepend(fixedOrDefault);
+			terminalEnv.JAVA_HOME = await jdkExplorer.fixPath(terminalEnv.JAVA_HOME) || terminalDefaultRuntime.path;
+			terminalEnv.PATH = _createPathPrepend(terminalEnv.JAVA_HOME);
 			if (!_.isEqual(terminalEnv, terminalEnvOld)) {
 				update(CONFIG_KEY_TERMINAL_ENV, terminalEnv);
 			}
 		}
 		// [macOS/Linux] Default zsh/bash
 		// Set by prependPathEnv because rcfile cannot be specified here (but preferred rcfile)
-		// profile JAVA_HOME > prependPathEnv (with default JAVA_HOME) > original PATH
+		// profile rcfile JAVA_HOME > prependPathEnv (with latest JAVA_HOME) > original PATH
 	}
 
 	//-------------------------------------------------------------------------
@@ -192,10 +192,7 @@ export async function updateJavaRuntimes(
 			}
 			return element;
 		}
-		// [Windows/macOS/Linux]
-		// Maven context menu JAVA_HOME (Update when switching from WSL to Windows)
-		// Change the scope of maven.terminal.customEnv to machine-overridable
-		// https://github.com/microsoft/vscode-maven/issues/991
+		// [Windows/macOS/Linux] Maven context menu JAVA_HOME
 		const javaHomeEnv = _getCustomEnv('JAVA_HOME');
 		javaHomeEnv.value = await jdkExplorer.fixPath(javaHomeEnv.value) || mavenJavaRuntime.path;
 
@@ -203,18 +200,19 @@ export async function updateJavaRuntimes(
 		if (OS.isWindows) {
 			_getCustomEnv('PATH').value = _createPathPrepend(javaHomeEnv.value);
 		} else {
-			// [Linux] Remove when switching from Windows to WSL
-			// https://github.com/microsoft/vscode-maven/issues/991
+			// [Linux/macOS] PATH: Remove when switching from Windows to WSL
+			// Issue: Change the scope of maven.terminal.customEnv to machine-overridable
+			// Open) https://github.com/microsoft/vscode-maven/issues/991
 			_.remove(customEnv, {environmentVariable: 'PATH'});
 		}
 
-		// [Linux] PATH, JAVA_HOME: customEnv > profile
-		// Maven uses the Java version of the default profile rcfile
+		// [Linux/macOS/Linux] Linux PATH, JAVA_HOME: customEnv > profile
+		// Linux Maven uses the Java version of the default profile rcfile
 		setIfUndefined('terminal.integrated.defaultProfile.' + osConfigName, mavenJavaRuntime.name);
 
 		// [macOS] PATH, JAVA_HOME: Custom .zshrc
-		// maven.terminal.useJavaHome doesnt work if JAVA_HOME already set by shell startup scripts
-		// https://github.com/microsoft/vscode-maven/issues/495#issuecomment-1869653082
+		// Issue: maven.terminal.useJavaHome doesnt work if JAVA_HOME already set by shell startup scripts
+		// Open) https://github.com/microsoft/vscode-maven/issues/495#issuecomment-1869653082
 		if (OS.isMac) {
 			_getCustomEnv('ZDOTDIR').value = resourcesDir;
 		}
@@ -227,7 +225,7 @@ export async function updateJavaRuntimes(
 	//-------------------------------------------------------------------------
 	// Gradle Daemon Java Home (Keep if set)
 	// Gradle 8.5+ can execute on latest Java versions
-	// https://github.com/gradle/gradle/issues/26944#issuecomment-1794419074
+	// Closed) https://github.com/gradle/gradle/issues/26944#issuecomment-1794419074
 	const gradleJavaRuntime = latestLtsRuntime || stableLtsRuntime;
 	if (gradleJavaRuntime && vscode.extensions.getExtension('vscjava.vscode-gradle')) {
 		const CONFIG_KEY_GRADLE_JAVA_HOME = 'java.import.gradle.java.home';
@@ -321,8 +319,8 @@ function setIfUndefined(section:string, value:any, extensionId?:string) {
 export async function setDefault(javaConfig: redhat.IJavaConfig) {
 
 	// Workaround: Uninstall extension that cause configuration errors
-	// https://github.com/fabric8-analytics/fabric8-analytics-vscode-extension/issues/503
-	// https://github.com/fabric8-analytics/fabric8-analytics-vscode-extension/issues/665
+	// Closed) https://github.com/fabric8-analytics/fabric8-analytics-vscode-extension/issues/503
+	// Open) https://github.com/fabric8-analytics/fabric8-analytics-vscode-extension/issues/665
 	const redhatDependExId = 'redhat.fabric8-analytics';
 	if (vscode.extensions.getExtension(redhatDependExId)) {
 		if (!await jdkExplorer.isValidHome(process.env.JAVA_HOME) ||
