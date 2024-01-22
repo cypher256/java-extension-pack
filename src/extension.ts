@@ -1,5 +1,6 @@
 /*! VS Code Extension (c) 2023 Shinji Kashihara (cypher256) @ WILL */
 import * as _ from "lodash";
+import * as path from 'path';
 import * as vscode from 'vscode';
 import { l10n } from 'vscode';
 import * as gradle from './download/gradle';
@@ -23,7 +24,7 @@ export async function activate(context:vscode.ExtensionContext) {
 		log.info('Global Storage', system.getGlobalStoragePath());
 		const javaConfig = await redhat.getJavaConfig();
 		const runtimes = userSetting.getJavaRuntimes();
-		setEnvVariable(javaConfig, runtimes);
+		setEnvVariable();
 
 		if (!userSetting.get('javaAutoConfig.enabled')) {
 			log.info(`javaAutoConfig.enabled: false`);
@@ -36,7 +37,7 @@ export async function activate(context:vscode.ExtensionContext) {
 		await detect(javaConfig, runtimes);
 		await download(javaConfig, runtimes);
 		onComplete(javaConfig, runtimes, runtimesOld, isFirstStartup);
-		setEnvVariable(javaConfig, runtimes);
+		setEnvVariable();
 
 	} catch (e:any) {
 		vscode.window.showErrorMessage(`Auto Config Java failed. ${e}`);
@@ -49,31 +50,26 @@ export async function activate(context:vscode.ExtensionContext) {
 
 /**
  * Sets the environment variables.
- * @param javaConfig The Java configuration.
- * @param runtimes The Java runtimes.
  */
-async function setEnvVariable(
-	javaConfig: redhat.IJavaConfig,
-	runtimes: redhat.JavaRuntimeArray) {
+async function setEnvVariable() {
 
 	const mavenBinDir = await maven.getConfigBinDir();
 	const gradleBinDir = await gradle.getConfigBinDir();
+	const toolBinDirs = [gradleBinDir, mavenBinDir].filter(Boolean).join(path.delimiter);
+	const environmentVariableCollection = system.getExtensionContext().environmentVariableCollection;
+	environmentVariableCollection.clear(); // Clears all mutators (Not cleared on restart)
 
 	// Terminal all profiles common PATH prefix
 	if (OS.isWindows) {
 		// [Windows]
-		// prependPathEnv (without JAVA_HOME) > profiles JAVA_HOME > original PATH
-		system.prependPathEnv(mavenBinDir, gradleBinDir);
+		// Env toolBinDirs > profile JAVA_HOME > original PATH
+		environmentVariableCollection.prepend('PATH', toolBinDirs + path.delimiter);
 	} else {
 		// [macOS/Linux] Use custom rcfile
-		// profile rcfile JAVA_HOME > jbang > prependPathEnv (with latest JAVA_HOME) > original PATH
-		const latestLtsRuntime = runtimes.findByVersion(javaConfig.latestLtsVer);
-		const stableLtsRuntime = runtimes.findByVersion(javaConfig.stableLtsVer);
-		const terminalDefaultRuntime = latestLtsRuntime || stableLtsRuntime;
-		const javaBinDir = system.joinPathUndefiend(terminalDefaultRuntime?.path, 'bin');
-		// Issue: Prepending PATH env var with environmentVariableCollection doesn't work on macOS
-		// Closed) https://github.com/microsoft/vscode/issues/99878#issuecomment-1378990687
-		system.prependPathEnv(javaBinDir, mavenBinDir, gradleBinDir);
+		// Issue: PATH mutation using EnvironmentVariableCollection prepend is overwritten in zsh
+		// Open) https://github.com/microsoft/vscode/issues/188235
+		// profile JAVA_HOME > Env toolBinDirs > original PATH
+		environmentVariableCollection.replace('AUTO_CONFIG_PATH', toolBinDirs);
 	}
 }
 

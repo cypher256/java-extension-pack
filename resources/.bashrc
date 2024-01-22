@@ -3,4 +3,4 @@ if [ -r ~/.bashrc ]; then
 	source ~/.bashrc
 	export JAVA_HOME=$JAVA_HOME_BACKUP
 fi
-export PATH="$JAVA_HOME/bin:$PATH"
+export PATH="$JAVA_HOME/bin:$AUTO_CONFIG_PATH:$PATH"

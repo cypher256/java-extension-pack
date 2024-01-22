@@ -67,17 +67,6 @@ export function isUserInstalled(checkPath:string): boolean {
 }
 
 /**
- * Prepends to the PATH environment variable (Affects all terminals).
- * It is always prepended to the original PATH, even if called multiple times.
- * @param binDirs The bin directories to prepend.
- */
-export function prependPathEnv(...binDirs:(string | undefined)[]) {
-	const envPaths = (process.env.PATH || '').split(path.delimiter).map(normalizePath);
-	const addPath = binDirs.filter(p => p && !envPaths.includes(normalizePath(p))).join(path.delimiter);
-	extensionContext.environmentVariableCollection.prepend('PATH', addPath + path.delimiter);
-}
-
-/**
  * @param basePath The base path.
  * @param paths The paths to join.
  * @returns The joined path. undefined if basePath is undefined.

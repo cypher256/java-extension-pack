@@ -130,19 +130,19 @@ export async function updateJavaRuntimes(
 	if (terminalDefaultRuntime) {
 		// Create or update default zsh/bash profiles
 		// On macOS/Linux, npm error occurs if rcfile is disabled
-		const _setDefaultProfile = (name: string) => {
+		const _setDefaultProfile = async (name: string) => {
 			const profile = profilesNew[name] || {};
 			profile.path = name;
 			profile.env ||= {};
-			profile.env.JAVA_HOME ||= terminalDefaultRuntime.path;
+			profile.env.JAVA_HOME = await jdkExplorer.fixPath(profile.env.JAVA_HOME) || terminalDefaultRuntime.path;
 			profilesNew[name] = profile;
 			return profile;
 		};
 		if (OS.isMac) {
-			const profile = _setDefaultProfile('zsh');
+			const profile = await _setDefaultProfile('zsh'); // Inherited -l from default profile
 			profile.env.ZDOTDIR = resourcesDir;
 		} else if (OS.isLinux) {
-			const profile = _setDefaultProfile('bash');
+			const profile = await _setDefaultProfile('bash');
 			profile.args = ['--rcfile', path.join(resourcesDir, '.bashrc')];
 		}
 	}
@@ -161,7 +161,7 @@ export async function updateJavaRuntimes(
 	// Terminal Default Env Variables (Keep if set)
 	if (terminalDefaultRuntime) {
 		// [Windows] Default cmd/powershell/gitbash, run/debug
-		// prependPathEnv (without JAVA_HOME) > terminal.integrated.env > original PATH
+		// Env toolBinDirs > terminal.integrated.env > original PATH
 		if (OS.isWindows) {
 			const CONFIG_KEY_TERMINAL_ENV = 'terminal.integrated.env.' + osConfigName;
 			const terminalEnv:any = _.cloneDeep(get(CONFIG_KEY_TERMINAL_ENV) ?? {}); // Proxy to POJO for isEqual
@@ -174,7 +174,7 @@ export async function updateJavaRuntimes(
 		}
 		// [macOS/Linux] Default zsh/bash
 		// Set by prependPathEnv because rcfile cannot be specified here (but preferred rcfile)
-		// profile rcfile JAVA_HOME > prependPathEnv (with latest JAVA_HOME) > original PATH
+		// profile rcfile JAVA_HOME > Env toolBinDirs > original PATH
 	}
 
 	//-------------------------------------------------------------------------
@@ -373,8 +373,8 @@ export async function setDefault(javaConfig: redhat.IJavaConfig) {
 		setIfUndefined('[bat]', {'files.eol': '\r\n'});
 	}
 	// VS Code Terminal
-	setIfUndefined('terminal.integrated.enablePersistentSessions', false);
 	setIfUndefined('terminal.integrated.tabs.hideCondition', 'never');
+	setIfUndefined('terminal.integrated.enablePersistentSessions', false);
 	// Java extensions
 	setIfUndefined('java.configuration.updateBuildConfiguration', 'automatic');
 	setIfUndefined('java.debug.settings.hotCodeReplace', 'auto');
