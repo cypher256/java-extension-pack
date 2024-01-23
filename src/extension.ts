@@ -26,8 +26,8 @@ export async function activate(context:vscode.ExtensionContext) {
 		const runtimes = userSetting.getJavaRuntimes();
 		setEnvVariable();
 
-		if (!userSetting.get('javaAutoConfig.enabled')) {
-			log.info(`javaAutoConfig.enabled: false`);
+		if (!vscode.workspace.getConfiguration('javaAutoConfig').get('enabled')) {
+			log.info(`javaAutoConfig.enabled: false`); // Scope User/Workspace/Remote
 			return;
 		}
 		userSetting.setDefault(javaConfig);
@@ -96,8 +96,8 @@ async function download(
 	javaConfig: redhat.IJavaConfig,
 	runtimes: redhat.JavaRuntimeArray) {
 
-	if (!userSetting.get('extensions.autoUpdate')) {
-		log.info(`Download disabled (extensions.autoUpdate: false)`);
+	if (vscode.workspace.getConfiguration('extensions').get('autoUpdate') === false) {
+		log.info(`Download disabled (extensions.autoUpdate: false)`); // Scope: User only
 		return;
 	}
 	const orderDescVers = [...javaConfig.downloadLtsVers].sort((a,b) => b-a);

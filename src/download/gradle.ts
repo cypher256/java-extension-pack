@@ -13,7 +13,7 @@ const CONFIG_KEY_GRADLE_HOME = 'java.import.gradle.home';
  */
 export async function getConfigBinDir(): Promise<string | undefined> {
 	const gradleHome = userSetting.get<string>(CONFIG_KEY_GRADLE_HOME);
-	return system.joinPathUndefiend(gradleHome, 'bin');
+	return system.joinPathIfPresent(gradleHome, 'bin');
 }
 
 /**

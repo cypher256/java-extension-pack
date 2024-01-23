@@ -9,7 +9,7 @@ import * as system from './system';
 import { OS, log } from './system';
 
 /**
- * Return a value from user settings configuration.
+ * Return a value from user settings or default configuration.
  * @param section Configuration name, supports _dotted_ names.
  * @returns The value `section` denotes or `undefined`. null is a valid value.
  */
@@ -19,7 +19,12 @@ export function get<T>(section: string): T | undefined {
 	return (info?.globalValue ?? info?.defaultValue) as T;
 }
 
-function getDefinition<T>(section: string): T | undefined {
+/**
+ * Return a value from user settings configuration.
+ * @param section Configuration name, supports _dotted_ names.
+ * @returns The value `section` denotes or `undefined`. null is a valid value.
+ */
+export function getDefinition<T>(section: string): T | undefined {
 	const info = vscode.workspace.getConfiguration().inspect(section);
 	// User settings.json only
 	return info?.globalValue as T;

@@ -13,7 +13,7 @@ const CONFIG_KEY_MAVEN_EXE_PATH = 'maven.executable.path';
  */
 export async function getConfigBinDir(): Promise<string | undefined> {
 	const mvnExePath = userSetting.get<string>(CONFIG_KEY_MAVEN_EXE_PATH);
-	return system.joinPathUndefiend(mvnExePath, '..');
+	return system.joinPathIfPresent(mvnExePath, '..');
 }
 
 /**
@@ -21,7 +21,12 @@ export async function getConfigBinDir(): Promise<string | undefined> {
  * @returns A promise that resolves when the Maven is installed.
  */
 export async function download() {
-	const mavenExeOld = userSetting.get<string>(CONFIG_KEY_MAVEN_EXE_PATH);
+	// Use 'getDefinition' instead of 'get' to get empty definition
+	const mavenExeOld = userSetting.getDefinition<string>(CONFIG_KEY_MAVEN_EXE_PATH);
+	if (mavenExeOld === '') {
+		log.info('Use mvnw because', CONFIG_KEY_MAVEN_EXE_PATH, 'is empty');
+		return;
+	}
 	let mavenExeNew = await resolvePath(mavenExeOld);
 	if (mavenExeNew && system.isUserInstalled(mavenExeNew)) {
 		log.info('Available Maven (User installed)', CONFIG_KEY_MAVEN_EXE_PATH, mavenExeNew);

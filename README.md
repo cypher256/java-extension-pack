@@ -15,9 +15,9 @@ Just install this extension and start Java development right out of the box with
 * Includes extensions for Java development from Microsoft, Red Hat, Broadcom, and others.
 <br><br>
 Issues of the main extensions
-  * [Extension Pack for Java](https://github.com/microsoft/vscode-java-pack/issues?q=is%3Aissue) (Microsoft)
-  * [Language Support for Java by Red Hat](https://github.com/redhat-developer/vscode-java/issues?q=is%3Aissue) (Red Hat)
-  * [Spring Boot Extension Pack](https://github.com/spring-projects/sts4/issues?q=is%3Aissue) (Broadcom)
+  * [Extension Pack for Java](https://github.com/microsoft/vscode-java-pack/issues?q=is%3Aissue+sort%3Aupdated-desc) (Microsoft)
+  * [Language Support for Java by Red Hat](https://github.com/redhat-developer/vscode-java/issues?q=is%3Aissue+sort%3Aupdated-desc) (Red Hat)
+  * [Spring Boot Extension Pack](https://github.com/spring-projects/sts4/issues?q=is%3Aissue+sort%3Aupdated-desc) (Broadcom)
 
 <br>
 
@@ -89,7 +89,7 @@ For Included Extensions
 |[java.import.gradle.home](https://github.com/microsoft/vscode-gradle#java-specific-settings)<br>([Issues](https://github.com/microsoft/vscode-gradle/issues?q=is%3Aissue+java.import.gradle.home))|Set latest gradle if unset<br>(**`gradlew`** > Setting > `PATH` > `GRADLE_HOME`)|
 |*Maven for Java*|
 |[maven.terminal.customEnv](https://marketplace.visualstudio.com/items?itemName=vscjava.vscode-maven#additional-configurations)<br>([Issues](https://github.com/microsoft/vscode-maven/issues?q=is%3Aissue+maven.terminal.customEnv))|Update latest if maven auto-downloaded (for macOS/Linux. For Windows, set to terminal.integrated.env.windows.)<br>(Setting > `JAVA_HOME`)|
-|[maven.executable.path](https://github.com/Microsoft/vscode-maven#settings)<br>([Issues](https://github.com/microsoft/vscode-maven/issues?q=is%3Aissue+maven.executable.path))|Set latest maven if unset<br>(Setting > `mvnw` > `PATH`)|
+|[maven.executable.path](https://github.com/Microsoft/vscode-maven#settings)<br>([Issues](https://github.com/microsoft/vscode-maven/issues?q=is%3Aissue+maven.executable.path))|Set latest maven if unset (If you want to use mvnw, set "" manually)<br>(Setting > `mvnw` > `PATH`)|
 
 For Optional Extensions
 

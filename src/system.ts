@@ -71,7 +71,7 @@ export function isUserInstalled(checkPath:string): boolean {
  * @param paths The paths to join.
  * @returns The joined path. undefined if basePath is undefined.
  */
-export function joinPathUndefiend(basePath:string | undefined, ...paths:string[]) {
+export function joinPathIfPresent(basePath:string | undefined, ...paths:string[]) {
 	if (!basePath) {return undefined;}
 	return path.join(basePath, ...paths);
 }
