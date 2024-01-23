@@ -379,7 +379,7 @@ export async function setDefault(javaConfig: redhat.IJavaConfig) {
 	}
 	// VS Code Terminal
 	setIfUndefined('terminal.integrated.tabs.hideCondition', 'never');
-	setIfUndefined('terminal.integrated.enablePersistentSessions', false);
+	//setIfUndefined('terminal.integrated.enablePersistentSessions', false); // Testing...
 	// Java extensions
 	setIfUndefined('java.configuration.updateBuildConfiguration', 'automatic');
 	setIfUndefined('java.debug.settings.hotCodeReplace', 'auto');
