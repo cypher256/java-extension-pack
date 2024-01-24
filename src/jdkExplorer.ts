@@ -218,7 +218,7 @@ async function findAll(): Promise<IDetectedJdk[]> {
 			utilRuntimes.map(createJdk).forEach(jdk => pushJdk('jdk-utils', jdk, jdks));
 		},
 		async () => {
-			// jdk-utils not supported Windows Distributors
+			// Windows distributors not supported by jdk-utils
 			// https://github.com/Eskibear/node-jdk-utils/blob/main/src/from/windows.ts
 			if (!OS.isWindows) {return;}
 			for (const programDir of [env.ProgramFiles, env.LOCALAPPDATA].filter(Boolean) as string[]) {
@@ -245,7 +245,7 @@ async function findAll(): Promise<IDetectedJdk[]> {
 			await findBy('IntelliJ', jdks, distPat);
 		},
 		async () => {
-			// Pleiades
+			// Pleiades (Windows, macOS)
 			if (OS.isWindows) {
 				// e.g.    C:\pleiades\java\17\bin
 				// C:\pleiades\2023-03\java\17\bin

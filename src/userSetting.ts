@@ -197,19 +197,28 @@ export async function updateJavaRuntimes(
 			}
 			return element;
 		}
-		// [Windows/macOS/Linux] Maven context menu JAVA_HOME
+
+		// [Windows/macOS/Linux] JAVA_HOME for Maven context menu
+		// Env toolBinDirs > customEnv > terminal.integrated.env > original PATH
+		// Issue: Option to use specific Java SDK to run Maven
+		//   Open) https://github.com/microsoft/vscode-maven/issues/992
+		// Issue: Change the scope of maven.terminal.customEnv to machine-overridable
+		//   Open) https://github.com/microsoft/vscode-maven/issues/991
 		const javaHomeEnv = _getCustomEnv('JAVA_HOME');
 		javaHomeEnv.value = await jdkExplorer.fixPath(javaHomeEnv.value) || mavenJavaRuntime.path;
 
-		// [Windows] PATH
+		/*
 		if (OS.isWindows) {
+			// [Windows] PATH: for java command (mvn and gradle work without java/bin in PATH)
 			_getCustomEnv('PATH').value = _createPathPrepend(javaHomeEnv.value);
 		} else {
 			// [Linux/macOS] PATH: Remove when switching from Windows to WSL
-			// Issue: Change the scope of maven.terminal.customEnv to machine-overridable
-			// Open) https://github.com/microsoft/vscode-maven/issues/991
 			_.remove(customEnv, {environmentVariable: 'PATH'});
 		}
+		*/
+		// [Windows] maven and gradle don't need java/bin in PATH (java command cannot be executed)
+		// [Linux/macOS] PATH is not required because defaultProfile's rcfile is used
+		_.remove(customEnv, {environmentVariable: 'PATH'}); // Remove for previous version
 
 		// [Linux/macOS/Linux] Linux PATH, JAVA_HOME: customEnv > profile
 		// Linux Maven uses the Java version of the default profile rcfile
@@ -379,7 +388,7 @@ export async function setDefault(javaConfig: redhat.IJavaConfig) {
 	}
 	// VS Code Terminal
 	setIfUndefined('terminal.integrated.tabs.hideCondition', 'never');
-	//setIfUndefined('terminal.integrated.enablePersistentSessions', false); // Testing...
+	setIfUndefined('terminal.integrated.enablePersistentSessions', false);
 	// Java extensions
 	setIfUndefined('java.configuration.updateBuildConfiguration', 'automatic');
 	setIfUndefined('java.debug.settings.hotCodeReplace', 'auto');

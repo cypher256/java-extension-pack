@@ -14,10 +14,10 @@ Just install this extension and start Java development right out of the box with
 * Automatically configure, update, and fix multiple Java versions (at least the four latest LTS).
 * Includes extensions for Java development from Microsoft, Red Hat, Broadcom, and others.
 <br><br>
-Issues of the main extensions
-  * [Extension Pack for Java](https://github.com/microsoft/vscode-java-pack/issues?q=is%3Aissue+sort%3Aupdated-desc) (Microsoft)
-  * [Language Support for Java by Red Hat](https://github.com/redhat-developer/vscode-java/issues?q=is%3Aissue+sort%3Aupdated-desc) (Red Hat)
-  * [Spring Boot Extension Pack](https://github.com/spring-projects/sts4/issues?q=is%3Aissue+sort%3Aupdated-desc) (Broadcom)
+GitHub Issues
+  * Microsoft: [Extension Pack for Java](https://github.com/microsoft/vscode-java-pack/issues?q=is%3Aissue+sort%3Aupdated-desc) | [Maven](https://github.com/microsoft/vscode-maven/issues?q=is%3Aissue+sort%3Aupdated-desc) | [Gradle](https://github.com/microsoft/vscode-gradle/issues?q=is%3Aissue+sort%3Aupdated-desc+) | [Debug](https://github.com/microsoft/vscode-java-debug/issues?q=is%3Aissue+sort%3Aupdated-desc) | [Test](https://github.com/microsoft/vscode-java-test/issues?q=is%3Aissue+sort%3Aupdated-desc) | [Project Manager](https://github.com/microsoft/vscode-java-dependency/issues?q=is%3Aissue+sort%3Aupdated-desc) | [IntelliCode](https://github.com/MicrosoftDocs/intellicode/issues?q=is%3Aissue+sort%3Aupdated-desc)
+  * Red Hat: [Language Support for Java](https://github.com/redhat-developer/vscode-java/issues?q=is%3Aissue+sort%3Aupdated-desc)
+  * Broadcom: [Spring Boot Extension Pack](https://github.com/spring-projects/sts4/issues?q=is%3Aissue+sort%3Aupdated-desc) | [Initializr](https://github.com/microsoft/vscode-spring-initializr/issues?q=is%3Aissue+sort%3Aupdated-desc) | [Dashboard](https://github.com/microsoft/vscode-spring-boot-dashboard/issues?q=is%3Aissue+sort%3Aupdated-desc)
 
 <br>
 
