@@ -220,7 +220,7 @@ export async function updateJavaRuntimes(
 		// [Linux/macOS] PATH is not required because defaultProfile's rcfile is used
 		_.remove(customEnv, {environmentVariable: 'PATH'}); // Remove for previous version
 
-		// [Linux/macOS/Linux] Linux PATH, JAVA_HOME: customEnv > profile
+		// [Windows/macOS/Linux] Linux PATH, JAVA_HOME: customEnv > profile
 		// Linux Maven uses the Java version of the default profile rcfile
 		setIfUndefined('terminal.integrated.defaultProfile.' + osConfigName, mavenJavaRuntime.name);
 
