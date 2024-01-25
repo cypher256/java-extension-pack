@@ -97,7 +97,7 @@ export async function updateJavaRuntimes(
 	const profilesOld:any = _.cloneDeep(profilesDef); // Proxy to POJO for isEqual
 	const profilesNew:any = _.cloneDeep(profilesOld);
 	const _createPathPrepend = (javaHome: string) => [path.join(javaHome, 'bin'), '${env:PATH}'].join(path.delimiter);
-	const resourcesDir = system.getExtensionContext().asAbsolutePath('resources');
+	const extensionResourcesDir = system.getExtensionContext().asAbsolutePath('resources');
 	for (const runtime of runtimes) {
 		// Create from config runtimes (Always overwrite)
 		const profile:any = _.cloneDeep(profilesOld[runtime.name]) ?? {}; // for isEqual
@@ -108,10 +108,10 @@ export async function updateJavaRuntimes(
 			profile.env.PATH = _createPathPrepend(runtime.path);
 		} else if (OS.isMac) {
 			profile.path = 'zsh';
-			profile.env.ZDOTDIR = resourcesDir;
+			profile.env.ZDOTDIR = extensionResourcesDir;
 		} else { // Linux
 			profile.path = 'bash';
-			profile.args = ['--rcfile', path.join(resourcesDir, '.bashrc')];
+			profile.args = ['--rcfile', path.join(extensionResourcesDir, '.bashrc')];
 			// Do not use --login because disables --rcfile
 		}
 		profile.env.JAVA_HOME = runtime.path;
@@ -145,10 +145,10 @@ export async function updateJavaRuntimes(
 		};
 		if (OS.isMac) {
 			const profile = await _setDefaultProfile('zsh'); // Inherited -l from default profile
-			profile.env.ZDOTDIR = resourcesDir;
+			profile.env.ZDOTDIR = extensionResourcesDir;
 		} else if (OS.isLinux) {
 			const profile = await _setDefaultProfile('bash');
-			profile.args = ['--rcfile', path.join(resourcesDir, '.bashrc')];
+			profile.args = ['--rcfile', path.join(extensionResourcesDir, '.bashrc')];
 		}
 	}
 	const profileNames = Object.keys(profilesNew);
@@ -165,8 +165,9 @@ export async function updateJavaRuntimes(
 	//-------------------------------------------------------------------------
 	// Terminal Default Env Variables (Keep if set)
 	if (terminalDefaultRuntime) {
-		// [Windows] Default cmd/powershell/gitbash, run/debug
-		// Env toolBinDirs > terminal.integrated.env > original PATH
+		// [Windows] Default cmd/powershell/gitbash
+		// Run/Debug is launched using project's java.exe for No-build-tools/maven/gradle
+		// PRECEDENCE: Env Gradle/Maven > terminal.integrated.env JAVA_HOME > original PATH
 		if (OS.isWindows) {
 			const CONFIG_KEY_TERMINAL_ENV = 'terminal.integrated.env.' + osConfigName;
 			const terminalEnv:any = _.cloneDeep(get(CONFIG_KEY_TERMINAL_ENV) ?? {}); // Proxy to POJO for isEqual
@@ -177,9 +178,8 @@ export async function updateJavaRuntimes(
 				update(CONFIG_KEY_TERMINAL_ENV, terminalEnv);
 			}
 		}
-		// [macOS/Linux] Default zsh/bash
-		// Set by prependPathEnv because rcfile cannot be specified here (but preferred rcfile)
-		// profile rcfile JAVA_HOME > Env toolBinDirs > original PATH
+		// [macOS/Linux] Use custom rcfile in zsh/bash
+		// PRECEDENCE: profile JAVA_HOME > Env Gradle/Maven > original PATH
 	}
 
 	//-------------------------------------------------------------------------
@@ -199,7 +199,7 @@ export async function updateJavaRuntimes(
 		}
 
 		// [Windows/macOS/Linux] JAVA_HOME for Maven context menu
-		// Env toolBinDirs > customEnv > terminal.integrated.env > original PATH
+		// PRECEDENCE: Env Gradle/Maven > customEnv > terminal.integrated.env > original PATH
 		// Issue: Option to use specific Java SDK to run Maven
 		//   Open) https://github.com/microsoft/vscode-maven/issues/992
 		// Issue: Change the scope of maven.terminal.customEnv to machine-overridable
@@ -207,6 +207,9 @@ export async function updateJavaRuntimes(
 		const javaHomeEnv = _getCustomEnv('JAVA_HOME');
 		javaHomeEnv.value = await jdkExplorer.fixPath(javaHomeEnv.value) || mavenJavaRuntime.path;
 
+		// [Windows] maven and gradle don't need java/bin in PATH (java command cannot be executed)
+		// [Linux/macOS] PATH is not required because defaultProfile's rcfile is used
+		_.remove(customEnv, {environmentVariable: 'PATH'}); // Remove for previous version
 		/*
 		if (OS.isWindows) {
 			// [Windows] PATH: for java command (mvn and gradle work without java/bin in PATH)
@@ -216,19 +219,16 @@ export async function updateJavaRuntimes(
 			_.remove(customEnv, {environmentVariable: 'PATH'});
 		}
 		*/
-		// [Windows] maven and gradle don't need java/bin in PATH (java command cannot be executed)
-		// [Linux/macOS] PATH is not required because defaultProfile's rcfile is used
-		_.remove(customEnv, {environmentVariable: 'PATH'}); // Remove for previous version
 
 		// [Windows/macOS/Linux] Linux PATH, JAVA_HOME: customEnv > profile
 		// Linux Maven uses the Java version of the default profile rcfile
 		setIfUndefined('terminal.integrated.defaultProfile.' + osConfigName, mavenJavaRuntime.name);
 
-		// [macOS] PATH, JAVA_HOME: Custom .zshrc
+		// [macOS] Use custom rcfile in zsh
 		// Issue: maven.terminal.useJavaHome doesnt work if JAVA_HOME already set by shell startup scripts
 		// Open) https://github.com/microsoft/vscode-maven/issues/495#issuecomment-1869653082
 		if (OS.isMac) {
-			_getCustomEnv('ZDOTDIR').value = resourcesDir;
+			_getCustomEnv('ZDOTDIR').value = extensionResourcesDir;
 		}
 		
 		if (!_.isEqual(customEnv, customEnvOld)) {

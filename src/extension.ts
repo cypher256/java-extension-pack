@@ -53,22 +53,22 @@ export async function activate(context:vscode.ExtensionContext) {
  */
 async function setEnvVariable() {
 
-	const mavenBinDir = await maven.getConfigBinDir();
 	const gradleBinDir = await gradle.getConfigBinDir();
+	const mavenBinDir = await maven.getConfigBinDir();
 	const toolBinDirs = [gradleBinDir, mavenBinDir].filter(Boolean).join(path.delimiter);
 	const environmentVariableCollection = system.getExtensionContext().environmentVariableCollection;
-	environmentVariableCollection.clear(); // Clears all mutators (Not cleared on restart)
+	environmentVariableCollection.clear(); // Clear persisted values (Not cleared on restart)
 
 	// Terminal all profiles common PATH prefix
 	if (OS.isWindows) {
 		// [Windows]
-		// Env toolBinDirs > profile JAVA_HOME > original PATH
+		// PRECEDENCE: Env Gradle/Maven > profile JAVA_HOME > original PATH
 		environmentVariableCollection.prepend('PATH', toolBinDirs + path.delimiter);
 	} else {
-		// [macOS/Linux] Use custom rcfile
+		// [macOS/Linux] Use custom rcfile in zsh/bash
+		// PRECEDENCE: profile JAVA_HOME > Env Gradle/Maven > original PATH
 		// Issue: PATH mutation using EnvironmentVariableCollection prepend is overwritten in zsh
 		// Open) https://github.com/microsoft/vscode/issues/188235
-		// profile JAVA_HOME > Env toolBinDirs > original PATH
 		environmentVariableCollection.replace('AUTO_CONFIG_PATH', toolBinDirs);
 	}
 }
