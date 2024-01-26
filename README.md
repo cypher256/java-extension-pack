@@ -37,7 +37,8 @@ The user `settings.json` is auto-configured at startup by `Java Extension Pack A
 <br>
 <br>
 
-* **No Build Tools ([vscode-java](https://github.com/redhat-developer/vscode-java?tab=readme-ov-file#project-jdks))**<br>
+* **No Build Tools ([vscode-java](https://github.com/redhat-developer/vscode-java?tab=readme-ov-file#project-jdks))**
+<br>
   (*a) `settings.json`
 
   ```json
