@@ -198,8 +198,8 @@ export async function updateJavaRuntimes(
 			return element;
 		}
 
-		// [Windows/macOS/Linux] JAVA_HOME for Maven context menu
-		// PRECEDENCE: Env Gradle/Maven > customEnv > terminal.integrated.env > original PATH
+		// [Windows]     PRECEDENCE: Env Gradle/Maven > customEnv > terminal.integrated.env > original PATH
+		// [macOS/Linux] PRECEDENCE: customEnv > .*shrc JAVA_HOME > Env Gradle/Maven > original PATH
 		// Issue: Option to use specific Java SDK to run Maven
 		//   Open) https://github.com/microsoft/vscode-maven/issues/992
 		// Issue: Change the scope of maven.terminal.customEnv to machine-overridable
@@ -220,7 +220,7 @@ export async function updateJavaRuntimes(
 		}
 		*/
 
-		// [Windows/macOS/Linux] Linux PATH, JAVA_HOME: customEnv > profile
+		// [Windows/macOS/Linux] Default profile
 		// Linux Maven uses the Java version of the default profile rcfile
 		setIfUndefined('terminal.integrated.defaultProfile.' + osConfigName, mavenJavaRuntime.name);
 

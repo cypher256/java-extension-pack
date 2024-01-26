@@ -33,16 +33,65 @@ mvn -v
 <br>
 
 ### Specify Project Java Version
-The user `settings.json` is auto-configured at startup by `Java Extension Pack Auto Config`, but if you want to customize it, edit the following files ([Enabling Java preview features](https://github.com/redhat-developer/vscode-java/wiki/Enabling-Java-preview-features)).
+The user `settings.json` is auto-configured at startup by `Java Extension Pack Auto Config`, but if you want to customize it, edit the following files.
+<br>
+<br>
 
-|Project Type|Configuration|
-|---|---|
-|No Build Tools<br>([vscode-java](https://github.com/redhat-developer/vscode-java?tab=readme-ov-file#project-jdks))|`settings.json` ≫ `java.configuration.runtimes` ≫ `"default": true`<br>Known Issue: [Cannot specify different Java versions in the same workspace](https://github.com/redhat-developer/vscode-java/issues/2543)|
-|Gradle<br>([vscode-gradle](https://github.com/microsoft/vscode-gradle?tab=readme-ov-file#java-specific-settings))|(*a) `settings.json` ≫ `java.import.gradle.java.home`<br>(*b) `build.gradle` ≫ `java` ≫ `sourceCompatibility`|
-|Maven<br>([vscode-maven](https://github.com/Microsoft/vscode-maven?tab=readme-ov-file#settings))|(*a) `settings.json` ≫ `maven.terminal.customEnv` ≫ `"JAVA_HOME"`<br>(*b) `pom.xml` ≫ `properties` ≫ `maven.compiler.source/target` (or `java.version` for Spring Boot)|
+* **No Build Tools ([vscode-java](https://github.com/redhat-developer/vscode-java?tab=readme-ov-file#project-jdks))**
+<br>
+(*a) `settings.json`
+  ```json
+  "java.configuration.runtimes": [
+    {
+      "name": "JavaSE-17",
+      "path": "C:\\Program Files\\java\\jdk-17.0.6"
+    },
+    {
+      "name": "JavaSE-21",
+      "path": "C:\\Program Files\\java\\jdk-21.0.1",
+      "default": true // Runtime to use for No build tools projects
+    }
+  ],
+  ```
+<br>
 
-(*a) Tools Java Home: The `settings.json` [can be configured by project (workspace)](https://code.visualstudio.com/docs/getstarted/settings).<br>
-(*b) The `java.configuration.runtimes` that best matches this version will be used.
+* **Gradle ([vscode-gradle](https://github.com/microsoft/vscode-gradle?tab=readme-ov-file#java-specific-settings))**
+<br>
+(*a) `settings.json`
+  ```json
+  "java.import.gradle.java.home": "C:\\Program Files\\java\\jdk-21.0.1"
+  ```
+  (*b) `build.gradle`: [`compileJava.options.release`](https://docs.gradle.org/current/userguide/building_java_projects.html#sec:java_cross_compilation)
+  ```groovy
+  def javaVersion = 17
+  java.sourceCompatibility = javaVersion // For VS Code Gradle Extension
+  compileJava.options.release = javaVersion // Detecting Java API version errors
+  ```
+<br>
+
+* **Maven ([vscode-maven](https://github.com/Microsoft/vscode-maven?tab=readme-ov-file#settings))**
+<br>
+(*a) `settings.json`
+  ```json
+  "maven.terminal.customEnv": [
+    {
+      "environmentVariable": "JAVA_HOME",
+      "value": "C:\\Program Files\\java\\jdk-21.0.1"
+    }
+  ]
+  ```
+  (*b) `pom.xml`: [`maven.compiler.release`](https://maven.apache.org/plugins/maven-compiler-plugin/examples/set-compiler-release.html)
+  ```xml
+  <properties>
+      <!-- <maven.compiler.source>17</maven.compiler.source> -->
+      <!-- <maven.compiler.target>17</maven.compiler.target> -->
+      <maven.compiler.release>17</maven.compiler.release>
+  </properties>
+  ```
+
+(*a) The `settings.json` [can be configured by project (workspace)](https://code.visualstudio.com/docs/getstarted/settings).<br>
+(*b) Detects errors when using a Java API that does not exist in the version specified in `release`.<br>
+Note: [Enabling Java preview features](https://github.com/redhat-developer/vscode-java/wiki/Enabling-Java-preview-features).
 
 <br>
 <br>
