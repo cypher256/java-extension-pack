@@ -40,6 +40,7 @@ The user `settings.json` is auto-configured at startup by `Java Extension Pack A
 * **No Build Tools ([vscode-java](https://github.com/redhat-developer/vscode-java?tab=readme-ov-file#project-jdks))**
 <br>
 (*a) `settings.json`
+
   ```json
   "java.configuration.runtimes": [
     {
@@ -58,10 +59,12 @@ The user `settings.json` is auto-configured at startup by `Java Extension Pack A
 * **Gradle ([vscode-gradle](https://github.com/microsoft/vscode-gradle?tab=readme-ov-file#java-specific-settings))**
 <br>
 (*a) `settings.json`
+
   ```json
   "java.import.gradle.java.home": "C:\\Program Files\\java\\jdk-21.0.1"
   ```
   (*b) `build.gradle`: [`compileJava.options.release`](https://docs.gradle.org/current/userguide/building_java_projects.html#sec:java_cross_compilation)
+
   ```groovy
   def javaVersion = 17
   java.sourceCompatibility = javaVersion // For VS Code Gradle Extension
@@ -72,6 +75,7 @@ The user `settings.json` is auto-configured at startup by `Java Extension Pack A
 * **Maven ([vscode-maven](https://github.com/Microsoft/vscode-maven?tab=readme-ov-file#settings))**
 <br>
 (*a) `settings.json`
+
   ```json
   "maven.terminal.customEnv": [
     {
@@ -81,6 +85,7 @@ The user `settings.json` is auto-configured at startup by `Java Extension Pack A
   ]
   ```
   (*b) `pom.xml`: [`maven.compiler.release`](https://maven.apache.org/plugins/maven-compiler-plugin/examples/set-compiler-release.html)
+  
   ```xml
   <properties>
       <!-- <maven.compiler.source>17</maven.compiler.source> -->
