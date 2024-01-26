@@ -57,8 +57,8 @@ The user `settings.json` is auto-configured at startup by `Java Extension Pack A
 <br>
 
 * **Gradle ([vscode-gradle](https://github.com/microsoft/vscode-gradle?tab=readme-ov-file#java-specific-settings))**
-<br>
-(*a) `settings.json`
+  <br>
+  (*a) `settings.json`
 
   ```json
   "java.import.gradle.java.home": "C:\\Program Files\\java\\jdk-21.0.1"
@@ -73,8 +73,8 @@ The user `settings.json` is auto-configured at startup by `Java Extension Pack A
 <br>
 
 * **Maven ([vscode-maven](https://github.com/Microsoft/vscode-maven?tab=readme-ov-file#settings))**
-<br>
-(*a) `settings.json`
+  <br>
+  (*a) `settings.json`
 
   ```json
   "maven.terminal.customEnv": [
