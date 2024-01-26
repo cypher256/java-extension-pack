@@ -37,9 +37,8 @@ The user `settings.json` is auto-configured at startup by `Java Extension Pack A
 <br>
 <br>
 
-* **No Build Tools ([vscode-java](https://github.com/redhat-developer/vscode-java?tab=readme-ov-file#project-jdks))**
-<br>
-(*a) `settings.json`
+* **No Build Tools ([vscode-java](https://github.com/redhat-developer/vscode-java?tab=readme-ov-file#project-jdks))**<br>
+  (*a) `settings.json`
 
   ```json
   "java.configuration.runtimes": [
@@ -85,7 +84,7 @@ The user `settings.json` is auto-configured at startup by `Java Extension Pack A
   ]
   ```
   (*b) `pom.xml`: [`maven.compiler.release`](https://maven.apache.org/plugins/maven-compiler-plugin/examples/set-compiler-release.html)
-  
+
   ```xml
   <properties>
       <!-- <maven.compiler.source>17</maven.compiler.source> -->
