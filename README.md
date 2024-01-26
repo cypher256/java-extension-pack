@@ -45,12 +45,12 @@ The user `settings.json` is auto-configured at startup by `Java Extension Pack A
   "java.configuration.runtimes": [
     {
       "name": "JavaSE-17",
-      "path": "C:\\Program Files\\java\\jdk-17.0.6"
+      "path": "C:\\Program Files\\java\\jdk-17.0.6",
+      "default": true // Runtime to use for No build tools projects
     },
     {
       "name": "JavaSE-21",
-      "path": "C:\\Program Files\\java\\jdk-21.0.1",
-      "default": true // Runtime to use for No build tools projects
+      "path": "C:\\Program Files\\java\\jdk-21.0.1"
     }
   ],
   ```
