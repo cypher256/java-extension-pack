@@ -201,7 +201,7 @@ export function mkdirSyncQuietly(p:string): boolean {
  * Search paths by glob pattern.
  * @param pattern The glob pattern.
  * @param options The glob options.
- * @returns The found paths.
+ * @returns The found paths. Empty array if not found.
  */
 export async function globSearch(
 	pattern: string | string[],

@@ -15,7 +15,7 @@ Just install this extension and start Java development right out of the box with
 * Includes extensions for Java development from Microsoft, Red Hat, Broadcom, and others.
 <br><br>
 GitHub Issues
-  * Microsoft: [Extension Pack for Java](https://github.com/microsoft/vscode-java-pack/issues?q=is%3Aissue+sort%3Aupdated-desc) | [Maven](https://github.com/microsoft/vscode-maven/issues?q=is%3Aissue+sort%3Aupdated-desc) | [Gradle](https://github.com/microsoft/vscode-gradle/issues?q=is%3Aissue+sort%3Aupdated-desc+) | [Debug](https://github.com/microsoft/vscode-java-debug/issues?q=is%3Aissue+sort%3Aupdated-desc) | [Test](https://github.com/microsoft/vscode-java-test/issues?q=is%3Aissue+sort%3Aupdated-desc) | [Project Manager](https://github.com/microsoft/vscode-java-dependency/issues?q=is%3Aissue+sort%3Aupdated-desc) | [IntelliCode](https://github.com/MicrosoftDocs/intellicode/issues?q=is%3Aissue+sort%3Aupdated-desc)
+  * Microsoft: [Extension Pack for Java](https://github.com/microsoft/vscode-java-pack/issues?q=is%3Aissue+sort%3Aupdated-desc) | [Maven](https://github.com/microsoft/vscode-maven/issues?q=is%3Aissue+sort%3Aupdated-desc) | [Gradle](https://github.com/microsoft/vscode-gradle/issues?q=is%3Aissue+sort%3Aupdated-desc+) | [Debug](https://github.com/microsoft/vscode-java-debug/issues?q=is%3Aissue+sort%3Aupdated-desc) | [Test](https://github.com/microsoft/vscode-java-test/issues?q=is%3Aissue+sort%3Aupdated-desc) | [Project Manager](https://github.com/microsoft/vscode-java-dependency/issues?q=is%3Aissue+sort%3Aupdated-desc) | [IntelliCode](https://github.com/MicrosoftDocs/intellicode/issues?q=is%3Aissue+sort%3Aupdated-desc+java)
   * Red Hat: [Language Support for Java](https://github.com/redhat-developer/vscode-java/issues?q=is%3Aissue+sort%3Aupdated-desc) | [XML](https://github.com/redhat-developer/vscode-xml/issues?q=is%3Aissue+sort%3Aupdated-desc+)
   * Broadcom: [Spring Boot Extension Pack](https://github.com/spring-projects/sts4/issues?q=is%3Aissue+sort%3Aupdated-desc) | [Initializr](https://github.com/microsoft/vscode-spring-initializr/issues?q=is%3Aissue+sort%3Aupdated-desc) | [Dashboard](https://github.com/microsoft/vscode-spring-boot-dashboard/issues?q=is%3Aissue+sort%3Aupdated-desc)
 
@@ -59,13 +59,17 @@ Automatically configure multiple versions of the JDK and build tools. If there a
 
 1. Auto-fix invalid JDK configuration (e.g. `/java/bin` -> `/java`)
 1. Auto-remove configuration entries when JDK uninstalled or version path changed
-1. Auto-scan from packages SDKMAN, Homebrew, jEnv, jabba, ASDF, Gradle, Scoop, Chocolatey, IntelliJ etc...
-1. Auto-scan from installations Adoptium, BellSoft, Corretto, Microsoft, Oracle, Red Hat, Semeru, Zulu etc...
+1. Auto-scan from OS specific locations, Package Managers and Toolchains (See next section)
 1. Auto-detect environment variables `JAVA_HOME`, `JDK_HOME` and `PATH`
 1. Auto-download Adoptium LTS JDKs, Gradle, Maven if not installed
 1. Auto-update auto-downloaded JDKs, Gradle, Maven to the latest version
 
-The feature automatically fixes [errors such as](https://stackoverflow.com/search?q=vs+code+java+version):
+JDK auto-scan targets
+* OS specific locations: Adoptium, BellSoft, Corretto, Microsoft, Oracle, Red Hat, Semeru, Zulu etc...
+* Package Managers: SDKMAN, Homebrew, jEnv, jabba, ASDF, Scoop, Chocolatey, IntelliJ etc...
+* Toolchains: Gradle jdks, Maven jdkHome tags
+
+The feature automatically fixes [errors such as](https://stackoverflow.com/search?q=vs+code+java+version)
 
 * Java Language Server requires a JDK xx+ to launch itself.
 * This setting is deprecated, please use 'java.jdt.ls.java.home' instead.
