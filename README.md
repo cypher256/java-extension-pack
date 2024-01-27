@@ -46,7 +46,7 @@ The user `settings.json` is auto-configured at startup by `Java Extension Pack A
     {
       "name": "JavaSE-17",
       "path": "C:\\Program Files\\java\\jdk-17.0.6",
-      "default": true // Runtime to use for No build tools projects
+      "default": true // Runtime to use for No Build Tools projects
     },
     {
       "name": "JavaSE-21",
@@ -63,12 +63,12 @@ The user `settings.json` is auto-configured at startup by `Java Extension Pack A
   ```json
   "java.import.gradle.java.home": "C:\\Program Files\\java\\jdk-21.0.1"
   ```
-  (*b) `build.gradle`: [`compileJava.options.release`](https://docs.gradle.org/current/userguide/building_java_projects.html#sec:java_cross_compilation)
+  (*b) `build.gradle` (Project version: [`compileJava.options.release`](https://docs.gradle.org/current/userguide/building_java_projects.html#sec:java_cross_compilation))
 
   ```groovy
   def javaVersion = 17
   java.sourceCompatibility = javaVersion // Legacy option for VS Code dependencies and Run/Debug
-  compileJava.options.release = javaVersion // Project version (JEP 247: API validation)
+  compileJava.options.release = javaVersion // JEP 247: API validation
   ```
 <br>
 
@@ -84,19 +84,20 @@ The user `settings.json` is auto-configured at startup by `Java Extension Pack A
     }
   ]
   ```
-  (*b) `pom.xml`: [`maven.compiler.release`](https://maven.apache.org/plugins/maven-compiler-plugin/examples/set-compiler-release.html)
+  (*b) `pom.xml` (Project version: [`maven.compiler.release`](https://maven.apache.org/plugins/maven-compiler-plugin/examples/set-compiler-release.html))
 
   ```xml
   <properties>
       <!-- <maven.compiler.source>17</maven.compiler.source> -->
       <!-- <maven.compiler.target>17</maven.compiler.target> -->
-      <maven.compiler.release>17</maven.compiler.release><!-- Project version (JEP 247: API validation) -->
+      <maven.compiler.release>17</maven.compiler.release><!-- JEP 247: API validation -->
   </properties>
   ```
 
-(*a) The `settings.json` [can be configured by project (workspace)](https://code.visualstudio.com/docs/getstarted/settings)<br>
-(*b) JEP 182: [Retiring javac -source and -target](https://openjdk.org/jeps/182) / JEP 247: [Compile for Older Platform Versions](https://openjdk.org/jeps/247)<br>
-ℹ️ [Enabling Java preview features](https://github.com/redhat-developer/vscode-java/wiki/Enabling-Java-preview-features)
+(*a) The `settings.json` [can be configured by project (workspace)](https://code.visualstudio.com/docs/getstarted/settings).<br>
+(*b) The `java.configuration.runtimes` that best matches this version will be used.
+* JEP 182: [Retiring javac -source and -target](https://openjdk.org/jeps/182) / JEP 247: [Compile for Older Platform Versions](https://openjdk.org/jeps/247)<br>
+* ℹ️ [Enabling Java preview features](https://github.com/redhat-developer/vscode-java/wiki/Enabling-Java-preview-features)
 
 <br>
 <br>
