@@ -58,29 +58,29 @@ The user `settings.json` is auto-configured at startup by `Java Extension Pack A
 
 * **Gradle ([vscode-gradle](https://github.com/microsoft/vscode-gradle?tab=readme-ov-file#java-specific-settings))**
   <br>
-  (*a) `settings.json`
+  (*a) `settings.json` (Gradle execution runtime)
 
   ```json
-  "java.import.gradle.java.home": "C:\\Program Files\\java\\jdk-21.0.1" // For Gradle execution
+  "java.import.gradle.java.home": "C:\\Program Files\\java\\jdk-21.0.1"
   ```
   (*b) `build.gradle`: [`compileJava.options.release`](https://docs.gradle.org/current/userguide/building_java_projects.html#sec:java_cross_compilation)
 
   ```groovy
   def javaVersion = 17
   java.sourceCompatibility = javaVersion // Legacy option for VS Code dependencies and Run/Debug
-  compileJava.options.release = javaVersion // Project version (API version validation)
+  compileJava.options.release = javaVersion // Project version (JEP 247: API validation)
   ```
 <br>
 
 * **Maven ([vscode-maven](https://github.com/Microsoft/vscode-maven?tab=readme-ov-file#settings))**
   <br>
-  (*a) `settings.json`
+  (*a) `settings.json` (Maven execution runtime)
 
   ```json
   "maven.terminal.customEnv": [
     {
       "environmentVariable": "JAVA_HOME",
-      "value": "C:\\Program Files\\java\\jdk-21.0.1" // For Maven execution
+      "value": "C:\\Program Files\\java\\jdk-21.0.1"
     }
   ]
   ```
@@ -90,7 +90,7 @@ The user `settings.json` is auto-configured at startup by `Java Extension Pack A
   <properties>
       <!-- <maven.compiler.source>17</maven.compiler.source> -->
       <!-- <maven.compiler.target>17</maven.compiler.target> -->
-      <maven.compiler.release>17</maven.compiler.release><!-- Project version (API version validation) -->
+      <maven.compiler.release>17</maven.compiler.release><!-- Project version (JEP 247: API validation) -->
   </properties>
   ```
 
