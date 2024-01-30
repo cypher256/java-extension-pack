@@ -97,7 +97,7 @@ export async function updateJavaRuntimes(
 	const profilesOld:any = _.cloneDeep(profilesDef); // Proxy to POJO for isEqual
 	const profilesNew:any = _.cloneDeep(profilesOld);
 	const _createPathPrepend = (javaHome: string) => [path.join(javaHome, 'bin'), '${env:PATH}'].join(path.delimiter);
-	const extensionResourcesDir = system.getExtensionContext().asAbsolutePath('resources');
+	const rcfileDir = system.getGlobalStoragePath();
 	for (const runtime of runtimes) {
 		// Create from config runtimes (Always overwrite)
 		const profile:any = _.cloneDeep(profilesOld[runtime.name]) ?? {}; // for isEqual
@@ -108,10 +108,10 @@ export async function updateJavaRuntimes(
 			profile.env.PATH = _createPathPrepend(runtime.path);
 		} else if (OS.isMac) {
 			profile.path = 'zsh';
-			profile.env.ZDOTDIR = extensionResourcesDir;
+			profile.env.ZDOTDIR = rcfileDir;
 		} else { // Linux
 			profile.path = 'bash';
-			profile.args = ['--rcfile', path.join(extensionResourcesDir, '.bashrc')];
+			profile.args = ['--rcfile', path.join(rcfileDir, '.bashrc')];
 			// Do not use --login because disables --rcfile
 		}
 		profile.env.JAVA_HOME = runtime.path;
@@ -145,10 +145,10 @@ export async function updateJavaRuntimes(
 		};
 		if (OS.isMac) {
 			const profile = await _setDefaultProfile('zsh'); // Inherited -l from default profile
-			profile.env.ZDOTDIR = extensionResourcesDir;
+			profile.env.ZDOTDIR = rcfileDir;
 		} else if (OS.isLinux) {
 			const profile = await _setDefaultProfile('bash');
-			profile.args = ['--rcfile', path.join(extensionResourcesDir, '.bashrc')];
+			profile.args = ['--rcfile', path.join(rcfileDir, '.bashrc')];
 		}
 	}
 	const profileNames = Object.keys(profilesNew);
@@ -228,7 +228,7 @@ export async function updateJavaRuntimes(
 		// Issue: maven.terminal.useJavaHome doesnt work if JAVA_HOME already set by shell startup scripts
 		// Open) https://github.com/microsoft/vscode-maven/issues/495#issuecomment-1869653082
 		if (OS.isMac) {
-			_getCustomEnv('ZDOTDIR').value = extensionResourcesDir;
+			_getCustomEnv('ZDOTDIR').value = rcfileDir;
 		}
 		
 		if (!_.isEqual(customEnv, customEnvOld)) {

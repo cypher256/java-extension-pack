@@ -1,4 +1,5 @@
 /*! VS Code Extension (c) 2023 Shinji Kashihara (cypher256) @ WILL */
+import * as fs from 'fs';
 import * as _ from "lodash";
 import * as path from 'path';
 import * as vscode from 'vscode';
@@ -22,8 +23,12 @@ export async function activate(context:vscode.ExtensionContext) {
 		system.init(context);
 		log.info(`activate START ${context.extension?.packageJSON?.version} --------------------`);
 		log.info('Global Storage', system.getGlobalStoragePath());
+		const isFirstStartup = !system.existsDirectory(system.getGlobalStoragePath());
+		system.mkdirSyncQuietly(system.getGlobalStoragePath());
+
 		const javaConfig = await redhat.getJavaConfig();
 		const runtimes = userSetting.getJavaRuntimes();
+		copyRcfile();
 		setEnvVariable();
 
 		if (!vscode.workspace.getConfiguration('javaAutoConfig').get('enabled')) {
@@ -32,7 +37,6 @@ export async function activate(context:vscode.ExtensionContext) {
 		}
 		userSetting.setDefault(javaConfig);
 		const runtimesOld = _.cloneDeep(runtimes);
-		const isFirstStartup = !system.existsDirectory(system.getGlobalStoragePath());
 		
 		await detect(javaConfig, runtimes);
 		await download(javaConfig, runtimes);
@@ -46,6 +50,27 @@ export async function activate(context:vscode.ExtensionContext) {
 	} finally {
 		log.info('activate END');
 	}
+}
+
+/**
+ * Copies the rcfile files.
+ */
+function copyRcfile() {
+	if (OS.isWindows) {
+		return;
+	}
+	const resourcesDir = system.getExtensionContext().asAbsolutePath('resources'); // directory contains version
+	function _copy(fileName:string) {
+		const src = system.readString(path.join(resourcesDir, fileName));
+		const dst = system.readString(path.join(system.getGlobalStoragePath(), fileName));
+		if (src && src !== dst) {
+			fs.writeFile(path.join(system.getGlobalStoragePath(), fileName), src, (error) => {
+				if (error) {log.warn('Failed copy rcfile', error);}
+			});
+		}
+	}
+	_copy('.zshrc');
+	_copy('.bashrc');
 }
 
 /**
@@ -135,9 +160,7 @@ function onComplete(
 	const availableMsg = `${l10n.t('Available Java versions:')} ${newVers.join(', ')}`;
 
 	if (isFirstStartup) {
-		system.mkdirSyncQuietly(system.getGlobalStoragePath());
 		vscode.window.showInformationMessage(availableMsg);
-
 		const langPackSuffix = getLangPackSuffix();
 		if (langPackSuffix) {
 			installExtension('intellsmi.comment-translate');
