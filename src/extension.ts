@@ -20,14 +20,9 @@ import * as userSetting from './userSetting';
  */
 export async function activate(context:vscode.ExtensionContext) {
 	try {
-		system.init(context);
+		const isFirstStartup = system.init(context);
 		log.info(`activate START ${context.extension?.packageJSON?.version} --------------------`);
 		log.info('Global Storage', system.getGlobalStoragePath());
-		const isFirstStartup = !system.existsDirectory(system.getGlobalStoragePath());
-		system.mkdirSyncQuietly(system.getGlobalStoragePath());
-
-		const javaConfig = await redhat.getJavaConfig();
-		const runtimes = userSetting.getJavaRuntimes();
 		copyRcfile();
 		setEnvVariable();
 
@@ -35,9 +30,11 @@ export async function activate(context:vscode.ExtensionContext) {
 			log.info(`javaAutoConfig.enabled: false`); // Scope User/Workspace/Remote
 			return;
 		}
+		const javaConfig = await redhat.getJavaConfig();
 		userSetting.setDefault(javaConfig);
+
+		const runtimes = userSetting.getJavaRuntimes();
 		const runtimesOld = _.cloneDeep(runtimes);
-		
 		await detect(javaConfig, runtimes);
 		await download(javaConfig, runtimes);
 		onComplete(javaConfig, runtimes, runtimesOld, isFirstStartup);

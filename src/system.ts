@@ -34,9 +34,14 @@ let extensionContext: vscode.ExtensionContext;
 /**
  * Initializes the extension context.
  * @param _extensionContext The extension context.
+ * @returns true if first startup.
  */
 export function init(_extensionContext: vscode.ExtensionContext) {
 	extensionContext = _extensionContext;
+	const globalStoragePath = getGlobalStoragePath();
+	const isFirstStartup = !existsDirectory(globalStoragePath);
+	mkdirSyncQuietly(globalStoragePath);
+	return isFirstStartup;
 }
 
 /**
