@@ -259,8 +259,7 @@ async function findAll(): Promise<IDetectedJdk[]> {
 			} else if (OS.isMac) {
 				// Pleiades 2024+ aarch64 new path format (21/Home/bin -> 21/bin)
 				// e.g. /Applications/Eclipse_2024-12.app/Contents/java/21/bin
-				// Pending: Check access dialog on mac
-				// await jdks.pushByGlob('Pleiades', '/Applications/Eclipse_20*.app/Contents/java');
+				await jdks.pushByGlob('Pleiades', '/Applications/Eclipse_20*.app/Contents/java');
 			}
 		},
 	];
