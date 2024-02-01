@@ -67,6 +67,7 @@ export interface IJavaConfig {
  * @returns The Java configuration.
  */
 export async function getJavaConfig(): Promise<IJavaConfig> {
+
     // Do not add redhat.java extension to extensionDependencies in package.json,
     // because this extension will not start when redhat activation error occurs.
     const redhatExtension = vscode.extensions.getExtension('redhat.java');
@@ -75,6 +76,7 @@ export async function getJavaConfig(): Promise<IJavaConfig> {
     const ltsFilter = (ver:number) => [8, 11].includes(ver) || (ver >= 17 && (ver - 17) % 4 === 0);
     const fourLatestLtsVers = _availableVers.filter(ltsFilter).slice(-4);
     const _latestLtsVer = fourLatestLtsVers.at(-1);
+    
     const javaConfig:IJavaConfig = {
         availableNames: _availableNames,
         availableVers: _availableVers,
