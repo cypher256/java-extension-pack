@@ -40,7 +40,7 @@ export async function download() {
 }
 
 function getDownloadDir(): string {
-	return path.join(system.getGlobalStoragePath(), 'gradle', 'latest');
+	return system.getGlobalStoragePath('gradle', 'latest');
 }
 
 async function resolvePath(configGradleHome:string | undefined): Promise<string | undefined> {
@@ -84,7 +84,7 @@ async function httpget(): Promise<string | undefined> {
 	const versionFile = path.join(downloadDir, 'version.txt');
 	const versionOld = system.readString(versionFile);
 	if (version === versionOld && existsExe(downloadDir)) {
-		const mdate = system.mdateSync(versionFile);
+		const mdate = system.getLastModified(versionFile);
 		log.info(`Available Gradle ${version} (Updated ${mdate})`);
 		return downloadDir;
 	}

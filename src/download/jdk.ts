@@ -47,7 +47,7 @@ function archOf(javaVersion: number): string | undefined {
  * @returns The path of the JDK download directory.
  */
 export function getDownloadDir(majorVer:number): string {
-	return path.join(system.getGlobalStoragePath(), 'java', String(majorVer));
+	return system.getGlobalStoragePath('java', String(majorVer));
 }
 
 /**
@@ -93,7 +93,7 @@ export async function download(
 	const homeDir = getDownloadDir(majorVer);
 	const versionFile = path.join(homeDir, 'version.txt');
 	if (await jdkExplorer.isValidHome(homeDir)) {
-		const mdate = system.mdateSync(versionFile);
+		const mdate = system.getLastModified(versionFile);
 		const fullVerOld = system.readString(versionFile) || '';
 		log.info(`Available JDK ${fullVerOld.replace(/jdk-?/, '')} (Updated ${mdate})`);
 		if (fullVer === fullVerOld) {

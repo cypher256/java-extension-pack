@@ -56,12 +56,12 @@ function copyRcfile() {
 	if (OS.isWindows) {
 		return;
 	}
-	const resourcesDir = system.getExtensionContext().asAbsolutePath('resources'); // directory contains version
+	const extensionVersionDir = system.getExtensionContext().asAbsolutePath('resources');
 	function _copy(fileName:string) {
-		const src = system.readString(path.join(resourcesDir, fileName));
-		const dst = system.readString(path.join(system.getGlobalStoragePath(), fileName));
+		const src = system.readString(path.join(extensionVersionDir, fileName));
+		const dst = system.readString(system.getGlobalStoragePath(fileName));
 		if (src && src !== dst) {
-			fs.writeFile(path.join(system.getGlobalStoragePath(), fileName), src, (error) => {
+			fs.writeFile(system.getGlobalStoragePath(fileName), src, (error) => {
 				if (error) {log.warn('Failed copy rcfile', error);}
 			});
 		}

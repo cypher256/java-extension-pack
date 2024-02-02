@@ -45,7 +45,7 @@ export async function download() {
 }
 
 function getDownloadDir(): string {
-	return path.join(system.getGlobalStoragePath(), 'maven', 'latest');
+	return system.getGlobalStoragePath('maven', 'latest');
 }
 
 async function resolvePath(configMavenExe:string | undefined): Promise<string | undefined> {
@@ -91,7 +91,7 @@ async function httpget(): Promise<string | undefined> {
 	const versionFile = path.join(downloadDir, 'version.txt');
 	const versionOld = system.readString(versionFile);
 	if (version === versionOld && existsExe(downloadDir)) {
-		const mdate = system.mdateSync(versionFile);
+		const mdate = system.getLastModified(versionFile);
 		log.info(`Available Maven ${version} (Updated ${mdate})`);
 		return getExePath(downloadDir);
 	}

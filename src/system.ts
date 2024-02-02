@@ -52,15 +52,17 @@ export function getExtensionContext() {
 }
 
 /**
- * @returns The global storage path.
+ * @param optionalSubPaths The optional sub paths.
+ * @returns The global storage path + optional sub paths.
  */
-export function getGlobalStoragePath(): string {
+export function getGlobalStoragePath(...optionalSubPaths:string[]): string {
 	if (!extensionContext) {throw new Error('context is not initialized');}
-	const p = extensionContext.globalStorageUri.fsPath;
+	let p = extensionContext.globalStorageUri.fsPath;
 	// Match drive letter case to glob search results
-	return p.replace(/^([a-z])(:.*)/, (m, winDriveLetter:string, dir) => {
+	p = p.replace(/^([a-z])(:.*)/, (m, winDriveLetter:string, dir) => {
 		return winDriveLetter.toUpperCase() + dir;
 	});
+	return path.join(p, ...optionalSubPaths);
 }
 
 /**
@@ -152,7 +154,7 @@ export function readString(file:string): string | undefined {
  * @param p The path.
  * @returns The file modified date as string.
  */
-export function mdateSync(p:string) {
+export function getLastModified(p:string) {
 	try {
 		return fs.statSync(p).mtime.toLocaleDateString();
 	} catch (e) {

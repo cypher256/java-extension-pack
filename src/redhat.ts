@@ -85,7 +85,7 @@ export async function getJavaConfig(): Promise<IJavaConfig> {
         stableLtsVer: (_latestLtsVer === _availableVers.at(-1) ? fourLatestLtsVers.at(-2) : _latestLtsVer) ?? 0,
         embeddedJreVer: await findEmbeddedJREVersion(redhatExtension),
     };
-    const {availableNames, ...forLog} = javaConfig;
+    const {availableNames, ...forLog} = javaConfig; // Omit availableNames
     Object.entries(forLog).forEach(([k,v]) => log.info(`JavaConfig ${k}: ${v}`));
     return javaConfig;
 }
@@ -93,7 +93,6 @@ export async function getJavaConfig(): Promise<IJavaConfig> {
 async function findEmbeddedJREVersion(redhatExtension: vscode.Extension<any> | undefined): Promise<number | undefined> {
     const redhatExtDir = redhatExtension?.extensionUri?.fsPath;
     if (redhatExtDir) {
-        // C:\Users\(UserName)\.vscode\extensions\redhat.java-1.21.0-win32-x64
         // C:\Users\(UserName)\.vscode\extensions\redhat.java-1.21.0-win32-x64\jre\17.0.7-win32-x86_64\bin
         const javaExePath = path.join(redhatExtDir, 'jre', '*', 'bin', jdkutils.JAVA_FILENAME);
         const javaExeFiles = await system.globSearch(javaExePath);
@@ -111,6 +110,8 @@ async function findEmbeddedJREVersion(redhatExtension: vscode.Extension<any> | u
 function getAvailableNames(redhatExtension: vscode.Extension<any> | undefined): string[] {
     let config = redhatExtension?.packageJSON?.contributes?.configuration;
     if (Array.isArray(config)) {
+        // 2023-12-1 (1.25 and later): Array
+        // https://github.com/redhat-developer/vscode-java/pull/3386
         config = config.find(c => c.properties?.[JavaRuntimeArray.CONFIG_KEY]);
     }
     const runtimeNames = config?.properties?.[JavaRuntimeArray.CONFIG_KEY]?.items?.properties?.name?.enum ?? [];
