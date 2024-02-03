@@ -56,9 +56,9 @@ function copyRcfile() {
 	if (OS.isWindows) {
 		return;
 	}
-	const extensionVersionDir = system.getExtensionContext().asAbsolutePath('resources');
+	const extVerResourcesDir = system.getExtensionContext().asAbsolutePath('resources');
 	function _copy(fileName:string) {
-		const src = system.readString(path.join(extensionVersionDir, fileName));
+		const src = system.readString(path.join(extVerResourcesDir, fileName));
 		const dst = system.readString(system.getGlobalStoragePath(fileName));
 		if (src && src !== dst) {
 			fs.writeFile(system.getGlobalStoragePath(fileName), src, (error) => {
