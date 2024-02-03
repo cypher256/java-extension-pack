@@ -67,8 +67,8 @@ The user `settings.json` is auto-configured at startup by `Java Extension Pack A
 
   ```groovy
   def javaVersion = 17
-  java.sourceCompatibility = javaVersion // Legacy option for VS Code dependencies and Run/Debug
-  compileJava.options.release = javaVersion // JEP 247: API validation
+  java.sourceCompatibility = javaVersion // Legacy option for VS Code
+  compileJava.options.release = javaVersion
   ```
 <br>
 
@@ -90,12 +90,12 @@ The user `settings.json` is auto-configured at startup by `Java Extension Pack A
   <properties>
       <!-- <maven.compiler.source>17</maven.compiler.source> -->
       <!-- <maven.compiler.target>17</maven.compiler.target> -->
-      <maven.compiler.release>17</maven.compiler.release><!-- JEP 247: API validation -->
+      <maven.compiler.release>17</maven.compiler.release>
   </properties>
   ```
 
 (*a) The `settings.json` [can be configured by project (workspace)](https://code.visualstudio.com/docs/getstarted/settings).<br>
-(*b) The `java.configuration.runtimes` that best matches this version will be used.
+(*b) The `java.configuration.runtimes` that best matches this version will be used. Setting the `release` ensures the specified version syntax and api is used regardless of which compiler version actually performs the compilation.
 * JEP 182: [Retiring javac -source and -target](https://openjdk.org/jeps/182) / JEP 247: [Compile for Older Platform Versions](https://openjdk.org/jeps/247)
 * Since Spring Boot 3.1, Maven [`<java.version>` value is set to `<maven.compiler.release>`](https://github.com/spring-projects/spring-boot/pull/34365).
 * [Enabling Java preview features](https://github.com/redhat-developer/vscode-java/wiki/Enabling-Java-preview-features)
