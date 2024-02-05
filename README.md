@@ -1,10 +1,8 @@
 # Java Extension Pack Auto Config
 
-[![GitHub Sponsor](https://img.shields.io/static/v1?label=Sponsor&message=%E2%9D%A4&logo=GitHub&color=ff69b4)](https://github.com/sponsors/cypher256)
-![](https://github.com/cypher256/java-extension-pack/actions/workflows/eslint.yml/badge.svg)
-![](https://img.shields.io/visual-studio-marketplace/d/Pleiades.java-extension-pack-jdk?color=yellow)
-![](https://img.shields.io/visual-studio-marketplace/i/Pleiades.java-extension-pack-jdk?color=blue)
-![](https://img.shields.io/visual-studio-marketplace/last-updated/Pleiades.java-extension-pack-jdk?color=orange)
+![](https://img.shields.io/visual-studio-marketplace/d/Pleiades.java-extension-pack-jdk?style=for-the-badge&logo=microsoft)
+![](https://img.shields.io/visual-studio-marketplace/i/Pleiades.java-extension-pack-jdk?color=blue&style=for-the-badge&logo=visual-studio-code)
+[![GitHub Sponsor](https://img.shields.io/static/v1?label=Sponsor&message=%E2%9D%A4&logo=GitHub&color=ff69b4&style=for-the-badge)](https://github.com/sponsors/cypher256)
 
 <br>
 
