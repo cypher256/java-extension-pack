@@ -26,8 +26,8 @@ export async function activate(context:vscode.ExtensionContext) {
 		copyRcfile();
 		setEnvVariable();
 
-		if (!vscode.workspace.getConfiguration('javaAutoConfig').get('enabled')) {
-			log.info(`javaAutoConfig.enabled: false`); // Scope User/Workspace/Remote
+		if (!vscode.workspace.getConfiguration().get('javaAutoConfig.enabled')) {
+			log.info(`javaAutoConfig.enabled: false`);
 			return;
 		}
 		const javaConfig = await redhat.getJavaConfig();
@@ -118,8 +118,8 @@ async function download(
 	javaConfig: redhat.IJavaConfig,
 	runtimes: redhat.JavaRuntimeArray) {
 
-	if (vscode.workspace.getConfiguration('extensions').get('autoUpdate') === false) {
-		log.info(`Download disabled (extensions.autoUpdate: false)`); // Scope: User only
+	if (vscode.workspace.getConfiguration().get('extensions.autoUpdate') === false) {
+		log.info(`Download disabled (extensions.autoUpdate: false)`);
 		return;
 	}
 	const orderDescVers = [...javaConfig.downloadLtsVers].sort((a,b) => b-a);

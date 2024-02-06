@@ -61,7 +61,7 @@ The user `settings.json` is auto-configured at startup by `Java Extension Pack A
   ```json
   "java.import.gradle.java.home": "C:\\Program Files\\java\\jdk-21.0.1"
   ```
-  (*b) `build.gradle` (Project version: [`compileJava.options.release`](https://docs.gradle.org/current/userguide/building_java_projects.html#sec:java_cross_compilation))
+  (*b) `build.gradle` (Project version: [`compileJava.options.release`](https://docs.gradle.org/current/userguide/building_java_projects.html#sec:compiling_with_release))
 
   ```groovy
   def javaVersion = 17
