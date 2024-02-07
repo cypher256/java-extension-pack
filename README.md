@@ -1,7 +1,7 @@
 # Java Extension Pack Auto Config
 
-![](https://img.shields.io/visual-studio-marketplace/d/Pleiades.java-extension-pack-jdk?style=for-the-badge&logo=microsoft)
-![](https://img.shields.io/visual-studio-marketplace/i/Pleiades.java-extension-pack-jdk?color=blue&style=for-the-badge&logo=visual-studio-code)
+![Downloads](https://img.shields.io/visual-studio-marketplace/d/Pleiades.java-extension-pack-jdk?style=for-the-badge&logo=microsoft)
+![Installes](https://img.shields.io/visual-studio-marketplace/i/Pleiades.java-extension-pack-jdk?color=blue&style=for-the-badge&logo=visual-studio-code)
 [![GitHub Sponsor](https://img.shields.io/static/v1?label=Sponsor&message=%E2%9D%A4&logo=GitHub&color=ff69b4&style=for-the-badge)](https://github.com/sponsors/cypher256)
 
 <br>
@@ -121,7 +121,7 @@ Automatically configure multiple versions of the JDK and build tools. If there a
 JDK auto-scan targets
 * OS specific locations: Adoptium, BellSoft, Corretto, Microsoft, Oracle, Red Hat, Semeru, Zulu etc...
 * Package Managers: SDKMAN, Homebrew, jEnv, jabba, ASDF, Scoop, Chocolatey, IntelliJ etc...
-* Toolchains: Gradle jdks, Maven jdkHome tags
+* Toolchains: Gradle jdks directory, Maven toolchains.xml
 
 The feature automatically fixes [errors such as](https://stackoverflow.com/search?q=vs+code+java+version)
 
@@ -137,17 +137,17 @@ For Included Extensions
 |Configuration Name|Configured Value (Priority Order)|
 |---|---|
 |*Language support for Java*|
-|~~[java.home](https://github.com/redhat-developer/vscode-java/wiki/JDK-Requirements#universal-version)~~|Delete due to deprecated entry|
+|~~[java.home](https://github.com/redhat-developer/vscode-java/wiki/JDK-Requirements#universal-version)~~|Remove due to deprecated entry|
 |[java.configuration.runtimes](https://code.visualstudio.com/docs/java/java-project#_configure-runtime-for-projects)<br>([Issues](https://github.com/redhat-developer/vscode-java/issues?q=is%3Aissue+java.configuration.runtimes))|Set all detected and downloaded JDKs<br>(Setting > `JAVA_HOME`)|
-|(*1) [java.jdt.ls.java.home](https://github.com/redhat-developer/vscode-java/wiki/JDK-Requirements#platform-versions)<br>([Issues](https://github.com/redhat-developer/vscode-java/issues?q=is%3Aissue+java.jdt.ls.java.home))|Set stable LTS if Red Hat embedded JRE is not exists<br>(Setting > Embedded JRE > `JDK_HOME` > `JAVA_HOME` > `PATH`)|
+|(*1) [java.jdt.ls.java.home](https://github.com/redhat-developer/vscode-java/wiki/JDK-Requirements#platform-versions)<br>([Issues](https://github.com/redhat-developer/vscode-java/issues?q=is%3Aissue+java.jdt.ls.java.home))|Remove if Red Hat embedded JRE exists<br>(Setting > Embedded JRE > `JDK_HOME` > `JAVA_HOME` > `PATH`)|
 |*Spring Boot Tools*|
-|(*1) [spring-boot.ls.java.home](https://github.com/spring-projects/sts4/blob/main/vscode-extensions/commons-vscode/src/launch-util.ts#L140)<br>([Issues](https://github.com/spring-projects/sts4/issues?q=is%3Aissue+spring-boot.ls.java.home))|Set stable LTS if Red Hat embedded JRE is not exists<br>(Setting > Embedded JRE)|
+|(*1) [spring-boot.ls.java.home](https://github.com/spring-projects/sts4/blob/main/vscode-extensions/commons-vscode/src/launch-util.ts#L140)<br>([Issues](https://github.com/spring-projects/sts4/issues?q=is%3Aissue+spring-boot.ls.java.home))|Remove if Red Hat embedded JRE exists<br>(Setting > Embedded JRE)|
 |*Gradle for Java*|
-|[java.import.gradle.java.home](https://github.com/microsoft/vscode-gradle#java-specific-settings)<br>([Issues](https://github.com/microsoft/vscode-gradle/issues?q=is%3Aissue+java.import.gradle.java.home))|Update latest if gradle auto-downloaded<br>(Setting > `java.jdt.ls.java.home`)|
-|[java.import.gradle.home](https://github.com/microsoft/vscode-gradle#java-specific-settings)<br>([Issues](https://github.com/microsoft/vscode-gradle/issues?q=is%3Aissue+java.import.gradle.home))|Set latest gradle if unset<br>(**`gradlew`** > Setting > `PATH` > `GRADLE_HOME`)|
+|[java.import.gradle.java.home](https://github.com/microsoft/vscode-gradle#java-specific-settings)<br>([Issues](https://github.com/microsoft/vscode-gradle/issues?q=is%3Aissue+java.import.gradle.java.home))|Set latest LTS if unset<br>(Setting > `java.jdt.ls.java.home`)|
+|[java.import.gradle.home](https://github.com/microsoft/vscode-gradle#java-specific-settings)<br>([Issues](https://github.com/microsoft/vscode-gradle/issues?q=is%3Aissue+java.import.gradle.home))|Set auto-downloaded gradle if unset<br>(**`gradlew`** > Setting > `PATH` > `GRADLE_HOME`)|
 |*Maven for Java*|
-|[maven.terminal.customEnv](https://marketplace.visualstudio.com/items?itemName=vscjava.vscode-maven#additional-configurations)<br>([Issues](https://github.com/microsoft/vscode-maven/issues?q=is%3Aissue+maven.terminal.customEnv))|Update latest if maven auto-downloaded (for macOS/Linux. For Windows, set to terminal.integrated.env.windows.)<br>(Setting > `JAVA_HOME`)|
-|[maven.executable.path](https://github.com/Microsoft/vscode-maven#settings)<br>([Issues](https://github.com/microsoft/vscode-maven/issues?q=is%3Aissue+maven.executable.path))|Set latest maven if unset (If you want to use mvnw, set "" manually)<br>(Setting > `mvnw` > `PATH`)|
+|[maven.terminal.customEnv](https://marketplace.visualstudio.com/items?itemName=vscjava.vscode-maven#additional-configurations)<br>([Issues](https://github.com/microsoft/vscode-maven/issues?q=is%3Aissue+maven.terminal.customEnv))|Set latest LTS if unset<br>(Setting > `JAVA_HOME`)|
+|[maven.executable.path](https://github.com/Microsoft/vscode-maven#settings)<br>([Issues](https://github.com/microsoft/vscode-maven/issues?q=is%3Aissue+maven.executable.path))|Set auto-downloaded maven if unset (If you want to use `mvnw`, set "" manually)<br>(Setting > `mvnw` > `PATH`)|
 
 For Optional Extensions
 

@@ -25,7 +25,7 @@ export async function download() {
 	const mavenExeOld = userSetting.getDefinition<string>(CONFIG_KEY_MAVEN_EXE_PATH);
 	if (mavenExeOld === '') {
 		log.info('Use mvnw because', CONFIG_KEY_MAVEN_EXE_PATH, 'is empty');
-		return;
+		return;	// Note: mvnw is used only if undefined or empty
 	}
 	let mavenExeNew = await resolvePath(mavenExeOld);
 	if (mavenExeNew && system.isUserInstalled(mavenExeNew)) {
@@ -41,7 +41,6 @@ export async function download() {
 	if (mavenExeOld !== mavenExeNew) {
 		await userSetting.update(CONFIG_KEY_MAVEN_EXE_PATH, mavenExeNew);
 	}
-	// Note: mvnw is used only if undefined
 }
 
 function getDownloadDir(): string {
