@@ -31,13 +31,12 @@ mvn -v
 <br>
 
 ### Specify Project Java Version
-The user `settings.json` is auto-configured at startup by `Java Extension Pack Auto Config`, but if you want to customize it, edit the following files.
+The **user** (global) [`settings.json`](https://code.visualstudio.com/docs/getstarted/settings#_settingsjson) is auto-configured at startup by `Java Extension Pack Auto Config`, but if you want to customize it, edit the following files.
 <br>
 <br>
 
-* **No Build Tools ([vscode-java](https://github.com/redhat-developer/vscode-java?tab=readme-ov-file#project-jdks))**
-  <br>
-  (*a) `settings.json`
+* **Project JDKs common settings ([vscode-java](https://github.com/redhat-developer/vscode-java?tab=readme-ov-file#project-jdks))**<br>
+  (*a) User `settings.json`
 
   ```json
   "java.configuration.runtimes": [
@@ -50,18 +49,18 @@ The user `settings.json` is auto-configured at startup by `Java Extension Pack A
       "name": "JavaSE-21",
       "path": "C:\\Program Files\\java\\jdk-21.0.1"
     }
-  ],
+  ]
   ```
 <br>
 
 * **Gradle ([vscode-gradle](https://github.com/microsoft/vscode-gradle?tab=readme-ov-file#java-specific-settings))**
   <br>
-  (*a) `settings.json` (Gradle execution runtime)
+  (*a) User `settings.json` (Gradle execution runtime)
 
   ```json
   "java.import.gradle.java.home": "C:\\Program Files\\java\\jdk-21.0.1"
   ```
-  (*b) `build.gradle` (Project version: [`compileJava.options.release`](https://docs.gradle.org/current/userguide/building_java_projects.html#sec:compiling_with_release))
+  (*b) Project `build.gradle` ([`compileJava.options.release`](https://docs.gradle.org/current/userguide/building_java_projects.html#sec:compiling_with_release))
 
   ```groovy
   def javaVersion = 17
@@ -72,7 +71,7 @@ The user `settings.json` is auto-configured at startup by `Java Extension Pack A
 
 * **Maven ([vscode-maven](https://github.com/Microsoft/vscode-maven?tab=readme-ov-file#settings))**
   <br>
-  (*a) `settings.json` (Maven execution runtime)
+  (*a) User `settings.json` (Maven execution runtime)
 
   ```json
   "maven.terminal.customEnv": [
@@ -82,7 +81,7 @@ The user `settings.json` is auto-configured at startup by `Java Extension Pack A
     }
   ]
   ```
-  (*b) `pom.xml` (Project version: [`maven.compiler.release`](https://maven.apache.org/plugins/maven-compiler-plugin/examples/set-compiler-release.html))
+  (*b) Project `pom.xml` ([`maven.compiler.release`](https://maven.apache.org/plugins/maven-compiler-plugin/examples/set-compiler-release.html))
 
   ```xml
   <properties>
@@ -92,7 +91,7 @@ The user `settings.json` is auto-configured at startup by `Java Extension Pack A
   </properties>
   ```
 
-(*a) The `settings.json` [can be configured by project (workspace)](https://code.visualstudio.com/docs/getstarted/settings).<br>
+(*a) The `settings.json` [can be overridden by project (workspace)](https://code.visualstudio.com/docs/getstarted/settings#_workspace-settings).<br>
 (*b) The `java.configuration.runtimes` that best matches this version will be used. Setting the `release` ensures the specified version syntax and api is used regardless of which compiler version actually performs the compilation.
 * JEP 182: [Retiring javac -source and -target](https://openjdk.org/jeps/182) / JEP 247: [Compile for Older Platform Versions](https://openjdk.org/jeps/247)
 * Since Spring Boot 3.1, Maven [`<java.version>` value is set to `<maven.compiler.release>`](https://github.com/spring-projects/spring-boot/pull/34365).
