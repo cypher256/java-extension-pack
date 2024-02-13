@@ -85,7 +85,7 @@ export async function getJavaConfig(): Promise<IJavaConfig> {
         stableLtsVer: (_latestLtsVer === _availableVers.at(-1) ? fourLatestLtsVers.at(-2) : _latestLtsVer) ?? 0,
         embeddedJreVer: await findEmbeddedJREVersion(redhatExtension),
     };
-    const {availableNames, ...forLog} = javaConfig; // Omit availableNames
+    const {availableNames, ...forLog} = javaConfig; // Exclude availableNames for log
     Object.entries(forLog).forEach(([k,v]) => log.info(`JavaConfig ${k}: ${v}`));
     return javaConfig;
 }

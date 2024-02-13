@@ -114,8 +114,8 @@
     "@types/node": "18.x",
     "@types/vscode": "^1.54.0",
     "@types/which": "3.x",
-    "@typescript-eslint/eslint-plugin": "6.x",
-    "@typescript-eslint/parser": "6.x",
+    "@typescript-eslint/eslint-plugin": "7.x",
+    "@typescript-eslint/parser": "7.x",
     "@vscode/l10n-dev": "0.0.x",
     "esbuild": "0.x",
     "eslint": "8.x",
@@ -129,5 +129,5 @@
     "jdk-utils": "0.x",
     "lodash": "4.x"
   },
-  "version": "2024.207.0"
+  "version": "2024.213.0"
 }

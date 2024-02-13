@@ -9,10 +9,10 @@ import * as userSetting from '../userSetting';
 const CONFIG_KEY_GRADLE_HOME = 'java.import.gradle.home';
 
 /**
- * @returns The bin directory path based on Gradle configuration.
+ * @returns The bin directory path based on workspace configuration.
  */
-export async function getConfigBinDir(): Promise<string | undefined> {
-	const gradleHome = userSetting.get<string>(CONFIG_KEY_GRADLE_HOME);
+export async function getWorkspaceBinDir(): Promise<string | undefined> {
+	const gradleHome = userSetting.getWorkspace<string>(CONFIG_KEY_GRADLE_HOME);
 	return system.joinPathIfPresent(gradleHome, 'bin');
 }
 

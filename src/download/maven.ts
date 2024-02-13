@@ -9,10 +9,10 @@ import * as userSetting from '../userSetting';
 const CONFIG_KEY_MAVEN_EXE_PATH = 'maven.executable.path';
 
 /**
- * @returns The bin directory path based on Maven configuration.
+ * @returns The bin directory path based on workspace configuration.
  */
-export async function getConfigBinDir(): Promise<string | undefined> {
-	const mvnExePath = userSetting.get<string>(CONFIG_KEY_MAVEN_EXE_PATH);
+export async function getWorkspaceBinDir(): Promise<string | undefined> {
+	const mvnExePath = userSetting.getWorkspace<string>(CONFIG_KEY_MAVEN_EXE_PATH);
 	return system.joinPathIfPresent(mvnExePath, '..');
 }
 

@@ -29,6 +29,15 @@ export function getDefinition<T>(section: string): T | undefined {
 }
 
 /**
+ * Return a value from workspace configuration.
+ * @param section Configuration name, supports _dotted_ names.
+ * @returns The value `section` denotes or `undefined`. null is a valid value.
+ */
+export function getWorkspace<T>(section: string): T | undefined {
+	return vscode.workspace.getConfiguration().get(section);
+}
+
+/**
  * Updates a VS Code user settings entry.
  * @param section Configuration name, supports _dotted_ names.
  * @param value The new value. Remove configuration entry when passed `undefined`.
@@ -55,8 +64,8 @@ export async function remove(section:string) {
  * @returns An array of Java runtime objects. If no entry exists, returns an empty array.
  */
 export function getJavaRuntimes(): redhat.JavaRuntimeArray {
-	const runtimes:redhat.IJavaRuntime[] = get(redhat.JavaRuntimeArray.CONFIG_KEY) ?? [];
-	return new redhat.JavaRuntimeArray(...runtimes);
+	const redhatRuntimes:redhat.IJavaRuntime[] = get(redhat.JavaRuntimeArray.CONFIG_KEY) ?? [];
+	return new redhat.JavaRuntimeArray(...redhatRuntimes);
 }
 
 /**
@@ -235,7 +244,7 @@ export async function updateJavaRuntimes(
 	}
 
 	//-------------------------------------------------------------------------
-	// Gradle Daemon Java Home (Keep if set)
+	// Gradle Daemon Java Home (Keep if set): Output > Gradle for Java > Java Home
 	// Gradle 8.5+ can execute on latest Java versions
 	// Closed) https://github.com/gradle/gradle/issues/26944#issuecomment-1794419074
 	const gradleJavaRuntime = latestLtsRuntime || stableLtsRuntime;

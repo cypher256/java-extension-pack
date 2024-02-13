@@ -26,7 +26,7 @@ export async function activate(context:vscode.ExtensionContext) {
 		copyRcfile();
 		setEnvVariable();
 
-		if (!vscode.workspace.getConfiguration().get('javaAutoConfig.enabled')) {
+		if (!userSetting.getWorkspace('javaAutoConfig.enabled')) {
 			log.info(`javaAutoConfig.enabled: false`);
 			return;
 		}
@@ -75,23 +75,32 @@ function copyRcfile() {
  */
 async function setEnvVariable() {
 
-	const gradleBinDir = await gradle.getConfigBinDir();
-	const mavenBinDir = await maven.getConfigBinDir();
-	const toolBinDirs = [gradleBinDir, mavenBinDir].filter(Boolean).join(path.delimiter);
-	const environmentVariableCollection = system.getExtensionContext().environmentVariableCollection;
-	environmentVariableCollection.clear(); // Clear persisted values (Not cleared on restart)
+	// Maven configuration is workspace not yet supported
+	// https://github.com/microsoft/vscode-maven/issues/991#issuecomment-1940414022
+	const mavenBinDir = await maven.getWorkspaceBinDir();
+	const gradleBinDir = await gradle.getWorkspaceBinDir();
+	const toolsPath = [gradleBinDir, mavenBinDir].filter(Boolean).join(path.delimiter);
 
-	// Terminal all profiles common PATH prefix
-	if (OS.isWindows) {
-		// [Windows]
-		// PRECEDENCE: Env Gradle/Maven > profile JAVA_HOME > original PATH
-		environmentVariableCollection.prepend('PATH', toolBinDirs + path.delimiter);
-	} else {
-		// [macOS/Linux] Use custom rcfile in zsh/bash
-		// PRECEDENCE: profile JAVA_HOME > Env Gradle/Maven > original PATH
-		// Issue: PATH mutation using EnvironmentVariableCollection prepend is overwritten in zsh
-		// Open) https://github.com/microsoft/vscode/issues/188235
-		environmentVariableCollection.replace('AUTO_CONFIG_PATH', toolBinDirs);
+	// Set env var by workspace folder
+	// Known issues: JAVA_HOME is not reflected even if set (e.g. java.import.gradle.java.home)
+	const globalEnv = system.getExtensionContext().environmentVariableCollection;
+	const folderEnvs = vscode.workspace.workspaceFolders?.map(f => globalEnv.getScoped({workspaceFolder:f}));
+
+	for (const envVarColl of folderEnvs ?? [globalEnv]) {
+		envVarColl.clear(); // Clear persisted values (Not cleared on restart)
+
+		// Terminal all profiles common PATH prefix
+		if (OS.isWindows) {
+			// [Windows]
+			// PRECEDENCE: Env Gradle/Maven > profile JAVA_HOME > original PATH
+			envVarColl.prepend('PATH', toolsPath + path.delimiter);
+		} else {
+			// [macOS/Linux] Use custom rcfile in zsh/bash
+			// PRECEDENCE: profile JAVA_HOME > Env Gradle/Maven > original PATH
+			// Issue: PATH mutation using EnvironmentVariableCollection prepend is overwritten in zsh
+			// Open) https://github.com/microsoft/vscode/issues/188235
+			envVarColl.replace('AUTO_CONFIG_PATH', toolsPath);
+		}
 	}
 }
 
@@ -118,7 +127,7 @@ async function download(
 	javaConfig: redhat.IJavaConfig,
 	runtimes: redhat.JavaRuntimeArray) {
 
-	if (vscode.workspace.getConfiguration().get('extensions.autoUpdate') === false) {
+	if (userSetting.getWorkspace('extensions.autoUpdate') === false) {
 		log.info(`Download disabled (extensions.autoUpdate: false)`);
 		return;
 	}
