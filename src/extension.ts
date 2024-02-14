@@ -82,7 +82,6 @@ async function setEnvVariable() {
 	const toolsPath = [gradleBinDir, mavenBinDir].filter(Boolean).join(path.delimiter);
 
 	// Set env var by workspace folder
-	// Known issues: JAVA_HOME is not reflected even if set (e.g. java.import.gradle.java.home)
 	const globalEnv = system.getExtensionContext().environmentVariableCollection;
 	const folderEnvs = vscode.workspace.workspaceFolders?.map(f => globalEnv.getScoped({workspaceFolder:f}));
 
@@ -101,6 +100,9 @@ async function setEnvVariable() {
 			// Open) https://github.com/microsoft/vscode/issues/188235
 			envVarColl.replace('AUTO_CONFIG_PATH', toolsPath);
 		}
+		// Known Issue: JAVA_HOME is not reflected even if set (e.g. java.import.gradle.java.home)
+		// Open) https://github.com/microsoft/vscode/issues/152806#issuecomment-1785065199
+		//envVarColl.replace('JAVA_HOME', '--- workspace default runtime ---');
 	}
 }
 

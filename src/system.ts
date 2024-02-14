@@ -102,8 +102,8 @@ export function containsPath(basePath:string, subPath:string | undefined): boole
  */
 export function equalsPath(path1:string, path2:string | undefined): boolean {
 	if (!path2) {return false;}
-	const _path1 = normalizePath(path2);
-	const _path2 = normalizePath(path1);
+	const _path1 = normalizePath(path1);
+	const _path2 = normalizePath(path2);
 	return _path1 === _path2;
 }
 
