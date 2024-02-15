@@ -20,7 +20,7 @@ GitHub Issues
 <br>
 
 ### Open Terminals by Java Version
-This extension adds the available Java versions to the VS Code terminal dropdown. Select the Java version you want to use, open terminals, and you can check the complete version with the following commands. The latest versions of gradle and mvn are available, but it is generally recommended to use wrappers (gradlew, mvnw) for each project.
+This extension adds the available Java versions to the VS Code terminal dropdown. Select the Java version you want to use, [open terminals](https://code.visualstudio.com/docs/terminal/basics), and you can check the complete version with the following commands. The latest versions of gradle and mvn are available, but it is generally recommended to use wrappers (gradlew, mvnw) for each project.
 ```bash
 java -version
 gradle -v
@@ -62,7 +62,7 @@ The **user** (global) [`settings.json`](https://code.visualstudio.com/docs/getst
   ```
   (*b) Project `build.gradle` ([`compileJava.options.release`](https://docs.gradle.org/current/userguide/building_java_projects.html#sec:compiling_with_release))
 
-  ```groovy
+  ```gradle
   def javaVersion = 17
   java.sourceCompatibility = javaVersion // Legacy option for VS Code
   compileJava.options.release = javaVersion
@@ -138,9 +138,9 @@ For Included Extensions
 |*Language support for Java*|
 |~~[java.home](https://github.com/redhat-developer/vscode-java/wiki/JDK-Requirements#universal-version)~~|Remove due to deprecated entry|
 |[java.configuration.runtimes](https://code.visualstudio.com/docs/java/java-project#_configure-runtime-for-projects)<br>([Issues](https://github.com/redhat-developer/vscode-java/issues?q=is%3Aissue+java.configuration.runtimes))|Set all detected and downloaded JDKs<br>(Setting > `JAVA_HOME`)|
-|(*1) [java.jdt.ls.java.home](https://github.com/redhat-developer/vscode-java/wiki/JDK-Requirements#platform-versions)<br>([Issues](https://github.com/redhat-developer/vscode-java/issues?q=is%3Aissue+java.jdt.ls.java.home))|Remove if Red Hat embedded JRE exists<br>(Setting > Embedded JRE > `JDK_HOME` > `JAVA_HOME` > `PATH`)|
+|(*1) [java.jdt.ls.java.home](https://github.com/redhat-developer/vscode-java/wiki/JDK-Requirements#platform-versions)<br>([Issues](https://github.com/redhat-developer/vscode-java/issues?q=is%3Aissue+java.jdt.ls.java.home))|Remove setting if Red Hat embedded JRE exists<br>(Setting > Embedded JRE > `JDK_HOME` > `JAVA_HOME` > `PATH`)|
 |*Spring Boot Tools*|
-|(*1) [spring-boot.ls.java.home](https://github.com/spring-projects/sts4/blob/main/vscode-extensions/commons-vscode/src/launch-util.ts#L140)<br>([Issues](https://github.com/spring-projects/sts4/issues?q=is%3Aissue+spring-boot.ls.java.home))|Remove if Red Hat embedded JRE exists<br>(Setting > Embedded JRE > `JAVA_HOME` > `PATH`)|
+|(*1) [spring-boot.ls.java.home](https://github.com/spring-projects/sts4/blob/main/vscode-extensions/commons-vscode/src/launch-util.ts#L140)<br>([Issues](https://github.com/spring-projects/sts4/issues?q=is%3Aissue+spring-boot.ls.java.home))|Remove setting if Red Hat embedded JRE exists<br>(Setting > Embedded JRE > `JAVA_HOME` > `PATH`)|
 |*Gradle for Java*|
 |[java.import.gradle.java.home](https://github.com/microsoft/vscode-gradle#java-specific-settings)<br>([Issues](https://github.com/microsoft/vscode-gradle/issues?q=is%3Aissue+java.import.gradle.java.home))|Set latest LTS JDK if unset<br>(Setting > `java.jdt.ls.java.home` > `JAVA_HOME` > `PATH`)|
 |[java.import.gradle.home](https://github.com/microsoft/vscode-gradle#java-specific-settings)<br>([Issues](https://github.com/microsoft/vscode-gradle/issues?q=is%3Aissue+java.import.gradle.home))|Set auto-downloaded gradle if unset<br>(**`gradlew`** > Setting > `PATH` > `GRADLE_HOME`)|

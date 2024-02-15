@@ -56,9 +56,10 @@ function copyRcfile() {
 	if (OS.isWindows) {
 		return;
 	}
-	const extVerResourcesDir = system.getExtensionContext().asAbsolutePath('resources');
+	// Copy the resources directory as its path will change when updating the version
+	const resourcesDir = system.getExtensionContext().asAbsolutePath('resources');
 	function _copy(fileName:string) {
-		const src = system.readString(path.join(extVerResourcesDir, fileName));
+		const src = system.readString(path.join(resourcesDir, fileName));
 		const dst = system.readString(system.getGlobalStoragePath(fileName));
 		if (src && src !== dst) {
 			fs.writeFile(system.getGlobalStoragePath(fileName), src, (error) => {
@@ -100,9 +101,17 @@ async function setEnvVariable() {
 			// Open) https://github.com/microsoft/vscode/issues/188235
 			envVarColl.replace('AUTO_CONFIG_PATH', toolsPath);
 		}
+
+		// Set JAVA_HOME from workspace default runtime
 		// Known Issue: JAVA_HOME is not reflected even if set (e.g. java.import.gradle.java.home)
 		// Open) https://github.com/microsoft/vscode/issues/152806#issuecomment-1785065199
-		//envVarColl.replace('JAVA_HOME', '--- workspace default runtime ---');
+		//envVarColl.replace('JAVA_HOME', 'D:\\pleiades\\2023-06\\java\\17');
+		/*
+		// build.gradle version check (Output > Gradle for Java)
+		println ">> ${JavaVersion.current()} JavaVersion.current()"
+		println ">> ${project.targetCompatibility} project.targetCompatibility"
+		println ">> JAVA_HOME " + org.gradle.internal.jvm.Jvm.current().getJavaHome()
+		*/
 	}
 }
 
@@ -258,15 +267,18 @@ function showReloadMessage() {
 function setConfigChangedEvent() {
 	vscode.workspace.onDidChangeConfiguration(event => {
 		if (
-			// 'java.jdt.ls.java.home' is not defined because redhat.java extension is detected
+			//------------------------------------------
+			// Server
 			event.affectsConfiguration('spring-boot.ls.java.home')
-			|| event.affectsConfiguration('java.import.gradle.java.home')
-			// For Terminal Profiles
+			//|| event.affectsConfiguration('java.jdt.ls.java.home') // redhat.java extension detects
+			//|| event.affectsConfiguration('java.import.gradle.java.home') // Gradle for Java detects
+
+			//------------------------------------------
+			// Terminal Profiles Reconfiguration
 			|| event.affectsConfiguration('java.import.gradle.home')
 			|| event.affectsConfiguration('maven.executable.path')
 			|| event.affectsConfiguration('java.configuration.runtimes')
-			// Frequent switches between Windows and WSL (NOT machine-overridable)
-			// || event.affectsConfiguration('maven.terminal.customEnv')
+			//|| event.affectsConfiguration('maven.terminal.customEnv') // Switch Win/WSL (NOT machine-overridable)
 		) {
 			showReloadMessage();
 		}
