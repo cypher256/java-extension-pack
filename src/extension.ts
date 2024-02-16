@@ -109,7 +109,9 @@ async function setEnvVariable() {
 		/*
 		// build.gradle version check (Output > Gradle for Java)
 		println ">> ${JavaVersion.current()} JavaVersion.current()"
+		println ">> ${project.sourceCompatibility} project.sourceCompatibility"
 		println ">> ${project.targetCompatibility} project.targetCompatibility"
+		println ">> ${compileJava.options.release.get()} compileJava.options.release.get()"
 		println ">> JAVA_HOME " + org.gradle.internal.jvm.Jvm.current().getJavaHome()
 		*/
 	}

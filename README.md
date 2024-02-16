@@ -60,7 +60,7 @@ The **user** (global) [`settings.json`](https://code.visualstudio.com/docs/getst
   ```json
   "java.import.gradle.java.home": "C:\\Program Files\\java\\jdk-21.0.1"
   ```
-  (*b) Project `build.gradle` ([`compileJava.options.release`](https://docs.gradle.org/current/userguide/building_java_projects.html#sec:compiling_with_release))
+  (*b) Project `build.gradle` ([`options.release`](https://docs.gradle.org/current/userguide/building_java_projects.html#sec:compiling_with_release))
 
   ```gradle
   def javaVersion = 17
