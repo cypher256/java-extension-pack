@@ -172,7 +172,7 @@ export async function updateJavaRuntimes(
 	//-------------------------------------------------------------------------
 	// Terminal Default Env Variables (Keep if set)
 	if (terminalDefaultRuntime) {
-		// [Windows] Default cmd/powershell/gitbash
+		// [Windows] Default cmd/powershell (gitbash not supported)
 		// Run/Debug is launched using project's java.exe for No-build-tools/maven/gradle
 		// PRECEDENCE: Env Gradle/Maven > terminal.integrated.env JAVA_HOME > original PATH
 		if (OS.isWindows) {
