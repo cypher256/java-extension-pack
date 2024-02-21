@@ -113,7 +113,7 @@ export async function download(
 		storeTempFile: homeDir + '_download_tmp.' + fileExt,
 		extractDestDir: homeDir,
 		targetMessage: fullVer,
-		removeLeadingPath: OS.isMac ? 3 : 1, // Remove leading 'jdk-xxx/Contents/Home/' fot macOS
+		removeLeadingPath: OS.isMac ? 3 : 1, // Remove leading 'jdk-xxx/Contents/Home/' for macOS
 		is404Ignore: true,
 	};
 

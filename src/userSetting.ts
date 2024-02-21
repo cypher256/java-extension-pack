@@ -113,6 +113,8 @@ export async function updateJavaRuntimes(
 		if (OS.isWindows) {
 			profile.path ||= 'cmd'; // powershell (legacy), pwsh (non-preinstalled)
 			profile.env.PATH = _createPathPrepend(runtime.path);
+			// Pending: Requires chcp 65001 for gradle
+			// profile.env.JAVA_TOOL_OPTIONS ??= '-Dstdout.encoding=UTF-8 -Dstderr.encoding=UTF-8';
 		} else if (OS.isMac) {
 			profile.path = 'zsh';
 			profile.env.ZDOTDIR = rcfileDir;
