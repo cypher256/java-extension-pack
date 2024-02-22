@@ -310,9 +310,10 @@ export async function updateJavaRuntimes(
 			update(configKey, optionalRuntime.path);
 		}
 	}
-	const prevLtsRuntime = runtimes.findByVersion(javaConfig.downloadLtsVers.at(-2));
-	_updateOptionJavaHome('salesforce.salesforcedx-vscode', 'salesforcedx-vscode-apex.java.home', prevLtsRuntime);
+	const prevLtsRuntime = runtimes.findByVersion(javaConfig.downloadLtsVers.at(-2)); // Undefined if not exists
+	_updateOptionJavaHome('ibm.zopeneditor', 'zopeneditor.JAVA_HOME', prevLtsRuntime);
 	_updateOptionJavaHome('redhat.vscode-rsp-ui', 'rsp-ui.rsp.java.home', stableLtsRuntime);
+	_updateOptionJavaHome('salesforce.salesforcedx-vscode', 'salesforcedx-vscode-apex.java.home', prevLtsRuntime);
 
 	//-------------------------------------------------------------------------
 	// Optional Extensions java executable path (Keep if set)

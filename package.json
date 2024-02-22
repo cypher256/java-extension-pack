@@ -34,6 +34,7 @@
     "jdk",
     "jre",
     "junit",
+    "LSP",
     "lombok",
     "maven",
     "multiple",
@@ -54,6 +55,7 @@
     "tomcat",
     "uml",
     "xml",
+    "zowe",
     "zsh"
   ],
   "categories": [
@@ -129,5 +131,5 @@
     "jdk-utils": "0.x",
     "lodash": "4.x"
   },
-  "version": "2024.213.0"
+  "version": "2024.222.0"
 }

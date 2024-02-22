@@ -133,7 +133,7 @@ The feature automatically fixes [errors such as](https://stackoverflow.com/searc
 
 For Included Extensions
 
-|Configuration Name|Configured Value (Priority Order)|
+|Configuration Name|Configured Value (Precedence)|
 |---|---|
 |*Language support for Java*|
 |~~[java.home](https://github.com/redhat-developer/vscode-java/wiki/JDK-Requirements#universal-version)~~|Remove due to deprecated entry|
@@ -150,14 +150,12 @@ For Included Extensions
 
 For Optional Extensions
 
-|Configuration Name|Configured Value (Priority Order)|
+|Configuration Name|Configured Value (Precedence)|
 |---|---|
-|*Runtime Server Protocol UI*|
-|(*1) [rsp-ui.rsp.java.home](https://github.com/redhat-developer/vscode-rsp-ui#extension-settings)<br>([Issues](https://github.com/redhat-developer/vscode-rsp-ui/issues?q=is%3Aissue+rsp-ui.rsp.java.home))|Set stable LTS if unset<br>(Setting > `JDK_HOME` > `JAVA_HOME`> Windows Registry > `PATH`)|
-|*Salesforce Extension Pack*|
-|(*1) [salesforcedx-vscode-apex.java.home](https://developer.salesforce.com/tools/vscode/en/vscode-desktop/java-setup)<br>([Issues](https://github.com/forcedotcom/salesforcedx-vscode/issues?q=is%3Aissue+salesforcedx-vscode-apex.java.home))|Set previous LTS if unset<br>(Setting > `JDK_HOME` > `JAVA_HOME`> Windows Registry > `PATH`)|
-|*PlantUML*|
-|(*1) [plantuml.java](https://github.com/qjebbs/vscode-plantuml?tab=readme-ov-file#extension-settings)<br>([Issues](https://github.com/qjebbs/vscode-plantuml/issues?q=is%3Aissue+plantuml.java))|Set stable LTS if unset<br>(Setting > `PATH`)|
+|*IBM Z Open Editor*<br>(*1) [zopeneditor.JAVA_HOME](https://github.com/IBM/zopeneditor-about?tab=readme-ov-file#selecting-the-java-installation-to-use)<br>([Issues](https://github.com/IBM/zopeneditor-about/issues?q=is%3Aissue+JAVA_HOME))|Set previous LTS if unset<br>(Setting > `JAVA_HOME`> `PATH`)|
+|*PlantUML*<br>(*1) [plantuml.java](https://github.com/qjebbs/vscode-plantuml?tab=readme-ov-file#extension-settings)<br>([Issues](https://github.com/qjebbs/vscode-plantuml/issues?q=is%3Aissue+plantuml.java))|Set stable LTS if unset<br>(Setting > `PATH`)|
+|*Runtime Server Protocol UI*<br>(*1) [rsp-ui.rsp.java.home](https://github.com/redhat-developer/vscode-rsp-ui#extension-settings)<br>([Issues](https://github.com/redhat-developer/vscode-rsp-ui/issues?q=is%3Aissue+rsp-ui.rsp.java.home))|Set stable LTS if unset<br>(Setting > `JDK_HOME` > `JAVA_HOME`> Windows Registry > `PATH`)|
+|*Salesforce Extension Pack*<br>(*1) [salesforcedx-vscode-apex.java.home](https://developer.salesforce.com/tools/vscode/en/vscode-desktop/java-setup)<br>([Issues](https://github.com/forcedotcom/salesforcedx-vscode/issues?q=is%3Aissue+salesforcedx-vscode-apex.java.home))|Set previous LTS if unset<br>(Setting > `JDK_HOME` > `JAVA_HOME`> Windows Registry > `PATH`)|
 
 (*1) The language server runtime used by VS Code extensions. Not for building or running projects.<br>
 <br>
