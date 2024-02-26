@@ -270,14 +270,14 @@ export async function updateJavaRuntimes(
 
 	//-------------------------------------------------------------------------
 	// VS Code LS Java Home (Remove if embedded JRE exists)
-	async function _updateLsJavaHome(extensionId: string, configKey: string) {
+	async function _useEmbeddedJre(extensionId: string, configKey: string) {
 		if (!vscode.extensions.getExtension(extensionId)) {
 			return;
 		}
 		const originPath = get<string>(configKey);
 		if (javaConfig.embeddedJreVer) {
 			if (originPath) {
-				remove(configKey); // Use embedded JRE
+				remove(configKey);
 			}
 			return;
 		}
@@ -286,8 +286,8 @@ export async function updateJavaRuntimes(
 			update(configKey, fixedOrDefault);
 		}
 	}
-	_updateLsJavaHome('redhat.java', 'java.jdt.ls.java.home');
-	_updateLsJavaHome('vmware.vscode-spring-boot', 'spring-boot.ls.java.home');
+	_useEmbeddedJre('redhat.java', 'java.jdt.ls.java.home');
+	_useEmbeddedJre('vmware.vscode-spring-boot', 'spring-boot.ls.java.home');
 
 	//-------------------------------------------------------------------------
 	// Optional Extensions LS Java Home (Keep if set)
