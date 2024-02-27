@@ -291,6 +291,7 @@ export async function updateJavaRuntimes(
 
 	//-------------------------------------------------------------------------
 	// Optional Extensions LS Java Home (Keep if set)
+	// Sonarlint uses the embedded JRE
 	async function _updateOptionJavaHome(extensionId: string, configKey: string,
 		optionalRuntime: redhat.IJavaRuntime | undefined)
 	{
