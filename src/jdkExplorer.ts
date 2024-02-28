@@ -5,9 +5,9 @@ import * as os from "os";
 import * as path from 'path';
 import * as jdk from './download/jdk';
 import * as redhat from './redhat';
+import * as settings from './settings';
 import * as system from './system';
 import { OS, log } from './system';
-import * as userSetting from './userSetting';
 
 /**
  * Scan installed JDK on the system and updates the given Java runtimes.
@@ -59,10 +59,10 @@ export async function scan(javaConfig: redhat.IJavaConfig, runtimes:redhat.JavaR
 	}
 	if (needImmediateUpdate) {
 		// Immediate update for suppress invalid path error dialog (without await)
-		userSetting.update(redhat.JavaRuntimeArray.CONFIG_KEY, runtimes);
+		settings.update(redhat.JavaRuntimeArray.CONFIG_KEY, runtimes);
 	}
 
-	// Detect JDK (Priority: Current Setting > Installed > Auto-Downloaded)
+	// Detect JDK (PRECEDENCE: Installed (>Current) > Current Config > Installed (<=Current) > Auto-Downloaded)
 	const detectedLatestMap = new Map<number, IDetectedJdk>(); // Key: Major Version
 
 	// Detect Auto-Downloaded JDK (Support when user installation is uninstalled)
@@ -262,6 +262,13 @@ async function findAll(): Promise<IDetectedJdk[]> {
 				await jdks.pushByGlob('Pleiades', '/Applications/Eclipse_20*.app/Contents/java');
 			}
 		},
+		async () => {
+			// Common (Windows)
+			// e.g. C:\Java\jdk21.0.2\bin
+			if (!OS.isWindows) {return;}
+			const patterns = ['c', 'd'].map(drive => `${drive}:/java`);
+			await jdks.pushByGlob('Common', ...patterns);
+	},
 	];
 	await Promise.allSettled(promises.map(p => p()));
 	return jdks;

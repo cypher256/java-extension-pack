@@ -3,16 +3,16 @@ import axios from 'axios';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as httpClient from '../httpClient';
+import * as settings from '../settings';
 import * as system from '../system';
 import { log } from '../system';
-import * as userSetting from '../userSetting';
 const CONFIG_KEY_GRADLE_HOME = 'java.import.gradle.home';
 
 /**
  * @returns The bin directory path based on workspace configuration.
  */
 export async function getWorkspaceBinDir(): Promise<string | undefined> {
-	const gradleHome = userSetting.getWorkspace<string>(CONFIG_KEY_GRADLE_HOME);
+	const gradleHome = settings.getWorkspace<string>(CONFIG_KEY_GRADLE_HOME);
 	return system.joinPathIfPresent(gradleHome, 'bin');
 }
 
@@ -21,7 +21,7 @@ export async function getWorkspaceBinDir(): Promise<string | undefined> {
  * @returns A promise that resolves when the Gradle is installed.
  */
 export async function download() {
-	const gradleHomeOld = userSetting.get<string>(CONFIG_KEY_GRADLE_HOME);
+	const gradleHomeOld = settings.getUser<string>(CONFIG_KEY_GRADLE_HOME);
 	let gradleHomeNew = await resolvePath(gradleHomeOld);
 	if (gradleHomeNew && system.isUserInstalled(gradleHomeNew)) {
 		log.info('Available Gradle (User installed)', CONFIG_KEY_GRADLE_HOME, gradleHomeNew);
@@ -34,7 +34,7 @@ export async function download() {
 		}
 	}
 	if (gradleHomeOld !== gradleHomeNew) {
-		await userSetting.update(CONFIG_KEY_GRADLE_HOME, gradleHomeNew);
+		await settings.update(CONFIG_KEY_GRADLE_HOME, gradleHomeNew);
 	}
 	// Note: This setting is ignored if gradlew is exists
 }
@@ -90,7 +90,7 @@ async function httpget(): Promise<string | undefined> {
 	}
 
     // Download
-	await httpClient.execute({
+	await httpClient.get({
 		url: json.downloadUrl,
 		storeTempFile: downloadDir + '_download_tmp.zip',
 		extractDestDir: downloadDir,

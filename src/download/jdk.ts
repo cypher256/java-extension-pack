@@ -119,14 +119,14 @@ export async function download(
 
 	// Download
 	try {
-		await httpClient.execute(req);
+		await httpClient.get(req);
 	} catch (e:any) {
 		// Retry fallback previous version: /jdk-17.0.9%2B9.1/ -> /jdk-17.0.9%2B9/
 		const fallbackUrl = req.url.replace(/(\.\d+%2B\d+)\.\d+/, '$1');
 		if (fallbackUrl !== req.url && e?.response?.status === 404) {
 			log.info(`Retry fallback:\n${req.url}\n${fallbackUrl}`);
 			req.url = fallbackUrl;
-			await httpClient.execute(req);
+			await httpClient.get(req);
 		} else {
 			throw e;
 		}

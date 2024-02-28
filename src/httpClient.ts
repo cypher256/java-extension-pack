@@ -31,7 +31,7 @@ export interface IHttpClientRequest {
  * @param req The HTTP client request.
  * @returns A promise that resolves when the download and extract are completed.
  */
-export async function execute(req:IHttpClientRequest) {
+export async function get(req:IHttpClientRequest) {
     req.removeLeadingPath ??= 1;
     await vscode.window.withProgress({location: vscode.ProgressLocation.Window}, async progress => {
         try {

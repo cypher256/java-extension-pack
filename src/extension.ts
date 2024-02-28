@@ -9,9 +9,9 @@ import * as jdk from './download/jdk';
 import * as maven from './download/maven';
 import * as jdkExplorer from './jdkExplorer';
 import * as redhat from './redhat';
+import * as settings from './settings';
 import * as system from './system';
 import { OS, log } from './system';
-import * as userSetting from './userSetting';
 
 /**
  * Activates the extension.
@@ -26,14 +26,14 @@ export async function activate(context:vscode.ExtensionContext) {
 		copyRcfile();
 		setEnvVariable();
 
-		if (!userSetting.getWorkspace('javaAutoConfig.enabled')) {
+		if (!settings.getWorkspace('javaAutoConfig.enabled')) {
 			log.info(`javaAutoConfig.enabled: false`);
 			return;
 		}
 		const javaConfig = await redhat.getJavaConfig();
-		userSetting.setDefault(javaConfig);
+		settings.setDefault(javaConfig);
 
-		const runtimes = userSetting.getJavaRuntimes();
+		const runtimes = settings.getJavaRuntimes();
 		const runtimesOld = _.cloneDeep(runtimes);
 		await detect(javaConfig, runtimes);
 		await download(javaConfig, runtimes);
@@ -129,7 +129,7 @@ async function detect(
 
 	const runtimesBefore = _.cloneDeep(runtimes);
 	await jdkExplorer.scan(javaConfig, runtimes);
-	await userSetting.updateJavaRuntimes(javaConfig, runtimes, runtimesBefore);
+	await settings.updateJavaRuntimes(javaConfig, runtimes, runtimesBefore);
 }
 
 /**
@@ -141,7 +141,7 @@ async function download(
 	javaConfig: redhat.IJavaConfig,
 	runtimes: redhat.JavaRuntimeArray) {
 
-	if (userSetting.getWorkspace('extensions.autoUpdate') === false) {
+	if (settings.getWorkspace('extensions.autoUpdate') === false) {
 		log.info(`Download disabled (extensions.autoUpdate: false)`);
 		return;
 	}
@@ -157,7 +157,7 @@ async function download(
 		maven.download(),
 	];
 	await Promise.allSettled(promises);
-	await userSetting.updateJavaRuntimes(javaConfig, runtimes, runtimesBefore);
+	await settings.updateJavaRuntimes(javaConfig, runtimes, runtimesBefore);
 }
 
 /**

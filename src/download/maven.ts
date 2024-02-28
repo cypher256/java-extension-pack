@@ -3,16 +3,16 @@ import axios from 'axios';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as httpClient from '../httpClient';
+import * as settings from '../settings';
 import * as system from '../system';
 import { log } from '../system';
-import * as userSetting from '../userSetting';
 const CONFIG_KEY_MAVEN_EXE_PATH = 'maven.executable.path';
 
 /**
  * @returns The bin directory path based on workspace configuration.
  */
 export async function getWorkspaceBinDir(): Promise<string | undefined> {
-	const mvnExePath = userSetting.getWorkspace<string>(CONFIG_KEY_MAVEN_EXE_PATH);
+	const mvnExePath = settings.getWorkspace<string>(CONFIG_KEY_MAVEN_EXE_PATH);
 	return system.joinPathIfPresent(mvnExePath, '..');
 }
 
@@ -22,7 +22,7 @@ export async function getWorkspaceBinDir(): Promise<string | undefined> {
  */
 export async function download() {
 	// Use 'getDefinition' instead of 'get' to get empty definition
-	const mavenExeOld = userSetting.getDefinition<string>(CONFIG_KEY_MAVEN_EXE_PATH);
+	const mavenExeOld = settings.getUserDef<string>(CONFIG_KEY_MAVEN_EXE_PATH);
 	if (mavenExeOld === '') {
 		log.info('Use mvnw because', CONFIG_KEY_MAVEN_EXE_PATH, 'is empty');
 		return;	// Note: mvnw is used only if undefined or empty
@@ -39,7 +39,7 @@ export async function download() {
 		}
 	}
 	if (mavenExeOld !== mavenExeNew) {
-		await userSetting.update(CONFIG_KEY_MAVEN_EXE_PATH, mavenExeNew);
+		await settings.update(CONFIG_KEY_MAVEN_EXE_PATH, mavenExeNew);
 	}
 }
 
@@ -96,7 +96,7 @@ async function httpget(): Promise<string | undefined> {
 	}
 
     // Download
-	await httpClient.execute({
+	await httpClient.get({
 		url: `${URL_PREFIX}${version}/apache-maven-${version}-bin.tar.gz`,
 		storeTempFile: downloadDir + '_download_tmp.tar.gz',
 		extractDestDir: downloadDir,
