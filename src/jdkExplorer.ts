@@ -101,6 +101,9 @@ export async function scan(javaConfig: redhat.IJavaConfig, runtimes:redhat.JavaR
 				if (configJdk && isNewLeft(detectedJdk.fullVersion, configJdk.fullVersion)) {
 					// Update new version (User installed)
 					configRuntime.path = detectedJdk.homePath;
+					// Pending: ${userHome}
+					// Issue: Support variables when resolving values in settings
+					// Open) https://github.com/microsoft/vscode/issues/2809
 				}
 				// else Keep (Detected is same or older)
 			}
