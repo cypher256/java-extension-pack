@@ -36,7 +36,7 @@ The **user** (global) [`settings.json`](https://code.visualstudio.com/docs/getst
 <br>
 
 * **Project JDKs common settings ([vscode-java](https://github.com/redhat-developer/vscode-java?tab=readme-ov-file#project-jdks))**<br>
-  (*a) User `settings.json`
+  (*1) User `settings.json`
 
   ```json
   "java.configuration.runtimes": [
@@ -55,12 +55,12 @@ The **user** (global) [`settings.json`](https://code.visualstudio.com/docs/getst
 
 * **Gradle ([vscode-gradle](https://github.com/microsoft/vscode-gradle?tab=readme-ov-file#java-specific-settings))**
   <br>
-  (*a) User `settings.json` (Gradle execution runtime)
+  (*1) User `settings.json` (Gradle execution runtime)
 
   ```json
   "java.import.gradle.java.home": "C:\\Program Files\\java\\jdk-21.0.1"
   ```
-  (*b) Project `build.gradle` ([`options.release`](https://docs.gradle.org/current/userguide/building_java_projects.html#sec:compiling_with_release))
+  (*2) Project `build.gradle` ([`options.release`](https://docs.gradle.org/current/userguide/building_java_projects.html#sec:compiling_with_release))
 
   ```gradle
   def javaVersion = 17
@@ -71,7 +71,7 @@ The **user** (global) [`settings.json`](https://code.visualstudio.com/docs/getst
 
 * **Maven ([vscode-maven](https://github.com/Microsoft/vscode-maven?tab=readme-ov-file#settings))**
   <br>
-  (*a) User `settings.json` (Maven execution runtime)
+  (*1) User `settings.json` (Maven execution runtime)
 
   ```json
   "maven.terminal.customEnv": [
@@ -81,7 +81,7 @@ The **user** (global) [`settings.json`](https://code.visualstudio.com/docs/getst
     }
   ]
   ```
-  (*b) Project `pom.xml` ([`maven.compiler.release`](https://maven.apache.org/plugins/maven-compiler-plugin/examples/set-compiler-release.html))
+  (*2) Project `pom.xml` ([`maven.compiler.release`](https://maven.apache.org/plugins/maven-compiler-plugin/examples/set-compiler-release.html))
 
   ```xml
   <properties>
@@ -91,8 +91,8 @@ The **user** (global) [`settings.json`](https://code.visualstudio.com/docs/getst
   </properties>
   ```
 
-(*a) The `settings.json` [can be overridden by project (workspace)](https://code.visualstudio.com/docs/getstarted/settings#_workspace-settings).<br>
-(*b) The `java.configuration.runtimes` that best matches this version will be used. Setting the `release` ensures the specified version syntax and api is used regardless of which compiler version actually performs the compilation.
+(*1) The `settings.json` [can be overridden by project (workspace)](https://code.visualstudio.com/docs/getstarted/settings#_workspace-settings).<br>
+(*2) The `java.configuration.runtimes` that best matches this version will be used. Setting the `release` ensures the specified version syntax and api is used regardless of which compiler version actually performs the compilation.
 * JEP 182: [Retiring javac -source and -target](https://openjdk.org/jeps/182) / JEP 247: [Compile for Older Platform Versions](https://openjdk.org/jeps/247)
 * Since Spring Boot 3.1, Maven [`<java.version>` value is set to `<maven.compiler.release>`](https://github.com/spring-projects/spring-boot/pull/34365).
 * [Enabling Java preview features](https://github.com/redhat-developer/vscode-java/wiki/Enabling-Java-preview-features)
@@ -122,7 +122,7 @@ JDK auto-scan targets
 * Package Managers: SDKMAN, Homebrew, jEnv, jabba, ASDF, Scoop, Chocolatey, IntelliJ etc...
 * Toolchains: Gradle jdks directory, Maven toolchains.xml
 
-The feature automatically fixes [errors such as](https://stackoverflow.com/search?q=vs+code+java+version)
+The feature automatically fixes [errors such as](https://stackoverflow.com/search?tab=newest&q=vscode%20java_home)
 
 * Java Language Server requires a JDK xx+ to launch itself.
 * This setting is deprecated, please use 'java.jdt.ls.java.home' instead.
@@ -138,26 +138,27 @@ For Included Extensions
 |*Language support for Java*|
 |~~[java.home](https://github.com/redhat-developer/vscode-java/wiki/JDK-Requirements#universal-version)~~|Remove due to deprecated entry|
 |[java.configuration.runtimes](https://code.visualstudio.com/docs/java/java-project#_configure-runtime-for-projects)<br>([Issues](https://github.com/redhat-developer/vscode-java/issues?q=is%3Aissue+java.configuration.runtimes))|Set all detected and downloaded JDKs<br>(Setting > `JAVA_HOME`)|
-|(*1) [java.jdt.ls.java.home](https://github.com/redhat-developer/vscode-java/wiki/JDK-Requirements#platform-versions)<br>([Issues](https://github.com/redhat-developer/vscode-java/issues?q=is%3Aissue+java.jdt.ls.java.home))|Remove setting if Red Hat embedded JRE exists<br>(Setting > Embedded JRE > `JDK_HOME` > `JAVA_HOME` > `PATH`)|
+|[java.jdt.ls.java.home](https://github.com/redhat-developer/vscode-java/wiki/JDK-Requirements#platform-versions)<br>([Issues](https://github.com/redhat-developer/vscode-java/issues?q=is%3Aissue+java.jdt.ls.java.home)) 🛠️|Remove setting if Red Hat embedded JRE exists<br>(Setting > Embedded JRE > `JDK_HOME` > `JAVA_HOME` > `PATH`)|
 |*Spring Boot Tools*|
-|(*1) [spring-boot.ls.java.home](https://github.com/spring-projects/sts4/blob/main/vscode-extensions/commons-vscode/src/launch-util.ts#L140)<br>([Issues](https://github.com/spring-projects/sts4/issues?q=is%3Aissue+spring-boot.ls.java.home))|Remove setting if Red Hat embedded JRE exists<br>(Setting > Embedded JRE > `JAVA_HOME` > `PATH`)|
+|[spring-boot.ls.java.home](https://github.com/spring-projects/sts4/blob/main/vscode-extensions/commons-vscode/src/launch-util.ts#L140)<br>([Issues](https://github.com/spring-projects/sts4/issues?q=is%3Aissue+spring-boot.ls.java.home)) 🛠️|Remove setting if Red Hat embedded JRE exists<br>(Setting > Embedded JRE > `JAVA_HOME` > `PATH`)|
 |*Gradle for Java*|
 |[java.import.gradle.java.home](https://github.com/microsoft/vscode-gradle#java-specific-settings)<br>([Issues](https://github.com/microsoft/vscode-gradle/issues?q=is%3Aissue+java.import.gradle.java.home))|Set latest LTS JDK if unset<br>(Setting > `java.jdt.ls.java.home` > `JAVA_HOME` > `PATH`)|
 |[java.import.gradle.home](https://github.com/microsoft/vscode-gradle#java-specific-settings)<br>([Issues](https://github.com/microsoft/vscode-gradle/issues?q=is%3Aissue+java.import.gradle.home))|Set auto-downloaded gradle if unset<br>(**`gradlew`** > Setting > `PATH` > `GRADLE_HOME`)|
 |*Maven for Java*|
 |[maven.terminal.customEnv](https://marketplace.visualstudio.com/items?itemName=vscjava.vscode-maven#additional-configurations)<br>([Issues](https://github.com/microsoft/vscode-maven/issues?q=is%3Aissue+maven.terminal.customEnv))|Set latest LTS JDK if unset<br>(Setting > `JAVA_HOME`)|
-|[maven.executable.path](https://github.com/Microsoft/vscode-maven#settings)<br>([Issues](https://github.com/microsoft/vscode-maven/issues?q=is%3Aissue+maven.executable.path))|Set auto-downloaded maven if unset (If you want to use `mvnw`, set "" manually)<br>(Setting > `mvnw` > `PATH`)|
+|[maven.executable.path](https://github.com/Microsoft/vscode-maven#settings)<br>([Issues](https://github.com/microsoft/vscode-maven/issues?q=is%3Aissue+maven.executable.path)) 📝|Set auto-downloaded maven if unset (If you want to use `mvnw`, set "" manually)<br>(Setting > `mvnw` > `PATH`)|
 
 For Optional Extensions
 
 |Configuration Name|Configured Value (Precedence)|
 |---|---|
-|*IBM Z Open Editor*<br>(*1) [zopeneditor.JAVA_HOME](https://github.com/IBM/zopeneditor-about?tab=readme-ov-file#selecting-the-java-installation-to-use)<br>([Issues](https://github.com/IBM/zopeneditor-about/issues?q=is%3Aissue+JAVA_HOME))|Set previous LTS if unset<br>(Setting > `JAVA_HOME`> `PATH`)|
-|*PlantUML*<br>(*1) [plantuml.java](https://github.com/qjebbs/vscode-plantuml?tab=readme-ov-file#extension-settings)<br>([Issues](https://github.com/qjebbs/vscode-plantuml/issues?q=is%3Aissue+plantuml.java))|Set stable LTS if unset<br>(Setting > `PATH`)|
-|*Runtime Server Protocol UI*<br>(*1) [rsp-ui.rsp.java.home](https://github.com/redhat-developer/vscode-rsp-ui#extension-settings)<br>([Issues](https://github.com/redhat-developer/vscode-rsp-ui/issues?q=is%3Aissue+rsp-ui.rsp.java.home))|Set stable LTS if unset<br>(Setting > `JDK_HOME` > `JAVA_HOME`> Windows Registry > `PATH`)|
-|*Salesforce Extension Pack*<br>(*1) [salesforcedx-vscode-apex.java.home](https://developer.salesforce.com/tools/vscode/en/vscode-desktop/java-setup)<br>([Issues](https://github.com/forcedotcom/salesforcedx-vscode/issues?q=is%3Aissue+salesforcedx-vscode-apex.java.home))|Set previous LTS if unset<br>(Setting > `JDK_HOME` > `JAVA_HOME`> Windows Registry > `PATH`)|
+|*IBM Z Open Editor*<br>[zopeneditor.JAVA_HOME](https://github.com/IBM/zopeneditor-about?tab=readme-ov-file#selecting-the-java-installation-to-use)<br>([Issues](https://github.com/IBM/zopeneditor-about/issues?q=is%3Aissue+JAVA_HOME)) 🛠️📝|Set previous LTS if unset<br>(Setting > `JAVA_HOME`> `PATH`)|
+|*PlantUML*<br>[plantuml.java](https://github.com/qjebbs/vscode-plantuml?tab=readme-ov-file#extension-settings)<br>([Issues](https://github.com/qjebbs/vscode-plantuml/issues?q=is%3Aissue+plantuml.java)) 🛠️|Set stable LTS if unset<br>(Setting > `PATH`)|
+|*Runtime Server Protocol UI*<br>[rsp-ui.rsp.java.home](https://github.com/redhat-developer/vscode-rsp-ui#extension-settings)<br>([Issues](https://github.com/redhat-developer/vscode-rsp-ui/issues?q=is%3Aissue+rsp-ui.rsp.java.home)) 🛠️|Set stable LTS if unset<br>(Setting > `JDK_HOME` > `JAVA_HOME`> Windows Registry > `PATH`)|
+|*Salesforce Extension Pack*<br>[salesforcedx-vscode-apex.java.home](https://developer.salesforce.com/tools/vscode/en/vscode-desktop/java-setup)<br>([Issues](https://github.com/forcedotcom/salesforcedx-vscode/issues?q=is%3Aissue+salesforcedx-vscode-apex.java.home)) 🛠️|Set previous LTS if unset<br>(Setting > `JDK_HOME` > `JAVA_HOME`> Windows Registry > `PATH`)|
 
-(*1) The language server runtime used by VS Code extensions. Not for building or running projects.<br>
+🛠️ The language server runtime used by VS Code extensions. Not for building or running projects.<br>
+📝 This setting cannot be overridden per workspace (project).
 <br>
 <br>
 
@@ -284,6 +285,7 @@ Entries that do not have the following configuration in the user settings are au
 |[files.eol](https://code.visualstudio.com/docs/getstarted/settings#:~:text=line%20character.%0A%20%20%22-,files.eol,-%22%3A%20%22auto) (For Windows)|`auto`|`\n`|
 |`[bat]` > `files.eol`|`auto`|`\r\n`|
 |*Language support for Java*|
+|[java.configuration.detectJdksAtStart](https://github.com/redhat-developer/vscode-java#supported-vs-code-settings)|`true`|`false`|
 |[java.configuration.updateBuildConfiguration](https://github.com/redhat-developer/vscode-java#supported-vs-code-settings)|`interactive`|`automatic`|
 |[java.sources.organizeImports.staticStarThreshold](https://github.com/redhat-developer/vscode-java#supported-vs-code-settings)|`99`|`1`|
 |*Debugger for Java*|

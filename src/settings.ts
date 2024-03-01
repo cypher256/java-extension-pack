@@ -401,6 +401,7 @@ export async function setDefault(javaConfig: redhat.IJavaConfig) {
 	setIfUndefined('terminal.integrated.tabs.hideCondition', 'never');
 	setIfUndefined('terminal.integrated.enablePersistentSessions', false);
 	// Java extensions
+	setIfUndefined('java.configuration.detectJdksAtStart', false);
 	setIfUndefined('java.configuration.updateBuildConfiguration', 'automatic');
 	setIfUndefined('java.debug.settings.hotCodeReplace', 'auto');
 	setIfUndefined('java.sources.organizeImports.staticStarThreshold', 1);

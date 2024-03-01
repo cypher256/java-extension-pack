@@ -90,8 +90,8 @@ export function joinPathIfPresent(basePath:string | undefined, ...paths:string[]
  */
 export function containsPath(basePath:string, subPath:string | undefined): boolean {
 	if (!subPath) {return false;}
-	const _subPath = normalizePath(subPath);
-	const _basePath = normalizePath(basePath);
+	const _subPath = normalizeCompare(subPath);
+	const _basePath = normalizeCompare(basePath);
 	return _subPath.startsWith(_basePath);
 }
 
@@ -102,12 +102,12 @@ export function containsPath(basePath:string, subPath:string | undefined): boole
  */
 export function equalsPath(path1:string, path2:string | undefined): boolean {
 	if (!path2) {return false;}
-	const _path1 = normalizePath(path1);
-	const _path2 = normalizePath(path2);
+	const _path1 = normalizeCompare(path1);
+	const _path2 = normalizeCompare(path2);
 	return _path1 === _path2;
 }
 
-function normalizePath(dir:string) {
+function normalizeCompare(dir:string) {
 	const d = path.normalize(dir).replace(/[/\\]$/, ''); // Remove trailing slash
 	return OS.isWindows ? d.toLowerCase() : d;
 }
