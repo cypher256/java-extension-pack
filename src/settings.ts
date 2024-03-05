@@ -14,6 +14,8 @@ import { OS, log } from './system';
  * @returns The value `section` denotes or `undefined`. null is a valid value.
  */
 export function getUser<T>(section: string): T | undefined {
+	// Support variables when resolving values in settings
+	// Open) https://github.com/microsoft/vscode/issues/2809#issuecomment-1977736396
 	const info = vscode.workspace.getConfiguration().inspect(section);
 	return (info?.globalValue ?? info?.defaultValue) as T;
 }
