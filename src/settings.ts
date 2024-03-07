@@ -294,7 +294,6 @@ export async function updateJavaRuntimes(
 
 	//-------------------------------------------------------------------------
 	// Optional Extensions LS Java Home (Keep if set)
-	// Sonarlint uses the embedded JRE
 	async function _updateOptionJavaHome(extensionId: string, configKey: string,
 		optionalRuntime: redhat.IJavaRuntime | undefined)
 	{
@@ -316,8 +315,11 @@ export async function updateJavaRuntimes(
 	}
 	const prevLtsRuntime = runtimes.findByVersion(javaConfig.downloadLtsVers.at(-2)); // Undefined if not exists
 	_updateOptionJavaHome('ibm.zopeneditor', 'zopeneditor.JAVA_HOME', prevLtsRuntime);
+	_updateOptionJavaHome('scalameta.metals', 'metals.javaHome', prevLtsRuntime);
 	_updateOptionJavaHome('redhat.vscode-rsp-ui', 'rsp-ui.rsp.java.home', stableLtsRuntime);
 	_updateOptionJavaHome('salesforce.salesforcedx-vscode', 'salesforcedx-vscode-apex.java.home', prevLtsRuntime);
+	// Sonarlint: Uses embedded JRE
+	// Liberty Tools for Visual Studio Code: Uses java.jdt.ls.java.home > Red Hat embedded JRE
 
 	//-------------------------------------------------------------------------
 	// Optional Extensions java executable path (Keep if set)

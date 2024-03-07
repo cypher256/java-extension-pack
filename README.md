@@ -65,7 +65,7 @@ The **user** (global) [`settings.json`](https://code.visualstudio.com/docs/getst
   ```gradle
   def javaVersion = 17
   java.sourceCompatibility = javaVersion // Legacy option for VS Code
-  compileJava.options.release = javaVersion
+  compileJava.options.release = javaVersion // JEP 247: API validation
   ```
 <br>
 
@@ -87,7 +87,7 @@ The **user** (global) [`settings.json`](https://code.visualstudio.com/docs/getst
   <properties>
       <!-- <maven.compiler.source>17</maven.compiler.source> -->
       <!-- <maven.compiler.target>17</maven.compiler.target> -->
-      <maven.compiler.release>17</maven.compiler.release>
+      <maven.compiler.release>17</maven.compiler.release><!-- JEP 247: API validation -->
   </properties>
   ```
 
@@ -152,10 +152,11 @@ For Optional Extensions
 
 |Configuration Name|Configured Value (Precedence)|
 |---|---|
-|*IBM Z Open Editor*<br>[zopeneditor.JAVA_HOME](https://github.com/IBM/zopeneditor-about?tab=readme-ov-file#selecting-the-java-installation-to-use)<br>([Issues](https://github.com/IBM/zopeneditor-about/issues?q=is%3Aissue+JAVA_HOME)) 🛠️📝|Set previous LTS if unset<br>(Setting > `JAVA_HOME`> `PATH`)|
+|*IBM Z Open Editor*<br>[zopeneditor.JAVA_HOME](https://github.com/IBM/zopeneditor-about?tab=readme-ov-file#selecting-the-java-installation-to-use)<br>([Issues](https://github.com/IBM/zopeneditor-about/issues?q=is%3Aissue+JAVA_HOME)) 🛠️📝|Set previous LTS if unset<br>(Setting > `JAVA_HOME` > `PATH`)|
 |*PlantUML*<br>[plantuml.java](https://github.com/qjebbs/vscode-plantuml?tab=readme-ov-file#extension-settings)<br>([Issues](https://github.com/qjebbs/vscode-plantuml/issues?q=is%3Aissue+plantuml.java)) 🛠️|Set stable LTS if unset<br>(Setting > `PATH`)|
-|*Runtime Server Protocol UI*<br>[rsp-ui.rsp.java.home](https://github.com/redhat-developer/vscode-rsp-ui#extension-settings)<br>([Issues](https://github.com/redhat-developer/vscode-rsp-ui/issues?q=is%3Aissue+rsp-ui.rsp.java.home)) 🛠️|Set stable LTS if unset<br>(Setting > `JDK_HOME` > `JAVA_HOME`> Windows Registry > `PATH`)|
-|*Salesforce Extension Pack*<br>[salesforcedx-vscode-apex.java.home](https://developer.salesforce.com/tools/vscode/en/vscode-desktop/java-setup)<br>([Issues](https://github.com/forcedotcom/salesforcedx-vscode/issues?q=is%3Aissue+salesforcedx-vscode-apex.java.home)) 🛠️|Set previous LTS if unset<br>(Setting > `JDK_HOME` > `JAVA_HOME`> Windows Registry > `PATH`)|
+|*Runtime Server Protocol UI*<br>[rsp-ui.rsp.java.home](https://github.com/redhat-developer/vscode-rsp-ui#extension-settings)<br>([Issues](https://github.com/redhat-developer/vscode-rsp-ui/issues?q=is%3Aissue+rsp-ui.rsp.java.home)) 🛠️|Set stable LTS if unset<br>(Setting > `JDK_HOME` > `JAVA_HOME` > Windows Registry > `PATH`)|
+|*Salesforce Extension Pack*<br>[salesforcedx-vscode-apex.java.home](https://developer.salesforce.com/tools/vscode/en/vscode-desktop/java-setup)<br>([Issues](https://github.com/forcedotcom/salesforcedx-vscode/issues?q=is%3Aissue+salesforcedx-vscode-apex.java.home)) 🛠️|Set previous LTS if unset<br>(Setting > `JDK_HOME` > `JAVA_HOME` > Windows Registry > `PATH`)|
+|*Scala (Metals)*<br>[metals.javaHome](https://github.com/scalameta/metals-vscode/blob/main/packages/metals-vscode/README.md#configure-java-version)<br>([Issues](https://github.com/scalameta/metals/issues?q=is%3Aissue+metals.javaHome)) 🛠️|Set previous LTS if unset<br>(Setting > `JAVA_HOME` > Windows Registry > `PATH`)|
 
 🛠️ The language server runtime used by VS Code extensions. Not for building or running projects.<br>
 📝 This setting cannot be overridden per workspace (project).
