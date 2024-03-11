@@ -110,7 +110,7 @@ The JDK, build tools, terminal and other settings are automatically configured a
 ## JDK Auto-configuration
 Automatically configure multiple versions of the JDK and build tools. If there are multiple JDKs of the same version, the latest minor version among them is used. If you installed the JDK manually or encountered a configuration error, restart VS Code or execute Command Palette **>Java: Clean Java Language Server Workspace ≫ Reload and Delete**. These apply to User `settings.json` (VS Code global), but can be manually edited to customize them. If you want to customize your settings even further, consider using [workspace settings](https://code.visualstudio.com/docs/getstarted/settings) or [profiles](https://code.visualstudio.com/docs/editor/profiles).
 
-1. Auto-fix invalid JDK configuration (e.g. `/java/bin` -> `/java`)
+1. Auto-fix invalid JDK configuration (e.g. `/foo/jdk-21.0.1/bin` -> `/foo/jdk-21.0.1`)
 1. Auto-remove configuration entries when JDK uninstalled or version path changed
 1. Auto-scan from OS specific locations, Package Managers and Toolchains (See next section)
 1. Auto-detect environment variables `JAVA_HOME`, `JDK_HOME` and `PATH`
@@ -121,6 +121,7 @@ JDK auto-scan targets
 * OS specific locations: Adoptium, BellSoft, Corretto, Microsoft, Oracle, Red Hat, Semeru, Zulu etc...
 * Package Managers: SDKMAN, Homebrew, jEnv, jabba, ASDF, Scoop, Chocolatey, IntelliJ etc...
 * Toolchains: Gradle jdks directory, Maven toolchains.xml
+* Own Support: Windows `C:\Java\*`, `D:\Java\*` (e.g. `C:\Java\jdk-21.0.1`)
 
 The feature automatically fixes [errors such as](https://stackoverflow.com/search?tab=newest&q=vscode%20java_home)
 
