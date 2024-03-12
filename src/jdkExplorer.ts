@@ -245,7 +245,7 @@ async function findAll(): Promise<IDetectedJdk[]> {
 		async () => {
 			// IntelliJ (Windows, Linux)
 			// e.g. C:\Users\<UserName>\.jdks\openjdk-20.0.1\bin
-			if (OS.isMac) {return;} // Supported jdk-utils macOS.ts
+			if (OS.isMac) {return;} // Supported jdk-utils macOS.ts: /Library/Java/JavaVirtualMachines
 			const pattern = path.join(os.homedir(), '.jdks');
 			await jdks.pushByGlob('IntelliJ', pattern);
 		},
@@ -268,7 +268,7 @@ async function findAll(): Promise<IDetectedJdk[]> {
 			if (!OS.isWindows) {return;}
 			const patterns = ['c', 'd'].map(drive => `${drive}:/java`);
 			await jdks.pushByGlob('Common', ...patterns);
-	},
+		},
 	];
 	await Promise.allSettled(promises.map(p => p()));
 	return jdks;
