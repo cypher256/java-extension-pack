@@ -278,9 +278,9 @@ function setConfigChangedEvent() {
 
 			//------------------------------------------
 			// Terminal Profiles Reconfiguration
+			|| event.affectsConfiguration('java.configuration.runtimes')
 			|| event.affectsConfiguration('java.import.gradle.home')
 			|| event.affectsConfiguration('maven.executable.path')
-			|| event.affectsConfiguration('java.configuration.runtimes')
 			//|| event.affectsConfiguration('maven.terminal.customEnv') // Switch Win/WSL (NOT machine-overridable)
 		) {
 			showReloadMessage();

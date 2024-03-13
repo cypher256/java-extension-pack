@@ -31,7 +31,7 @@ mvn -v
 <br>
 
 ### Specify Project Java Version
-The **user** (global) [`settings.json`](https://code.visualstudio.com/docs/getstarted/settings#_settingsjson) is auto-configured at startup by `Java Extension Pack Auto Config`, but if you want to customize it, edit the following files.
+The **user** (global) [`settings.json`](https://code.visualstudio.com/docs/getstarted/settings#_settingsjson) is auto-configured at startup by `Java Extension Pack Auto Config`. However, if you want to customize it, you can edit that file.
 <br>
 <br>
 
@@ -134,30 +134,30 @@ The feature automatically fixes [errors such as](https://stackoverflow.com/searc
 
 For Included Extensions
 
-|Configuration Name|Configured Value (Precedence)|
+|Configuration Name|Configured Value [Precedence]|
 |---|---|
 |*Language support for Java*|
-|[java.configuration.runtimes](https://code.visualstudio.com/docs/java/java-project#_configure-runtime-for-projects)<br>([Issues](https://github.com/redhat-developer/vscode-java/issues?q=is%3Aissue+java.configuration.runtimes))|Set all detected and downloaded JDKs<br>(Setting > `JAVA_HOME`)|
-|[java.jdt.ls.java.home](https://github.com/redhat-developer/vscode-java/wiki/JDK-Requirements#platform-versions)<br>([Issues](https://github.com/redhat-developer/vscode-java/issues?q=is%3Aissue+java.jdt.ls.java.home)) 🛠️|Remove setting if Red Hat embedded JRE exists<br>(Setting > Embedded JRE > `JDK_HOME` > `JAVA_HOME` > `PATH`)|
+|[java.configuration.runtimes](https://code.visualstudio.com/docs/java/java-project#_configure-runtime-for-projects)<br>([Issues](https://github.com/redhat-developer/vscode-java/issues?q=is%3Aissue+java.configuration.runtimes))|Set all detected and downloaded JDKs (default: Latest LTS)<br>[Setting > `JAVA_HOME`]|
+|[java.jdt.ls.java.home](https://github.com/redhat-developer/vscode-java/wiki/JDK-Requirements#platform-versions)<br>([Issues](https://github.com/redhat-developer/vscode-java/issues?q=is%3Aissue+java.jdt.ls.java.home)) 🛠️|Remove setting if Red Hat embedded JRE exists<br>[Setting > Embedded JRE > `JDK_HOME` > `JAVA_HOME` > `PATH`]|
 |~~[java.home](https://github.com/redhat-developer/vscode-java/wiki/JDK-Requirements#universal-version)~~|Remove as it has been replaced by `java.jdt.ls.java.home`|
 |*Spring Boot Tools*|
-|[spring-boot.ls.java.home](https://github.com/spring-projects/sts4/blob/main/vscode-extensions/commons-vscode/src/launch-util.ts#L140)<br>([Issues](https://github.com/spring-projects/sts4/issues?q=is%3Aissue+spring-boot.ls.java.home)) 🛠️|Remove setting if Red Hat embedded JRE exists<br>(Setting > Embedded JRE > `JAVA_HOME` > `PATH`)|
+|[spring-boot.ls.java.home](https://github.com/spring-projects/sts4/blob/main/vscode-extensions/commons-vscode/src/launch-util.ts#L140)<br>([Issues](https://github.com/spring-projects/sts4/issues?q=is%3Aissue+spring-boot.ls.java.home)) 🛠️|Remove setting if Red Hat embedded JRE exists<br>[Setting > Embedded JRE > `JAVA_HOME` > `PATH`]|
 |*Gradle for Java*|
-|[java.import.gradle.java.home](https://github.com/microsoft/vscode-gradle#java-specific-settings)<br>([Issues](https://github.com/microsoft/vscode-gradle/issues?q=is%3Aissue+java.import.gradle.java.home))|Set latest LTS JDK if unset<br>(Setting > `java.jdt.ls.java.home` > `JAVA_HOME` > `PATH`)|
-|[java.import.gradle.home](https://github.com/microsoft/vscode-gradle#java-specific-settings)<br>([Issues](https://github.com/microsoft/vscode-gradle/issues?q=is%3Aissue+java.import.gradle.home))|Set auto-downloaded gradle if unset<br>(**`gradlew`** > Setting > `PATH` > `GRADLE_HOME`)|
+|[java.import.gradle.java.home](https://github.com/microsoft/vscode-gradle#java-specific-settings)<br>([Issues](https://github.com/microsoft/vscode-gradle/issues?q=is%3Aissue+java.import.gradle.java.home))|Set latest LTS JDK if unset<br>[Setting > `java.jdt.ls.jav].home` > `JAVA_HOME` > `PATH`]|
+|[java.import.gradle.home](https://github.com/microsoft/vscode-gradle#java-specific-settings)<br>([Issues](https://github.com/microsoft/vscode-gradle/issues?q=is%3Aissue+java.import.gradle.home))|Set auto-downloaded gradle if unset<br>[**`gradlew`** > Setting > `PATH` > `GRADLE_HOME`]|
 |*Maven for Java*|
-|[maven.terminal.customEnv](https://marketplace.visualstudio.com/items?itemName=vscjava.vscode-maven#additional-configurations)<br>([Issues](https://github.com/microsoft/vscode-maven/issues?q=is%3Aissue+maven.terminal.customEnv))|Set latest LTS JDK if unset<br>(Setting > `JAVA_HOME`)|
-|[maven.executable.path](https://github.com/Microsoft/vscode-maven#settings)<br>([Issues](https://github.com/microsoft/vscode-maven/issues?q=is%3Aissue+maven.executable.path)) 📝|Set auto-downloaded maven if unset (If you want to use `mvnw`, set "" manually)<br>(Setting > `mvnw` > `PATH`)|
+|[maven.terminal.customEnv](https://marketplace.visualstudio.com/items?itemName=vscjava.vscode-maven#additional-configurations)<br>([Issues](https://github.com/microsoft/vscode-maven/issues?q=is%3Aissue+maven.terminal.customEnv))|Set latest LTS JDK if unset<br>[Setting > `JAVA_HOME`]|
+|[maven.executable.path](https://github.com/Microsoft/vscode-maven#settings)<br>([Issues](https://github.com/microsoft/vscode-maven/issues?q=is%3Aissue+maven.executable.path)) 📝|Set auto-downloaded maven if unset (If you want to use `mvnw`, set "" manually)<br>[Setting > **`mvnw`** > `PATH`]|
 
 For Optional Extensions
 
-|Configuration Name|Configured Value (Precedence)|
+|Configuration Name|Configured Value [Precedence]|
 |---|---|
-|*IBM Z Open Editor*<br>[zopeneditor.JAVA_HOME](https://github.com/IBM/zopeneditor-about?tab=readme-ov-file#selecting-the-java-installation-to-use)<br>([Issues](https://github.com/IBM/zopeneditor-about/issues?q=is%3Aissue+JAVA_HOME)) 🛠️📝|Set previous LTS if unset<br>(Setting > `JAVA_HOME` > `PATH`)|
-|*PlantUML*<br>[plantuml.java](https://github.com/qjebbs/vscode-plantuml?tab=readme-ov-file#extension-settings)<br>([Issues](https://github.com/qjebbs/vscode-plantuml/issues?q=is%3Aissue+plantuml.java)) 🛠️|Set stable LTS if unset<br>(Setting > `PATH`)|
-|*Runtime Server Protocol UI*<br>[rsp-ui.rsp.java.home](https://github.com/redhat-developer/vscode-rsp-ui#extension-settings)<br>([Issues](https://github.com/redhat-developer/vscode-rsp-ui/issues?q=is%3Aissue+rsp-ui.rsp.java.home)) 🛠️|Set stable LTS if unset<br>(Setting > `JDK_HOME` > `JAVA_HOME` > Windows Registry > `PATH`)|
-|*Salesforce Extension Pack*<br>[salesforcedx-vscode-apex.java.home](https://developer.salesforce.com/tools/vscode/en/vscode-desktop/java-setup)<br>([Issues](https://github.com/forcedotcom/salesforcedx-vscode/issues?q=is%3Aissue+salesforcedx-vscode-apex.java.home)) 🛠️|Set previous LTS if unset<br>(Setting > `JDK_HOME` > `JAVA_HOME` > Windows Registry > `PATH`)|
-|*Scala (Metals)*<br>[metals.javaHome](https://github.com/scalameta/metals-vscode/blob/main/packages/metals-vscode/README.md#configure-java-version)<br>([Issues](https://github.com/scalameta/metals/issues?q=is%3Aissue+metals.javaHome)) 🛠️|Set previous LTS if unset<br>(Setting > `JAVA_HOME` > Windows Registry > `PATH`)|
+|*IBM Z Open Editor*<br>[zopeneditor.JAVA_HOME](https://github.com/IBM/zopeneditor-about?tab=readme-ov-file#selecting-the-java-installation-to-use)<br>([Issues](https://github.com/IBM/zopeneditor-about/issues?q=is%3Aissue+JAVA_HOME)) 🛠️📝|Set previous LTS if unset<br>[Setting > `JAVA_HOME` > `PATH`]|
+|*PlantUML*<br>[plantuml.java](https://github.com/qjebbs/vscode-plantuml?tab=readme-ov-file#extension-settings)<br>([Issues](https://github.com/qjebbs/vscode-plantuml/issues?q=is%3Aissue+plantuml.java)) 🛠️|Set stable LTS if unset<br>[Setting > `PATH`]|
+|*Runtime Server Protocol UI*<br>[rsp-ui.rsp.java.home](https://github.com/redhat-developer/vscode-rsp-ui#extension-settings)<br>([Issues](https://github.com/redhat-developer/vscode-rsp-ui/issues?q=is%3Aissue+rsp-ui.rsp.java.home)) 🛠️|Set stable LTS if unset<br>[Setting > `JDK_HOME` > `JAVA_HOME` > Windows Registry > `PATH`]|
+|*Salesforce Extension Pack*<br>[salesforcedx-vscode-apex.java.home](https://developer.salesforce.com/tools/vscode/en/vscode-desktop/java-setup)<br>([Issues](https://github.com/forcedotcom/salesforcedx-vscode/issues?q=is%3Aissue+salesforcedx-vscode-apex.java.home)) 🛠️|Set previous LTS if unset<br>[Setting > `JDK_HOME` > `JAVA_HOME` > Windows Registry > `PATH`]|
+|*Scala (Metals)*<br>[metals.javaHome](https://github.com/scalameta/metals-vscode/blob/main/packages/metals-vscode/README.md#configure-java-version)<br>([Issues](https://github.com/scalameta/metals/issues?q=is%3Aissue+metals.javaHome)) 🛠️|Set previous LTS if unset<br>[Setting > `JAVA_HOME` > Windows Registry > `PATH`]|
 
 🛠️ The language server runtime used by VS Code extensions. Not for building or running projects.<br>
 📝 This setting cannot be overridden per workspace (project).

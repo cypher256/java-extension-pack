@@ -402,17 +402,17 @@ export async function setDefault(javaConfig: redhat.IJavaConfig) {
 		setIfUndefined('files.eol', '\n');
 		setIfUndefined('[bat]', {'files.eol': '\r\n'});
 	}
-	// VS Code Terminal
-	setIfUndefined('terminal.integrated.tabs.hideCondition', 'never');
-	setIfUndefined('terminal.integrated.enablePersistentSessions', false);
-	// Java extensions
-	setIfUndefined('java.configuration.detectJdksAtStart', false);
-	setIfUndefined('java.configuration.updateBuildConfiguration', 'automatic');
-	setIfUndefined('java.debug.settings.hotCodeReplace', 'auto');
-	setIfUndefined('java.sources.organizeImports.staticStarThreshold', 1);
 	// Included extensions
 	setIfUndefined('cSpell.diagnosticLevel', 'Hint', 'streetsidesoftware.code-spell-checker');
 	setIfUndefined('trailing-spaces.includeEmptyLines', false, 'shardulm94.trailing-spaces');
 	// Optional extensions
 	setIfUndefined('thunder-client.requestLayout', 'Top/Bottom', 'rangav.vscode-thunder-client');
+	// VS Code Terminal
+	setIfUndefined('terminal.integrated.tabs.hideCondition', 'never');
+	setIfUndefined('terminal.integrated.enablePersistentSessions', false);
+	// Java extensions
+	setIfUndefined('java.debug.settings.hotCodeReplace', 'auto');
+	setIfUndefined('java.sources.organizeImports.staticStarThreshold', 1);
+	setIfUndefined('java.configuration.detectJdksAtStart', false);
+	setIfUndefined('java.configuration.updateBuildConfiguration', 'automatic');
 }
