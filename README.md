@@ -425,9 +425,8 @@ VS Code Extension to set window to transparent on Windows and Linux platforms.
 - ![](https://img.shields.io/visual-studio-marketplace/i/vsls-contrib.gistfs?style=plastic)
 [GistPad](https://marketplace.visualstudio.com/items?itemName=vsls-contrib.gistfs) (Jonathan Carter: MIT)<br>
 Manage your code snippets and developer notes using GitHub Gists and repositories.
-- ![](https://img.shields.io/visual-studio-marketplace/i/GitHub.copilot?style=plastic)
-[GitHub Copilot](https://marketplace.visualstudio.com/items?itemName=GitHub.copilot) (GitHub: Subscription) / [VS Code Document](https://code.visualstudio.com/docs/editor/artificial-intelligence)<br>
-Your AI pair programmer.
-- ![](https://img.shields.io/visual-studio-marketplace/i/GitHub.copilot-chat?style=plastic)
-[GitHub Copilot Chat](https://marketplace.visualstudio.com/items?itemName=GitHub.copilot-chat) (GitHub: Subscription)<br>
-AI chat features powered by Copilot.
+
+Recommended Gradle/Maven plugin that supports Tomcat hot deployment.
+
+- Gradle: [Gretty Plugin](https://github.com/gretty-gradle-plugin/gretty?tab=readme-ov-file)
+- Maven: [Codehaus Cargo Plugin](https://codehaus-cargo.github.io/cargo/Maven+3+Plugin+Getting+Started.html)
