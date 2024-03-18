@@ -42,12 +42,12 @@ The **user** (global) [`settings.json`](https://code.visualstudio.com/docs/getst
   "java.configuration.runtimes": [
     {
       "name": "JavaSE-17",
-      "path": "C:\\Program Files\\java\\jdk-17.0.6",
+      "path": "C:\\Program Files\\java\\jdk-17.0.12",
       "default": true // Runtime to use for No Build Tools projects
     },
     {
       "name": "JavaSE-21",
-      "path": "C:\\Program Files\\java\\jdk-21.0.1"
+      "path": "C:\\Program Files\\java\\jdk-21.0.8"
     }
   ]
   ```
@@ -58,7 +58,7 @@ The **user** (global) [`settings.json`](https://code.visualstudio.com/docs/getst
   (*1) User `settings.json` (Gradle execution runtime)
 
   ```json
-  "java.import.gradle.java.home": "C:\\Program Files\\java\\jdk-21.0.1"
+  "java.import.gradle.java.home": "C:\\Program Files\\java\\jdk-21.0.8"
   ```
   (*2) Project `build.gradle` ([`options.release`](https://docs.gradle.org/current/userguide/building_java_projects.html#sec:compiling_with_release))
 
@@ -77,7 +77,7 @@ The **user** (global) [`settings.json`](https://code.visualstudio.com/docs/getst
   "maven.terminal.customEnv": [
     {
       "environmentVariable": "JAVA_HOME",
-      "value": "C:\\Program Files\\java\\jdk-21.0.1"
+      "value": "C:\\Program Files\\java\\jdk-21.0.8"
     }
   ]
   ```
@@ -110,7 +110,7 @@ The JDK, build tools, terminal and other settings are automatically configured a
 ## JDK Auto-configuration
 Automatically configure multiple versions of the JDK and build tools. If there are multiple JDKs of the same version, the latest minor version among them is used. If you installed the JDK manually or encountered a configuration error, restart VS Code or execute Command Palette **>Java: Clean Java Language Server Workspace ≫ Reload and Delete**. These apply to User `settings.json` (VS Code global), but can be manually edited to customize them. If you want to customize your settings even further, consider using [workspace settings](https://code.visualstudio.com/docs/getstarted/settings) or [profiles](https://code.visualstudio.com/docs/editor/profiles).
 
-1. Auto-fix invalid JDK configuration (e.g. `/foo/jdk-21.0.1/bin` -> `/foo/jdk-21.0.1`)
+1. Auto-fix invalid JDK configuration (e.g. `/foo/jdk-21.0.8/bin` -> `/foo/jdk-21.0.8`)
 1. Auto-remove configuration entries when JDK uninstalled or version path changed
 1. Auto-scan from OS specific locations, Package Managers and Toolchains (See next section)
 1. Auto-detect environment variables `JAVA_HOME`, `JDK_HOME` and `PATH`
@@ -121,7 +121,7 @@ JDK auto-scan targets
 * OS specific locations: Adoptium, BellSoft, Corretto, Microsoft, Oracle, Red Hat, Semeru, Zulu etc...
 * Package Managers: SDKMAN, Homebrew, jEnv, jabba, ASDF, Scoop, Chocolatey, IntelliJ etc...
 * Toolchains: Gradle jdks directory, Maven toolchains.xml
-* Own Support: Windows `C:\Java\*`, `D:\Java\*` (e.g. `C:\Java\jdk-21.0.1`)
+* Own Support: Windows `C:\Java\*`, `D:\Java\*` (e.g. `C:\Java\jdk-21.0.8`)
 
 The feature automatically fixes [errors such as](https://stackoverflow.com/search?tab=newest&q=vscode%20java_home)
 
@@ -201,21 +201,21 @@ Command Palette **>Preferences: Open User Settings (JSON)**
   },
   {
     "name": "JavaSE-17", // Oracle (Auto-scan)
-    "path": "C:\\Program Files\\java\\jdk-17.0.6"
+    "path": "C:\\Program Files\\java\\jdk-17.0.12"
   },
   {
     "name": "JavaSE-21", // Adoptium (Auto-scan)
-    "path": "C:\\Program Files\\Eclipse Adoptium\\jdk-21.0.1-hotspot",
+    "path": "C:\\Program Files\\Eclipse Adoptium\\jdk-21.0.8-hotspot",
     "default": true // Runtime to use for No build tools projects
   }
 ],
 // Gradle Daemon Java Runtime
-"java.import.gradle.java.home": "C:\\Program Files\\Eclipse Adoptium\\jdk-21.0.1-hotspot",
+"java.import.gradle.java.home": "C:\\Program Files\\Eclipse Adoptium\\jdk-21.0.8-hotspot",
 // Maven Environment Variables (for GUI context menu)
 "maven.terminal.customEnv": [
   {
     "environmentVariable": "JAVA_HOME",
-    "value": "C:\\Program Files\\Eclipse Adoptium\\jdk-21.0.1-hotspot"
+    "value": "C:\\Program Files\\Eclipse Adoptium\\jdk-21.0.8-hotspot"
   }
 ],
 ```
@@ -226,13 +226,13 @@ Command Palette **>Preferences: Open User Settings (JSON)**
 ## Terminal Auto-configuration
 The terminal dropdown items by Java version are automatically created based on the "java.configuration.runtimes" above. You can easily open a terminal by selecting the Java version from command **>Terminal: Create New Terminal (With Profile)** or Terminal (Ctrl + \`) ≫ Profiles dropdown. Besides `java`, `gradle` and `mvn` commands can also be used. The configured environment variables have no effect outside the terminal, so the system and OS user environment remain clean. The `JAVA_HOME` and `PATH` in the auto-configured terminal configuration will always be overridden from the configured runtimes, so if you want to customize it, copy the terminal configuration entry and create a new one.
 
-|Configuration Name|Configured Value (Original Default)|
+|Configuration Name|Configured Value [Original Default]|
 |---|---|
-|[terminal.integrated.env.{OS name}](https://code.visualstudio.com/docs/terminal/profiles#_configuring-profiles)<br>([Issues](https://github.com/microsoft/vscode/issues?q=is%3Aissue+terminal.integrated.env+JAVA_HOME))|Set latest LTS if unset<br>(None)|
-|[terminal.integrated.defaultProfile.{OS name}](https://code.visualstudio.com/docs/terminal/profiles)<br>([Issues](https://github.com/microsoft/vscode/issues?q=is%3Aissue+terminal.integrated.profiles))|Set latest LTS runtime name<br>(Windows:`PowerShell`, Mac:`zsh`, Linux:`bash`)|
-|[terminal.integrated.profiles.{OS name}](https://code.visualstudio.com/docs/terminal/profiles)<br>([Issues](https://github.com/microsoft/vscode/issues?q=is%3Aissue+terminal.integrated.profiles))|Set configured runtimes to terminal<br>(None)|
-|[terminal.integrated.enablePersistentSessions](https://code.visualstudio.com/docs/terminal/advanced#_persistent-sessions)<br>([Issues](https://github.com/microsoft/vscode/issues?q=is%3Aissue+terminal.integrated.enablePersistentSessions))|`false`<br>(`true`)|
-|[terminal.integrated.tabs.hideCondition](https://code.visualstudio.com/docs/terminal/appearance#_visibility)<br>([Issues](https://github.com/microsoft/vscode/issues?q=is%3Aissue+terminal.integrated.tabs.hideCondition))|`never`<br>(`singleTerminal`)|
+|[terminal.integrated.env.windows](https://code.visualstudio.com/docs/terminal/profiles#_configuring-profiles)<br>([Issues](https://github.com/microsoft/vscode/issues?q=is%3Aissue+terminal.integrated.env+JAVA_HOME))|Set latest LTS if unset (Windows only)<br>[None]|
+|[terminal.integrated.defaultProfile.{platform}](https://code.visualstudio.com/docs/terminal/profiles)<br>([Issues](https://github.com/microsoft/vscode/issues?q=is%3Aissue+terminal.integrated.profiles))|Set latest LTS runtime name (e.g. `JavaSE-21`)<br>[Windows:`PowerShell`, Mac:`zsh`, Linux:`bash`]|
+|[terminal.integrated.profiles.{platform}](https://code.visualstudio.com/docs/terminal/profiles)<br>([Issues](https://github.com/microsoft/vscode/issues?q=is%3Aissue+terminal.integrated.profiles))|Set configured runtimes to terminal<br>[None]|
+|[terminal.integrated.enablePersistentSessions](https://code.visualstudio.com/docs/terminal/advanced#_persistent-sessions)<br>([Issues](https://github.com/microsoft/vscode/issues?q=is%3Aissue+terminal.integrated.enablePersistentSessions))|`false`<br>[`true`]|
+|[terminal.integrated.tabs.hideCondition](https://code.visualstudio.com/docs/terminal/appearance#_visibility)<br>([Issues](https://github.com/microsoft/vscode/issues?q=is%3Aissue+terminal.integrated.tabs.hideCondition))|`never`<br>[`singleTerminal`]|
 
 <br>
 
@@ -241,8 +241,8 @@ Command Palette **>Preferences: Open User Settings (JSON)**
 ```json
 // Terminal Default Environment Variables
 "terminal.integrated.env.windows": {
-  "JAVA_HOME": "C:\\Program Files\\Eclipse Adoptium\\jdk-21.0.1-hotspot",
-  "PATH": "C:\\Program Files\\Eclipse Adoptium\\jdk-21.0.1-hotspot\\bin;${env:PATH}"
+  "JAVA_HOME": "C:\\Program Files\\Eclipse Adoptium\\jdk-21.0.8-hotspot",
+  "PATH": "C:\\Program Files\\Eclipse Adoptium\\jdk-21.0.8-hotspot\\bin;${env:PATH}"
 },
 // Terminal Default Profile
 "terminal.integrated.defaultProfile.windows": "JavaSE-21",
