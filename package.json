@@ -1,6 +1,6 @@
 {
   "name": "java-extension-pack-jdk",
-  "displayName": "Java Extension Pack Auto Config",
+  "displayName": "Auto Config Java Extension Pack",
   "description": "JDK Auto-configuration + Extension Pack for Java + Spring Boot Extension Pack",
   "icon": "README_icon.png",
   "publisher": "Pleiades",
