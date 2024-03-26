@@ -114,10 +114,13 @@ export async function updateJavaRuntimes(
 		profile.overrideName = true;
 		profile.env = {};
 		if (OS.isWindows) {
-			profile.path ||= 'cmd'; // powershell (legacy), pwsh (non-preinstalled)
+			profile.path = 'cmd'; // powershell (legacy), pwsh (non-preinstalled)
 			profile.env.PATH = _createPathPrepend(runtime.path);
-			// Pending: Requires chcp 65001 for gradle
-			// profile.env.JAVA_TOOL_OPTIONS ??= '-Dstdout.encoding=UTF-8 -Dstderr.encoding=UTF-8';
+			if (redhat.versionOf(runtime.name) >= 19) {
+				// Support JEP 400 UTF-8 Default (Java 18+)
+				profile.env.JAVA_TOOL_OPTIONS = '-Dstdout.encoding=UTF-8 -Dstderr.encoding=UTF-8'; // Java 19+
+				profile.args = ["/k", "chcp", "65001"]; // Requires automationProfile
+			}
 		} else if (OS.isMac) {
 			profile.path = 'zsh';
 			profile.env.ZDOTDIR = rcfileDir;
@@ -172,6 +175,16 @@ export async function updateJavaRuntimes(
 	const sortedProfiles = Object.fromEntries(sortedNames.map(name => [name, profilesNew[name]]));
 	if (!_.isEqual(sortedProfiles, profilesOld)) {
 		update(CONFIG_KEY_TERMINAL_PROFILES, sortedProfiles);
+		// [Windows/macOS/Linux] Default profile
+		// Linux Maven uses the Java version of the default profile rcfile
+		if (terminalDefaultRuntime) {
+			setIfUndefined('terminal.integrated.defaultProfile.' + osConfigName, terminalDefaultRuntime.name);
+		}
+		if (OS.isWindows) {
+			// args chcp 'Incorrect parameter format -/d' support
+			// https://github.com/microsoft/vscode/issues/202691
+			update(`terminal.integrated.automationProfile.windows`, {"path": "cmd"});
+		}
 	}
 
 	//-------------------------------------------------------------------------
@@ -231,10 +244,6 @@ export async function updateJavaRuntimes(
 			_.remove(customEnv, {environmentVariable: 'PATH'});
 		}
 		*/
-
-		// [Windows/macOS/Linux] Default profile
-		// Linux Maven uses the Java version of the default profile rcfile
-		setIfUndefined('terminal.integrated.defaultProfile.' + osConfigName, mavenJavaRuntime.name);
 
 		// [macOS] Use custom rcfile in zsh
 		// Issue: maven.terminal.useJavaHome doesnt work if JAVA_HOME already set by shell startup scripts

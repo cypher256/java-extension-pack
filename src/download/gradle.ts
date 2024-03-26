@@ -34,6 +34,7 @@ export async function download() {
 		}
 	}
 	if (gradleHomeOld !== gradleHomeNew) {
+		// Preferred over toolchains in build.gradle
 		await settings.update(CONFIG_KEY_GRADLE_HOME, gradleHomeNew);
 	}
 	// Note: This setting is ignored if gradlew is exists

@@ -266,6 +266,7 @@ Command Palette **>Preferences: Open User Settings (JSON)**
   },
   "JavaSE-17": {
 ```
+Auto-configured Java 19+ terminals on Windows will have `chcp 65001` and the environment variable `JAVA_TOOL_OPTIONS=-Dstdout.encoding=UTF-8 -Dstderr.encoding=UTF-8` set.
 
 <br>
 <br>
