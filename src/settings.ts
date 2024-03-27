@@ -118,6 +118,7 @@ export async function updateJavaRuntimes(
 			profile.env.PATH = _createPathPrepend(runtime.path);
 			if (redhat.versionOf(runtime.name) >= 19) {
 				// Support JEP 400 UTF-8 Default (Java 18+)
+				// Unsupported System.in UTF-8: https://bugs.openjdk.org/browse/JDK-8295672
 				profile.env.JAVA_TOOL_OPTIONS = '-Dstdout.encoding=UTF-8 -Dstderr.encoding=UTF-8'; // Java 19+
 				profile.args = ["/k", "chcp", "65001"]; // Requires automationProfile
 			}
