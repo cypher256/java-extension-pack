@@ -116,11 +116,13 @@ export async function updateJavaRuntimes(
 		if (OS.isWindows) {
 			profile.path = 'cmd'; // powershell (legacy), pwsh (non-preinstalled)
 			profile.env.PATH = _createPathPrepend(runtime.path);
-			if (redhat.versionOf(runtime.name) >= 19) {
-				// Support JEP 400 UTF-8 Default (Java 18+)
+			if (redhat.versionOf(runtime.name) >= 18) {
+				// Support JEP 400 UTF-8 Default
 				// Unsupported System.in UTF-8: https://bugs.openjdk.org/browse/JDK-8295672
-				profile.env.JAVA_TOOL_OPTIONS = '-Dstdout.encoding=UTF-8 -Dstderr.encoding=UTF-8'; // Java 19+
 				profile.args = ["/k", "chcp", "65001"]; // Requires automationProfile
+				// No need for std*.encoding 2024.03.28
+				//profile.env.JAVA_TOOL_OPTIONS = '-Dstdout.encoding=UTF-8 -Dstderr.encoding=UTF-8'; // Java 19+
+				profile.env.JAVA_TOOL_OPTIONS = undefined; // Remove this line in the future
 			}
 		} else if (OS.isMac) {
 			profile.path = 'zsh';

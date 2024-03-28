@@ -1,3 +1,3 @@
 {
-    "description.enabled": "JDK、gradle、maven の自動構成、自動更新を有効にします。"
+    "description.enabled": "JDK、gradle、maven の[自動構成、自動更新](https://github.com/cypher256/java-extension-pack?tab=readme-ov-file#features)を有効にします。"
 }
