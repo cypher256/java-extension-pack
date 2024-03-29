@@ -122,7 +122,7 @@ export async function updateJavaRuntimes(
 				profile.args = ["/k", "chcp", "65001"]; // Requires automationProfile
 				// No need for std*.encoding 2024.03.28
 				//profile.env.JAVA_TOOL_OPTIONS = '-Dstdout.encoding=UTF-8 -Dstderr.encoding=UTF-8'; // Java 19+
-				profile.env.JAVA_TOOL_OPTIONS = undefined; // Remove this line in the future
+				delete profile.env.JAVA_TOOL_OPTIONS; // Remove this line in the future
 			}
 		} else if (OS.isMac) {
 			profile.path = 'zsh';
@@ -184,7 +184,7 @@ export async function updateJavaRuntimes(
 			setIfUndefined('terminal.integrated.defaultProfile.' + osConfigName, terminalDefaultRuntime.name);
 		}
 		if (OS.isWindows) {
-			// args chcp 'Incorrect parameter format -/d' support
+			// defaultProfile & args chcp 'Incorrect parameter format -/d' support
 			// https://github.com/microsoft/vscode/issues/202691
 			update(`terminal.integrated.automationProfile.windows`, {"path": "cmd"});
 		}

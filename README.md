@@ -67,6 +67,10 @@ The **user** (global) [`settings.json`](https://code.visualstudio.com/docs/getst
   java.sourceCompatibility = javaVersion // Legacy option for VS Code
   compileJava.options.release = javaVersion // JEP 247: API validation
   ```
+  Alternatively, you can use [Gradle's recommended toolchain](https://docs.gradle.org/current/userguide/building_java_projects.html#sec:java_cross_compilation) to configure just `build.gradle` without configuring `settings.json`.
+  ```gradle
+  java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+  ```
 <br>
 
 * **Maven ([vscode-maven](https://github.com/Microsoft/vscode-maven?tab=readme-ov-file#settings))**
