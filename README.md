@@ -1,4 +1,4 @@
-# Auto Config Java Extension Pack
+# Extension Pack for Java Auto Config
 
 ![Downloads](https://img.shields.io/visual-studio-marketplace/d/Pleiades.java-extension-pack-jdk?style=for-the-badge&logo=microsoft)
 ![Installes](https://img.shields.io/visual-studio-marketplace/i/Pleiades.java-extension-pack-jdk?color=blue&style=for-the-badge&logo=visual-studio-code)
@@ -31,7 +31,7 @@ mvn -v
 <br>
 
 ### Specify Project Java Version
-The **user** (global) [`settings.json`](https://code.visualstudio.com/docs/getstarted/settings#_settingsjson) is auto-configured at startup by `Auto Config Java Extension Pack`. However, if you want to customize it, you can edit that file.
+The **user** (global) [`settings.json`](https://code.visualstudio.com/docs/getstarted/settings#_settingsjson) is auto-configured at startup by `Extension Pack for Java Auto Config`. However, if you want to customize it, you can edit that file.
 <br>
 <br>
 
@@ -276,7 +276,7 @@ For Windows, auto-configured Java 18 or later terminals are set to `chcp 65001`.
 <br>
 
 ## Auto-default Settings
-Entries that do not have the following configuration in the user settings are automatically set to the default values of `Auto Config Java Extension Pack`. To prevent automatic setting, set the Original Default value below. Note that a debug run is required to enable Hot Code Replace (Hot Deploy).
+Entries that do not have the following configuration in the user settings are automatically set to the default values of `Extension Pack for Java Auto Config`. To prevent automatic setting, set the Original Default value below. Note that a debug run is required to enable Hot Code Replace (Hot Deploy).
 
 |Configuration Name|Original Default|Auto Default|
 |---|---|---|
@@ -356,7 +356,7 @@ A big thank you to the developers of VS Code and its extensions.
 
 ## Included Extensions
 
-The *`Extension Pack for Java`* is required. Other extensions can be [disabled](https://code.visualstudio.com/docs/editor/extension-marketplace#_disable-an-extension) or [uninstalled](https://code.visualstudio.com/docs/editor/extension-marketplace#_uninstall-an-extension) according to your preference. Note that uninstalling `Auto Config Java Extension Pack` extension will <a href="https://github.com/microsoft/vscode/issues/169109">uninstall all</a> of the following extensions. If you want to set up extensions and configurations by development language, consider [Profile](https://code.visualstudio.com/docs/editor/profiles). (*) indicates that it will be installed if available in that environment at first startup.
+The *`Extension Pack for Java`* is required. Other extensions can be [disabled](https://code.visualstudio.com/docs/editor/extension-marketplace#_disable-an-extension) or [uninstalled](https://code.visualstudio.com/docs/editor/extension-marketplace#_uninstall-an-extension) according to your preference. Note that uninstalling `Extension Pack for Java Auto Config` extension will <a href="https://github.com/microsoft/vscode/issues/169109">uninstall all</a> of the following extensions. If you want to set up extensions and configurations by development language, consider [Profile](https://code.visualstudio.com/docs/editor/profiles). (*) indicates that it will be installed if available in that environment at first startup.
 
 - ![](https://img.shields.io/visual-studio-marketplace/i/vscjava.vscode-java-pack?style=plastic)
 [Extension Pack for Java](https://marketplace.visualstudio.com/items?itemName=vscjava.vscode-java-pack) (Microsoft: MIT, Red Hat: EPL) / [VS Code Document](https://code.visualstudio.com/docs/java/java-tutorial#_creating-a-source-code-file)<br>

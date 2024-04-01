@@ -1,6 +1,6 @@
 {
   "name": "java-extension-pack-jdk",
-  "displayName": "Auto Config Java Extension Pack",
+  "displayName": "Extension Pack for Java Auto Config",
   "description": "JDK Auto-configuration + Extension Pack for Java + Spring Boot Extension Pack",
   "icon": "README_icon.png",
   "publisher": "Pleiades",
@@ -131,5 +131,5 @@
     "jdk-utils": "0.x",
     "lodash": "4.x"
   },
-  "version": "2024.328.0"
+  "version": "2024.401.0"
 }

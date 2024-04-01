@@ -281,6 +281,8 @@ export async function updateJavaRuntimes(
 		} else { // If unset use default
 			_updateGradleJavaHome(gradleJavaRuntime.path);
 		}
+		// Pending: org.gradle.java.installations.paths
+		// Open) https://github.com/microsoft/vscode-gradle/issues/1330
 	}
 
 	//-------------------------------------------------------------------------
@@ -416,6 +418,7 @@ export async function setDefault(javaConfig: redhat.IJavaConfig) {
 	}
 	// Included extensions
 	setIfUndefined('cSpell.diagnosticLevel', 'Hint', 'streetsidesoftware.code-spell-checker');
+	setIfUndefined('trailing-spaces.backgroundColor', 'rgba(255,0,0,0.1)', 'shardulm94.trailing-spaces');
 	setIfUndefined('trailing-spaces.includeEmptyLines', false, 'shardulm94.trailing-spaces');
 	// Optional extensions
 	setIfUndefined('thunder-client.requestLayout', 'Top/Bottom', 'rangav.vscode-thunder-client');
