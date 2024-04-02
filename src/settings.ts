@@ -120,9 +120,9 @@ export async function updateJavaRuntimes(
 				// Support JEP 400 UTF-8 Default
 				// Unsupported System.in UTF-8: https://bugs.openjdk.org/browse/JDK-8295672
 				profile.args = ["/k", "chcp", "65001"]; // Requires automationProfile
-				// No need for std*.encoding 2024.03.28
+				// JAVA_TOOL_OPTIONS doesn't work in Gradle task UI (Specify in build.gradle instead)
+				// [build.gradle] applicationDefaultJvmArgs = ['-Dstdout.encoding=UTF-8', '-Dstderr.encoding=UTF-8']
 				//profile.env.JAVA_TOOL_OPTIONS = '-Dstdout.encoding=UTF-8 -Dstderr.encoding=UTF-8'; // Java 19+
-				delete profile.env.JAVA_TOOL_OPTIONS; // Remove this line in the future
 			}
 		} else if (OS.isMac) {
 			profile.path = 'zsh';

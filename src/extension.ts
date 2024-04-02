@@ -102,19 +102,16 @@ async function setEnvVariable() {
 			envVarColl.replace('AUTO_CONFIG_PATH', toolsPath);
 		}
 
+		// Pending: Gradle Toolchains env var for Terminal
+		// But automationProfile does not recognize env
+		// https://github.com/microsoft/vscode/issues/140261
+		//envVarColl.replace('ORG_GRADLE_PROJECT_org.gradle.java.installations.paths', 'D:\\pleiades\\2023-12\\java\\8,D:\\pleiades\\2023-12\\java\\11,D:\\pleiades\\2023-12\\java\\17,D:\\pleiades\\2023-12\\java\\21');
+
 		// Set JAVA_HOME from workspace default runtime
 		// Known Issue: JAVA_HOME is not reflected even if set (e.g. java.import.gradle.java.home)
 		// Open) https://github.com/microsoft/vscode/issues/152806#issuecomment-1785065199
 		// Open) https://github.com/microsoft/vscode-gradle/issues/1173
 		//envVarColl.replace('JAVA_HOME', 'D:\\pleiades\\2023-06\\java\\17');
-		/*
-		// build.gradle version check (Output > Gradle for Java)
-		println ">> JAVA_HOME " + org.gradle.internal.jvm.Jvm.current().getJavaHome()
-		println ">> ${JavaVersion.current()} JavaVersion.current()"
-		println ">> ${java.sourceCompatibility} project.sourceCompatibility"
-		println ">> ${java.targetCompatibility} project.targetCompatibility"
-		println ">> ${compileJava.options.release.get()} compileJava.options.release.get()"
-		*/
 	}
 }
 
