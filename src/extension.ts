@@ -102,12 +102,16 @@ async function setEnvVariable() {
 			envVarColl.replace('AUTO_CONFIG_PATH', toolsPath);
 		}
 
-		// Pending: Gradle Toolchains env var for Terminal
-		// But automationProfile does not recognize env
-		// https://github.com/microsoft/vscode/issues/140261
+		// Pending: Gradle Toolchains env var for Terminal (Because not working Gradle Task UI)
 		//envVarColl.replace('ORG_GRADLE_PROJECT_org.gradle.java.installations.paths', 'D:\\pleiades\\2023-12\\java\\8,D:\\pleiades\\2023-12\\java\\11,D:\\pleiades\\2023-12\\java\\17,D:\\pleiades\\2023-12\\java\\21');
 
-		// Set JAVA_HOME from workspace default runtime
+		// Pending: Gradle Toolchains for Task UI not working in settings.json:
+		// * automationProfile > env -> https://github.com/microsoft/vscode/issues/140261
+		// * "java.gradle.buildServer.enabled": "off"
+		// * java.import.gradle.jvmArguments, arguments
+		// "java.import.gradle.jvmArguments": "-DJAVA_TOOL_OPTIONS=-DORG_GRADLE_PROJECT_org.gradle.java.installations.paths=D:\\pleiades\\2023-12\\java\\8,D:\\pleiades\\2023-12\\java\\11,D:\\pleiades\\2023-12\\java\\17,D:\\pleiades\\2023-09\\java\\21",
+
+		// Pending: Set JAVA_HOME from workspace default runtime
 		// Known Issue: JAVA_HOME is not reflected even if set (e.g. java.import.gradle.java.home)
 		// Open) https://github.com/microsoft/vscode/issues/152806#issuecomment-1785065199
 		// Open) https://github.com/microsoft/vscode-gradle/issues/1173
