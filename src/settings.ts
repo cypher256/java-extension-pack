@@ -191,6 +191,28 @@ export async function updateJavaRuntimes(
 	}
 
 	//-------------------------------------------------------------------------
+	// Test Debug Console Encoding (Ignored before Java 18)
+	if (OS.isWindows) {
+		const CONFIG_KEY_TEST_CONFIG = 'java.test.config';
+		const testConfig:any = _.cloneDeep(getUser(CONFIG_KEY_TEST_CONFIG) ?? {});
+		const testConfigOld = _.cloneDeep(testConfig);
+		const vmArgs: string[] = testConfig.vmArgs || [];
+
+		function _addArg(dest: string) {
+			const argName = `-D${dest}.encoding=`;
+			if (!vmArgs.find(e => e.startsWith(argName))) {
+				vmArgs.push(argName + 'UTF-8');
+			}
+		}
+		_addArg('stdout');
+		_addArg('stderr');
+		testConfig.vmArgs = vmArgs;
+		if (!_.isEqual(testConfig, testConfigOld)) {
+			update(CONFIG_KEY_TEST_CONFIG, testConfig);
+		}
+	}
+
+	//-------------------------------------------------------------------------
 	// Terminal Default Env Variables (Keep if set)
 	if (terminalDefaultRuntime) {
 		// [Windows] Default cmd/powershell (gitbash not supported)

@@ -67,7 +67,7 @@ The **user** (global) [`settings.json`](https://code.visualstudio.com/docs/getst
   java.sourceCompatibility = javaVersion // Legacy option for VS Code
   compileJava.options.release = javaVersion // JEP 247: API validation
   ```
-  👉[Toolchain](https://docs.gradle.org/current/userguide/building_java_projects.html#sec:java_cross_compilation) allows you to specify exactly which JDK version to build. As shown below.
+  👉[Toolchain](https://docs.gradle.org/current/userguide/building_java_projects.html#sec:java_cross_compilation) allows you to specify exactly which JDK version to build. It's very simple, just specify it as shown below.
   ```gradle
   java.toolchain.languageVersion = JavaLanguageVersion.of(17)
   ```
@@ -113,7 +113,7 @@ The JDK, build tools, terminal and other settings are automatically configured a
 <br>
 <br>
 
-## JDK Auto-configuration
+## JDK Auto-Configuration
 Automatically configure multiple versions of the JDK and build tools. If there are multiple JDKs of the same version, the latest minor version among them is used. If you installed the JDK manually or encountered a configuration error, restart VS Code or execute Command Palette **>Java: Clean Java Language Server Workspace ≫ Reload and Delete**. These apply to User `settings.json` (VS Code global), but can be manually edited to customize them. If you want to customize your settings even further, consider using [workspace settings](https://code.visualstudio.com/docs/getstarted/settings) or [profiles](https://code.visualstudio.com/docs/editor/profiles).
 
 1. Auto-fix invalid JDK configuration (e.g. `/foo/jdk-21.0.8/bin` -> `/foo/jdk-21.0.8`)
@@ -170,7 +170,7 @@ For Optional Extensions
 <br>
 <br>
 
-#### Auto-download Support
+#### Auto-Download Support
 Automatic download is enabled if the [extensions.autoUpdate](https://code.visualstudio.com/docs/editor/extension-marketplace#_extension-autoupdate) configuration is NOT `false`. Java downloads multiple versions, but Gradle/Maven downloads only the latest version. If you use an older version of Gradle/Maven due to compatibility issues, please introduce `gradlew` ([Compatibility](https://docs.gradle.org/current/userguide/compatibility.html)) or `mvnw` ([Compatibility](https://maven.apache.org/developers/compatibility-plan.html)) in your project or manually set `java.import.gradle.home` or `maven.executable.path` in `settings.json`.
 
 - Adoptium JDK - [Latest LTS 4 versions](https://adoptium.net/support/#_release_roadmap) if not installed ([VS Code supported versions](https://github.com/redhat-developer/vscode-java#features))
@@ -229,16 +229,18 @@ Command Palette **>Preferences: Open User Settings (JSON)**
 <br>
 <br>
 
-## Terminal Auto-configuration
+## Terminal Auto-Configuration
 The terminal dropdown items by Java version are automatically created based on the "java.configuration.runtimes" above. You can easily open a terminal by selecting the Java version from command **>Terminal: Create New Terminal (With Profile)** or Terminal (Ctrl + \`) ≫ Profiles dropdown. Besides `java`, `gradle` and `mvn` commands can also be used. The configured environment variables have no effect outside the terminal, so the system and OS user environment remain clean. The `JAVA_HOME` and `PATH` in the auto-configured terminal configuration will always be overridden from the configured runtimes, so if you want to customize it, copy the terminal configuration entry and create a new one.
 
 |Configuration Name|Configured Value [Original Default]|
 |---|---|
-|[terminal.integrated.env.windows](https://code.visualstudio.com/docs/terminal/profiles#_configuring-profiles)<br>([Issues](https://github.com/microsoft/vscode/issues?q=is%3Aissue+terminal.integrated.env+JAVA_HOME))|Set latest LTS if unset (Windows only)<br>[None]|
+|[terminal.integrated.env.windows](https://code.visualstudio.com/docs/terminal/profiles#_configuring-profiles)<br>([Issues](https://github.com/microsoft/vscode/issues?q=is%3Aissue+terminal.integrated.env+JAVA_HOME)) *Windows only*|Set latest LTS if unset<br>[None]|
 |[terminal.integrated.defaultProfile.{platform}](https://code.visualstudio.com/docs/terminal/profiles)<br>([Issues](https://github.com/microsoft/vscode/issues?q=is%3Aissue+terminal.integrated.profiles))|Set latest LTS runtime name (e.g. `JavaSE-21`)<br>[Windows:`PowerShell`, Mac:`zsh`, Linux:`bash`]|
+|[terminal.integrated.automationProfile.windows](https://code.visualstudio.com/docs/terminal/profiles#_configuring-the-taskdebug-profile)<br>([Issues](https://github.com/microsoft/vscode/issues?q=is%3Aissue+terminal.integrated.automationProfile)) *Windows only*|`"path": "cmd"`<br>[null] Suppress error: '[Incorrect parameter format -/d](https://github.com/microsoft/vscode/issues/202691)'|
 |[terminal.integrated.profiles.{platform}](https://code.visualstudio.com/docs/terminal/profiles)<br>([Issues](https://github.com/microsoft/vscode/issues?q=is%3Aissue+terminal.integrated.profiles))|Set configured runtimes to terminal<br>[None]|
 |[terminal.integrated.enablePersistentSessions](https://code.visualstudio.com/docs/terminal/advanced#_persistent-sessions)<br>([Issues](https://github.com/microsoft/vscode/issues?q=is%3Aissue+terminal.integrated.enablePersistentSessions))|`false`<br>[`true`]|
 |[terminal.integrated.tabs.hideCondition](https://code.visualstudio.com/docs/terminal/appearance#_visibility)<br>([Issues](https://github.com/microsoft/vscode/issues?q=is%3Aissue+terminal.integrated.tabs.hideCondition))|`never`<br>[`singleTerminal`]|
+|[java.test.config](https://code.visualstudio.com/docs/java/java-testing#_customize-test-configurations) > vmArgs<br>([Issues](https://github.com/microsoft/vscode-java-test/issues?q=is%3Aissue+java.test.config)) *Windows only*|`-Dstdout.encoding=UTF-8`, `-Derrout.encoding=UTF-8`<br>[`undefined`]|
 
 <br>
 
@@ -247,37 +249,47 @@ Command Palette **>Preferences: Open User Settings (JSON)**
 ```json
 // Terminal Default Environment Variables
 "terminal.integrated.env.windows": {
-  "JAVA_HOME": "C:\\Program Files\\Eclipse Adoptium\\jdk-21.0.8-hotspot",
-  "PATH": "C:\\Program Files\\Eclipse Adoptium\\jdk-21.0.8-hotspot\\bin;${env:PATH}"
+    "PATH": "C:\\Program Files\\Eclipse Adoptium\\jdk-21.0.8-hotspot\\bin;${env:PATH}",
+    "JAVA_HOME": "C:\\Program Files\\Eclipse Adoptium\\jdk-21.0.8-hotspot"
 },
 // Terminal Default Profile
 "terminal.integrated.defaultProfile.windows": "JavaSE-21",
+"terminal.integrated.automationProfile.windows": {
+    "path": "cmd"
+},
 // Terminal Profiles Dropdown
 "terminal.integrated.profiles.windows": {
-  "JavaSE-1.8": {
-      "path": "cmd",
-      "env": {
-          "JAVA_HOME": "C:\\Users\\<UserName>\\AppData\\Roaming\\Code\\User\\globalStorage\\pleiades.java-extension-pack-jdk\\java\\8",
-          "PATH": "C:\\Users\\<UserName>\\AppData\\Roaming\\Code\\User\\globalStorage\\pleiades.java-extension-pack-jdk\\java\\8\\bin;${env:PATH}"
-      },
-      "overrideName": true
-  },
-  "JavaSE-11": {
-      "path": "cmd",
-      "env": {
-          "JAVA_HOME": "C:\\Program Files\\Amazon Corretto\\jdk11.0.18_10",
-          "PATH": "C:\\Program Files\\Amazon Corretto\\jdk11.0.18_10\\bin;${env:PATH}"
-      },
-      "overrideName": true
-  },
-  "JavaSE-17": {
+    "JavaSE-1.8": {...},
+    "JavaSE-11": {...},
+    "JavaSE-17": {
+        "overrideName": true,
+        "env": {
+            "PATH": "C:\\Program Files\\java\\jdk-17.0.12\\bin;${env:PATH}",
+            "JAVA_HOME": "C:\\Program Files\\java\\jdk-17.0.12"
+        },
+        "path": "cmd"
+    },
+    "JavaSE-21": {
+        "overrideName": true,
+        "env": {
+            "PATH": "C:\\Program Files\\Eclipse Adoptium\\jdk-21.0.8-hotspot\\bin;${env:PATH}",
+            "JAVA_HOME": "C:\\Program Files\\Eclipse Adoptium\\jdk-21.0.8-hotspot"
+        },
+        "path": "cmd",
+        // For Windows, auto-configured Java 18 or later terminals are set to `chcp 65001`.
+        "args": [
+            "/k",
+            "chcp",
+            "65001"
+        ]
+    }
+}
 ```
-For Windows, auto-configured Java 18 or later terminals are set to `chcp 65001`.
 
 <br>
 <br>
 
-## Auto-default Settings
+## Auto-Default Settings
 Entries that do not have the following configuration in the user settings are automatically set to the default values of `Extension Pack for Java Auto Config`. To prevent automatic setting, set the Original Default value below. Note that a debug run is required to enable Hot Code Replace (Hot Deploy).
 
 |Configuration Name|Original Default|Auto Default|
@@ -339,7 +351,7 @@ Entries that do not have the following configuration in the user settings are au
 <br>
 <br>
 
-## Language Pack Auto-installation
+## Language Pack Auto-Installation
 The language pack corresponding to the OS locale is installed at the first startup.
 * `cs`, `de`, `es`, `fr`, `it`, `ja`, `ko`, `pl`, `ru`, `tr`, `zh-hans` or `zh-hant`
 
