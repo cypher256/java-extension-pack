@@ -153,7 +153,7 @@ For Included Extensions
 |[java.import.gradle.home](https://github.com/microsoft/vscode-gradle#java-specific-settings)<br>([Issues](https://github.com/microsoft/vscode-gradle/issues?q=is%3Aissue+java.import.gradle.home))|Set auto-downloaded gradle if unset<br>[**`gradlew`** > `settings.json` > `PATH` > `GRADLE_HOME`]|
 |*Maven for Java*|
 |[maven.terminal.customEnv](https://marketplace.visualstudio.com/items?itemName=vscjava.vscode-maven#additional-configurations)<br>([Issues](https://github.com/microsoft/vscode-maven/issues?q=is%3Aissue+maven.terminal.customEnv))|Set latest LTS JDK if unset<br>[`settings.json` > `JAVA_HOME`]|
-|[maven.executable.path](https://github.com/Microsoft/vscode-maven#settings)<br>([Issues](https://github.com/microsoft/vscode-maven/issues?q=is%3Aissue+maven.executable.path)) 📝|Set auto-downloaded maven if unset (If you want to use `mvnw`, set "" manually)<br>[`settings.json` > **`mvnw`** > `PATH`]|
+|[maven.executable.path](https://marketplace.visualstudio.com/items?itemName=vscjava.vscode-maven#additional-configurations)<br>([Issues](https://github.com/microsoft/vscode-maven/issues?q=is%3Aissue+maven.executable.path)) 📝|Set auto-downloaded maven if unset (If you want to use `mvnw`, set "" manually)<br>[`settings.json` > **`mvnw`** > `PATH`]|
 
 For Optional Extensions
 

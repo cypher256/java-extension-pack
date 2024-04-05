@@ -2,11 +2,23 @@
 import axios from 'axios';
 import * as fs from 'fs';
 import * as path from 'path';
+import * as vscode from 'vscode';
 import * as httpClient from '../httpClient';
 import * as settings from '../settings';
 import * as system from '../system';
 import { log } from '../system';
 const CONFIG_KEY_GRADLE_HOME = 'java.import.gradle.home';
+
+/**
+ * @returns Whether the Gradle extension is installed.
+ */
+export function hasExtension(): boolean {
+	return vscode.extensions.getExtension(
+		// Configuration is provided by RedHat extension rather than Gradle extension
+		//'vscjava.vscode-gradle'
+		'redhat.java'
+		) !== undefined;
+}
 
 /**
  * @returns The bin directory path based on workspace configuration.
@@ -21,6 +33,9 @@ export async function getWorkspaceBinDir(): Promise<string | undefined> {
  * @returns A promise that resolves when the Gradle is installed.
  */
 export async function download() {
+	if (!hasExtension()) {
+		return;
+	}
 	const gradleHomeOld = settings.getUser<string>(CONFIG_KEY_GRADLE_HOME);
 	let gradleHomeNew = await resolvePath(gradleHomeOld);
 	if (gradleHomeNew && system.isUserInstalled(gradleHomeNew)) {

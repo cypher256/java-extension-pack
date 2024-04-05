@@ -3,6 +3,8 @@ import * as jdkutils from 'jdk-utils';
 import * as _ from "lodash";
 import * as path from 'path';
 import * as vscode from 'vscode';
+import * as gradle from './download/gradle';
+import * as maven from './download/maven';
 import * as jdkExplorer from './jdkExplorer';
 import * as redhat from './redhat';
 import * as system from './system';
@@ -235,7 +237,7 @@ export async function updateJavaRuntimes(
 	//-------------------------------------------------------------------------
 	// Maven Terminal Custom Env (Keep if set)
 	const mavenJavaRuntime = latestLtsRuntime || stableLtsRuntime;
-	if (mavenJavaRuntime) {
+	if (mavenJavaRuntime && maven.hasExtension()) {
 		const CONFIG_KEY_MAVEN_CUSTOM_ENV = 'maven.terminal.customEnv';
 		const customEnv:any[] = _.cloneDeep(getUser(CONFIG_KEY_MAVEN_CUSTOM_ENV) ?? []);
 		const customEnvOld = _.cloneDeep(customEnv);
@@ -287,7 +289,7 @@ export async function updateJavaRuntimes(
 	// Gradle 8.5+ can execute on latest Java versions
 	// Closed) https://github.com/gradle/gradle/issues/26944#issuecomment-1794419074
 	const gradleJavaRuntime = latestLtsRuntime || stableLtsRuntime;
-	if (gradleJavaRuntime && vscode.extensions.getExtension('vscjava.vscode-gradle')) {
+	if (gradleJavaRuntime && gradle.hasExtension()) {
 		const CONFIG_KEY_GRADLE_JAVA_HOME = 'java.import.gradle.java.home';
 		const originPath = getUser<string>(CONFIG_KEY_GRADLE_JAVA_HOME);
 		function _updateGradleJavaHome(newPath: string) {

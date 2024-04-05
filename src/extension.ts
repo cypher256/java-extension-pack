@@ -81,6 +81,9 @@ async function setEnvVariable() {
 	const mavenBinDir = await maven.getWorkspaceBinDir();
 	const gradleBinDir = await gradle.getWorkspaceBinDir();
 	const toolsPath = [gradleBinDir, mavenBinDir].filter(Boolean).join(path.delimiter);
+	if (!toolsPath) {
+		return;
+	}
 
 	// Set env var by workspace folder
 	const globalEnv = system.getExtensionContext().environmentVariableCollection;
@@ -110,6 +113,9 @@ async function setEnvVariable() {
 		// * "java.gradle.buildServer.enabled": "off"
 		// * java.import.gradle.jvmArguments, arguments
 		// "java.import.gradle.jvmArguments": "-DJAVA_TOOL_OPTIONS=-DORG_GRADLE_PROJECT_org.gradle.java.installations.paths=D:\\pleiades\\2023-12\\java\\8,D:\\pleiades\\2023-12\\java\\11,D:\\pleiades\\2023-12\\java\\17,D:\\pleiades\\2023-09\\java\\21",
+
+		// Pending: Gradle Encoding
+		// https://github.com/microsoft/vscode-gradle/issues/1480
 
 		// Pending: Set JAVA_HOME from workspace default runtime
 		// Known Issue: JAVA_HOME is not reflected even if set (e.g. java.import.gradle.java.home)

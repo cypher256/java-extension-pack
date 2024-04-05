@@ -2,11 +2,19 @@
 import axios from 'axios';
 import * as fs from 'fs';
 import * as path from 'path';
+import * as vscode from 'vscode';
 import * as httpClient from '../httpClient';
 import * as settings from '../settings';
 import * as system from '../system';
 import { log } from '../system';
 const CONFIG_KEY_MAVEN_EXE_PATH = 'maven.executable.path';
+
+/**
+ * @returns Whether the Maven extension is installed.
+ */
+export function hasExtension(): boolean {
+	return vscode.extensions.getExtension('vscjava.vscode-maven') !== undefined;
+}
 
 /**
  * @returns The bin directory path based on workspace configuration.
@@ -21,6 +29,9 @@ export async function getWorkspaceBinDir(): Promise<string | undefined> {
  * @returns A promise that resolves when the Maven is installed.
  */
 export async function download() {
+	if (!hasExtension()) {
+		return;
+	}
 	// Use 'getDefinition' instead of 'get' to get empty definition
 	const mavenExeOld = settings.getUserDef<string>(CONFIG_KEY_MAVEN_EXE_PATH);
 	if (mavenExeOld === '') {
