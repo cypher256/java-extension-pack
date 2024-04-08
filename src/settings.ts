@@ -119,12 +119,10 @@ export async function updateJavaRuntimes(
 			profile.path = 'cmd'; // powershell (legacy), pwsh (non-preinstalled)
 			profile.env.PATH = _createPathPrepend(runtime.path);
 			if (redhat.versionOf(runtime.name) >= 18) {
-				// Support JEP 400 UTF-8 Default
+				// Support JEP 400 UTF-8 Default (Java 18+)
 				// Unsupported System.in UTF-8: https://bugs.openjdk.org/browse/JDK-8295672
-				profile.args = ["/k", "chcp", "65001"]; // Requires automationProfile
-				// JAVA_TOOL_OPTIONS doesn't work in Gradle task UI (Specify in build.gradle instead)
-				// [build.gradle] applicationDefaultJvmArgs = ['-Dstdout.encoding=UTF-8', '-Dstderr.encoding=UTF-8']
-				//profile.env.JAVA_TOOL_OPTIONS = '-Dstdout.encoding=UTF-8 -Dstderr.encoding=UTF-8'; // Java 19+
+				// Note: automationProfile is required to prevent errors when specifying defaultProfile
+				profile.args = ["/k", "chcp", "65001"];
 			}
 		} else if (OS.isMac) {
 			profile.path = 'zsh';
@@ -226,6 +224,16 @@ export async function updateJavaRuntimes(
 			const terminalEnvOld = _.cloneDeep(terminalEnv);
 			terminalEnv.JAVA_HOME = await jdkExplorer.fixPath(terminalEnv.JAVA_HOME) || terminalDefaultRuntime.path;
 			terminalEnv.PATH = _createPathPrepend(terminalEnv.JAVA_HOME);
+
+			// For Terminal Command Build (Java 19+ and chcp 65001)
+			terminalEnv.JAVA_TOOL_OPTIONS = '-Dstdout.encoding=UTF-8 -Dstderr.encoding=UTF-8';
+			// JAVA_TOOL_OPTIONS doesn't work in Gradle task UI (Specify in build.gradle instead or env var)
+			// [build.gradle] applicationDefaultJvmArgs = ['-Dstdout.encoding=UTF-8', '-Dstderr.encoding=UTF-8']
+			// [Env Var] JAVA_TOOL_OPTIONS='-Dstdout.encoding=UTF-8 -Dstderr.encoding=UTF-8'
+			// Open) https://github.com/microsoft/vscode-gradle/issues/1480
+			// Not working
+			// "java.import.gradle.jvmArguments": "-DJAVA_TOOL_OPTIONS=-Dstdout.encoding=UTF-8 -Dstderr.encoding=UTF-8"
+
 			if (!_.isEqual(terminalEnv, terminalEnvOld)) {
 				update(CONFIG_KEY_TERMINAL_ENV, terminalEnv);
 			}

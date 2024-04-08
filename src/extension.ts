@@ -114,9 +114,6 @@ async function setEnvVariable() {
 		// * java.import.gradle.jvmArguments, arguments
 		// "java.import.gradle.jvmArguments": "-DJAVA_TOOL_OPTIONS=-DORG_GRADLE_PROJECT_org.gradle.java.installations.paths=D:\\pleiades\\2023-12\\java\\8,D:\\pleiades\\2023-12\\java\\11,D:\\pleiades\\2023-12\\java\\17,D:\\pleiades\\2023-09\\java\\21",
 
-		// Pending: Gradle Encoding
-		// https://github.com/microsoft/vscode-gradle/issues/1480
-
 		// Pending: Set JAVA_HOME from workspace default runtime
 		// Known Issue: JAVA_HOME is not reflected even if set (e.g. java.import.gradle.java.home)
 		// Open) https://github.com/microsoft/vscode/issues/152806#issuecomment-1785065199
