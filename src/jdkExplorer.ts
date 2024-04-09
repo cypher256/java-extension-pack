@@ -209,7 +209,7 @@ async function findAll(): Promise<IDetectedJdk[]> {
 	const promises = [
 		async () => {
 			// jdk-utils: Gradle Toolchains support pull requested
-			// Closed) https://github.com/Eskibear/node-jdk-utils/issues/9
+			// Resolved) https://github.com/Eskibear/node-jdk-utils/issues/9
 			const utilRuntimes = await jdkutils.findRuntimes({ checkJavac: true, withVersion: true });
 			utilRuntimes.map(createJdk).forEach(jdk => jdks.pushJdk('jdk-utils', jdk));
 		},

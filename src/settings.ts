@@ -118,11 +118,21 @@ export async function updateJavaRuntimes(
 		if (OS.isWindows) {
 			profile.path = 'cmd'; // powershell (legacy), pwsh (non-preinstalled)
 			profile.env.PATH = _createPathPrepend(runtime.path);
-			if (redhat.versionOf(runtime.name) >= 18) {
+			if (redhat.versionOf(runtime.name) >= 19) {
+
 				// Support JEP 400 UTF-8 Default (Java 18+)
 				// Unsupported System.in UTF-8: https://bugs.openjdk.org/browse/JDK-8295672
 				// Note: automationProfile is required to prevent errors when specifying defaultProfile
 				profile.args = ["/k", "chcp", "65001"];
+
+				// For Terminal Command Build (Java 19+ and chcp 65001)
+				profile.env.JAVA_TOOL_OPTIONS = '-Dstdout.encoding=UTF-8 -Dstderr.encoding=UTF-8';
+				// JAVA_TOOL_OPTIONS doesn't work in Gradle task UI (Specify in build.gradle instead)
+				// [build.gradle] applicationDefaultJvmArgs = ['-Dstdout.encoding=UTF-8', '-Dstderr.encoding=UTF-8']
+				// Open) https://github.com/microsoft/vscode-gradle/issues/1480
+				// Not working
+				// "java.import.gradle.arguments"   : "-DJAVA_TOOL_OPTIONS=-Dstdout.encoding=UTF-8 -Dstderr.encoding=UTF-8",
+				// "java.import.gradle.jvmArguments": "-DJAVA_TOOL_OPTIONS=-Dstdout.encoding=UTF-8 -Dstderr.encoding=UTF-8",
 			}
 		} else if (OS.isMac) {
 			profile.path = 'zsh';
@@ -184,9 +194,11 @@ export async function updateJavaRuntimes(
 			setIfUndefined('terminal.integrated.defaultProfile.' + osConfigName, terminalDefaultRuntime.name);
 		}
 		if (OS.isWindows) {
-			// defaultProfile & args chcp 'Incorrect parameter format -/d' support
-			// https://github.com/microsoft/vscode/issues/202691
+			// Suppress error 'Incorrect parameter format -/d' when using defaultProfile & args chcp
+			// Resolved) https://github.com/microsoft/vscode/issues/202691
 			update(`terminal.integrated.automationProfile.windows`, {"path": "cmd"});
+			// Not working "env"
+			// Open) https://github.com/microsoft/vscode-makefile-tools/issues/493
 		}
 	}
 
@@ -224,16 +236,8 @@ export async function updateJavaRuntimes(
 			const terminalEnvOld = _.cloneDeep(terminalEnv);
 			terminalEnv.JAVA_HOME = await jdkExplorer.fixPath(terminalEnv.JAVA_HOME) || terminalDefaultRuntime.path;
 			terminalEnv.PATH = _createPathPrepend(terminalEnv.JAVA_HOME);
-
-			// For Terminal Command Build (Java 19+ and chcp 65001)
-			terminalEnv.JAVA_TOOL_OPTIONS = '-Dstdout.encoding=UTF-8 -Dstderr.encoding=UTF-8';
-			// JAVA_TOOL_OPTIONS doesn't work in Gradle task UI (Specify in build.gradle instead or env var)
-			// [build.gradle] applicationDefaultJvmArgs = ['-Dstdout.encoding=UTF-8', '-Dstderr.encoding=UTF-8']
-			// [Env Var] JAVA_TOOL_OPTIONS='-Dstdout.encoding=UTF-8 -Dstderr.encoding=UTF-8'
-			// Open) https://github.com/microsoft/vscode-gradle/issues/1480
-			// Not working
-			// "java.import.gradle.jvmArguments": "-DJAVA_TOOL_OPTIONS=-Dstdout.encoding=UTF-8 -Dstderr.encoding=UTF-8"
-
+			// It also applies to "Run | Debug", so specify it in profiles
+			//terminalEnv.JAVA_TOOL_OPTIONS = '-Dstdout.encoding=UTF-8 -Dstderr.encoding=UTF-8';
 			if (!_.isEqual(terminalEnv, terminalEnvOld)) {
 				update(CONFIG_KEY_TERMINAL_ENV, terminalEnv);
 			}
@@ -295,7 +299,7 @@ export async function updateJavaRuntimes(
 	//-------------------------------------------------------------------------
 	// Gradle Daemon Java Home (Keep if set): Output > Gradle for Java > Java Home
 	// Gradle 8.5+ can execute on latest Java versions
-	// Closed) https://github.com/gradle/gradle/issues/26944#issuecomment-1794419074
+	// Resolved) https://github.com/gradle/gradle/issues/26944#issuecomment-1794419074
 	const gradleJavaRuntime = latestLtsRuntime || stableLtsRuntime;
 	if (gradleJavaRuntime && gradle.hasExtension()) {
 		const CONFIG_KEY_GRADLE_JAVA_HOME = 'java.import.gradle.java.home';
@@ -314,6 +318,7 @@ export async function updateJavaRuntimes(
 			_updateGradleJavaHome(gradleJavaRuntime.path);
 		}
 		// Pending: org.gradle.java.installations.paths
+		// Open) https://github.com/redhat-developer/vscode-java/issues/2804
 		// Open) https://github.com/microsoft/vscode-gradle/issues/1330
 	}
 
