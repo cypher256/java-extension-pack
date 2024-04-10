@@ -87,9 +87,9 @@ async function setEnvVariable() {
 
 	// Set env var by workspace folder
 	const globalEnv = system.getExtensionContext().environmentVariableCollection;
-	const folderEnvs = vscode.workspace.workspaceFolders?.map(f => globalEnv.getScoped({workspaceFolder:f}));
+	const folderEnvs = vscode.workspace.workspaceFolders?.map(f => globalEnv.getScoped({workspaceFolder:f})) ?? [];
 
-	for (const envVarColl of folderEnvs ?? [globalEnv]) {
+	for (const envVarColl of folderEnvs.concat(globalEnv)) {
 		envVarColl.clear(); // Clear persisted values (Not cleared on restart)
 
 		// Terminal all profiles common PATH prefix
