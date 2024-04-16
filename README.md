@@ -64,10 +64,10 @@ The **user** (global) [`settings.json`](https://code.visualstudio.com/docs/getst
 
   ```gradle
   def javaVersion = 17
-  java.sourceCompatibility = javaVersion // Legacy option for VS Code
+  java.sourceCompatibility = javaVersion // Make it recognize to VS Code
   compileJava.options.release = javaVersion // JEP 247: API validation
   ```
-  👉[Toolchain](https://docs.gradle.org/current/userguide/building_java_projects.html#sec:java_cross_compilation) allows you to specify exactly which JDK version to build. It's very simple, just specify it as shown below.
+  👉[Toolchain](https://docs.gradle.org/current/userguide/building_java_projects.html#sec:java_cross_compilation) allows you to specify exactly which JDK version to build. Just specify it as shown below.
   ```gradle
   java.toolchain.languageVersion = JavaLanguageVersion.of(17)
   ```
@@ -276,7 +276,7 @@ Command Palette **>Preferences: Open User Settings (JSON)**
             "JAVA_HOME": "C:\\Program Files\\Eclipse Adoptium\\jdk-21.0.8-hotspot"
         },
         "path": "cmd",
-        // For Windows, auto-configured Java 18 or later terminals are set to `chcp 65001`.
+        // For Windows, auto-configured Java 19 or later terminals are set to `chcp 65001`.
         "args": [
             "/k",
             "chcp",
