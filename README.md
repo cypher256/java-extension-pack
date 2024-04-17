@@ -273,10 +273,11 @@ Command Palette **>Preferences: Open User Settings (JSON)**
         "overrideName": true,
         "env": {
             "PATH": "C:\\Program Files\\Eclipse Adoptium\\jdk-21.0.8-hotspot\\bin;${env:PATH}",
+            "JAVA_TOOL_OPTIONS": "-Dstdout.encoding=UTF-8 -Dstderr.encoding=UTF-8", // Windows
             "JAVA_HOME": "C:\\Program Files\\Eclipse Adoptium\\jdk-21.0.8-hotspot"
         },
         "path": "cmd",
-        // For Windows, auto-configured Java 19 or later terminals are set to `chcp 65001`.
+        // For Windows, auto-configured Java 19+ terminals are set to `chcp 65001`.
         "args": [
             "/k",
             "chcp",

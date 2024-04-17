@@ -236,7 +236,7 @@ export async function updateJavaRuntimes(
 			const terminalEnvOld = _.cloneDeep(terminalEnv);
 			terminalEnv.JAVA_HOME = await jdkExplorer.fixPath(terminalEnv.JAVA_HOME) || terminalDefaultRuntime.path;
 			terminalEnv.PATH = _createPathPrepend(terminalEnv.JAVA_HOME);
-			// It also applies to "Run | Debug", so specify it in profiles
+			// It also applies to "Run | Debug" on Windows Encoding, so specify it in profiles
 			//terminalEnv.JAVA_TOOL_OPTIONS = '-Dstdout.encoding=UTF-8 -Dstderr.encoding=UTF-8';
 			if (!_.isEqual(terminalEnv, terminalEnvOld)) {
 				update(CONFIG_KEY_TERMINAL_ENV, terminalEnv);
