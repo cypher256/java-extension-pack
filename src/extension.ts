@@ -26,8 +26,16 @@ export async function activate(context:vscode.ExtensionContext) {
 		copyRcfile();
 		setEnvVariable();
 
-		if (!settings.getWorkspace('javaAutoConfig.enabled')) {
-			log.info(`javaAutoConfig.enabled: false`);
+		const AUTO_CONFIG_ENABLED = 'javaAutoConfig.enabled';
+		if (!settings.getWorkspace(AUTO_CONFIG_ENABLED)) {
+			log.info(`${AUTO_CONFIG_ENABLED}: false`);
+			vscode.workspace.onDidChangeConfiguration(event => {
+				if (event.affectsConfiguration(AUTO_CONFIG_ENABLED)
+					&& settings.getWorkspace(AUTO_CONFIG_ENABLED) === true
+				) {
+					showReloadMessage();
+				}
+			});
 			return;
 		}
 		const javaConfig = await redhat.getJavaConfig();

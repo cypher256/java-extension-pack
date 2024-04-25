@@ -133,6 +133,9 @@ export async function updateJavaRuntimes(
 				// Not working
 				// "java.import.gradle.arguments"   : "-DJAVA_TOOL_OPTIONS=-Dstdout.encoding=UTF-8 -Dstderr.encoding=UTF-8",
 				// "java.import.gradle.jvmArguments": "-DJAVA_TOOL_OPTIONS=-Dstdout.encoding=UTF-8 -Dstderr.encoding=UTF-8",
+
+				// Gradle: Set applicationDefaultJvmArgs default for Task UI and cmd
+				// Open) https://github.com/gradle/gradle/issues/28959
 			}
 		} else if (OS.isMac) {
 			profile.path = 'zsh';
