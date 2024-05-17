@@ -4,6 +4,7 @@
   "description": "JDK Auto-Configuration + Extension Pack for Java + Spring Boot Extension Pack",
   "icon": "README_icon.png",
   "publisher": "Pleiades",
+  "license": "MIT",
   "repository": {
     "url": "https://github.com/cypher256/java-extension-pack.git"
   },
