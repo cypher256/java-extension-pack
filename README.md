@@ -123,9 +123,9 @@ Automatically configure multiple versions of the JDK and build tools. If there a
 1. Auto-download Adoptium LTS JDKs, Gradle, Maven if not installed
 1. Auto-update auto-downloaded JDKs, Gradle, Maven to the latest version
 
-JDK auto-scan targets
+JDK auto-scan targets (Best in the industry)
 * OS specific locations: Adoptium, BellSoft, Corretto, Microsoft, Oracle, Red Hat, Semeru, Zulu etc...
-* Package Managers: SDKMAN, Homebrew, jEnv, jabba, ASDF, Scoop, Chocolatey, IntelliJ etc...
+* Package Managers: ASDF, Chocolatey, jabba, jEnv, Homebrew, IntelliJ, Scoop, SDKMAN, vfox etc...
 * Toolchains: Gradle jdks directory, Maven toolchains.xml
 * Own Support: Windows `C:\Java\*`, `D:\Java\*` (e.g. `C:\Java\jdk-21.0.8`)
 

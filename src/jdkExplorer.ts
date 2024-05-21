@@ -234,6 +234,11 @@ async function findAll(): Promise<IDetectedJdk[]> {
 			await jdks.pushByGlob('Scoop', ...patterns);
 		},
 		async () => {
+			// vfox (Multi-Platform)
+			// e.g. C:\Users\<UserName>\.version-fox\cache\java\v-22+36\java-22+36\bin
+			await jdks.pushByGlob('vfox', os.homedir() + '/.version-fox/cache/java/*');
+		},
+		async () => {
 			// Maven Toolchains
 			// https://maven.apache.org/guides/mini/guide-using-toolchains.html
 			const xml = system.readString(path.join(os.homedir(), '.m2', 'toolchains.xml')) || '';

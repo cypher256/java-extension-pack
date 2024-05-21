@@ -2,8 +2,8 @@
 # Keep Version (ncu)
 #---------------------------------------
 
- @types/node       18.x  →     20.x
- @types/vscode  ^1.54.0  →  ^1.79.1
+ @types/vscode  ^1.54.0  →  ^1.89.0
+ eslint             8.x  →      9.x
 
 #---------------------------------------
 # ncu (npm-check-updates)
