@@ -57,6 +57,7 @@ export interface IJavaConfig {
     readonly availableNames: ReadonlyArray<string>;
     readonly availableVers: ReadonlyArray<number>;
     readonly downloadLtsVers: ReadonlyArray<number>;
+    readonly latestAvailableVer: number;
     readonly latestLtsVer: number;
     readonly stableLtsVer: number;
     readonly embeddedJreVer?: number;
@@ -71,23 +72,33 @@ export async function getJavaConfig(): Promise<IJavaConfig> {
     // Do not add redhat.java extension to extensionDependencies in package.json,
     // because this extension will not start when redhat activation error occurs.
     const redhatExtension = vscode.extensions.getExtension('redhat.java');
-    const _availableNames = getAvailableNames(redhatExtension);
-    const _availableVers = _availableNames.map(versionOf).filter(Boolean).sort((a,b) => a-b);
-    const ltsFilter = (ver:number) => [8, 11].includes(ver) || (ver >= 17 && (ver - 17) % 4 === 0);
-    const fourLatestLtsVers = _availableVers.filter(ltsFilter).slice(-4);
-    const _latestLtsVer = fourLatestLtsVers.at(-1);
+    const availableNames = getAvailableNames(redhatExtension);
+    const availableVers = availableNames.map(versionOf).filter(Boolean).sort((a,b) => a-b); // Number asc order
+    const downloadLtsVers = availableVers.filter(isLtsVersion).slice(-4);
+    const latestLtsVer = downloadLtsVers.at(-1) ?? 0;
     
     const javaConfig:IJavaConfig = {
-        availableNames: _availableNames,
-        availableVers: _availableVers,
-        downloadLtsVers: fourLatestLtsVers,
-        latestLtsVer: _latestLtsVer ?? 0,
-        stableLtsVer: (_latestLtsVer === _availableVers.at(-1) ? fourLatestLtsVers.at(-2) : _latestLtsVer) ?? 0,
+        availableNames,
+        availableVers,
+        downloadLtsVers,
+        latestAvailableVer: availableVers.at(-1) ?? 0,
+        latestLtsVer,
+        stableLtsVer: (latestLtsVer === availableVers.at(-1) ? downloadLtsVers.at(-2) : latestLtsVer) ?? 0,
         embeddedJreVer: await findEmbeddedJREVersion(redhatExtension),
     };
-    const {availableNames, ...forLog} = javaConfig; // Exclude availableNames for log
-    Object.entries(forLog).forEach(([k,v]) => log.info(`JavaConfig ${k}: ${v}`));
+    Object.entries(javaConfig)
+        .filter(([k]) => k !== Object.keys({availableNames})[0])
+        .forEach(([k,v]) => log.info(`JavaConfig ${k}: ${v}`))
+    ;
     return javaConfig;
+}
+
+/**
+ * @param ver The JDK major version.
+ * @returns true if the given version is an LTS version.
+ */
+export function isLtsVersion(ver:number): boolean {
+    return [8, 11].includes(ver) || (ver >= 17 && (ver - 17) % 4 === 0);
 }
 
 async function findEmbeddedJREVersion(redhatExtension: vscode.Extension<any> | undefined): Promise<number | undefined> {

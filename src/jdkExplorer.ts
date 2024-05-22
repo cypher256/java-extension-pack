@@ -28,11 +28,16 @@ export async function scan(javaConfig: redhat.IJavaConfig, runtimes:redhat.JavaR
 			needImmediateUpdate = true;
 			continue;
 		}
-		// Ignore manual setted path for force download (If invalid directory, temporary error)
+		// Remove Auto-downloaded prev latest (for 22 to 23)
 		const originPath = runtime.path;
+		if (!system.isUserInstalled(originPath) && path.basename(originPath) === 'latest') {
+			runtimes.splice(i, 1); // remove, needImmediateUpdate = false
+			continue;
+		}
+		// Ignore manual setted path for force download (If invalid directory, temporary error)
 		const majorVer = redhat.versionOf(runtime.name);
 		if (javaConfig.downloadLtsVers.includes(majorVer)) { // Download LTS only
-			const downloadDir = jdk.getDownloadDir(majorVer);
+			const downloadDir = jdk.getDownloadDir(javaConfig, majorVer);
 			if (system.equalsPath(originPath, downloadDir)) {
 				if (!(await isValidHome(downloadDir))) { // Not yet downloaded
 					log.info(`Needs Reload: manual set runtime force download: ${originPath}`);
@@ -67,7 +72,7 @@ export async function scan(javaConfig: redhat.IJavaConfig, runtimes:redhat.JavaR
 
 	// Detect Auto-Downloaded JDK (Support when user installation is uninstalled)
 	for (const majorVer of javaConfig.availableVers) { // All versions for old version
-		const downloadDir = jdk.getDownloadDir(majorVer);
+		const downloadDir = jdk.getDownloadDir(javaConfig, majorVer);
 		if (await isValidHome(downloadDir)) {
 			log.info(`Detected Auto-downloaded ${majorVer}`);
 			detectedLatestMap.set(majorVer, {

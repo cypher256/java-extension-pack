@@ -157,14 +157,15 @@ async function download(
 		log.info(`Download disabled (extensions.autoUpdate: false)`);
 		return;
 	}
-	const orderDescVers = [...javaConfig.downloadLtsVers].sort((a,b) => b-a);
+	const downloadVers = [...javaConfig.downloadLtsVers, javaConfig.latestAvailableVer];
+	const orderDescVers = _.uniq(downloadVers).sort((a,b) => b-a); // Reverse order
 	if (!jdk.isTargetPlatform) {
 		log.info(`Download disabled JDK (${process.platform}/${process.arch})`);
 		orderDescVers.length = 0;
 	}
 	const runtimesBefore = _.cloneDeep(runtimes);
 	const promises = [
-		...orderDescVers.map(ver => jdk.download(runtimes, ver)),
+		...orderDescVers.map(ver => jdk.download(javaConfig, runtimes, ver)),
 		gradle.download(),
 		maven.download(),
 	];

@@ -108,17 +108,24 @@ export async function updateJavaRuntimes(
 	const profilesDef = getUserDef(CONFIG_KEY_TERMINAL_PROFILES) ?? {};
 	const profilesOld:any = _.cloneDeep(profilesDef); // Proxy to POJO for isEqual
 	const profilesNew:any = _.cloneDeep(profilesOld);
+	const profileNameMap = new Map<string, string>();
 	const _createPathPrepend = (javaHome: string) => [path.join(javaHome, 'bin'), '${env:PATH}'].join(path.delimiter);
 	const rcfileDir = system.getGlobalStoragePath();
+
 	for (const runtime of runtimes) {
-		// Create from config runtimes (Always overwrite)
-		const profile:any = _.cloneDeep(profilesOld[runtime.name]) ?? {}; // for isEqual
+		const ver = redhat.versionOf(runtime.name);
+		const profileNameOldFormat = runtime.name; // 2024.05.22 Future deletion
+		const profileName = runtime.name + (redhat.isLtsVersion(ver) ? ' LTS' : '');
+		profileNameMap.set(runtime.name, profileName);
+
+		// Create from config runtimes (Always overwrite), Proxy to POJO for isEqual
+		const profile:any = _.cloneDeep(profilesOld[profileNameOldFormat] ?? profilesOld[profileName]) ?? {};
 		profile.overrideName = true;
 		profile.env = {};
 		if (OS.isWindows) {
 			profile.path = 'cmd'; // powershell (legacy), pwsh (non-preinstalled)
 			profile.env.PATH = _createPathPrepend(runtime.path);
-			if (redhat.versionOf(runtime.name) >= 19) {
+			if (ver >= 19) {
 
 				// Support JEP 400 UTF-8 Default (Java 18+)
 				// Unsupported System.in UTF-8: https://bugs.openjdk.org/browse/JDK-8295672
@@ -146,18 +153,20 @@ export async function updateJavaRuntimes(
 			// Do not use --login because disables --rcfile
 		}
 		profile.env.JAVA_HOME = runtime.path;
-		profilesNew[runtime.name] = profile;
+		delete profilesNew[profileNameOldFormat];
+		profilesNew[profileName] = profile;
 	}
-	for (const runtimeName of Object.keys(profilesNew)) {
+	for (const profileName of Object.keys(profilesNew)) {
 		// Fix except config runtimes (Remove invalid env JAVA_HOME)
+		const runtimeName = profileName.replace(/ LTS$/, '');
 		if (!runtimes.findByName(runtimeName)) {
-			const javaHome = profilesNew[runtimeName]?.env?.JAVA_HOME;
+			const javaHome = profilesNew[profileName]?.env?.JAVA_HOME;
 			if (javaHome) {
 				const fixed = await jdkExplorer.fixPath(javaHome);
 				if (fixed) {
-					profilesNew[runtimeName].env.JAVA_HOME = fixed;
+					profilesNew[profileName].env.JAVA_HOME = fixed;
 				} else {
-					delete profilesNew[runtimeName];
+					delete profilesNew[profileName];
 				}
 			}
 		}
@@ -166,12 +175,12 @@ export async function updateJavaRuntimes(
 	if (terminalDefaultRuntime) {
 		// Create or update default zsh/bash profiles
 		// On macOS/Linux, npm error occurs if rcfile is disabled
-		const _setDefaultProfile = async (name: string) => {
-			const profile = profilesNew[name] || {};
-			profile.path = name;
+		const _setDefaultProfile = async (shellName: string) => {
+			const profile = profilesNew[shellName] || {};
+			profile.path = shellName;
 			profile.env ||= {};
 			profile.env.JAVA_HOME = await jdkExplorer.fixPath(profile.env.JAVA_HOME) || terminalDefaultRuntime.path;
-			profilesNew[name] = profile;
+			profilesNew[shellName] = profile;
 			return profile;
 		};
 		if (OS.isMac) {
@@ -183,7 +192,7 @@ export async function updateJavaRuntimes(
 		}
 	}
 	const profileNames = Object.keys(profilesNew);
-	const javaNamePattern = /^J.+SE-/;
+	const javaNamePattern = /^J.+SE-[\d.]+( LTS|)$/;
 	const sortedNames = [
 		...profileNames.filter(name => !name.match(javaNamePattern)), // Keep order
 		...profileNames.filter(name => name.match(javaNamePattern)).sort(),
@@ -194,7 +203,21 @@ export async function updateJavaRuntimes(
 		// [Windows/macOS/Linux] Default profile
 		// Linux Maven uses the Java version of the default profile rcfile
 		if (terminalDefaultRuntime) {
-			setIfUndefined('terminal.integrated.defaultProfile.' + osConfigName, terminalDefaultRuntime.name);
+			const profileName = profileNameMap.get(terminalDefaultRuntime.name);
+			if (profileName) {
+				const KEY = 'terminal.integrated.defaultProfile.' + osConfigName;
+				const val:string | undefined = getUserDef(KEY);
+				if (val) {
+					// Repair: Non-existing profile name
+					if (!Array.from(profileNameMap.values()).includes(val)) {
+						update(KEY, profileName);
+					}
+					// Keep
+				} else {
+					// New
+					update(KEY, profileName);
+				}
+			}
 		}
 		if (OS.isWindows) {
 			// Suppress error 'Incorrect parameter format -/d' when using defaultProfile & args chcp
