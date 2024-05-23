@@ -306,7 +306,7 @@ function setConfigChangedEvent() {
 		}
 
 		// Change default profile
-		if (event.affectsConfiguration(settings.DEFAULT_PROFILE_CONFIG_KEY)) {
+		else if (event.affectsConfiguration(settings.DEFAULT_PROFILE_CONFIG_KEY)) {
 			const defaultProfileVer = settings.Profile.getDefaultProfileVersion();
 			if (!defaultProfileVer) { return; }
 			const reloadLabel = l10n.t('Reload and apply');
