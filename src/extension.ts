@@ -231,7 +231,8 @@ function onComplete(
 	}
 
 	// Delay for prevent self update
-	setTimeout(setConfigChangedEvent, 5_000);
+	// setTimeout(setConfigChangedEvent, 5_000);//TODO
+	setTimeout(setConfigChangedEvent, 0);
 }
 
 /**
@@ -268,10 +269,13 @@ async function installExtension(extensionId:string) {
  * Shows the reload message.
  */
 function showReloadMessage() {
-	const msg = l10n.t('Configuration changed, please Reload Window.');
-	const actionLabel = l10n.t('Reload');
-	vscode.window.showWarningMessage(msg, actionLabel).then(selection => {
-		if (actionLabel === selection) {
+	const reloadLabel = l10n.t('Reload');
+	const message = l10n.t('Configuration changed, please Reload Window.');
+	if (message === prevMessage)  {return; }
+	prevMessage = message;
+	vscode.window.showWarningMessage(message, reloadLabel).then(selection => {
+		prevMessage = undefined;
+		if (selection === reloadLabel) {
 			vscode.commands.executeCommand('workbench.action.reloadWindow');
 		}
 	});
@@ -282,6 +286,8 @@ function showReloadMessage() {
  */
 function setConfigChangedEvent() {
 	vscode.workspace.onDidChangeConfiguration(event => {
+
+		// Reload Window
 		if (
 			//------------------------------------------
 			// Server
@@ -298,5 +304,31 @@ function setConfigChangedEvent() {
 		) {
 			showReloadMessage();
 		}
+
+		// Change default profile
+		if (event.affectsConfiguration(settings.DEFAULT_PROFILE_CONFIG_KEY)) {
+			const defaultProfileVer = settings.Profile.getDefaultProfileVersion();
+			if (!defaultProfileVer) { return; }
+			const reloadLabel = l10n.t('Reload and apply');
+			const message = l10n.t(
+				'Default profile changed to Java {0}. Do you want to apply it as default in user settings?',
+				defaultProfileVer
+			);
+			if (message === prevMessage)  {return; }
+			prevMessage = message;
+			vscode.window.showWarningMessage(message, reloadLabel).then(async selection => {
+				prevMessage = undefined;
+				if (selection === reloadLabel) {
+					const globalState = system.getExtensionContext().globalState;
+					await globalState.update(settings.DEFAULT_PROFILE_APPLY_GLOBAL_STATE_KEY, true);
+					vscode.commands.executeCommand('workbench.action.reloadWindow');
+				}
+			});
+		}
 	});
 }
+
+/**
+ * Message to prevent duplicate message display.
+ */
+let prevMessage: string | undefined = undefined;
