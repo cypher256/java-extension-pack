@@ -9,9 +9,7 @@ import * as jdkExplorer from './jdkExplorer';
 import * as redhat from './redhat';
 import * as system from './system';
 import { OS, log } from './system';
-
 export const DEFAULT_PROFILE_CONFIG_KEY = 'terminal.integrated.defaultProfile.' + OS.configName;
-export const DEFAULT_PROFILE_APPLY_GLOBAL_STATE_KEY = 'PROFILE_VERSION_GLOBAL_STATE_KEY';
 
 /**
  * Return a value from user/remote settings.json or default configuration.
@@ -99,6 +97,40 @@ export namespace Profile {
 }
 
 /**
+ * The previous state.
+ */
+export class PreviousState {
+
+	static getInstance() {
+		const state = system.getExtensionContext().workspaceState;
+		const prev = state.get<PreviousState>(PreviousState.name) || new PreviousState();
+		prev.defaultProfileVer = Profile.getDefaultProfileVersion();
+		state.update(PreviousState.name, prev);
+		return prev;
+	}
+
+	private _message: string | undefined;
+	get message() {return this._message;};
+	set message(p: string | undefined) {
+		this._message = p;
+		system.getExtensionContext().workspaceState.update(PreviousState.name, this);
+	};
+
+	private _defaultProfileVer: number | undefined;
+	get defaultProfileVer() {return this._defaultProfileVer;};
+	set defaultProfileVer(p: number | undefined) {
+		this._defaultProfileVer = p;
+		system.getExtensionContext().workspaceState.update(PreviousState.name, this);
+	};
+
+	isApplyDefaultProfile: boolean | undefined;
+	static async applyDefaultProfile(prev: PreviousState, bool: boolean) {
+		prev.isApplyDefaultProfile = bool;
+		await system.getExtensionContext().workspaceState.update(PreviousState.name, prev);
+	}
+}
+
+/**
  * Updates the Java runtime configurations for the VS Code Java extension.
  * @param javaConfig The Java configuration.
  * @param runtimes An array of Java runtime objects to update the configuration with.
@@ -116,9 +148,9 @@ export async function updateJavaRuntimes(
 	}
 
 	const defaultProfileRuntime = (() => {
-		const globalState = system.getExtensionContext().globalState;
-		if (globalState.get<boolean>(DEFAULT_PROFILE_APPLY_GLOBAL_STATE_KEY)) {
-			globalState.update(DEFAULT_PROFILE_APPLY_GLOBAL_STATE_KEY, undefined);
+		const prev = PreviousState.getInstance();
+		if (prev.isApplyDefaultProfile) {
+			PreviousState.applyDefaultProfile(prev, false);
 			const defaultProfileVer = Profile.getDefaultProfileVersion();
 			log.info(`Apply Default Profile Java ${defaultProfileVer}`);
 			return runtimes.findByVersion(defaultProfileVer);
