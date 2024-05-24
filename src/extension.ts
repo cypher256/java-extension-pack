@@ -270,7 +270,7 @@ async function installExtension(extensionId:string) {
 function showReloadMessage() {
 	const state = settings.SettingState.getInstance();
 	const message = l10n.t('Configuration changed, please Reload Window.');
-	if (message)  {return; }
+	if (message)  { return; }
 	state.message = message;
 	const reloadLabel = l10n.t('Reload');
 	vscode.window.showWarningMessage(message, reloadLabel).then(selection => {
@@ -292,7 +292,7 @@ function setUpdateEvent(javaConfig: redhat.IJavaConfig) {
 	state.isEventProcessing = false;
 
 	vscode.workspace.onDidChangeConfiguration(async event => {
-		if (state.isEventProcessing) {return;}
+		if (state.isEventProcessing) { return; }
 		state.isEventProcessing = true;
 		try {
 			// Update Terminal PATH
@@ -321,7 +321,7 @@ function setUpdateEvent(javaConfig: redhat.IJavaConfig) {
 				const message = l10n.t(
 					'The default profile Java version has changed. Do you want to apply it as default for user settings?'
 				);
-				if (message === state.message)  {return; }
+				if (message === state.message)  { return; }
 				state.message = message;
 				const reloadLabel = l10n.t('Reload and apply');
 				const cancelLabel = l10n.t('Cancel');
@@ -329,7 +329,7 @@ function setUpdateEvent(javaConfig: redhat.IJavaConfig) {
 					state.message = undefined;
 					if (selection === reloadLabel) {
 						state.isApplyDefaultProfile = true;
-						await settings.SettingState.store();
+						await state.store();
 						vscode.commands.executeCommand('workbench.action.reloadWindow');
 					}
 				});
@@ -342,7 +342,7 @@ function setUpdateEvent(javaConfig: redhat.IJavaConfig) {
 			// Waiting to suppress change events from a program
 			setTimeout(async () => {
 				state.isEventProcessing = false;
-				settings.SettingState.store();
+				state.store();
 			}, 5_000);
 		}
 	});

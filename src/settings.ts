@@ -107,17 +107,16 @@ export class SettingState {
 	message: string | undefined;
 	private constructor() {}
 
-	static getInstance() { // Only fields can be saved, instance methods cannot be restored
+	async store() { // Setter cannot be await
 		const workspaceState = system.getExtensionContext().workspaceState;
-		const state = workspaceState.get<SettingState>(SettingState.name) || new SettingState();
-		workspaceState.update(SettingState.name, state);
-		return state;
+		await workspaceState.update(SettingState.name, this);
 	}
 
-	static async store() { // Setter cannot be await
+	static getInstance() {
 		const workspaceState = system.getExtensionContext().workspaceState;
-		const state = workspaceState.get<SettingState>(SettingState.name);
-		await workspaceState.update(SettingState.name, state);
+		const state = Object.assign(new SettingState(), workspaceState.get(SettingState.name)); // Copy fields
+		workspaceState.update(SettingState.name, state);
+		return state;
 	}
 }
 
@@ -142,7 +141,7 @@ export async function updateJavaRuntimes(
 		const state = SettingState.getInstance();
 		if (state.isApplyDefaultProfile) {
 			state.isApplyDefaultProfile = false;
-			SettingState.store();
+			state.store();
 			const defaultProfileVer = Profile.getDefaultProfileVersion();
 			log.info(`Apply Default Profile Java ${defaultProfileVer}`);
 			return runtimes.findByVersion(defaultProfileVer);
