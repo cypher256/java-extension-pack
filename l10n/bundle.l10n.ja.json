@@ -1,11 +1,12 @@
 {
   "Available Java versions:": "使用可能な Java バージョン:",
+  "Cancel": "キャンセル",
   "Configuration changed, please Reload Window.": "構成が変更されました。ウィンドウを再読み込みしてください。",
-  "Default profile changed to Java {0}. Do you want to apply it as default in user settings?": "デフォルトのプロファイルが Java {0} に変更されました。ユーザー設定のデフォルトとして適用しますか？",
   "Downloading": "ダウンロード中",
   "Installing": "インストール中",
+  "Reload and apply": "再読み込みして適用",
   "Reload": "再読み込み",
-  "Reload and apply": "リロードして適用",
+  "The default profile Java version has changed. Do you want to apply it as default for user settings?": "既定のプロファイルの Java バージョンが変更されました。ユーザー設定のデフォルトとして適用しますか？",
   "The following Java Runtime Configuration added. Version:": "次の Java ランタイム構成が追加されました。バージョン:",
   "The following Java Runtime Configuration removed. Version:": "次の Java ランタイム構成が削除されました。バージョン:",
   "Updating": "更新中"

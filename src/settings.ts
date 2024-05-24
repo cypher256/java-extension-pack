@@ -9,7 +9,6 @@ import * as jdkExplorer from './jdkExplorer';
 import * as redhat from './redhat';
 import * as system from './system';
 import { OS, log } from './system';
-export const DEFAULT_PROFILE_CONFIG_KEY = 'terminal.integrated.defaultProfile.' + OS.configName;
 
 /**
  * Return a value from user/remote settings.json or default configuration.
@@ -52,7 +51,7 @@ export function getWorkspace<T>(section: string): T | undefined {
 export async function update(section:string, value:any) {
 	const config = vscode.workspace.getConfiguration();
 	value = Array.isArray(value) && value.length === 0 ? undefined : value;
-	log.info(`${value ? 'Update' : 'Remove'} settings:`, section, _.isObject(value) ? '' : value);
+	log.info(`${value ? 'Update' : 'Remove'} Settings:`, section, _.isObject(value) ? '' : value);
 	return await config.update(section, value, vscode.ConfigurationTarget.Global);
 }
 
@@ -75,10 +74,11 @@ export function getJavaRuntimes(): redhat.JavaRuntimeArray {
 }
 
 /**
- * Profile utility functions.
+ * Profile utility namespace.
  */
 export namespace Profile {
 
+    export const DEFAULT_PROFILE_CONFIG_KEY = 'terminal.integrated.defaultProfile.' + OS.configName;
 	export const nameOf = (runtimeName: string) =>
 		runtimeName + (redhat.isLtsVersion(redhat.versionOf(runtimeName)) ? ' LTS' : '')
 	;
@@ -97,36 +97,27 @@ export namespace Profile {
 }
 
 /**
- * The previous state.
+ * Setting state class.
  */
-export class PreviousState {
-
-	static getInstance() {
-		const state = system.getExtensionContext().workspaceState;
-		const prev = state.get<PreviousState>(PreviousState.name) || new PreviousState();
-		prev.defaultProfileVer = Profile.getDefaultProfileVersion();
-		state.update(PreviousState.name, prev);
-		return prev;
-	}
-
-	private _message: string | undefined;
-	get message() {return this._message;};
-	set message(p: string | undefined) {
-		this._message = p;
-		system.getExtensionContext().workspaceState.update(PreviousState.name, this);
-	};
-
-	private _defaultProfileVer: number | undefined;
-	get defaultProfileVer() {return this._defaultProfileVer;};
-	set defaultProfileVer(p: number | undefined) {
-		this._defaultProfileVer = p;
-		system.getExtensionContext().workspaceState.update(PreviousState.name, this);
-	};
+export class SettingState {
 
 	isApplyDefaultProfile: boolean | undefined;
-	static async applyDefaultProfile(prev: PreviousState, bool: boolean) {
-		prev.isApplyDefaultProfile = bool;
-		await system.getExtensionContext().workspaceState.update(PreviousState.name, prev);
+	defaultProfileVer: number | undefined;
+	isEventProcessing: boolean | undefined;
+	message: string | undefined;
+	private constructor() {}
+
+	static getInstance() { // Only fields can be saved, instance methods cannot be restored
+		const workspaceState = system.getExtensionContext().workspaceState;
+		const state = workspaceState.get<SettingState>(SettingState.name) || new SettingState();
+		workspaceState.update(SettingState.name, state);
+		return state;
+	}
+
+	static async store() { // Setter cannot be await
+		const workspaceState = system.getExtensionContext().workspaceState;
+		const state = workspaceState.get<SettingState>(SettingState.name);
+		await workspaceState.update(SettingState.name, state);
 	}
 }
 
@@ -147,10 +138,11 @@ export async function updateJavaRuntimes(
 		remove(CONFIG_KEY_DEPRECATED_JAVA_HOME);
 	}
 
-	const defaultProfileRuntime = (() => {
-		const prev = PreviousState.getInstance();
-		if (prev.isApplyDefaultProfile) {
-			PreviousState.applyDefaultProfile(prev, false);
+	const applyProfileRuntime = (() => {
+		const state = SettingState.getInstance();
+		if (state.isApplyDefaultProfile) {
+			state.isApplyDefaultProfile = false;
+			SettingState.store();
 			const defaultProfileVer = Profile.getDefaultProfileVersion();
 			log.info(`Apply Default Profile Java ${defaultProfileVer}`);
 			return runtimes.findByVersion(defaultProfileVer);
@@ -161,9 +153,9 @@ export async function updateJavaRuntimes(
 	const latestLtsRuntime = runtimes.findByVersion(javaConfig.latestLtsVer);
 
 	// Project Runtimes Default
-	if (defaultProfileRuntime) {
+	if (applyProfileRuntime) {
 		runtimes.forEach(runtime => runtime.default = undefined); // Clear
-		defaultProfileRuntime.default = true;
+		applyProfileRuntime.default = true;
 	} else if (latestLtsRuntime && !runtimes.findDefault()) { // Keep if set
 		latestLtsRuntime.default = true;
 	}
@@ -178,7 +170,7 @@ export async function updateJavaRuntimes(
 	const profilesDef = getUserDef(CONFIG_KEY_TERMINAL_PROFILES) ?? {};
 	const profilesOld:any = _.cloneDeep(profilesDef); // Proxy to POJO for isEqual
 	const profilesNew:any = _.cloneDeep(profilesOld);
-	const profileNameMap = new Map<string, string>();
+	const runtimeProfileNameMap = new Map<string, string>();
 	const _createPathPrepend = (javaHome: string) => [path.join(javaHome, 'bin'), '${env:PATH}'].join(path.delimiter);
 	const rcfileDir = system.getGlobalStoragePath();
 
@@ -186,7 +178,7 @@ export async function updateJavaRuntimes(
 		const ver = redhat.versionOf(runtime.name);
 		const profileNameOldFormat = runtime.name; // 2024.05.22 Future deletion
 		const profileName = Profile.nameOf(runtime.name);
-		profileNameMap.set(runtime.name, profileName);
+		runtimeProfileNameMap.set(runtime.name, profileName);
 
 		// Create from config runtimes (Always overwrite), Proxy to POJO for isEqual
 		const profile:any = _.cloneDeep(profilesOld[profileNameOldFormat] ?? profilesOld[profileName]) ?? {};
@@ -241,6 +233,9 @@ export async function updateJavaRuntimes(
 			}
 		}
 	}
+	const _fixJavaHome = async (currentJavaHome: string, defaultRuntime: redhat.IJavaRuntime) =>
+		applyProfileRuntime?.path || await jdkExplorer.fixPath(currentJavaHome) || defaultRuntime.path;
+	;
 	const terminalDefaultRuntime = latestLtsRuntime || stableLtsRuntime;
 	if (terminalDefaultRuntime) {
 		// Create or update default zsh/bash profiles
@@ -249,7 +244,7 @@ export async function updateJavaRuntimes(
 			const profile = profilesNew[shellName] || {};
 			profile.path = shellName;
 			profile.env ||= {};
-			profile.env.JAVA_HOME = await jdkExplorer.fixPath(profile.env.JAVA_HOME) || terminalDefaultRuntime.path;
+			profile.env.JAVA_HOME = await _fixJavaHome(profile.env.JAVA_HOME, terminalDefaultRuntime);
 			profilesNew[shellName] = profile;
 			return profile;
 		};
@@ -272,18 +267,18 @@ export async function updateJavaRuntimes(
 		// [Windows/macOS/Linux] Default profile
 		// Linux Maven uses the Java version of the default profile rcfile
 		if (terminalDefaultRuntime) {
-			const profileName = profileNameMap.get(terminalDefaultRuntime.name);
+			const profileName = runtimeProfileNameMap.get(terminalDefaultRuntime.name);
 			if (profileName) {
-				const val:string | undefined = getUserDef(DEFAULT_PROFILE_CONFIG_KEY);
-				if (val) {
+				const defaultProfileName:string | undefined = getUserDef(Profile.DEFAULT_PROFILE_CONFIG_KEY);
+				if (defaultProfileName) {
 					// Repair: Non-existing profile name
-					if (!Array.from(profileNameMap.values()).includes(val)) {
-						update(DEFAULT_PROFILE_CONFIG_KEY, profileName);
+					if (!Array.from(runtimeProfileNameMap.values()).includes(defaultProfileName)) {
+						update(Profile.DEFAULT_PROFILE_CONFIG_KEY, profileName);
 					}
 					// Keep
 				} else {
 					// New
-					update(DEFAULT_PROFILE_CONFIG_KEY, profileName);
+					update(Profile.DEFAULT_PROFILE_CONFIG_KEY, profileName);
 				}
 			}
 		}
@@ -328,7 +323,7 @@ export async function updateJavaRuntimes(
 			const CONFIG_KEY_TERMINAL_ENV = 'terminal.integrated.env.' + OS.configName;
 			const terminalEnv:any = _.cloneDeep(getUser(CONFIG_KEY_TERMINAL_ENV) ?? {}); // Proxy to POJO for isEqual
 			const terminalEnvOld = _.cloneDeep(terminalEnv);
-			terminalEnv.JAVA_HOME = await jdkExplorer.fixPath(terminalEnv.JAVA_HOME) || terminalDefaultRuntime.path;
+			terminalEnv.JAVA_HOME = await _fixJavaHome(terminalEnv.JAVA_HOME, terminalDefaultRuntime);
 			terminalEnv.PATH = _createPathPrepend(terminalEnv.JAVA_HOME);
 			// It also applies to "Run | Debug" on Windows Encoding, so specify it in profiles
 			//terminalEnv.JAVA_TOOL_OPTIONS = '-Dstdout.encoding=UTF-8 -Dstderr.encoding=UTF-8';
@@ -363,7 +358,7 @@ export async function updateJavaRuntimes(
 		// Issue: Change the scope of maven.terminal.customEnv to machine-overridable
 		//   Open) https://github.com/microsoft/vscode-maven/issues/991
 		const javaHomeEnv = _getCustomEnv('JAVA_HOME');
-		javaHomeEnv.value = await jdkExplorer.fixPath(javaHomeEnv.value) || mavenJavaRuntime.path;
+		javaHomeEnv.value = await _fixJavaHome(javaHomeEnv.value, mavenJavaRuntime);
 
 		// [Windows] maven and gradle don't need java/bin in PATH (java command cannot be executed)
 		// [Linux/macOS] PATH is not required because defaultProfile's rcfile is used
@@ -404,7 +399,7 @@ export async function updateJavaRuntimes(
 			log.info('Needs Reload: Restart Gradle Daemon');
 		}
 		if (originPath) {
-			const fixedOrDefault = await jdkExplorer.fixPath(originPath) || gradleJavaRuntime.path;
+			const fixedOrDefault = await _fixJavaHome(originPath, gradleJavaRuntime);
 			if (fixedOrDefault !== originPath) {
 				_updateGradleJavaHome(fixedOrDefault);
 			}

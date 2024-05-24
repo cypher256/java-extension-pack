@@ -29,13 +29,18 @@ export async function scan(javaConfig: redhat.IJavaConfig, runtimes:redhat.JavaR
 			continue;
 		}
 		// Remove Auto-downloaded prev latest (for 22 to 23)
+		const majorVer = redhat.versionOf(runtime.name);
 		const originPath = runtime.path;
-		if (!system.isUserInstalled(originPath) && path.basename(originPath) === 'latest') {
+		if (
+			javaConfig.latestAvailableVer !== majorVer &&
+			!system.isUserInstalled(originPath) &&
+			path.basename(originPath) === 'latest'
+		) {
+			log.info(`Remove previous latest ${originPath}`);
 			runtimes.splice(i, 1); // remove, needImmediateUpdate = false
 			continue;
 		}
 		// Ignore manual setted path for force download (If invalid directory, temporary error)
-		const majorVer = redhat.versionOf(runtime.name);
 		if (javaConfig.downloadLtsVers.includes(majorVer)) { // Download LTS only
 			const downloadDir = jdk.getDownloadDir(javaConfig, majorVer);
 			if (system.equalsPath(originPath, downloadDir)) {

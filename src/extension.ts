@@ -24,7 +24,7 @@ export async function activate(context:vscode.ExtensionContext) {
 		log.info(`activate START ${context.extension?.packageJSON?.version} --------------------`);
 		log.info('Global Storage', system.getGlobalStoragePath());
 		copyRcfile();
-		setEnvVariable();
+		setTerminalEnvironment();
 
 		const AUTO_CONFIG_ENABLED = 'javaAutoConfig.enabled';
 		if (!settings.getWorkspace(AUTO_CONFIG_ENABLED)) {
@@ -46,7 +46,7 @@ export async function activate(context:vscode.ExtensionContext) {
 		await detect(javaConfig, runtimes);
 		await download(javaConfig, runtimes);
 		onComplete(javaConfig, runtimes, runtimesOld, isFirstStartup);
-		setEnvVariable();
+		setTerminalEnvironment();
 
 	} catch (e:any) {
 		vscode.window.showErrorMessage(`Auto Config Java failed. ${e}`);
@@ -80,9 +80,9 @@ function copyRcfile() {
 }
 
 /**
- * Sets the environment variables.
+ * Sets the terminal environment variables.
  */
-async function setEnvVariable() {
+async function setTerminalEnvironment() {
 
 	// Maven configuration is workspace not yet supported
 	// https://github.com/microsoft/vscode-maven/issues/991#issuecomment-1940414022
@@ -230,9 +230,8 @@ function onComplete(
 		}
 	}
 
-	// Delay for prevent self update
-	// setTimeout(setConfigChangedEvent, 5_000); // Pending: Under checking
-	setTimeout(setConfigChangedEvent, 0);
+	// Delay for prevent self update (2024.05.23 Testing 5_000 -> 0)
+	setTimeout(() => setUpdateEvent(javaConfig), 0);
 }
 
 /**
@@ -269,13 +268,13 @@ async function installExtension(extensionId:string) {
  * Shows the reload message.
  */
 function showReloadMessage() {
-	const reloadLabel = l10n.t('Reload');
+	const state = settings.SettingState.getInstance();
 	const message = l10n.t('Configuration changed, please Reload Window.');
-	const prev = settings.PreviousState.getInstance();
-	if (message === prev.message)  {return; }
-	prev.message = message;
+	if (message)  {return; }
+	state.message = message;
+	const reloadLabel = l10n.t('Reload');
 	vscode.window.showWarningMessage(message, reloadLabel).then(selection => {
-		prev.message = undefined;
+		state.message = undefined;
 		if (selection === reloadLabel) {
 			vscode.commands.executeCommand('workbench.action.reloadWindow');
 		}
@@ -283,51 +282,68 @@ function showReloadMessage() {
 }
 
 /**
- * Sets the configuration changed event.
+ * Sets the update event.
+ * @param javaConfig The Java configuration.
  */
-function setConfigChangedEvent() {
-	const prev = settings.PreviousState.getInstance();
-	vscode.workspace.onDidChangeConfiguration(event => {
+function setUpdateEvent(javaConfig: redhat.IJavaConfig) {
+	const state = settings.SettingState.getInstance();
+	state.message = undefined;
+	state.defaultProfileVer = settings.Profile.getDefaultProfileVersion();
+	state.isEventProcessing = false;
 
-		// Reload Window
-		if (
-			//------------------------------------------
-			// Server
-			event.affectsConfiguration('spring-boot.ls.java.home')
-			//|| event.affectsConfiguration('java.jdt.ls.java.home') // redhat.java extension detects
-			//|| event.affectsConfiguration('java.import.gradle.java.home') // Gradle for Java detects
-
-			//------------------------------------------
-			// Terminal Profiles Reconfiguration
-			|| event.affectsConfiguration('java.configuration.runtimes')
-			|| event.affectsConfiguration('java.import.gradle.home')
-			|| event.affectsConfiguration('maven.executable.path')
-			//|| event.affectsConfiguration('maven.terminal.customEnv') // Switch Win/WSL (NOT machine-overridable)
-		) {
-			showReloadMessage();
-		}
-
-		// Change default profile
-		else if (event.affectsConfiguration(settings.DEFAULT_PROFILE_CONFIG_KEY)) {
-			const defaultProfileVer = settings.Profile.getDefaultProfileVersion();
-			if (!defaultProfileVer || defaultProfileVer === prev.defaultProfileVer) { 
-				return;
+	vscode.workspace.onDidChangeConfiguration(async event => {
+		if (state.isEventProcessing) {return;}
+		state.isEventProcessing = true;
+		try {
+			// Update Terminal PATH
+			if (
+				event.affectsConfiguration('java.import.gradle.home') ||
+				event.affectsConfiguration('maven.executable.path')
+			) {
+				await setTerminalEnvironment();
+				log.info('Complete Change Event: build tools path');
 			}
-			prev.defaultProfileVer = defaultProfileVer;
-			const reloadLabel = l10n.t('Reload and apply');
-			const message = l10n.t(
-				'Default profile changed to Java {0}. Do you want to apply it as default in user settings?',
-				defaultProfileVer
-			);
-			if (message === prev.message)  {return; }
-			prev.message = message;
-			vscode.window.showWarningMessage(message, reloadLabel).then(async selection => {
-				prev.message = undefined;
-				if (selection === reloadLabel) {
-					await settings.PreviousState.applyDefaultProfile(prev, true);
-					vscode.commands.executeCommand('workbench.action.reloadWindow');
+
+			// Reconfigure Terminal Profiles
+			else if (event.affectsConfiguration('java.configuration.runtimes')) {
+				const runtimes = settings.getJavaRuntimes();
+				await detect(javaConfig, runtimes); // Freeze without await
+				log.info('Complete Change Event: java.configuration.runtimes');
+			}
+
+			// Change Default Profile
+			else if (event.affectsConfiguration(settings.Profile.DEFAULT_PROFILE_CONFIG_KEY)) {
+				const defaultProfileVer = settings.Profile.getDefaultProfileVersion();
+				if (!defaultProfileVer || defaultProfileVer === state.defaultProfileVer) { 
+					return;
 				}
-			});
+				state.defaultProfileVer = defaultProfileVer;
+				const message = l10n.t(
+					'The default profile Java version has changed. Do you want to apply it as default for user settings?'
+				);
+				if (message === state.message)  {return; }
+				state.message = message;
+				const reloadLabel = l10n.t('Reload and apply');
+				const cancelLabel = l10n.t('Cancel');
+				vscode.window.showWarningMessage(message, cancelLabel, reloadLabel).then(async selection => {
+					state.message = undefined;
+					if (selection === reloadLabel) {
+						state.isApplyDefaultProfile = true;
+						await settings.SettingState.store();
+						vscode.commands.executeCommand('workbench.action.reloadWindow');
+					}
+				});
+			}
+
+		} catch (e:any) {
+			log.error(e);
+
+		} finally {
+			// Waiting to suppress change events from a program
+			setTimeout(async () => {
+				state.isEventProcessing = false;
+				settings.SettingState.store();
+			}, 5_000);
 		}
 	});
 }
