@@ -394,8 +394,10 @@ export async function updateJavaRuntimes(
 		const originPath = getUser<string>(CONFIG_KEY_GRADLE_JAVA_HOME);
 		function _updateGradleJavaHome(newPath: string) {
 			update(CONFIG_KEY_GRADLE_JAVA_HOME, newPath);
-			javaConfig.needsReload = true;
-			log.info('Needs Reload: Restart Gradle Daemon');
+			if (!applyProfileRuntime) {
+				javaConfig.needsReload = true;
+				log.info(`Needs Reload: Restart Gradle Daemon\n${originPath}\n${newPath}`);
+			}
 		}
 		if (originPath) {
 			const fixedOrDefault = await _fixJavaHome(originPath, gradleJavaRuntime);
