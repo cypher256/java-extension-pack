@@ -31,7 +31,7 @@ mvn -v
 <br>
 
 ### Specify Project Java Version
-The `Extension Pack for Java Auto Config` has been extended to automatically configure the **user** (global) [`settings.json`](https://code.visualstudio.com/docs/getstarted/settings#_settingsjson) at startup and apply the Java version selected in [Select Default Profile](https://code.visualstudio.com/docs/terminal/profiles) to settings.json. To specify the Java version individually, edit the following files.
+The `Extension Pack for Java Auto Config` has been extended to automatically configure the **user** (global) [`settings.json`](https://code.visualstudio.com/docs/getstarted/settings#_settingsjson) at startup and apply the Java version selected in [Select Default Profile](https://code.visualstudio.com/docs/terminal/profiles) to settings.json (See Features ⭐). To specify the Java version individually, edit the following files.
 <br>
 <br>
 
@@ -53,7 +53,7 @@ The `Extension Pack for Java Auto Config` has been extended to automatically con
     {
       "name": "JavaSE-17",
       "path": "C:\\Program Files\\java\\jdk-17.0.12",
-      "default": true // Runtime to use for No Build Tools projects
+      "default": true // ⭐ Runtime to use for No Build Tools projects
     },
     {
       "name": "JavaSE-21",
@@ -153,16 +153,16 @@ For Included Extensions
 |Configuration Name|Configured Value [Precedence]|
 |---|---|
 |*Language support for Java*|
-|[java.configuration.runtimes](https://code.visualstudio.com/docs/java/java-project#_configure-runtime-for-projects)<br>([Issues](https://github.com/redhat-developer/vscode-java/issues?q=is%3Aissue+java.configuration.runtimes))|Set all detected and downloaded JDKs (default: Latest LTS)<br>[`settings.json` > `JAVA_HOME`]|
+|[java.configuration.runtimes](https://code.visualstudio.com/docs/java/java-project#_configure-runtime-for-projects)<br>([Issues](https://github.com/redhat-developer/vscode-java/issues?q=is%3Aissue+java.configuration.runtimes)) ⭐ default|Set all detected and downloaded JDKs (default: Latest LTS)<br>[`settings.json` > `JAVA_HOME`]|
 |[java.jdt.ls.java.home](https://github.com/redhat-developer/vscode-java/wiki/JDK-Requirements#platform-versions)<br>([Issues](https://github.com/redhat-developer/vscode-java/issues?q=is%3Aissue+java.jdt.ls.java.home)) 🛠️|Remove setting if Red Hat embedded JRE exists<br>[`settings.json` > Embedded JRE > `JDK_HOME` > `JAVA_HOME` > `PATH`]|
 |~~[java.home](https://github.com/redhat-developer/vscode-java/wiki/JDK-Requirements#universal-version)~~|Remove as it has been replaced by `java.jdt.ls.java.home`|
 |*Spring Boot Tools*|
 |[spring-boot.ls.java.home](https://github.com/spring-projects/sts4/blob/main/vscode-extensions/commons-vscode/src/launch-util.ts#L140)<br>([Issues](https://github.com/spring-projects/sts4/issues?q=is%3Aissue+spring-boot.ls.java.home)) 🛠️|Remove setting if Red Hat embedded JRE exists<br>[`settings.json` > Embedded JRE > `JAVA_HOME` > `PATH`]|
 |*Gradle for Java*|
-|[java.import.gradle.java.home](https://github.com/microsoft/vscode-gradle#java-specific-settings)<br>([Issues](https://github.com/microsoft/vscode-gradle/issues?q=is%3Aissue+java.import.gradle.java.home))|Set latest LTS JDK if unset<br>[`settings.json` > `java.jdt.ls.java.home` > `JAVA_HOME` > `PATH`]|
+|[java.import.gradle.java.home](https://github.com/microsoft/vscode-gradle#java-specific-settings)<br>([Issues](https://github.com/microsoft/vscode-gradle/issues?q=is%3Aissue+java.import.gradle.java.home)) ⭐|Set latest LTS JDK if unset<br>[`settings.json` > `java.jdt.ls.java.home` > `JAVA_HOME` > `PATH`]|
 |[java.import.gradle.home](https://github.com/microsoft/vscode-gradle#java-specific-settings)<br>([Issues](https://github.com/microsoft/vscode-gradle/issues?q=is%3Aissue+java.import.gradle.home))|Set auto-downloaded gradle if unset<br>[**`gradlew`** > `settings.json` > `PATH` > `GRADLE_HOME`]|
 |*Maven for Java*|
-|[maven.terminal.customEnv](https://marketplace.visualstudio.com/items?itemName=vscjava.vscode-maven#additional-configurations)<br>([Issues](https://github.com/microsoft/vscode-maven/issues?q=is%3Aissue+maven.terminal.customEnv))|Set latest LTS JDK if unset<br>[`settings.json` > `JAVA_HOME`]|
+|[maven.terminal.customEnv](https://marketplace.visualstudio.com/items?itemName=vscjava.vscode-maven#additional-configurations)<br>([Issues](https://github.com/microsoft/vscode-maven/issues?q=is%3Aissue+maven.terminal.customEnv)) ⭐ JAVA_HOME|Set latest LTS JDK if unset<br>[`settings.json` > `JAVA_HOME`]|
 |[maven.executable.path](https://marketplace.visualstudio.com/items?itemName=vscjava.vscode-maven#additional-configurations)<br>([Issues](https://github.com/microsoft/vscode-maven/issues?q=is%3Aissue+maven.executable.path)) 📝|Set auto-downloaded maven if unset (If you want to use `mvnw`, set "" manually)<br>[`settings.json` > **`mvnw`** > `PATH`]|
 
 For Optional Extensions
@@ -175,6 +175,7 @@ For Optional Extensions
 |*Salesforce Extension Pack*<br>[salesforcedx-vscode-apex.java.home](https://developer.salesforce.com/tools/vscode/en/vscode-desktop/java-setup)<br>([Issues](https://github.com/forcedotcom/salesforcedx-vscode/issues?q=is%3Aissue+salesforcedx-vscode-apex.java.home)) 🛠️|Set previous LTS if unset<br>[`settings.json` > `JDK_HOME` > `JAVA_HOME` > Windows Registry > `PATH`]|
 |*Scala (Metals)*<br>[metals.javaHome](https://github.com/scalameta/metals-vscode/blob/main/packages/metals-vscode/README.md#configure-java-version)<br>([Issues](https://github.com/scalameta/metals/issues?q=is%3Aissue+metals.javaHome)) 🛠️|Set previous LTS if unset<br>[`settings.json` > `JAVA_HOME` > Windows Registry > `PATH`]|
 
+⭐ The Java version specified in [Select Default Profile](https://code.visualstudio.com/docs/terminal/profiles) is set.<br>
 🛠️ The language server runtime used by VS Code extensions. Not for building or running projects.<br>
 📝 This setting cannot be overridden per workspace (project).
 <br>
@@ -244,10 +245,10 @@ The terminal dropdown items by Java version are automatically created based on t
 
 |Configuration Name|Configured Value [Original Default]|
 |---|---|
-|[terminal.integrated.env.windows](https://code.visualstudio.com/docs/terminal/profiles#_configuring-profiles)<br>([Issues](https://github.com/microsoft/vscode/issues?q=is%3Aissue+terminal.integrated.env+JAVA_HOME)) *Windows only*|Set latest LTS if unset<br>[None]|
-|[terminal.integrated.defaultProfile.{platform}](https://code.visualstudio.com/docs/terminal/profiles)<br>([Issues](https://github.com/microsoft/vscode/issues?q=is%3Aissue+terminal.integrated.profiles))|Set latest LTS runtime name (e.g. `JavaSE-21`)<br>[Windows:`PowerShell`, Mac:`zsh`, Linux:`bash`]|
+|[terminal.integrated.env.windows](https://code.visualstudio.com/docs/terminal/profiles#_configuring-profiles)<br>([Issues](https://github.com/microsoft/vscode/issues?q=is%3Aissue+terminal.integrated.env+JAVA_HOME)) *Windows only* ⭐|Set latest LTS if unset<br>[None]|
+|[terminal.integrated.defaultProfile.{platform}](https://code.visualstudio.com/docs/terminal/profiles)<br>([Issues](https://github.com/microsoft/vscode/issues?q=is%3Aissue+terminal.integrated.profiles))|Set latest LTS runtime name (e.g. `JavaSE-21`)<br>[Windows:`cmd`, Mac:`zsh`, Linux:`bash`]|
 |[terminal.integrated.automationProfile.windows](https://code.visualstudio.com/docs/terminal/profiles#_configuring-the-taskdebug-profile)<br>([Issues](https://github.com/microsoft/vscode/issues?q=is%3Aissue+terminal.integrated.automationProfile)) *Windows only*|`"path": "cmd"`<br>[null] Suppress error: '[Incorrect parameter format -/d](https://github.com/microsoft/vscode/issues/202691)'|
-|[terminal.integrated.profiles.{platform}](https://code.visualstudio.com/docs/terminal/profiles)<br>([Issues](https://github.com/microsoft/vscode/issues?q=is%3Aissue+terminal.integrated.profiles))|Set configured runtimes to terminal<br>[None]|
+|[terminal.integrated.profiles.{platform}](https://code.visualstudio.com/docs/terminal/profiles)<br>([Issues](https://github.com/microsoft/vscode/issues?q=is%3Aissue+terminal.integrated.profiles)) ⭐ Mac:`zsh`, Linux:`bash`|Set configured runtimes to terminal<br>[None]|
 |[terminal.integrated.enablePersistentSessions](https://code.visualstudio.com/docs/terminal/advanced#_persistent-sessions)<br>([Issues](https://github.com/microsoft/vscode/issues?q=is%3Aissue+terminal.integrated.enablePersistentSessions))|`false`<br>[`true`]|
 |[terminal.integrated.tabs.hideCondition](https://code.visualstudio.com/docs/terminal/appearance#_visibility)<br>([Issues](https://github.com/microsoft/vscode/issues?q=is%3Aissue+terminal.integrated.tabs.hideCondition))|`never`<br>[`singleTerminal`]|
 |[java.test.config](https://code.visualstudio.com/docs/java/java-testing#_customize-test-configurations) > vmArgs<br>([Issues](https://github.com/microsoft/vscode-java-test/issues?q=is%3Aissue+java.test.config)) *Windows only*|`-Dstdout.encoding=UTF-8`, `-Derrout.encoding=UTF-8`<br>[`undefined`]|
