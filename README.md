@@ -31,15 +31,25 @@ mvn -v
 <br>
 
 ### Specify Project Java Version
-The **user** (global) [`settings.json`](https://code.visualstudio.com/docs/getstarted/settings#_settingsjson) is auto-configured at startup by `Extension Pack for Java Auto Config`. However, if you want to customize it, you can edit that file.
+The `Extension Pack for Java Auto Config` has been extended to automatically configure the **user** (global) [`settings.json`](https://code.visualstudio.com/docs/getstarted/settings#_settingsjson) at startup and apply the Java version selected in [Select Default Profile](https://code.visualstudio.com/docs/terminal/profiles) to settings.json. To specify the Java version individually, edit the following files.
 <br>
 <br>
 
-* **Project JDKs common settings ([vscode-java](https://github.com/redhat-developer/vscode-java?tab=readme-ov-file#project-jdks))**<br>
+* **No Build Tools ([vscode-java](https://github.com/redhat-developer/vscode-java?tab=readme-ov-file#project-jdks))**<br>
   (*1) User `settings.json`
 
+
   ```json
+  // Java runtimes common settings
   "java.configuration.runtimes": [
+    {
+      "name": "JavaSE-1.8",
+      "path": "C:\\Program Files\\java\\jdk-1.8.0_201",
+    },
+    {
+      "name": "JavaSE-11",
+      "path": "C:\\Program Files\\java\\jdk-11.0.18",
+    },
     {
       "name": "JavaSE-17",
       "path": "C:\\Program Files\\java\\jdk-17.0.12",

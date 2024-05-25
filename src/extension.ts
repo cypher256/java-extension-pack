@@ -269,8 +269,8 @@ async function installExtension(extensionId:string) {
  */
 function showReloadMessage() {
 	const state = settings.SettingState.getInstance();
+	if (state.message)  { return; }
 	const message = l10n.t('Configuration changed, please Reload Window.');
-	if (message)  { return; }
 	state.message = message;
 	const reloadLabel = l10n.t('Reload');
 	vscode.window.showWarningMessage(message, reloadLabel).then(selection => {
@@ -323,8 +323,8 @@ function setUpdateEvent(javaConfig: redhat.IJavaConfig) {
 				);
 				if (message === state.message)  { return; }
 				state.message = message;
-				const reloadLabel = l10n.t('Reload and apply');
 				const cancelLabel = l10n.t('Cancel');
+				const reloadLabel = l10n.t('Reload and apply');
 				vscode.window.showWarningMessage(message, cancelLabel, reloadLabel).then(async selection => {
 					state.message = undefined;
 					if (selection === reloadLabel) {
@@ -340,7 +340,7 @@ function setUpdateEvent(javaConfig: redhat.IJavaConfig) {
 
 		} finally {
 			// Waiting to suppress change events from a program
-			setTimeout(async () => {
+			setTimeout(() => {
 				state.isEventProcessing = false;
 				state.store();
 			}, 5_000);
