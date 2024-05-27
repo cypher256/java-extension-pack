@@ -44,11 +44,11 @@ The `Extension Pack for Java Auto Config` has been extended to automatically con
   "java.configuration.runtimes": [
     {
       "name": "JavaSE-1.8",
-      "path": "C:\\Program Files\\java\\jdk-1.8.0_201",
+      "path": "C:\\Program Files\\java\\jdk-1.8.0_402",
     },
     {
       "name": "JavaSE-11",
-      "path": "C:\\Program Files\\java\\jdk-11.0.18",
+      "path": "C:\\Program Files\\java\\jdk-11.0.21",
     },
     {
       "name": "JavaSE-17",
@@ -77,7 +77,7 @@ The `Extension Pack for Java Auto Config` has been extended to automatically con
   java.sourceCompatibility = javaVersion // Make it recognize to VS Code
   compileJava.options.release = javaVersion // JEP 247: API validation
   ```
-  👉[Toolchain](https://docs.gradle.org/current/userguide/building_java_projects.html#sec:java_cross_compilation) allows you to specify exactly which JDK version to build. Just specify it as shown below.
+  [Toolchain](https://docs.gradle.org/current/userguide/building_java_projects.html#sec:java_cross_compilation) allows you to specify exactly which JDK version to build. Just specify it as shown below.
   ```gradle
   java.toolchain.languageVersion = JavaLanguageVersion.of(17)
   ```
@@ -104,7 +104,7 @@ The `Extension Pack for Java Auto Config` has been extended to automatically con
       <maven.compiler.release>17</maven.compiler.release><!-- JEP 247: API validation -->
   </properties>
   ```
-  👉[Toolchain](https://maven.apache.org/guides/mini/guide-using-toolchains.html) allows you to specify exactly which JDK version to build.
+  [Toolchain](https://maven.apache.org/guides/mini/guide-using-toolchains.html) allows you to specify exactly which JDK version to build.
 <br><br>
 
 (*1) The `settings.json` [can be overridden by project (workspace)](https://code.visualstudio.com/docs/getstarted/settings#_workspace-settings).<br>
@@ -124,7 +124,7 @@ The JDK, build tools, terminal and other settings are automatically configured a
 <br>
 
 ## JDK Auto-Configuration
-Automatically configure multiple versions of the JDK and build tools. If there are multiple JDKs of the same version, the latest minor version among them is used. If you installed the JDK manually or encountered a configuration error, restart VS Code or execute Command Palette **>Java: Clean Java Language Server Workspace ≫ Reload and Delete**. These apply to User `settings.json` (VS Code global), but can be manually edited to customize them. If you want to customize your settings even further, consider using [workspace settings](https://code.visualstudio.com/docs/getstarted/settings) or [profiles](https://code.visualstudio.com/docs/editor/profiles).
+Automatically configure multiple versions of the JDK and build tools. If there are multiple JDKs of the same version, the latest minor version among them is used. If you installed the JDK manually or encountered a configuration error, restart VS Code or execute Command Palette **>Java: Clean Java Language Server Workspace ≫ Reload and delete**. These apply to User `settings.json` (VS Code global), but can be manually edited to customize them. If you want to customize your settings even further, consider using [workspace settings](https://code.visualstudio.com/docs/getstarted/settings) or [profiles](https://code.visualstudio.com/docs/editor/profiles).
 
 1. Auto-fix invalid JDK configuration (e.g. `/foo/jdk-21.0.8/bin` -> `/foo/jdk-21.0.8`)
 1. Auto-remove configuration entries when JDK uninstalled or version path changed
