@@ -31,7 +31,7 @@ mvn -v
 <br>
 
 ### Specify Project Java Version
-The `Extension Pack for Java Auto Config` has been extended to automatically configure the **user** (global) [`settings.json`](https://code.visualstudio.com/docs/getstarted/settings#_settingsjson) at startup and apply the Java version selected in [Select Default Profile](https://code.visualstudio.com/docs/terminal/profiles) to settings.json (See Features ⭐). To specify the Java version individually, edit the following files.
+The `Extension Pack for Java Auto Config` has been extended to automatically configure the **user** (global) [`settings.json`](https://code.visualstudio.com/docs/getstarted/settings#_settingsjson) at startup and apply the Java version selected in [Select Default Profile](https://code.visualstudio.com/docs/terminal/profiles) to settings.json (⭐). To specify the Java version individually, edit the following files.
 <br>
 <br>
 
@@ -52,12 +52,12 @@ The `Extension Pack for Java Auto Config` has been extended to automatically con
     },
     {
       "name": "JavaSE-17",
-      "path": "C:\\Program Files\\java\\jdk-17.0.12",
-      "default": true // ⭐ Runtime to use for No Build Tools projects
+      "path": "C:\\Program Files\\java\\jdk-17.0.12"
     },
     {
       "name": "JavaSE-21",
-      "path": "C:\\Program Files\\java\\jdk-21.0.8"
+      "path": "C:\\Program Files\\java\\jdk-21.0.8",
+      "default": true //⭐ For No Build Tools projects
     }
   ]
   ```
@@ -68,7 +68,7 @@ The `Extension Pack for Java Auto Config` has been extended to automatically con
   (*1) User `settings.json` (Gradle execution runtime)
 
   ```json
-  "java.import.gradle.java.home": "C:\\Program Files\\java\\jdk-21.0.8"
+  "java.import.gradle.java.home": "C:\\Program Files\\java\\jdk-21.0.8" //⭐
   ```
   (*2) Project `build.gradle` ([`options.release`](https://docs.gradle.org/current/userguide/building_java_projects.html#sec:compiling_with_release))
 
@@ -77,7 +77,7 @@ The `Extension Pack for Java Auto Config` has been extended to automatically con
   java.sourceCompatibility = javaVersion // Make it recognize to VS Code
   compileJava.options.release = javaVersion // JEP 247: API validation
   ```
-  [Toolchain](https://docs.gradle.org/current/userguide/building_java_projects.html#sec:java_cross_compilation) allows you to specify exactly which JDK version to build. Just specify it as shown below.
+  [Toolchain](https://docs.gradle.org/current/userguide/building_java_projects.html#sec:java_cross_compilation) allows you to specify exactly which JDK version to build. Note that you **[cannot use the latest Java version](https://docs.gradle.org/current/userguide/compatibility.html#java) without using the toolchains**.
   ```gradle
   java.toolchain.languageVersion = JavaLanguageVersion.of(17)
   ```
@@ -91,7 +91,7 @@ The `Extension Pack for Java Auto Config` has been extended to automatically con
   "maven.terminal.customEnv": [
     {
       "environmentVariable": "JAVA_HOME",
-      "value": "C:\\Program Files\\java\\jdk-21.0.8"
+      "value": "C:\\Program Files\\java\\jdk-21.0.8" //⭐
     }
   ]
   ```
@@ -135,7 +135,7 @@ Automatically configure multiple versions of the JDK and build tools. If there a
 
 JDK auto-scan targets (Best in the industry)
 * OS specific locations: Adoptium, BellSoft, Corretto, Microsoft, Oracle, Red Hat, Semeru, Zulu etc...
-* Package Managers: ASDF, Chocolatey, jabba, jEnv, Homebrew, IntelliJ, Scoop, SDKMAN, vfox etc...
+* Package Managers: asdf, Chocolatey, jabba, jEnv, Homebrew, IntelliJ, Scoop, SDKMAN, vfox etc...
 * Toolchains: Gradle jdks directory, Maven toolchains.xml
 * Own Support: Windows `C:\Java\*`, `D:\Java\*` (e.g. `C:\Java\jdk-21.0.8`)
 

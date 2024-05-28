@@ -12,6 +12,7 @@ import * as redhat from './redhat';
 import * as settings from './settings';
 import * as system from './system';
 import { OS, log } from './system';
+const AUTO_CONFIG_ENABLED = 'javaAutoConfig.enabled';
 
 /**
  * Activates the extension.
@@ -26,12 +27,12 @@ export async function activate(context:vscode.ExtensionContext) {
 		copyRcfile();
 		setTerminalEnvironment();
 
-		const AUTO_CONFIG_ENABLED = 'javaAutoConfig.enabled';
 		if (!settings.getWorkspace(AUTO_CONFIG_ENABLED)) {
 			log.info(`${AUTO_CONFIG_ENABLED}: false`);
 			vscode.workspace.onDidChangeConfiguration(event => {
-				if (event.affectsConfiguration(AUTO_CONFIG_ENABLED)
-					&& settings.getWorkspace(AUTO_CONFIG_ENABLED) === true
+				if (event.affectsConfiguration(AUTO_CONFIG_ENABLED) &&
+					// Switch to true (if false, ignore on event)
+					settings.getWorkspace(AUTO_CONFIG_ENABLED)
 				) {
 					showReloadMessage();
 				}
@@ -231,7 +232,7 @@ function onComplete(
 	}
 
 	// Delay for prevent self update (2024.05.23 Testing 5_000 -> 0)
-	setTimeout(() => setUpdateEvent(javaConfig), 0);
+	setTimeout(() => setChangeEvent(javaConfig), 0);
 }
 
 /**
@@ -282,17 +283,21 @@ function showReloadMessage() {
 }
 
 /**
- * Sets the update event.
+ * Sets the change event.
  * @param javaConfig The Java configuration.
  */
-function setUpdateEvent(javaConfig: redhat.IJavaConfig) {
+function setChangeEvent(javaConfig: redhat.IJavaConfig) {
 	const state = settings.SettingState.getInstance();
 	state.message = undefined;
 	state.defaultProfileVer = settings.Profile.getDefaultProfileVersion();
 	state.isEventProcessing = false;
 
 	vscode.workspace.onDidChangeConfiguration(async event => {
-		if (state.isEventProcessing) { return; }
+		if (state.isEventProcessing || 
+			!settings.getWorkspace(AUTO_CONFIG_ENABLED) // If switched to false without restart
+		) {
+			return;
+		}
 		state.isEventProcessing = true;
 		try {
 			// Update Terminal PATH
