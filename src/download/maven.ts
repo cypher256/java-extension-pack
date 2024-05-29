@@ -7,7 +7,7 @@ import * as httpClient from '../httpClient';
 import * as settings from '../settings';
 import * as system from '../system';
 import { log } from '../system';
-const CONFIG_KEY_MAVEN_EXE_PATH = 'maven.executable.path';
+export const CONFIG_KEY_MAVEN_EXE_PATH = 'maven.executable.path';
 
 /**
  * @returns Whether the Maven extension is installed.

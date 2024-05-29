@@ -1,4 +1,5 @@
 /*! VS Code Extension (c) 2023 Shinji Kashihara (cypher256) @ WILL */
+import * as fs from 'fs';
 import * as jdkutils from 'jdk-utils';
 import * as _ from "lodash";
 import * as path from 'path';
@@ -102,20 +103,26 @@ export namespace Profile {
 export class SettingState {
 
 	isApplyDefaultProfile: boolean | undefined;
-	defaultProfileVer: number | undefined;
 	isEventProcessing: boolean | undefined;
-	message: string | undefined;
 	private constructor() {}
+	private readonly getProcessingFilePath = () => system.getGlobalStoragePath('.processing');
 
-	async store() { // Setter cannot be await
-		const workspaceState = system.getExtensionContext().workspaceState;
-		await workspaceState.update(SettingState.name, this);
+	async store() {
+		const globalState = system.getExtensionContext().globalState;
+		await globalState.update(SettingState.name, this);
+		// globalState cannot be applied instantly across multiple windows, so it is done via a file.
+		const pFile = this.getProcessingFilePath();
+		if (this.isEventProcessing) {
+			if (!fs.existsSync(pFile)) { fs.writeFileSync(pFile, ''); }
+		} else {
+			system.rmQuietly(pFile);
+		}
 	}
 
 	static getInstance() {
-		const workspaceState = system.getExtensionContext().workspaceState;
-		const state = Object.assign(new SettingState(), workspaceState.get(SettingState.name)); // Copy fields
-		workspaceState.update(SettingState.name, state);
+		const globalState = system.getExtensionContext().globalState;
+		const state = Object.assign(new SettingState(), globalState.get(SettingState.name)); // Copy fields
+		state.isEventProcessing = fs.existsSync(state.getProcessingFilePath());
 		return state;
 	}
 }
@@ -129,8 +136,8 @@ export class SettingState {
  */
 export async function updateJavaRuntimes(
 	javaConfig: redhat.IJavaConfig,
-	runtimes:redhat.JavaRuntimeArray,
-	runtimesOld:redhat.JavaRuntimeArray) {
+	runtimes: redhat.JavaRuntimeArray,
+	runtimesOld: redhat.JavaRuntimeArray) {
 
 	const CONFIG_KEY_DEPRECATED_JAVA_HOME = 'java.home';
 	if (getUser(CONFIG_KEY_DEPRECATED_JAVA_HOME) !== null) { // null if no entry or null value

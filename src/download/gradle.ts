@@ -7,7 +7,7 @@ import * as httpClient from '../httpClient';
 import * as settings from '../settings';
 import * as system from '../system';
 import { log } from '../system';
-const CONFIG_KEY_GRADLE_HOME = 'java.import.gradle.home';
+export const CONFIG_KEY_GRADLE_HOME = 'java.import.gradle.home';
 
 /**
  * @returns Whether the Gradle extension is installed.

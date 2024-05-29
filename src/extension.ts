@@ -26,28 +26,23 @@ export async function activate(context:vscode.ExtensionContext) {
 		log.info('Global Storage', system.getGlobalStoragePath());
 		copyRcfile();
 		setTerminalEnvironment();
+		const javaConfig = await redhat.getJavaConfig();
 
 		if (!settings.getWorkspace(AUTO_CONFIG_ENABLED)) {
 			log.info(`${AUTO_CONFIG_ENABLED}: false`);
-			vscode.workspace.onDidChangeConfiguration(event => {
-				if (event.affectsConfiguration(AUTO_CONFIG_ENABLED) &&
-					// Switch to true (if false, ignore on event)
-					settings.getWorkspace(AUTO_CONFIG_ENABLED)
-				) {
-					showReloadMessage();
-				}
-			});
+			setChangeEvent(javaConfig);
 			return;
 		}
-		const javaConfig = await redhat.getJavaConfig();
-		settings.setDefault(javaConfig);
 
+		settings.setDefault(javaConfig);
 		const runtimes = settings.getJavaRuntimes();
 		const runtimesOld = _.cloneDeep(runtimes);
 		await detect(javaConfig, runtimes);
 		await download(javaConfig, runtimes);
 		onComplete(javaConfig, runtimes, runtimesOld, isFirstStartup);
 		setTerminalEnvironment();
+		// Delay for prevent self update (2024.05.23 Testing 5_000 -> 0)
+		setTimeout(() => setChangeEvent(javaConfig), 0);
 
 	} catch (e:any) {
 		vscode.window.showErrorMessage(`Auto Config Java failed. ${e}`);
@@ -71,8 +66,8 @@ function copyRcfile() {
 		const src = system.readString(path.join(resourcesDir, fileName));
 		const dst = system.readString(system.getGlobalStoragePath(fileName));
 		if (src && src !== dst) {
-			fs.writeFile(system.getGlobalStoragePath(fileName), src, (error) => {
-				if (error) {log.warn('Failed copy rcfile', error);}
+			fs.writeFile(system.getGlobalStoragePath(fileName), src, e => {
+				if (e) {log.warn('Failed copy rcfile', e);}
 			});
 		}
 	}
@@ -230,9 +225,6 @@ function onComplete(
 			showReloadMessage();
 		}
 	}
-
-	// Delay for prevent self update (2024.05.23 Testing 5_000 -> 0)
-	setTimeout(() => setChangeEvent(javaConfig), 0);
 }
 
 /**
@@ -269,13 +261,9 @@ async function installExtension(extensionId:string) {
  * Shows the reload message.
  */
 function showReloadMessage() {
-	const state = settings.SettingState.getInstance();
-	if (state.message)  { return; }
 	const message = l10n.t('Configuration changed, please Reload Window.');
-	state.message = message;
 	const reloadLabel = l10n.t('Reload');
 	vscode.window.showWarningMessage(message, reloadLabel).then(selection => {
-		state.message = undefined;
 		if (selection === reloadLabel) {
 			vscode.commands.executeCommand('workbench.action.reloadWindow');
 		}
@@ -287,54 +275,57 @@ function showReloadMessage() {
  * @param javaConfig The Java configuration.
  */
 function setChangeEvent(javaConfig: redhat.IJavaConfig) {
-	const state = settings.SettingState.getInstance();
-	state.message = undefined;
-	state.defaultProfileVer = settings.Profile.getDefaultProfileVersion();
-	state.isEventProcessing = false;
-
+	{
+		const state = settings.SettingState.getInstance();
+		state.isEventProcessing = false;
+		state.store();
+	}
 	vscode.workspace.onDidChangeConfiguration(async event => {
-		if (state.isEventProcessing || 
-			!settings.getWorkspace(AUTO_CONFIG_ENABLED) // If switched to false without restart
-		) {
-			return;
-		}
-		state.isEventProcessing = true;
 		try {
 			// Update Terminal PATH
 			if (
-				event.affectsConfiguration('java.import.gradle.home') ||
-				event.affectsConfiguration('maven.executable.path')
+				event.affectsConfiguration(gradle.CONFIG_KEY_GRADLE_HOME) ||
+				event.affectsConfiguration(maven.CONFIG_KEY_MAVEN_EXE_PATH)
 			) {
-				await setTerminalEnvironment();
-				log.info('Complete Change Event: build tools path');
+				log.info('Change Event: Build Tools Path');
+				await setTerminalEnvironment(); // await for catch
+				return;
 			}
+		} catch (e:any) {
+			log.error(e);
+		}
 
+		const state = settings.SettingState.getInstance();
+		const isAutoConfigEnabled = settings.getWorkspace(AUTO_CONFIG_ENABLED);
+		log.debug(`isEventProcessing:${state.isEventProcessing}, ${AUTO_CONFIG_ENABLED}:${isAutoConfigEnabled}`);
+		if (state.isEventProcessing || !isAutoConfigEnabled) {
+			return;
+		}
+
+		try {
 			// Reconfigure Terminal Profiles
-			else if (event.affectsConfiguration('java.configuration.runtimes')) {
+			if (event.affectsConfiguration(redhat.JavaRuntimeArray.CONFIG_KEY)) {
+				log.info(`Change Event: ${redhat.JavaRuntimeArray.CONFIG_KEY}`);
+				state.isEventProcessing = true;
+				state.store();
 				const runtimes = settings.getJavaRuntimes();
 				await detect(javaConfig, runtimes); // Freeze without await
-				log.info('Complete Change Event: java.configuration.runtimes');
 			}
 
 			// Change Default Profile
 			else if (event.affectsConfiguration(settings.Profile.DEFAULT_PROFILE_CONFIG_KEY)) {
-				const defaultProfileVer = settings.Profile.getDefaultProfileVersion();
-				if (!defaultProfileVer || defaultProfileVer === state.defaultProfileVer) { 
-					return;
-				}
-				state.defaultProfileVer = defaultProfileVer;
+				log.info(`Change Event: ${settings.Profile.DEFAULT_PROFILE_CONFIG_KEY}`);
+				state.isEventProcessing = true;
+				state.store();
 				const message = l10n.t(
 					'The default profile Java version has changed. Do you want to apply it as default for user settings?'
 				);
-				if (message === state.message)  { return; }
-				state.message = message;
 				const cancelLabel = l10n.t('Cancel');
 				const reloadLabel = l10n.t('Reload and apply');
 				vscode.window.showWarningMessage(message, cancelLabel, reloadLabel).then(async selection => {
-					state.message = undefined;
 					if (selection === reloadLabel) {
 						state.isApplyDefaultProfile = true;
-						await state.store();
+						await state.store(); // Require await
 						vscode.commands.executeCommand('workbench.action.reloadWindow');
 					}
 				});

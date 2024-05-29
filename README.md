@@ -223,16 +223,16 @@ Command Palette **>Preferences: Open User Settings (JSON)**
   {
     "name": "JavaSE-21", // Adoptium (Auto-scan)
     "path": "C:\\Program Files\\Eclipse Adoptium\\jdk-21.0.8-hotspot",
-    "default": true // Runtime to use for No build tools projects
+    "default": true //⭐ For No build tools projects
   }
 ],
 // Gradle Daemon Java Runtime
-"java.import.gradle.java.home": "C:\\Program Files\\Eclipse Adoptium\\jdk-21.0.8-hotspot",
+"java.import.gradle.java.home": "C:\\Program Files\\Eclipse Adoptium\\jdk-21.0.8-hotspot", //⭐
 // Maven Environment Variables (for GUI context menu)
 "maven.terminal.customEnv": [
   {
     "environmentVariable": "JAVA_HOME",
-    "value": "C:\\Program Files\\Eclipse Adoptium\\jdk-21.0.8-hotspot"
+    "value": "C:\\Program Files\\Eclipse Adoptium\\jdk-21.0.8-hotspot" //⭐
   }
 ],
 ```
@@ -260,7 +260,7 @@ Command Palette **>Preferences: Open User Settings (JSON)**
 ```json
 // Terminal Default Environment Variables
 "terminal.integrated.env.windows": {
-    "PATH": "C:\\Program Files\\Eclipse Adoptium\\jdk-21.0.8-hotspot\\bin;${env:PATH}",
+    "PATH": "C:\\Program Files\\Eclipse Adoptium\\jdk-21.0.8-hotspot\\bin;${env:PATH}", //⭐
     "JAVA_HOME": "C:\\Program Files\\Eclipse Adoptium\\jdk-21.0.8-hotspot"
 },
 // Terminal Default Profile
