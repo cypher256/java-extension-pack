@@ -70,7 +70,7 @@ export async function remove(section:string) {
  * @returns An array of Java runtime objects. If no entry exists, returns an empty array.
  */
 export function getJavaRuntimes(): redhat.JavaRuntimeArray {
-	const redhatRuntimes:redhat.IJavaRuntime[] = getUser(redhat.JavaRuntimeArray.CONFIG_KEY) ?? [];
+	const redhatRuntimes:redhat.IJavaRuntime[] = getUser(redhat.JavaRuntimeArray.CONFIG_NAME) ?? [];
 	return new redhat.JavaRuntimeArray(...redhatRuntimes);
 }
 
@@ -79,7 +79,7 @@ export function getJavaRuntimes(): redhat.JavaRuntimeArray {
  */
 export namespace Profile {
 
-    export const DEFAULT_PROFILE_CONFIG_KEY = 'terminal.integrated.defaultProfile.' + OS.configName;
+    export const CONFIG_NAME_DEFAULT_PROFILE = 'terminal.integrated.defaultProfile.' + OS.configName;
 	export const nameOf = (runtimeName: string) =>
 		runtimeName + (redhat.isLtsVersion(redhat.versionOf(runtimeName)) ? ' LTS' : '')
 	;
@@ -93,37 +93,66 @@ export namespace Profile {
 		/^J.+SE-[\d.]+( LTS|)$/.test(profileName)
 	;
 	export const getDefaultProfileVersion = () =>
-		toVersion(getUserDef(DEFAULT_PROFILE_CONFIG_KEY) || '')
+		toVersion(getUserDef(CONFIG_NAME_DEFAULT_PROFILE) || '')
 	;
 }
 
 /**
- * Setting state class.
+ * Settings state class.
+ * globalState cannot be applied instantly to multiple windows, so it is saved in a file.
  */
 export class SettingState {
 
-	isApplyDefaultProfile: boolean | undefined;
-	isEventProcessing: boolean | undefined;
-	private constructor() {}
-	private readonly getProcessingFilePath = () => system.getGlobalStoragePath('.processing');
+	private _isApplyDefaultProfile: boolean | undefined;
+	get isApplyDefaultProfile() {
+		return this._isApplyDefaultProfile ?? false;
+	}
+	set isApplyDefaultProfile(value: boolean) {
+		this._isApplyDefaultProfile = value;
+		this.store();
+	}
 
-	async store() {
-		const globalState = system.getExtensionContext().globalState;
-		await globalState.update(SettingState.name, this);
-		// globalState cannot be applied instantly across multiple windows, so it is done via a file.
-		const pFile = this.getProcessingFilePath();
-		if (this.isEventProcessing) {
-			if (!fs.existsSync(pFile)) { fs.writeFileSync(pFile, ''); }
-		} else {
-			system.rmQuietly(pFile);
+	private _isEventProcessing: boolean | undefined;
+	get isEventProcessing() {
+		return this._isEventProcessing ?? false;
+	}
+	set isEventProcessing(value: boolean) {
+		this._isEventProcessing = value;
+		this.store();
+	}
+
+	private _originalProfileVersion: number | undefined;
+	get originalProfileVersion(): number | undefined {
+		return this._originalProfileVersion;
+	}
+	set originalProfileVersion(value: number | undefined) {
+		this._originalProfileVersion = value;
+		this.store();
+	}
+
+	private constructor() {}
+	private static readonly getStoreFile = () => system.getGlobalStoragePath('.SettingState.json');
+
+	private store() {
+		try {
+			const storeFile = SettingState.getStoreFile();
+			const jsonStr = JSON.stringify(this);
+			if (jsonStr !== system.readString(storeFile)) {
+				fs.writeFileSync(storeFile, jsonStr); // Sync for catch
+			}
+		} catch (e:any) {
+			log.warn('Store SettingState:', e);
 		}
 	}
 
-	static getInstance() {
-		const globalState = system.getExtensionContext().globalState;
-		const state = Object.assign(new SettingState(), globalState.get(SettingState.name)); // Copy fields
-		state.isEventProcessing = fs.existsSync(state.getProcessingFilePath());
-		return state;
+	static getInstance(): SettingState {
+		try {
+			const json = JSON.parse(system.readString(SettingState.getStoreFile()) || '{}');
+			return Object.assign(new SettingState(), json); // Copy fields
+		} catch (e:any) {
+			log.warn('Load SettingState:', e);
+			return new SettingState();
+		}
 	}
 }
 
@@ -148,11 +177,10 @@ export async function updateJavaRuntimes(
 		const state = SettingState.getInstance();
 		if (state.isApplyDefaultProfile) {
 			state.isApplyDefaultProfile = false;
-			state.store();
 			const defaultProfileVer = Profile.getDefaultProfileVersion();
 			log.info(`Apply Default Profile Java ${defaultProfileVer}`);
 			return runtimes.findByVersion(defaultProfileVer);
-		}
+	}
 		return undefined;
 	})();
 	const stableLtsRuntime = runtimes.findByVersion(javaConfig.stableLtsVer);
@@ -167,7 +195,7 @@ export async function updateJavaRuntimes(
 	}
 	if (!_.isEqual(runtimes, runtimesOld)) {
 		runtimes.sort((a, b) => a.name.localeCompare(b.name));
-		update(redhat.JavaRuntimeArray.CONFIG_KEY, runtimes);
+		update(redhat.JavaRuntimeArray.CONFIG_NAME, runtimes);
 	}
 
 	//-------------------------------------------------------------------------
@@ -275,16 +303,16 @@ export async function updateJavaRuntimes(
 		if (terminalDefaultRuntime) {
 			const profileName = runtimeProfileNameMap.get(terminalDefaultRuntime.name);
 			if (profileName) {
-				const defaultProfileName:string | undefined = getUserDef(Profile.DEFAULT_PROFILE_CONFIG_KEY);
+				const defaultProfileName:string | undefined = getUserDef(Profile.CONFIG_NAME_DEFAULT_PROFILE);
 				if (defaultProfileName) {
 					// Repair: Non-existing profile name
 					if (!Array.from(runtimeProfileNameMap.values()).includes(defaultProfileName)) {
-						update(Profile.DEFAULT_PROFILE_CONFIG_KEY, profileName);
+						update(Profile.CONFIG_NAME_DEFAULT_PROFILE, profileName);
 					}
 					// Keep
 				} else {
 					// New
-					update(Profile.DEFAULT_PROFILE_CONFIG_KEY, profileName);
+					update(Profile.CONFIG_NAME_DEFAULT_PROFILE, profileName);
 				}
 			}
 		}

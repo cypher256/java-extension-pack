@@ -69,7 +69,7 @@ export async function scan(javaConfig: redhat.IJavaConfig, runtimes:redhat.JavaR
 	}
 	if (needImmediateUpdate) {
 		// Immediate update for suppress invalid path error dialog (without await)
-		settings.update(redhat.JavaRuntimeArray.CONFIG_KEY, runtimes);
+		settings.update(redhat.JavaRuntimeArray.CONFIG_NAME, runtimes);
 	}
 
 	// Detect JDK (PRECEDENCE: Installed (>Current) > Current Config > Installed (<=Current) > Auto-Downloaded)

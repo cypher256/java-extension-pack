@@ -77,7 +77,7 @@ The `Extension Pack for Java Auto Config` has been extended to automatically con
   java.sourceCompatibility = javaVersion // Make it recognize to VS Code
   compileJava.options.release = javaVersion // JEP 247: API validation
   ```
-  [Toolchain](https://docs.gradle.org/current/userguide/building_java_projects.html#sec:java_cross_compilation) allows you to specify exactly which JDK version to build. Note that you **[cannot use the latest Java version](https://docs.gradle.org/current/userguide/compatibility.html#java) without using the toolchains**.
+  [Toolchain](https://docs.gradle.org/current/userguide/building_java_projects.html#sec:java_cross_compilation) allows you to specify exactly which JDK version to build. Note that **toolchains are required to use the [latest Java version with Gradle](https://docs.gradle.org/current/userguide/compatibility.html#java)**.
   ```gradle
   java.toolchain.languageVersion = JavaLanguageVersion.of(17)
   ```

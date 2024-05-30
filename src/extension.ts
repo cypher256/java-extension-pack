@@ -185,7 +185,7 @@ function onComplete(
 	const oldVers = runtimesOld.map(r => redhat.versionOf(r.name));
 	const newVers = runtimesNew.map(r => redhat.versionOf(r.name));
 	const defaultVer = redhat.versionOf(runtimesNew.findDefault()?.name ?? '');
-	log.info(`${redhat.JavaRuntimeArray.CONFIG_KEY} [${newVers}] default ${defaultVer}`);
+	log.info(`${redhat.JavaRuntimeArray.CONFIG_NAME} [${newVers}] default ${defaultVer}`);
 	const availableMsg = `${l10n.t('Available Java versions:')} ${newVers.join(', ')}`;
 
 	if (isFirstStartup) {
@@ -277,15 +277,15 @@ function showReloadMessage() {
 function setChangeEvent(javaConfig: redhat.IJavaConfig) {
 	{
 		const state = settings.SettingState.getInstance();
+		state.originalProfileVersion = settings.Profile.getDefaultProfileVersion();
 		state.isEventProcessing = false;
-		state.store();
 	}
 	vscode.workspace.onDidChangeConfiguration(async event => {
 		try {
 			// Update Terminal PATH
 			if (
-				event.affectsConfiguration(gradle.CONFIG_KEY_GRADLE_HOME) ||
-				event.affectsConfiguration(maven.CONFIG_KEY_MAVEN_EXE_PATH)
+				event.affectsConfiguration(gradle.CONFIG_NAME_GRADLE_HOME) ||
+				event.affectsConfiguration(maven.CONFIG_NAME_MAVEN_EXE_PATH)
 			) {
 				log.info('Change Event: Build Tools Path');
 				await setTerminalEnvironment(); // await for catch
@@ -304,19 +304,21 @@ function setChangeEvent(javaConfig: redhat.IJavaConfig) {
 
 		try {
 			// Reconfigure Terminal Profiles
-			if (event.affectsConfiguration(redhat.JavaRuntimeArray.CONFIG_KEY)) {
-				log.info(`Change Event: ${redhat.JavaRuntimeArray.CONFIG_KEY}`);
+			if (event.affectsConfiguration(redhat.JavaRuntimeArray.CONFIG_NAME)) {
+				log.info(`Change Event: ${redhat.JavaRuntimeArray.CONFIG_NAME}`);
 				state.isEventProcessing = true;
-				state.store();
 				const runtimes = settings.getJavaRuntimes();
 				await detect(javaConfig, runtimes); // Freeze without await
 			}
 
-			// Change Default Profile
-			else if (event.affectsConfiguration(settings.Profile.DEFAULT_PROFILE_CONFIG_KEY)) {
-				log.info(`Change Event: ${settings.Profile.DEFAULT_PROFILE_CONFIG_KEY}`);
+			// Change Default Profile (Note: Prefix "terminal")
+			else if (event.affectsConfiguration(settings.Profile.CONFIG_NAME_DEFAULT_PROFILE)) {
+				const changedVer = settings.Profile.getDefaultProfileVersion();
+				if (!changedVer || changedVer === state.originalProfileVersion) {
+					return;
+				}
+				log.info(`Change Event: ${settings.Profile.CONFIG_NAME_DEFAULT_PROFILE}`);
 				state.isEventProcessing = true;
-				state.store();
 				const message = l10n.t(
 					'The default profile Java version has changed. Do you want to apply it as default for user settings?'
 				);
@@ -325,7 +327,6 @@ function setChangeEvent(javaConfig: redhat.IJavaConfig) {
 				vscode.window.showWarningMessage(message, cancelLabel, reloadLabel).then(async selection => {
 					if (selection === reloadLabel) {
 						state.isApplyDefaultProfile = true;
-						await state.store(); // Require await
 						vscode.commands.executeCommand('workbench.action.reloadWindow');
 					}
 				});
@@ -335,11 +336,12 @@ function setChangeEvent(javaConfig: redhat.IJavaConfig) {
 			log.error(e);
 
 		} finally {
-			// Waiting to suppress change events from a program
-			setTimeout(() => {
-				state.isEventProcessing = false;
-				state.store();
-			}, 5_000);
+			if (state.isEventProcessing) {
+				// Waiting to suppress change events from a program
+				setTimeout(() => {
+					state.isEventProcessing = false;
+				}, 5_000);
+			}
 		}
 	});
 }

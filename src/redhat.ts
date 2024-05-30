@@ -19,7 +19,7 @@ export interface IJavaRuntime {
  */
 export class JavaRuntimeArray extends Array<IJavaRuntime> {
 	
-    static readonly CONFIG_KEY = 'java.configuration.runtimes';
+    static readonly CONFIG_NAME = 'java.configuration.runtimes';
 
 	/**
 	 * Finds the default Java runtime configuration for the VS Code Java extension.
@@ -123,9 +123,9 @@ function getAvailableNames(redhatExtension: vscode.Extension<any> | undefined): 
     if (Array.isArray(config)) {
         // 2023-12-1 (1.25 and later): Array
         // https://github.com/redhat-developer/vscode-java/pull/3386
-        config = config.find(c => c.properties?.[JavaRuntimeArray.CONFIG_KEY]);
+        config = config.find(c => c.properties?.[JavaRuntimeArray.CONFIG_NAME]);
     }
-    const runtimeNames = config?.properties?.[JavaRuntimeArray.CONFIG_KEY]?.items?.properties?.name?.enum ?? [];
+    const runtimeNames = config?.properties?.[JavaRuntimeArray.CONFIG_NAME]?.items?.properties?.name?.enum ?? [];
     if (runtimeNames.length === 0) {
         log.warn('Failed getExtension RedHat', redhatExtension);
     }

@@ -7,7 +7,7 @@ import * as httpClient from '../httpClient';
 import * as settings from '../settings';
 import * as system from '../system';
 import { log } from '../system';
-export const CONFIG_KEY_GRADLE_HOME = 'java.import.gradle.home';
+export const CONFIG_NAME_GRADLE_HOME = 'java.import.gradle.home';
 
 /**
  * @returns Whether the Gradle extension is installed.
@@ -24,7 +24,7 @@ export function hasExtension(): boolean {
  * @returns The bin directory path based on workspace configuration.
  */
 export async function getWorkspaceBinDir(): Promise<string | undefined> {
-	const gradleHome = settings.getWorkspace<string>(CONFIG_KEY_GRADLE_HOME);
+	const gradleHome = settings.getWorkspace<string>(CONFIG_NAME_GRADLE_HOME);
 	return system.joinPathIfPresent(gradleHome, 'bin');
 }
 
@@ -36,10 +36,10 @@ export async function download() {
 	if (!hasExtension()) {
 		return;
 	}
-	const gradleHomeOld = settings.getUser<string>(CONFIG_KEY_GRADLE_HOME);
+	const gradleHomeOld = settings.getUser<string>(CONFIG_NAME_GRADLE_HOME);
 	let gradleHomeNew = await resolvePath(gradleHomeOld);
 	if (gradleHomeNew && system.isUserInstalled(gradleHomeNew)) {
-		log.info('Available Gradle (User installed)', CONFIG_KEY_GRADLE_HOME, gradleHomeNew);
+		log.info('Available Gradle (User installed)', CONFIG_NAME_GRADLE_HOME, gradleHomeNew);
 	} else {
 		try {
 			gradleHomeNew = await httpget();
@@ -50,7 +50,7 @@ export async function download() {
 	}
 	if (gradleHomeOld !== gradleHomeNew) {
 		// Preferred over toolchains in build.gradle
-		await settings.update(CONFIG_KEY_GRADLE_HOME, gradleHomeNew);
+		await settings.update(CONFIG_NAME_GRADLE_HOME, gradleHomeNew);
 	}
 	// Note: This setting is ignored if gradlew is exists
 }
@@ -63,11 +63,11 @@ async function resolvePath(configGradleHome:string | undefined): Promise<string 
 	if (configGradleHome) {
 		const fixedPath = fixPath(configGradleHome);
 		if (!fixedPath) {
-			log.info('Remove invalid settings', CONFIG_KEY_GRADLE_HOME, configGradleHome);
+			log.info('Remove invalid settings', CONFIG_NAME_GRADLE_HOME, configGradleHome);
 			configGradleHome = undefined; // Fallback to auto-download
 		} else {
 			if (fixedPath !== configGradleHome) {
-				log.info(`Fix ${CONFIG_KEY_GRADLE_HOME}\n   ${configGradleHome}\n-> ${fixedPath}`);
+				log.info(`Fix ${CONFIG_NAME_GRADLE_HOME}\n   ${configGradleHome}\n-> ${fixedPath}`);
 			}
 			configGradleHome = fixedPath;
 		}
