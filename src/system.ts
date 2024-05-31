@@ -158,7 +158,7 @@ export function readString(file:string): string | undefined {
 export function getLastModified(p:string) {
 	try {
 		return fs.statSync(p).mtime.toLocaleDateString();
-	} catch (e) {
+	} catch (e:any) {
 		log.info('Failed statSync:', e); // Silent
 		return undefined;
 	}
@@ -183,7 +183,7 @@ export function rmQuietly(p:string) {
 export function rmSyncQuietly(p:string) {
 	try {
 		fs.rmSync(p, {recursive: true, force: true});
-	} catch (e) {
+	} catch (e:any) {
 		log.info('Failed rmSync:', e); // Silent
 	}
 }
@@ -199,7 +199,7 @@ export function mkdirSyncQuietly(p:string): boolean {
 			fs.mkdirSync(p, {recursive: true});
 			return true;
 		}
-	} catch (e) {
+	} catch (e:any) {
 		log.info('Failed mkdirSync:', e); // Silent
 	}
 	return false;

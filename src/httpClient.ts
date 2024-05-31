@@ -127,7 +127,7 @@ async function extract(progress:vscode.Progress<{message:string}>, opt:IHttpClie
         try {
             await decompress(opt.storeTempFile, opt.extractDestDir, {strip: opt.removeLeadingPath});
             system.rmQuietly(opt.storeTempFile);
-        } catch (e) {
+        } catch (e:any) {
             log.info('Failed extract:', e); // Validate later
         }
     } finally {

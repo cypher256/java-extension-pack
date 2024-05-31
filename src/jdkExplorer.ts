@@ -79,7 +79,6 @@ export async function scan(javaConfig: redhat.IJavaConfig, runtimes:redhat.JavaR
 	for (const majorVer of javaConfig.availableVers) { // All versions for old version
 		const downloadDir = jdk.getDownloadDir(javaConfig, majorVer);
 		if (await isValidHome(downloadDir)) {
-			log.info(`Detected Auto-downloaded ${majorVer}`);
 			detectedLatestMap.set(majorVer, {
 				majorVersion: majorVer,
 				// Auto-detected download dir has lowest priority
@@ -89,6 +88,7 @@ export async function scan(javaConfig: redhat.IJavaConfig, runtimes:redhat.JavaR
 			});
 		}
 	}
+	log.info(`Detected Auto-downloaded: ${[...detectedLatestMap.keys()]}`);
 
 	// Detect User Installed JDK
 	for (const detectedJdk of await findAll()) {
@@ -128,7 +128,7 @@ function isNewLeft(leftFullVer:string, rightFullVer:string): boolean {
 		return compare(optimize(leftFullVer), optimize(rightFullVer), '>');
 		// 21.0.0 > 21 = false
 		// 21.0.1 > 21 = true
-	} catch (e) {
+	} catch (e:any) {
 		log.warn(`Failed compare [${leftFullVer}] [${rightFullVer}]`, e);
 		return false;
 	}
