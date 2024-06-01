@@ -10,6 +10,7 @@ import * as maven from './download/maven';
 import * as jdkExplorer from './jdkExplorer';
 import * as redhat from './redhat';
 import * as settings from './settings';
+import { Profile, SettingState } from './settings';
 import * as system from './system';
 import { OS, log } from './system';
 const AUTO_CONFIG_ENABLED = 'javaAutoConfig.enabled';
@@ -276,8 +277,8 @@ function showReloadMessage() {
  */
 function setChangeEvent(javaConfig: redhat.IJavaConfig) {
 	{
-		const state = settings.SettingState.getInstance();
-		state.originalProfileVersion = settings.Profile.getDefaultProfileVersion();
+		const state = SettingState.getInstance();
+		state.originalProfileVersion = Profile.getDefaultProfileVersion();
 		state.isEventProcessing = false;
 	}
 	vscode.workspace.onDidChangeConfiguration(async event => {
@@ -295,7 +296,7 @@ function setChangeEvent(javaConfig: redhat.IJavaConfig) {
 			log.error(e);
 		}
 
-		const state = settings.SettingState.getInstance();
+		const state = SettingState.getInstance();
 		const isAutoConfigEnabled = settings.getWorkspace(AUTO_CONFIG_ENABLED);
 		log.debug(`isEventProcessing:${state.isEventProcessing}, ${AUTO_CONFIG_ENABLED}:${isAutoConfigEnabled}`);
 		if (state.isEventProcessing || !isAutoConfigEnabled) {
@@ -312,19 +313,19 @@ function setChangeEvent(javaConfig: redhat.IJavaConfig) {
 			}
 
 			// Change Default Profile (Note: Prefix "terminal")
-			else if (event.affectsConfiguration(settings.Profile.CONFIG_NAME_DEFAULT_PROFILE)) {
-				const changedVer = settings.Profile.getDefaultProfileVersion();
+			else if (event.affectsConfiguration(Profile.CONFIG_NAME_DEFAULT_PROFILE)) {
+				const changedVer = Profile.getDefaultProfileVersion();
 				if (!changedVer || changedVer === state.originalProfileVersion) {
 					return;
 				}
-				log.info(`Change Event: ${settings.Profile.CONFIG_NAME_DEFAULT_PROFILE}`);
+				log.info(`Change Event: ${Profile.CONFIG_NAME_DEFAULT_PROFILE}`);
 				state.isEventProcessing = true;
 				const message = l10n.t(
 					'The default profile Java version has changed. Do you want to apply it as default for user settings?'
 				);
 				const cancelLabel = l10n.t('Cancel');
 				const reloadLabel = l10n.t('Reload and apply');
-				vscode.window.showWarningMessage(message, cancelLabel, reloadLabel).then(async selection => {
+				vscode.window.showWarningMessage(message, cancelLabel, reloadLabel).then(selection => {
 					if (selection === reloadLabel) {
 						state.isApplyDefaultProfile = true;
 						vscode.commands.executeCommand('workbench.action.reloadWindow');

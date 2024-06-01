@@ -121,12 +121,17 @@ export class SettingState {
 		this.store();
 	}
 
-	private _originalProfileVersion: number | undefined;
+	private _originalProfileVersion: any | undefined;
 	get originalProfileVersion(): number | undefined {
-		return this._originalProfileVersion;
+		return this._originalProfileVersion?.[OS.configName];
 	}
 	set originalProfileVersion(value: number | undefined) {
-		this._originalProfileVersion = value;
+		try {
+			this._originalProfileVersion[OS.configName] = value;
+		} catch (e:any) {
+			this._originalProfileVersion = {}; // Not object (e.g. 21)
+			this._originalProfileVersion[OS.configName] = value;
+		}
 		this.store();
 	}
 
