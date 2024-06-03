@@ -278,7 +278,7 @@ function showReloadMessage() {
 function setChangeEvent(javaConfig: redhat.IJavaConfig) {
 	{
 		const state = SettingState.getInstance();
-		state.originalProfileVersion = Profile.getDefaultProfileVersion();
+		state.originalProfileVersion = Profile.getUserDefProfileVersion();
 		state.isEventProcessing = false;
 	}
 	vscode.workspace.onDidChangeConfiguration(async event => {
@@ -314,7 +314,7 @@ function setChangeEvent(javaConfig: redhat.IJavaConfig) {
 
 			// Change Default Profile (Note: Prefix "terminal")
 			else if (event.affectsConfiguration(Profile.CONFIG_NAME_DEFAULT_PROFILE)) {
-				const changedVer = Profile.getDefaultProfileVersion();
+				const changedVer = Profile.getUserDefProfileVersion();
 				if (!changedVer || changedVer === state.originalProfileVersion) {
 					return;
 				}
