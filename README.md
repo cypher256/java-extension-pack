@@ -2,7 +2,7 @@
 
 ![Downloads](https://img.shields.io/visual-studio-marketplace/d/Pleiades.java-extension-pack-jdk?style=for-the-badge&logo=microsoft)
 ![Installes](https://img.shields.io/visual-studio-marketplace/i/Pleiades.java-extension-pack-jdk?color=blue&style=for-the-badge&logo=visual-studio-code)
-[![GitHub Sponsor](https://img.shields.io/static/v1?label=Sponsor&message=%E2%9D%A4&logo=GitHub&color=ff69b4&style=for-the-badge)](https://github.com/sponsors/cypher256)
+[![GitHub Sponsor](https://img.shields.io/static/v1?label=Buy%20me%20a%20coffee&message=%E2%9D%A4&logo=coffeescript&color=orange&style=for-the-badge)](https://github.com/sponsors/cypher256)
 
 <br>
 
@@ -135,7 +135,7 @@ Automatically configure multiple versions of the JDK and build tools. If there a
 
 JDK auto-scan targets (Best in the industry)
 * OS specific locations: Adoptium, BellSoft, Corretto, Microsoft, Oracle, Red Hat, Semeru, Zulu etc...
-* Package Managers: asdf, Chocolatey, jabba, jEnv, Homebrew, IntelliJ, Scoop, SDKMAN, vfox etc...
+* Package Managers: asdf, Chocolatey, jabba, jEnv, Homebrew, IntelliJ, mise, Scoop, SDKMAN, vfox etc...
 * Toolchains: Gradle jdks directory, Maven toolchains.xml
 * Own Support: Windows `C:\Java\*`, `D:\Java\*` (e.g. `C:\Java\jdk-21.0.8`)
 
@@ -190,7 +190,7 @@ Automatic download is enabled if the [extensions.autoUpdate](https://code.visual
 
 JDK auto-download supports the following platforms:
 - Windows x64, ARM Emulation
-- macOS x64, aarch64
+- Mac x64, aarch64
 - Linux x64, aarch64
 
 It is saved in the following location.
@@ -198,7 +198,7 @@ It is saved in the following location.
 |OS|Extension global storage location|
 |---|---|
 |Windows|`%APPDATA%\Code\User\globalStorage\pleiades.java-extension-pack-jdk\ `|
-|macOS|`$HOME/Library/Application Support/Code/User/globalStorage/pleiades.java-extension-pack-jdk/`|
+|Mac|`$HOME/Library/Application Support/Code/User/globalStorage/pleiades.java-extension-pack-jdk/`|
 |Linux|`$HOME/.config/Code/User/globalStorage/pleiades.java-extension-pack-jdk/`|
 
 <br>

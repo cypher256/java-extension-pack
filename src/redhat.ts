@@ -109,8 +109,8 @@ async function findEmbeddedJREVersion(redhatExtension: vscode.Extension<any> | u
         const javaExeFiles = await system.globSearch(javaExePath);
         if (javaExeFiles.length > 0) {
             const jreHomeDir = path.join(javaExeFiles[0], '..', '..');
-            const runtime = await jdkutils.getRuntime(jreHomeDir, { withVersion: true });
-            return runtime?.version?.major;
+            const utilRuntime = await jdkutils.getRuntime(jreHomeDir, { withVersion: true });
+            return utilRuntime?.version?.major;
         }
     }
     // mac Parallels Windows Arm

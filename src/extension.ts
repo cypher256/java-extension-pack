@@ -103,7 +103,7 @@ async function setTerminalEnvironment() {
 			// PRECEDENCE: Env Gradle/Maven > profile JAVA_HOME > original PATH
 			envVarColl.prepend('PATH', toolsPath + path.delimiter);
 		} else {
-			// [macOS/Linux] Use custom rcfile in zsh/bash
+			// [Mac/Linux] Use custom rcfile in zsh/bash
 			// PRECEDENCE: profile JAVA_HOME > Env Gradle/Maven > original PATH
 			// Issue: PATH mutation using EnvironmentVariableCollection prepend is overwritten in zsh
 			// Open) https://github.com/microsoft/vscode/issues/188235

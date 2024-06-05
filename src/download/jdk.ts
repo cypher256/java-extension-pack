@@ -136,7 +136,7 @@ export async function download(
 		storeTempFile: downloadVerDir + '_download_tmp.' + (OS.isWindows ? 'zip' : 'tar.gz'),
 		extractDestDir: downloadVerDir,
 		targetMessage: apiRes.fullVer,
-		removeLeadingPath: OS.isMac ? 3 : 1, // Remove leading 'jdk-xxx/Contents/Home/' for macOS
+		removeLeadingPath: OS.isMac ? 3 : 1, // Remove leading 'jdk-xxx/Contents/Home/' for Mac
 		is404Ignore: true,
 	};
 	await httpClient.get(req);

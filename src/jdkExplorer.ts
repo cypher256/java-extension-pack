@@ -130,8 +130,8 @@ function isNewLeft(leftFullVer:string, rightFullVer:string): boolean {
  */
 export async function isValidHome(homeDir:string | undefined): Promise<boolean> {
 	if (!homeDir) {return false;}
-	const runtime = await jdkutils.getRuntime(homeDir, { checkJavac: true });
-	return !!(runtime?.hasJavac);
+	const utilRuntime = await jdkutils.getRuntime(homeDir, { checkJavac: true });
+	return !!(utilRuntime?.hasJavac);
 }
 
 /**
@@ -174,7 +174,7 @@ function createJdk(utilRuntime: jdkutils.IJavaRuntime | undefined): IDetectedJdk
 	if (
 		utilRuntime?.hasJavac &&
 		utilRuntime.version &&
-		utilRuntime.homedir !== '/usr' // Exclude alias /usr/bin/java (Linux, macOS)
+		utilRuntime.homedir !== '/usr' // Exclude alias /usr/bin/java (Linux, Mac)
 	) {
 		return {
 			majorVersion: utilRuntime.version.major,
@@ -195,7 +195,7 @@ class DetectedJdkArray extends Array<IDetectedJdk> {
 
 	async pushByGlob(logMessage: string, ...globPatterns: string[]) {
 		const javaExePats = globPatterns.map(p => path.join(p, '*', 'bin', jdkutils.JAVAC_FILENAME));
-		const globOptions = { ignore: '**/current/bin/**' }; // scoop, homebrew, etc.
+		const globOptions = { realpath: true, ignore: '**/current/bin/**' }; // ignore: scoop, homebrew, etc.
 		for (const javaExeFile of await system.globSearch(javaExePats, globOptions)) {
 			const jdk = await findByPath(path.join(javaExeFile, '..', '..'));
 			this.pushJdk(logMessage, jdk);
@@ -234,6 +234,15 @@ async function findAll(): Promise<IDetectedJdk[]> {
 			await jdks.pushByGlob('Scoop', ...patterns);
 		},
 		async () => {
+			// mise (Linux, Mac)
+			// e.g. Linux ~/.local/share/mise/installs/java/21.0.1-open/bin
+			// e.g. Mac   ~/.local/share/mise/installs/java/21.0.1-open/Contents/Home/bin
+			if (OS.isWindows) {return;}
+			let pattern = os.homedir() + '/.local/share/mise/installs/java';
+			if (OS.isMac) {pattern += '/*/Contents';}
+			await jdks.pushByGlob('mise', pattern);
+		},
+		async () => {
 			// vfox (Multi-Platform)
 			// e.g. C:\Users\<UserName>\.version-fox\cache\java\v-22+36\java-22+36\bin
 			await jdks.pushByGlob('vfox', os.homedir() + '/.version-fox/cache/java/*');
@@ -250,12 +259,12 @@ async function findAll(): Promise<IDetectedJdk[]> {
 		async () => {
 			// IntelliJ (Windows, Linux)
 			// e.g. C:\Users\<UserName>\.jdks\openjdk-20.0.1\bin
-			if (OS.isMac) {return;} // Supported jdk-utils macOS.ts: /Library/Java/JavaVirtualMachines
+			if (OS.isMac) {return;} // Supported jdk-utils Mac.ts: /Library/Java/JavaVirtualMachines
 			const pattern = path.join(os.homedir(), '.jdks');
 			await jdks.pushByGlob('IntelliJ', pattern);
 		},
 		async () => {
-			// Pleiades (Windows, macOS)
+			// Pleiades (Windows, Mac)
 			if (OS.isWindows) {
 				// e.g.    C:\pleiades\java\17\bin
 				// C:\pleiades\2023-03\java\17\bin

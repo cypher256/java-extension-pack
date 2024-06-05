@@ -198,7 +198,7 @@ export async function updateJavaRuntimes(
 			latest.default = duplicateRuntimes.findDefault() ? true : undefined;
 			duplicateRuntimes.forEach(runtime => _.remove(runtimes, {name: runtime.name}));
 			runtimes.push(latest);
-			// Update removed default profile settings
+			// Fix removed default profile settings
 			const profileName:string = getUserDef(Profile.CONFIG_NAME_DEFAULT_PROFILE) || '';
 			if (Profile.isAutoConfig(profileName) && !runtimes.findByName(Profile.toRuntimeName(profileName))) {
 				update(Profile.CONFIG_NAME_DEFAULT_PROFILE, Profile.nameOf(latest.name));
@@ -219,9 +219,9 @@ export async function updateJavaRuntimes(
 	//-------------------------------------------------------------------------
 	// Terminal Profiles Dropdown
 	const CONFIG_NAME_TERMINAL_PROFILES = 'terminal.integrated.profiles.' + OS.configName;
-	const profilesDef = getUserDef(CONFIG_NAME_TERMINAL_PROFILES) ?? {};
-	const profilesOld:any = _.cloneDeep(profilesDef); // Proxy to POJO for isEqual
-	const profilesNew:any = _.cloneDeep(profilesOld);
+	const defProfiles = getUserDef(CONFIG_NAME_TERMINAL_PROFILES) ?? {};
+	const oldProfiles:any = _.cloneDeep(defProfiles); // Proxy to POJO for isEqual
+	const newProfiles:any = _.cloneDeep(oldProfiles);
 	const runtimeProfileNameMap = new Map<string, string>();
 	const _createPathPrepend = (javaHome: string) => [path.join(javaHome, 'bin'), '${env:PATH}'].join(path.delimiter);
 	const rcfileDir = system.getGlobalStoragePath();
@@ -233,7 +233,7 @@ export async function updateJavaRuntimes(
 		runtimeProfileNameMap.set(runtime.name, profileName);
 
 		// Create from config runtimes (Always overwrite), Proxy to POJO for isEqual
-		const profile:any = _.cloneDeep(profilesOld[profileNameOldFormat] ?? profilesOld[profileName]) ?? {};
+		const profile:any = _.cloneDeep(oldProfiles[profileNameOldFormat] ?? oldProfiles[profileName]) ?? {};
 		profile.overrideName = true;
 		profile.env = {};
 		if (OS.isWindows) {
@@ -267,22 +267,13 @@ export async function updateJavaRuntimes(
 			// Do not use --login because disables --rcfile
 		}
 		profile.env.JAVA_HOME = runtime.path;
-		delete profilesNew[profileNameOldFormat];
-		profilesNew[profileName] = profile;
+		delete newProfiles[profileNameOldFormat];
+		newProfiles[profileName] = profile;
 	}
-	for (const profileName of Object.keys(profilesNew)) {
-		// Fix except config runtimes (Remove invalid env JAVA_HOME)
-		const runtimeName = Profile.toRuntimeName(profileName);
-		if (!runtimes.findByName(runtimeName)) {
-			const javaHome = profilesNew[profileName]?.env?.JAVA_HOME;
-			if (javaHome) {
-				const fixed = await jdkExplorer.fixPath(javaHome);
-				if (fixed) {
-					profilesNew[profileName].env.JAVA_HOME = fixed;
-				} else {
-					delete profilesNew[profileName];
-				}
-			}
+	for (const profileName of Object.keys(newProfiles).filter(Profile.isAutoConfig)) {
+		// Remove profiles that do not exist in runtimes
+		if (!runtimes.findByName(Profile.toRuntimeName(profileName))) {
+			delete newProfiles[profileName];
 		}
 	}
 	const _fixJavaHome = async (currentJavaHome: string, defaultRuntime: redhat.IJavaRuntime) =>
@@ -291,13 +282,13 @@ export async function updateJavaRuntimes(
 	const terminalDefaultRuntime = latestLtsRuntime || stableLtsRuntime;
 	if (terminalDefaultRuntime) {
 		// Create or update default zsh/bash profiles
-		// On macOS/Linux, npm error occurs if rcfile is disabled
+		// On Mac/Linux, npm error occurs if rcfile is disabled
 		const _setDefaultProfile = async (shellName: string) => {
-			const profile = profilesNew[shellName] || {};
+			const profile = newProfiles[shellName] || {};
 			profile.path = shellName;
 			profile.env ||= {};
 			profile.env.JAVA_HOME = await _fixJavaHome(profile.env.JAVA_HOME, terminalDefaultRuntime);
-			profilesNew[shellName] = profile;
+			newProfiles[shellName] = profile;
 			return profile;
 		};
 		if (OS.isMac) {
@@ -308,15 +299,15 @@ export async function updateJavaRuntimes(
 			profile.args = ['--rcfile', path.join(rcfileDir, '.bashrc')];
 		}
 	}
-	const profileNames = Object.keys(profilesNew);
+	const profileNames = Object.keys(newProfiles);
 	const sortedNames = [
 		..._.reject(profileNames, Profile.isAutoConfig), // Keep order
 		..._.filter(profileNames, Profile.isAutoConfig).sort(),
 	];
-	const sortedProfiles = Object.fromEntries(sortedNames.map(name => [name, profilesNew[name]]));
-	if (!_.isEqual(sortedProfiles, profilesOld)) {
+	const sortedProfiles = Object.fromEntries(sortedNames.map(name => [name, newProfiles[name]]));
+	if (!_.isEqual(sortedProfiles, oldProfiles)) {
 		update(CONFIG_NAME_TERMINAL_PROFILES, sortedProfiles);
-		// [Windows/macOS/Linux] Default profile
+		// [Windows/Mac/Linux] Default profile
 		// Linux Maven uses the Java version of the default profile rcfile
 		if (terminalDefaultRuntime) {
 			const profileName = runtimeProfileNameMap.get(terminalDefaultRuntime.name);
@@ -383,7 +374,7 @@ export async function updateJavaRuntimes(
 				update(CONFIG_NAME_TERMINAL_ENV, terminalEnv);
 			}
 		}
-		// [macOS/Linux] Use custom rcfile in zsh/bash
+		// [Mac/Linux] Use custom rcfile in zsh/bash
 		// PRECEDENCE: profile JAVA_HOME > Env Gradle/Maven > original PATH
 	}
 
@@ -404,7 +395,7 @@ export async function updateJavaRuntimes(
 		}
 
 		// [Windows]     PRECEDENCE: Env Gradle/Maven > customEnv > terminal.integrated.env > original PATH
-		// [macOS/Linux] PRECEDENCE: customEnv > .*shrc JAVA_HOME > Env Gradle/Maven > original PATH
+		// [Mac/Linux] PRECEDENCE: customEnv > .*shrc JAVA_HOME > Env Gradle/Maven > original PATH
 		// Issue: Option to use specific Java SDK to run Maven
 		//   Open) https://github.com/microsoft/vscode-maven/issues/992
 		// Issue: Change the scope of maven.terminal.customEnv to machine-overridable
@@ -413,19 +404,19 @@ export async function updateJavaRuntimes(
 		javaHomeEnv.value = await _fixJavaHome(javaHomeEnv.value, mavenJavaRuntime);
 
 		// [Windows] maven and gradle don't need java/bin in PATH (java command cannot be executed)
-		// [Linux/macOS] PATH is not required because defaultProfile's rcfile is used
+		// [Linux/Mac] PATH is not required because defaultProfile's rcfile is used
 		_.remove(customEnv, {environmentVariable: 'PATH'}); // Remove for previous version
 		/*
 		if (OS.isWindows) {
 			// [Windows] PATH: for java command (mvn and gradle work without java/bin in PATH)
 			_getCustomEnv('PATH').value = _createPathPrepend(javaHomeEnv.value);
 		} else {
-			// [Linux/macOS] PATH: Remove when switching from Windows to WSL
+			// [Linux/Mac] PATH: Remove when switching from Windows to WSL
 			_.remove(customEnv, {environmentVariable: 'PATH'});
 		}
 		*/
 
-		// [macOS] Use custom rcfile in zsh
+		// [Mac] Use custom rcfile in zsh
 		// Issue: maven.terminal.useJavaHome doesnt work if JAVA_HOME already set by shell startup scripts
 		// Open) https://github.com/microsoft/vscode-maven/issues/495#issuecomment-1869653082
 		if (OS.isMac) {
