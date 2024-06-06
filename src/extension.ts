@@ -134,7 +134,7 @@ async function setTerminalEnvironment() {
  */
 async function detect(
 	javaConfig: redhat.IJavaConfig,
-	runtimes: redhat.JavaRuntimeArray) {
+	runtimes: redhat.JavaConfigRuntimes) {
 
 	const runtimesBefore = _.cloneDeep(runtimes);
 	await jdkExplorer.scan(javaConfig, runtimes);
@@ -148,7 +148,7 @@ async function detect(
  */
 async function download(
 	javaConfig: redhat.IJavaConfig,
-	runtimes: redhat.JavaRuntimeArray) {
+	runtimes: redhat.JavaConfigRuntimes) {
 
 	if (settings.getWorkspace('extensions.autoUpdate') === false) {
 		log.info(`Download disabled (extensions.autoUpdate: false)`);
@@ -179,14 +179,14 @@ async function download(
  */
 function onComplete(
 	javaConfig: redhat.IJavaConfig,
-	runtimesNew: redhat.JavaRuntimeArray,
-	runtimesOld: redhat.JavaRuntimeArray,
+	runtimesNew: redhat.JavaConfigRuntimes,
+	runtimesOld: redhat.JavaConfigRuntimes,
 	isFirstStartup: boolean) {
 	
 	const oldVers = runtimesOld.map(r => redhat.versionOf(r.name));
 	const newVers = runtimesNew.map(r => redhat.versionOf(r.name));
 	const defaultVer = redhat.versionOf(runtimesNew.findDefault()?.name ?? '');
-	log.info(`${redhat.JavaRuntimeArray.CONFIG_NAME} [${newVers}] default ${defaultVer}`);
+	log.info(`${redhat.JavaConfigRuntimes.CONFIG_NAME} [${newVers}] default ${defaultVer}`);
 	const availableMsg = `${l10n.t('Available Java versions:')} ${newVers.join(', ')}`;
 
 	if (isFirstStartup) {
@@ -305,8 +305,8 @@ function setChangeEvent(javaConfig: redhat.IJavaConfig) {
 
 		try {
 			// Reconfigure Terminal Profiles
-			if (event.affectsConfiguration(redhat.JavaRuntimeArray.CONFIG_NAME)) {
-				log.info(`Change Event: ${redhat.JavaRuntimeArray.CONFIG_NAME}`);
+			if (event.affectsConfiguration(redhat.JavaConfigRuntimes.CONFIG_NAME)) {
+				log.info(`Change Event: ${redhat.JavaConfigRuntimes.CONFIG_NAME}`);
 				state.isEventProcessing = true;
 				const runtimes = settings.getJavaRuntimes();
 				await detect(javaConfig, runtimes); // Freeze without await

@@ -70,9 +70,9 @@ export async function remove(section:string) {
  * Gets the Java runtime configurations for the VS Code Java extension.
  * @returns An array of Java runtime objects. If no entry exists, returns an empty array.
  */
-export function getJavaRuntimes(): redhat.JavaRuntimeArray {
-	const redhatRuntimes:redhat.IJavaRuntime[] = getUser(redhat.JavaRuntimeArray.CONFIG_NAME) ?? [];
-	return new redhat.JavaRuntimeArray(...redhatRuntimes);
+export function getJavaRuntimes(): redhat.JavaConfigRuntimes {
+	const redhatRuntimes: redhat.IJavaConfigRuntime[] = getUser(redhat.JavaConfigRuntimes.CONFIG_NAME) ?? [];
+	return new redhat.JavaConfigRuntimes(...redhatRuntimes);
 }
 
 /**
@@ -88,13 +88,16 @@ export namespace Profile {
 		profileName.replace(/ LTS$/, '')
 	;
 	export const toVersion = (profileName: string) =>
-		isAutoConfig(profileName) ? redhat.versionOf(toRuntimeName(profileName)) : undefined;
-	;
-	export const isAutoConfig = (profileName: string) =>
-		/^J.+SE-[\d.]+( LTS|)$/.test(profileName)
+		isGeneratedRuntime(profileName) ? redhat.versionOf(toRuntimeName(profileName)) : undefined;
 	;
 	export const getUserDefProfileVersion = () =>
 		toVersion(getUserDef(CONFIG_NAME_DEFAULT_PROFILE) || '')
+	;
+	export const isGeneratedRuntime = (profileName: string) =>
+		/^J(2|ava)SE-[\d.]+( LTS|)$/.test(profileName) // Strict names
+	;
+	export const isJavaPrefix = (profileName: string) =>
+		/^J(2SE|ava)/.test(profileName) // Includes custom names by user
 	;
 }
 
@@ -105,7 +108,7 @@ export namespace Profile {
  */
 export class SettingState {
 
-	private _isApplyDefaultProfile: boolean | undefined;
+	private _isApplyDefaultProfile?: boolean;
 	get isApplyDefaultProfile() {
 		return this._isApplyDefaultProfile ?? false;
 	}
@@ -114,7 +117,7 @@ export class SettingState {
 		this.store();
 	}
 
-	private _isEventProcessing: boolean | undefined;
+	private _isEventProcessing?: boolean;
 	get isEventProcessing() {
 		return this._isEventProcessing ?? false;
 	}
@@ -123,7 +126,7 @@ export class SettingState {
 		this.store();
 	}
 
-	private _originalProfileVersion: number | undefined;
+	private _originalProfileVersion?: number;
 	get originalProfileVersion(): number | undefined {
 		return this._originalProfileVersion;
 	}
@@ -167,8 +170,8 @@ export class SettingState {
  */
 export async function updateJavaRuntimes(
 	javaConfig: redhat.IJavaConfig,
-	runtimes: redhat.JavaRuntimeArray,
-	runtimesOld: redhat.JavaRuntimeArray) {
+	runtimes: redhat.JavaConfigRuntimes,
+	runtimesOld: redhat.JavaConfigRuntimes) {
 
 	const CONFIG_NAME_DEPRECATED_JAVA_HOME = 'java.home';
 	if (getUser(CONFIG_NAME_DEPRECATED_JAVA_HOME) !== null) { // null if no entry or null value
@@ -192,16 +195,19 @@ export async function updateJavaRuntimes(
 	runtimes.sort((a, b) => a.name.localeCompare(b.name));
 	{
 		const latestPath = jdk.getDownloadDir(javaConfig, javaConfig.latestAvailableVer);
-		const duplicateRuntimes = runtimes.filter(runtime => runtime.path === latestPath) as redhat.JavaRuntimeArray;
+		const duplicateRuntimes = runtimes.filter(runtime => runtime.path === latestPath) as redhat.JavaConfigRuntimes;
 		if (duplicateRuntimes.length >= 2) {
-			const latest = duplicateRuntimes.at(-1) as redhat.IJavaRuntime;
-			latest.default = duplicateRuntimes.findDefault() ? true : undefined;
+			const latestRuntime = duplicateRuntimes.at(-1) as redhat.IJavaConfigRuntime;
+			latestRuntime.default = duplicateRuntimes.findDefault() ? true : undefined;
 			duplicateRuntimes.forEach(runtime => _.remove(runtimes, {name: runtime.name}));
-			runtimes.push(latest);
+			runtimes.push(latestRuntime);
 			// Fix removed default profile settings
-			const profileName:string = getUserDef(Profile.CONFIG_NAME_DEFAULT_PROFILE) || '';
-			if (Profile.isAutoConfig(profileName) && !runtimes.findByName(Profile.toRuntimeName(profileName))) {
-				update(Profile.CONFIG_NAME_DEFAULT_PROFILE, Profile.nameOf(latest.name));
+			const defaultProfile: string = getUserDef(Profile.CONFIG_NAME_DEFAULT_PROFILE) || '';
+			if (
+				Profile.isGeneratedRuntime(defaultProfile) &&
+				!runtimes.findByName(Profile.toRuntimeName(defaultProfile))
+			) {
+				update(Profile.CONFIG_NAME_DEFAULT_PROFILE, Profile.nameOf(latestRuntime.name));
 			}
 		}
 	}
@@ -213,7 +219,7 @@ export async function updateJavaRuntimes(
 		latestLtsRuntime.default = true;
 	}
 	if (!_.isEqual(runtimes, runtimesOld)) {
-		update(redhat.JavaRuntimeArray.CONFIG_NAME, runtimes);
+		update(redhat.JavaConfigRuntimes.CONFIG_NAME, runtimes);
 	}
 
 	//-------------------------------------------------------------------------
@@ -270,13 +276,13 @@ export async function updateJavaRuntimes(
 		delete newProfiles[profileNameOldFormat];
 		newProfiles[profileName] = profile;
 	}
-	for (const profileName of Object.keys(newProfiles).filter(Profile.isAutoConfig)) {
+	for (const profileName of Object.keys(newProfiles).filter(Profile.isGeneratedRuntime)) {
 		// Remove profiles that do not exist in runtimes
 		if (!runtimes.findByName(Profile.toRuntimeName(profileName))) {
 			delete newProfiles[profileName];
 		}
 	}
-	const _fixJavaHome = async (currentJavaHome: string, defaultRuntime: redhat.IJavaRuntime) =>
+	const _fixJavaHome = async (currentJavaHome: string, defaultRuntime: redhat.IJavaConfigRuntime) =>
 		profileRuntimeToApply?.path || await jdkExplorer.fixPath(currentJavaHome) || defaultRuntime.path;
 	;
 	const terminalDefaultRuntime = latestLtsRuntime || stableLtsRuntime;
@@ -301,8 +307,8 @@ export async function updateJavaRuntimes(
 	}
 	const profileNames = Object.keys(newProfiles);
 	const sortedNames = [
-		..._.reject(profileNames, Profile.isAutoConfig), // Keep order
-		..._.filter(profileNames, Profile.isAutoConfig).sort(),
+		..._.reject(profileNames, Profile.isJavaPrefix), // Keep order
+		..._.filter(profileNames, Profile.isJavaPrefix).sort(),
 	];
 	const sortedProfiles = Object.fromEntries(sortedNames.map(name => [name, newProfiles[name]]));
 	if (!_.isEqual(sortedProfiles, oldProfiles)) {
@@ -318,7 +324,7 @@ export async function updateJavaRuntimes(
 					if (!Array.from(runtimeProfileNameMap.values()).includes(defaultProfileName)) {
 						update(Profile.CONFIG_NAME_DEFAULT_PROFILE, profileName);
 					}
-					// Keep
+					// else Keep
 				} else {
 					// New
 					update(Profile.CONFIG_NAME_DEFAULT_PROFILE, profileName);
@@ -480,7 +486,7 @@ export async function updateJavaRuntimes(
 	//-------------------------------------------------------------------------
 	// Optional Extensions LS Java Home (Keep if set)
 	async function _updateOptionJavaHome(extensionId: string, configKey: string,
-		optionalRuntime: redhat.IJavaRuntime | undefined)
+		optionalRuntime: redhat.IJavaConfigRuntime | undefined)
 	{
 		if (!optionalRuntime || !vscode.extensions.getExtension(extensionId)) {
 			return;

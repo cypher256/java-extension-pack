@@ -81,7 +81,7 @@ export function getDownloadDir(javaConfig:redhat.IJavaConfig, majorVer:number): 
  */
 export async function download(
 	javaConfig: redhat.IJavaConfig,
-	runtimes:redhat.JavaRuntimeArray,
+	runtimes:redhat.JavaConfigRuntimes,
 	majorVer:number) {
 
 	// Skip User Installed

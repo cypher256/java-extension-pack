@@ -8,7 +8,7 @@ import { log } from './system';
 /**
  * An interface for the VS Code Java configuration runtime.
  */
-export interface IJavaRuntime {
+export interface IJavaConfigRuntime {
 	readonly name: string;
 	path: string;
 	default?: boolean;
@@ -17,7 +17,7 @@ export interface IJavaRuntime {
 /**
  * A class for the VS Code Java configuration runtime array.
  */
-export class JavaRuntimeArray extends Array<IJavaRuntime> {
+export class JavaConfigRuntimes extends Array<IJavaConfigRuntime> {
 	
     static readonly CONFIG_NAME = 'java.configuration.runtimes';
 
@@ -25,7 +25,7 @@ export class JavaRuntimeArray extends Array<IJavaRuntime> {
 	 * Finds the default Java runtime configuration for the VS Code Java extension.
 	 * @returns A Java runtime object. If no entry exists, returns undefined.
 	 */
-	findDefault(): IJavaRuntime | undefined {
+	findDefault(): IJavaConfigRuntime | undefined {
 		return this.find(runtime => runtime.default);
 	}
 
@@ -34,7 +34,7 @@ export class JavaRuntimeArray extends Array<IJavaRuntime> {
 	 * @param name The Java name to find. See nameOf(majorVer:number).
 	 * @returns A Java runtime object. If no entry exists, returns undefined.
 	 */
-	findByName(name: string | undefined): IJavaRuntime | undefined {
+	findByName(name: string | undefined): IJavaConfigRuntime | undefined {
         if (!name) {return undefined;}
 		return this.find(runtime => runtime.name === name);
 	}
@@ -44,7 +44,7 @@ export class JavaRuntimeArray extends Array<IJavaRuntime> {
 	 * @param version The Java version to find.
 	 * @returns A Java runtime object. If no entry exists, returns undefined.
 	 */
-	findByVersion(version: number | undefined): IJavaRuntime | undefined {
+	findByVersion(version: number | undefined): IJavaConfigRuntime | undefined {
         if (version === undefined) {return undefined;}
 		return this.findByName(nameOf(version));
 	}
@@ -123,9 +123,9 @@ function getAvailableNames(redhatExtension: vscode.Extension<any> | undefined): 
     if (Array.isArray(config)) {
         // 2023-12-1 (1.25 and later): Array
         // https://github.com/redhat-developer/vscode-java/pull/3386
-        config = config.find(c => c.properties?.[JavaRuntimeArray.CONFIG_NAME]);
+        config = config.find(c => c.properties?.[JavaConfigRuntimes.CONFIG_NAME]);
     }
-    const runtimeNames = config?.properties?.[JavaRuntimeArray.CONFIG_NAME]?.items?.properties?.name?.enum ?? [];
+    const runtimeNames = config?.properties?.[JavaConfigRuntimes.CONFIG_NAME]?.items?.properties?.name?.enum ?? [];
     if (runtimeNames.length === 0) {
         log.warn('Failed getExtension RedHat', redhatExtension);
     }
