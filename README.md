@@ -263,16 +263,16 @@ Command Palette **>Preferences: Open User Settings (JSON)**
     "PATH": "C:\\Program Files\\Eclipse Adoptium\\jdk-21.0.8-hotspot\\bin;${env:PATH}", //⭐
     "JAVA_HOME": "C:\\Program Files\\Eclipse Adoptium\\jdk-21.0.8-hotspot"
 },
-// Terminal Default Profile
-"terminal.integrated.defaultProfile.windows": "JavaSE-21",
+// Terminal Default Profile (Changing this value will set all ⭐)
+"terminal.integrated.defaultProfile.windows": "JavaSE-21 LTS",
 "terminal.integrated.automationProfile.windows": {
     "path": "cmd"
 },
 // Terminal Profiles Dropdown
 "terminal.integrated.profiles.windows": {
-    "JavaSE-1.8": {...},
-    "JavaSE-11": {...},
-    "JavaSE-17": {
+    "JavaSE-1.8 LTS": {...},
+    "JavaSE-11 LTS": {...},
+    "JavaSE-17 LTS": {
         "overrideName": true,
         "env": {
             "PATH": "C:\\Program Files\\java\\jdk-17.0.12\\bin;${env:PATH}",
@@ -280,7 +280,7 @@ Command Palette **>Preferences: Open User Settings (JSON)**
         },
         "path": "cmd"
     },
-    "JavaSE-21": {
+    "JavaSE-21 LTS": {
         "overrideName": true,
         "env": {
             "PATH": "C:\\Program Files\\Eclipse Adoptium\\jdk-21.0.8-hotspot\\bin;${env:PATH}",
@@ -289,11 +289,7 @@ Command Palette **>Preferences: Open User Settings (JSON)**
         },
         "path": "cmd",
         // For Windows, auto-configured Java 19+ terminals are set to `chcp 65001`.
-        "args": [
-            "/k",
-            "chcp",
-            "65001"
-        ]
+        "args": ["/k", "chcp", "65001"]
     }
 }
 ```
