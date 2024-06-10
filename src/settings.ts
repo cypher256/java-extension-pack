@@ -70,7 +70,7 @@ export async function remove(section:string) {
  * Gets the Java runtime configurations for the VS Code Java extension.
  * @returns An array of Java runtime objects. If no entry exists, returns an empty array.
  */
-export function getJavaRuntimes(): redhat.JavaConfigRuntimes {
+export function getJavaConfigRuntimes(): redhat.JavaConfigRuntimes {
 	const redhatRuntimes: redhat.IJavaConfigRuntime[] = getUser(redhat.JavaConfigRuntimes.CONFIG_NAME) ?? [];
 	return new redhat.JavaConfigRuntimes(...redhatRuntimes);
 }

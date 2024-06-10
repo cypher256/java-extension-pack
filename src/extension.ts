@@ -36,7 +36,7 @@ export async function activate(context:vscode.ExtensionContext) {
 		}
 
 		settings.setDefault(javaConfig);
-		const runtimes = settings.getJavaRuntimes();
+		const runtimes = settings.getJavaConfigRuntimes();
 		const runtimesOld = _.cloneDeep(runtimes);
 		await detect(javaConfig, runtimes);
 		await download(javaConfig, runtimes);
@@ -296,10 +296,12 @@ function setChangeEvent(javaConfig: redhat.IJavaConfig) {
 			log.error(e);
 		}
 
+		if (!settings.getWorkspace(AUTO_CONFIG_ENABLED)) {
+			return;
+		}
 		const state = SettingState.getInstance();
-		const isAutoConfigEnabled = settings.getWorkspace(AUTO_CONFIG_ENABLED);
-		log.debug(`isEventProcessing:${state.isEventProcessing}, ${AUTO_CONFIG_ENABLED}:${isAutoConfigEnabled}`);
-		if (state.isEventProcessing || !isAutoConfigEnabled) {
+		log.debug(`isEventProcessing:${state.isEventProcessing}`);
+		if (state.isEventProcessing) {
 			return;
 		}
 
@@ -308,11 +310,11 @@ function setChangeEvent(javaConfig: redhat.IJavaConfig) {
 			if (event.affectsConfiguration(redhat.JavaConfigRuntimes.CONFIG_NAME)) {
 				log.info(`Change Event: ${redhat.JavaConfigRuntimes.CONFIG_NAME}`);
 				state.isEventProcessing = true;
-				const runtimes = settings.getJavaRuntimes();
+				const runtimes = settings.getJavaConfigRuntimes();
 				await detect(javaConfig, runtimes); // Freeze without await
 			}
 
-			// Change Default Profile (Note: Prefix "terminal")
+			// Change Default Profile (Some events with "terminal.integrated" prefix)
 			else if (event.affectsConfiguration(Profile.CONFIG_NAME_DEFAULT_PROFILE)) {
 				const changedVer = Profile.getUserDefProfileVersion();
 				if (!changedVer || changedVer === state.originalProfileVersion) {

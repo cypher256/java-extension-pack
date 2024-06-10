@@ -79,7 +79,7 @@ The `Extension Pack for Java Auto Config` has been extended to automatically con
   ```
   [Toolchain](https://docs.gradle.org/current/userguide/building_java_projects.html#sec:java_cross_compilation) allows you to specify exactly which JDK version to build. Note that **toolchains are [required to use the latest Java version](https://docs.gradle.org/current/userguide/compatibility.html#java) with Gradle**.
   ```gradle
-  java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+  java.toolchain.languageVersion = JavaLanguageVersion.of(22)
   ```
 <br>
 

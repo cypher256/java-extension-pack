@@ -115,7 +115,7 @@
     "esbuild-watch": "npm run esbuild-base -- --sourcemap --watch",
     "eslint": "eslint . --ext .ts",
     "l10n": "npx @vscode/l10n-dev export --outDir ./l10n ./src",
-    "update": "npm update && ncu -x @types/vscode",
+    "update": "npm update && ncu -x @types/vscode,eslint",
     "package": "npx vsce package"
   },
   "engines": {
