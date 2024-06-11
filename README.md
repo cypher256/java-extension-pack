@@ -57,7 +57,7 @@ The `Extension Pack for Java Auto Config` has been extended to automatically con
     {
       "name": "JavaSE-21",
       "path": "C:\\Program Files\\java\\jdk-21.0.8",
-      "default": true //⭐ For No Build Tools projects
+      "default": true //⭐ default when creating "No build tools" project
     }
   ]
   ```
@@ -223,7 +223,7 @@ Command Palette **>Preferences: Open User Settings (JSON)**
   {
     "name": "JavaSE-21", // Adoptium (Auto-scan)
     "path": "C:\\Program Files\\Eclipse Adoptium\\jdk-21.0.8-hotspot",
-    "default": true //⭐ For No build tools projects
+    "default": true //⭐
   }
 ],
 // Gradle Daemon Java Runtime
@@ -316,6 +316,7 @@ Entries that do not have the following configuration in the user settings are au
 |*Language support for Java*|
 |[java.configuration.detectJdksAtStart](https://github.com/redhat-developer/vscode-java#supported-vs-code-settings)|`true`|`false`|
 |[java.configuration.updateBuildConfiguration](https://github.com/redhat-developer/vscode-java#supported-vs-code-settings)|`interactive`|`automatic`|
+|[java.dependency.packagePresentation](https://github.com/microsoft/vscode-java-dependency/tree/main?tab=readme-ov-file#settings)|`flat`|`hierarchical`|
 |[java.sources.organizeImports.staticStarThreshold](https://github.com/redhat-developer/vscode-java#supported-vs-code-settings)|`99`|`1`|
 |*Debugger for Java*|
 |[java.debug.settings.hotCodeReplace](https://code.visualstudio.com/docs/java/java-debugging#_hot-code-replace)|`manual`|`auto`|
