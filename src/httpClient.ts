@@ -1,6 +1,8 @@
 /*! VS Code Extension (c) 2023 Shinji Kashihara (cypher256) @ WILL */
 import axios from 'axios';
+import decompress from 'decompress';
 import * as fs from 'fs';
+import * as _ from "lodash";
 import * as path from 'path';
 import * as stream from 'stream';
 import { promisify } from 'util';
@@ -8,8 +10,6 @@ import * as vscode from 'vscode';
 import { l10n } from 'vscode';
 import * as system from './system';
 import { log } from './system';
-import decompress = require('decompress');
-import _ = require('lodash');
 
 /**
  * An interface for the HTTP client request.

@@ -3,7 +3,7 @@ import * as fs from 'fs';
 import { GlobOptionsWithFileTypesUnset, glob } from 'glob';
 import * as path from 'path';
 import * as vscode from 'vscode';
-import which = require('which');
+import which from 'which';
 
 /**
  * The output channel for the extension.

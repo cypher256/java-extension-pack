@@ -211,12 +211,19 @@ export async function updateJavaRuntimes(
 			}
 		}
 	}
+
 	// Project Runtimes Default
 	if (profileRuntimeToApply) {
 		runtimes.forEach(runtime => runtime.default = undefined); // Clear
 		profileRuntimeToApply.default = true;
-	} else if (latestLtsRuntime && !runtimes.findDefault()) { // Keep if set
-		latestLtsRuntime.default = true;
+	} else if (runtimes.findDefault()) {
+		// Keep
+	} else {
+		// If the latest is not downloaded, do not set default
+		const previewRuntime = runtimes.findByVersion(javaConfig.latestAvailableVer);
+		if (previewRuntime) {
+			previewRuntime.default = true; // Preview is auto-enabled only latest
+		} // else No default (JAVA_HOME env var is used)
 	}
 	if (!_.isEqual(runtimes, runtimesOld)) {
 		update(redhat.JavaConfigRuntimes.CONFIG_NAME, runtimes);

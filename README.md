@@ -153,7 +153,7 @@ For Included Extensions
 |Configuration Name|Configured Value [Precedence]|
 |---|---|
 |*Language support for Java*|
-|[java.configuration.runtimes](https://code.visualstudio.com/docs/java/java-project#_configure-runtime-for-projects)<br>([Issues](https://github.com/redhat-developer/vscode-java/issues?q=is%3Aissue+java.configuration.runtimes)) ⭐ default|Set all detected and downloaded JDKs (default: Latest LTS)<br>[`settings.json` > `JAVA_HOME`]|
+|[java.configuration.runtimes](https://code.visualstudio.com/docs/java/java-project#_configure-runtime-for-projects)<br>([Issues](https://github.com/redhat-developer/vscode-java/issues?q=is%3Aissue+java.configuration.runtimes)) ⭐ default|Set all detected and downloaded JDKs (default: Latest)<br>[`settings.json` > `JAVA_HOME`]|
 |[java.jdt.ls.java.home](https://github.com/redhat-developer/vscode-java/wiki/JDK-Requirements#platform-versions)<br>([Issues](https://github.com/redhat-developer/vscode-java/issues?q=is%3Aissue+java.jdt.ls.java.home)) 🛠️|Remove setting if Red Hat embedded JRE exists<br>[`settings.json` > Embedded JRE > `JDK_HOME` > `JAVA_HOME` > `PATH`]|
 |~~[java.home](https://github.com/redhat-developer/vscode-java/wiki/JDK-Requirements#universal-version)~~|Remove as it has been replaced by `java.jdt.ls.java.home`|
 |*Spring Boot Tools*|
