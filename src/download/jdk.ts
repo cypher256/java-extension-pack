@@ -65,11 +65,17 @@ function apiParamsOf(javaVersion: number): ApiParams | undefined {
  * @returns The path of the JDK download directory.
  */
 export function getDownloadDir(javaConfig:redhat.IJavaConfig, majorVer:number): string {
-	let verDir = String(majorVer);
 	if (javaConfig.latestAvailableVer === majorVer && !redhat.isLtsVersion(majorVer)) {
-		verDir = 'latest';
+		return getDownloadLatestDir();
 	}
-	return system.getGlobalStoragePath('java', verDir);
+	return system.getGlobalStoragePath('java', String(majorVer));
+}
+
+/**
+ * @returns The path of the latest non-LTS JDK download directory.
+ */
+export function getDownloadLatestDir(): string {
+	return system.getGlobalStoragePath('java', 'latest');
 }
 
 /**

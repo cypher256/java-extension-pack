@@ -93,6 +93,11 @@ export namespace Profile {
 	export const getUserDefProfileVersion = () =>
 		toVersion(getUserDef(CONFIG_NAME_DEFAULT_PROFILE) || '')
 	;
+	export const invalidJavaRuntime = (profileName: string | undefined, runtimes: redhat.JavaConfigRuntimes) =>
+		profileName &&
+		Profile.isGeneratedRuntime(profileName) &&
+		!runtimes.findByName(toRuntimeName(profileName))
+	;
 	export const isGeneratedRuntime = (profileName: string) =>
 		/^J(2|ava)SE-[\d.]+( LTS|)$/.test(profileName) // Strict names
 	;
@@ -194,19 +199,16 @@ export async function updateJavaRuntimes(
 	// Remove Auto-downloaded non-LTS prev latest (e.g. 22 to 23)
 	runtimes.sort((a, b) => a.name.localeCompare(b.name));
 	{
-		const latestPath = jdk.getDownloadDir(javaConfig, javaConfig.latestAvailableVer);
-		const duplicateRuntimes = runtimes.filter(runtime => runtime.path === latestPath) as redhat.JavaConfigRuntimes;
+		const latestDir = jdk.getDownloadLatestDir();
+		const duplicateRuntimes = runtimes.filter(runtime => runtime.path === latestDir) as redhat.JavaConfigRuntimes;
 		if (duplicateRuntimes.length >= 2) {
 			const latestRuntime = duplicateRuntimes.at(-1) as redhat.IJavaConfigRuntime;
 			latestRuntime.default = duplicateRuntimes.findDefault() ? true : undefined;
-			duplicateRuntimes.forEach(runtime => _.remove(runtimes, {name: runtime.name}));
+			_.remove(runtimes, {path: latestDir});
 			runtimes.push(latestRuntime);
 			// Fix removed default profile settings
-			const defaultProfile: string = getUserDef(Profile.CONFIG_NAME_DEFAULT_PROFILE) || '';
-			if (
-				Profile.isGeneratedRuntime(defaultProfile) &&
-				!runtimes.findByName(Profile.toRuntimeName(defaultProfile))
-			) {
+			const defaultProfileName = getUserDef<string>(Profile.CONFIG_NAME_DEFAULT_PROFILE);
+			if (Profile.invalidJavaRuntime(defaultProfileName, runtimes)) {
 				update(Profile.CONFIG_NAME_DEFAULT_PROFILE, Profile.nameOf(latestRuntime.name));
 			}
 		}
@@ -219,10 +221,10 @@ export async function updateJavaRuntimes(
 	} else if (runtimes.findDefault()) {
 		// Keep
 	} else {
-		// If the latest is not downloaded, do not set default
-		const previewRuntime = runtimes.findByVersion(javaConfig.latestAvailableVer);
-		if (previewRuntime) {
-			previewRuntime.default = true; // Preview is auto-enabled only latest
+		// Set default if the latest available exists
+		const previewableRuntime = runtimes.findByVersion(javaConfig.latestAvailableVer);
+		if (previewableRuntime) {
+			previewableRuntime.default = true; // Preview available only for latest and default
 		} // else No default (JAVA_HOME env var is used)
 	}
 	if (!_.isEqual(runtimes, runtimesOld)) {
@@ -236,22 +238,29 @@ export async function updateJavaRuntimes(
 	const oldProfiles:any = _.cloneDeep(defProfiles); // Proxy to POJO for isEqual
 	const newProfiles:any = _.cloneDeep(oldProfiles);
 	const runtimeProfileNameMap = new Map<string, string>();
-	const _createPathPrepend = (javaHome: string) => [path.join(javaHome, 'bin'), '${env:PATH}'].join(path.delimiter);
+	const _appendEnvPath = (javaHome: string) => [path.join(javaHome, 'bin'), '${env:PATH}'].join(path.delimiter);
 	const rcfileDir = system.getGlobalStoragePath();
 
 	for (const runtime of runtimes) {
 		const ver = redhat.versionOf(runtime.name);
-		const profileNameOldFormat = runtime.name; // 2024.05.22 Future deletion
 		const profileName = Profile.nameOf(runtime.name);
 		runtimeProfileNameMap.set(runtime.name, profileName);
 
+		// Old format 2024.05.22: Future deletion
+		const profileNameOldFormat = runtime.name;
+		if (profileNameOldFormat !== profileName && newProfiles[profileNameOldFormat]) {
+			newProfiles[profileName] = newProfiles[profileNameOldFormat];
+			delete newProfiles[profileNameOldFormat];
+		}
+
 		// Create from config runtimes (Always overwrite), Proxy to POJO for isEqual
-		const profile:any = _.cloneDeep(oldProfiles[profileNameOldFormat] ?? oldProfiles[profileName]) ?? {};
+		const profile:any = _.cloneDeep(newProfiles[profileName]) ?? {};
+		newProfiles[profileName] = profile;
 		profile.overrideName = true;
 		profile.env = {};
 		if (OS.isWindows) {
 			profile.path = 'cmd'; // powershell (legacy), pwsh (non-preinstalled)
-			profile.env.PATH = _createPathPrepend(runtime.path);
+			profile.env.PATH = _appendEnvPath(runtime.path);
 			if (ver >= 19) {
 
 				// Support JEP 400 UTF-8 Default (Java 18+)
@@ -280,12 +289,10 @@ export async function updateJavaRuntimes(
 			// Do not use --login because disables --rcfile
 		}
 		profile.env.JAVA_HOME = runtime.path;
-		delete newProfiles[profileNameOldFormat];
-		newProfiles[profileName] = profile;
 	}
-	for (const profileName of Object.keys(newProfiles).filter(Profile.isGeneratedRuntime)) {
+	for (const profileName of Object.keys(newProfiles)) {
 		// Remove profiles that do not exist in runtimes
-		if (!runtimes.findByName(Profile.toRuntimeName(profileName))) {
+		if (Profile.invalidJavaRuntime(profileName, runtimes)) {
 			delete newProfiles[profileName];
 		}
 	}
@@ -323,18 +330,18 @@ export async function updateJavaRuntimes(
 		// [Windows/Mac/Linux] Default profile
 		// Linux Maven uses the Java version of the default profile rcfile
 		if (terminalDefaultRuntime) {
-			const profileName = runtimeProfileNameMap.get(terminalDefaultRuntime.name);
-			if (profileName) {
-				const defaultProfileName:string | undefined = getUserDef(Profile.CONFIG_NAME_DEFAULT_PROFILE);
+			const terminalProfileName = runtimeProfileNameMap.get(terminalDefaultRuntime.name);
+			if (terminalProfileName) {
+				const defaultProfileName = getUserDef<string>(Profile.CONFIG_NAME_DEFAULT_PROFILE);
 				if (defaultProfileName) {
 					// Repair: Non-existing profile name
 					if (!Array.from(runtimeProfileNameMap.values()).includes(defaultProfileName)) {
-						update(Profile.CONFIG_NAME_DEFAULT_PROFILE, profileName);
+						update(Profile.CONFIG_NAME_DEFAULT_PROFILE, terminalProfileName);
 					}
 					// else Keep
 				} else {
 					// New
-					update(Profile.CONFIG_NAME_DEFAULT_PROFILE, profileName);
+					update(Profile.CONFIG_NAME_DEFAULT_PROFILE, terminalProfileName);
 				}
 			}
 		}
@@ -380,7 +387,7 @@ export async function updateJavaRuntimes(
 			const terminalEnv:any = _.cloneDeep(getUser(CONFIG_NAME_TERMINAL_ENV) ?? {}); // Proxy to POJO for isEqual
 			const terminalEnvOld = _.cloneDeep(terminalEnv);
 			terminalEnv.JAVA_HOME = await _fixJavaHome(terminalEnv.JAVA_HOME, terminalDefaultRuntime);
-			terminalEnv.PATH = _createPathPrepend(terminalEnv.JAVA_HOME);
+			terminalEnv.PATH = _appendEnvPath(terminalEnv.JAVA_HOME);
 			// It also applies to "Run | Debug" on Windows Encoding, so specify it in profiles
 			//terminalEnv.JAVA_TOOL_OPTIONS = '-Dstdout.encoding=UTF-8 -Dstderr.encoding=UTF-8';
 			if (!_.isEqual(terminalEnv, terminalEnvOld)) {

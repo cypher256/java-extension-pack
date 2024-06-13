@@ -36,11 +36,10 @@ The `Extension Pack for Java Auto Config` has been extended to automatically con
 <br>
 
 * **No Build Tools ([vscode-java](https://github.com/redhat-developer/vscode-java?tab=readme-ov-file#project-jdks))**<br>
-  (*1) User `settings.json`
+  (*1) User `settings.json` (Java runtimes common settings)
 
 
   ```json
-  // Java runtimes common settings
   "java.configuration.runtimes": [
     {
       "name": "JavaSE-1.8",

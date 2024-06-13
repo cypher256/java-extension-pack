@@ -115,7 +115,8 @@
     "esbuild-watch": "npm run esbuild-base -- --sourcemap --watch",
     "eslint": "eslint . --ext .ts",
     "update": "npm update && ncu -x @types/vscode,eslint",
-    "package": "npx vsce package"
+    "package": "npx vsce package",
+    "package-install": "npx vsce package --out a.vsix && code --install-extension a.vsix"
   },
   "engines": {
     "vscode": "^1.77.0"
