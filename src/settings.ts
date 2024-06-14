@@ -122,12 +122,20 @@ export class SettingState {
 		this.store();
 	}
 
-	private _isEventProcessing?: boolean;
+	private _eventStartTime?: number;
 	get isEventProcessing() {
-		return this._isEventProcessing ?? false;
+		if (this._eventStartTime && Date.now() - this._eventStartTime > 180_000) {
+			log.debug('get isEventProcessing: Timeout');
+			this._eventStartTime = undefined;
+			this.store();
+		}
+		const isProcessing = !!this._eventStartTime;
+		log.debug(`get isEventProcessing: ${isProcessing}`);
+		return isProcessing;
 	}
 	set isEventProcessing(value: boolean) {
-		this._isEventProcessing = value;
+		this._eventStartTime = value ? Date.now() : undefined;
+		log.debug(`set isEventProcessing: ${value}`);
 		this.store();
 	}
 
@@ -203,7 +211,7 @@ export async function updateJavaRuntimes(
 		const duplicateRuntimes = runtimes.filter(runtime => runtime.path === latestDir) as redhat.JavaConfigRuntimes;
 		if (duplicateRuntimes.length >= 2) {
 			const latestRuntime = duplicateRuntimes.at(-1) as redhat.IJavaConfigRuntime;
-			latestRuntime.default = duplicateRuntimes.findDefault() ? true : undefined;
+			latestRuntime.default = duplicateRuntimes.findDefault() ? true : undefined; // undefined removes the entry
 			_.remove(runtimes, {path: latestDir});
 			runtimes.push(latestRuntime);
 			// Fix removed default profile settings

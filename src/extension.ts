@@ -35,15 +35,25 @@ export async function activate(context:vscode.ExtensionContext) {
 			return;
 		}
 
-		settings.setDefault(javaConfig);
-		const runtimes = settings.getJavaConfigRuntimes();
-		const runtimesOld = _.cloneDeep(runtimes);
-		await detect(javaConfig, runtimes);
-		await download(javaConfig, runtimes);
-		onComplete(javaConfig, runtimes, runtimesOld, isFirstStartup);
-		setTerminalEnvironment();
-		// Delay for prevent self update (2024.05.23 Testing 5_000 -> 0)
-		setTimeout(() => setChangeEvent(javaConfig), 0);
+		const state = SettingState.getInstance();
+		if (state.isEventProcessing) {
+			return;
+		}
+		try {
+			state.isEventProcessing = true;
+			settings.setDefault(javaConfig);
+			const runtimes = settings.getJavaConfigRuntimes();
+			const runtimesOld = _.cloneDeep(runtimes);
+			await detect(javaConfig, runtimes);
+			await download(javaConfig, runtimes);
+			onComplete(javaConfig, runtimes, runtimesOld, isFirstStartup);
+			setTerminalEnvironment();
+			
+		} finally {
+			state.isEventProcessing = false;
+			// Delay for prevent self update (2024.05.23 Testing 5_000 -> 0)
+			setTimeout(() => setChangeEvent(javaConfig), 0);
+		}
 
 	} catch (e:any) {
 		vscode.window.showErrorMessage(`Auto Config Java failed. ${e}`);
@@ -279,7 +289,6 @@ function setChangeEvent(javaConfig: redhat.IJavaConfig) {
 	{
 		const state = SettingState.getInstance();
 		state.originalProfileVersion = Profile.getUserDefProfileVersion();
-		state.isEventProcessing = false;
 	}
 	vscode.workspace.onDidChangeConfiguration(async event => {
 		try {
@@ -300,7 +309,6 @@ function setChangeEvent(javaConfig: redhat.IJavaConfig) {
 			return;
 		}
 		const state = SettingState.getInstance();
-		log.debug(`isEventProcessing:${state.isEventProcessing}`);
 		if (state.isEventProcessing) {
 			return;
 		}
@@ -312,6 +320,8 @@ function setChangeEvent(javaConfig: redhat.IJavaConfig) {
 				state.isEventProcessing = true;
 				const runtimes = settings.getJavaConfigRuntimes();
 				await detect(javaConfig, runtimes); // Freeze without await
+				// Don't download due to heavy processing on event
+				//await download(javaConfig, runtimes);
 			}
 
 			// Change Default Profile (Some events with "terminal.integrated" prefix)
@@ -340,7 +350,7 @@ function setChangeEvent(javaConfig: redhat.IJavaConfig) {
 
 		} finally {
 			if (state.isEventProcessing) {
-				// Waiting to suppress change events from a program
+				// Wait for another window to ignore change events
 				setTimeout(() => {
 					state.isEventProcessing = false;
 				}, 5_000);
