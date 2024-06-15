@@ -2,7 +2,7 @@
   "name": "java-extension-pack-jdk",
   "displayName": "Extension Pack for Java Auto Config",
   "description": "JDK Auto-Configuration + Extension Pack for Java + Spring Boot Extension Pack",
-  "icon": "image/README_icon.png",
+  "icon": "README_icon.png",
   "publisher": "Pleiades",
   "license": "MIT",
   "repository": {
@@ -142,5 +142,5 @@
     "jdk-utils": "0.x",
     "lodash": "4.x"
   },
-  "version": "2024.615.0"
+  "version": "2024.615.1"
 }
