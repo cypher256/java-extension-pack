@@ -620,6 +620,7 @@ export async function setDefault(javaConfig: redhat.IJavaConfig) {
 	setIfUndefined('trailing-spaces.backgroundColor', 'rgba(255,0,0,0.1)', 'shardulm94.trailing-spaces');
 	setIfUndefined('trailing-spaces.includeEmptyLines', false, 'shardulm94.trailing-spaces');
 	// Optional extensions
+	setIfUndefined('emmet.includeLanguages', {"jsp": "html"}, 'samuel-weinhardt.vscode-jsp-lang');
 	setIfUndefined('thunder-client.requestLayout', 'Top/Bottom', 'rangav.vscode-thunder-client');
 	// VS Code Terminal
 	setIfUndefined('terminal.integrated.tabs.hideCondition', 'never');

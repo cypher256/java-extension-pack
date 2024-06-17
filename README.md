@@ -164,7 +164,7 @@ For Included Extensions
 |[maven.terminal.customEnv](https://marketplace.visualstudio.com/items?itemName=vscjava.vscode-maven#additional-configurations)<br>([Issues](https://github.com/microsoft/vscode-maven/issues?q=is%3Aissue+maven.terminal.customEnv)) ⭐|Set latest LTS JDK if unset<br>[`settings.json` > `JAVA_HOME`]|
 |[maven.executable.path](https://marketplace.visualstudio.com/items?itemName=vscjava.vscode-maven#additional-configurations)<br>([Issues](https://github.com/microsoft/vscode-maven/issues?q=is%3Aissue+maven.executable.path)) 📝|Set auto-downloaded maven if unset (If you want to use `mvnw`, set "" manually)<br>[`settings.json` > **`mvnw`** > `PATH`]|
 
-For Optional Extensions
+For Optional Extensions (If installed)
 
 |Configuration Name|Configured Value [Precedence]|
 |---|---|
@@ -299,6 +299,8 @@ Command Palette **>Preferences: Open User Settings (JSON)**
 ## Auto-Default Settings
 Entries that do not have the following configuration in the user settings are automatically set to the default values of `Extension Pack for Java Auto Config`. To prevent automatic setting, set the Original Default value below. Note that a debug run is required to enable Hot Code Replace (Hot Deploy).
 
+For Included Extensions
+
 |Configuration Name|Original Default|Auto Default|
 |---|---|---|
 |[editor.codeActionsOnSave](https://github.com/redhat-developer/vscode-java/pull/3015)|`{}`|See below|
@@ -323,6 +325,13 @@ Entries that do not have the following configuration in the user settings are au
 |[cSpell.diagnosticLevel](https://streetsidesoftware.com/vscode-spell-checker/docs/configuration/#cspelldiagnosticlevel)|`Information`|`Hint`|
 |*Trailing Spaces*|
 |[trailing-spaces.includeEmptyLines](https://marketplace.visualstudio.com/items?itemName=shardulm94.trailing-spaces#:~:text=will%20be%20ignored.-,Include%20Empty%20Lines,-Default%3A%20true)|`true`|`false`|
+
+For Optional Extensions (If installed)
+
+|Configuration Name|Original Default|Auto Default|
+|---|---|---|
+|*JSP Language Support*<br>[emmet.includeLanguages](https://code.visualstudio.com/docs/editor/emmet#_emmet-abbreviations-in-other-file-types)|`{}`|`{"jsp": "html"}`|
+|*Thunder Client*<br>thunder-client.requestLayout|`Left/Right`|`Top/Bottom`|
 
 ```json
 "editor.codeActionsOnSave": {
@@ -425,6 +434,9 @@ A language pack that matches the OS Locale.<br>
 
 The following are not included but are very useful extensions. Try to install it if necessary.
 
+- ![](https://img.shields.io/visual-studio-marketplace/i/gengen0719.java-testingpair-opener?style=plastic)
+[JavaTestingPairOpener](gengen0719.java-testingpair-opener) (gengen0719: Apache)<br>
+This is an extension that opens JavaCode's TestingPair with a shortcut-key.
 - ![](https://img.shields.io/visual-studio-marketplace/i/rangav.vscode-thunder-client?style=plastic)
 [Thunder Client](https://marketplace.visualstudio.com/items?itemName=rangav.vscode-thunder-client) (Ranga Vadhineni: Free)<br>
 Lightweight Rest API Client for VS Code.
@@ -444,7 +456,7 @@ Most common thymeleaf code snippets for .html file.
 [Thymeleaf Navigation](https://marketplace.visualstudio.com/items?itemName=sgruendel.thymeleaf-navigate) (Stefan Gründel: GPL)<br>
 Navigate Thymeleaf 3 fragments.
 - ![](https://img.shields.io/visual-studio-marketplace/i/samuel-weinhardt.vscode-jsp-lang)
-[Java Server Pages (JSP)](https://marketplace.visualstudio.com/items?itemName=samuel-weinhardt.vscode-jsp-lang) (Samuel Weinhardt: MIT)<br>
+[JSP Language Support](https://marketplace.visualstudio.com/items?itemName=samuel-weinhardt.vscode-jsp-lang) (Samuel Weinhardt: MIT)<br>
 JSP syntax highlighting for VS Code.
 - ![](https://img.shields.io/visual-studio-marketplace/i/redhat.vscode-community-server-connector?style=plastic)
 [Community Server Connectors](https://marketplace.visualstudio.com/items?itemName=redhat.vscode-community-server-connector) (Red Hat: EPL) / [VS Code Document](https://code.visualstudio.com/docs/java/java-tomcat-jetty)<br>
