@@ -435,7 +435,7 @@ A language pack that matches the OS Locale.<br>
 The following are not included but are very useful extensions. Try to install it if necessary.
 
 - ![](https://img.shields.io/visual-studio-marketplace/i/gengen0719.java-testingpair-opener?style=plastic)
-[JavaTestingPairOpener](gengen0719.java-testingpair-opener) (gengen0719: Apache)<br>
+[JavaTestingPairOpener](https://marketplace.visualstudio.com/items?itemName=gengen0719.java-testingpair-opener) (gengen0719: Apache)<br>
 This is an extension that opens JavaCode's TestingPair with a shortcut-key.
 - ![](https://img.shields.io/visual-studio-marketplace/i/rangav.vscode-thunder-client?style=plastic)
 [Thunder Client](https://marketplace.visualstudio.com/items?itemName=rangav.vscode-thunder-client) (Ranga Vadhineni: Free)<br>
