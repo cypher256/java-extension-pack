@@ -3,13 +3,13 @@ import axios from 'axios';
 import decompress from 'decompress';
 import * as fs from 'fs';
 import * as _ from "lodash";
-import * as path from 'path';
 import * as stream from 'stream';
+import { setTimeout } from 'timers/promises';
 import { promisify } from 'util';
 import * as vscode from 'vscode';
 import { l10n } from 'vscode';
 import * as system from './system';
-import { log } from './system';
+import { OS, log } from './system';
 
 /**
  * An interface for the HTTP client request.
@@ -74,10 +74,11 @@ class DownloadState {
 async function download(progress:vscode.Progress<{message:string}>, req:IHttpClientRequest) {
     log.info(`Download START ${req.targetMessage}`, req.url);
     const state = DownloadState.getInstance();
+    const isCreatedExtractDir = system.mkdirSyncQuietly(req.extractDestDir);
+    const isShowProgressLaunchJson = process.env.VSCODE_AUTO_CONFIG_SHOW_PROGRESS === 'true';
     const res = await axios.get(req.url, {responseType: 'stream'});
 
-    const isFirstDownload = system.mkdirSyncQuietly(path.dirname(req.storeTempFile));
-    if (isFirstDownload) {
+    if (isCreatedExtractDir || isShowProgressLaunchJson) {
         const msg = `${l10n.t('Downloading')}... ${req.targetMessage.replace(/[^A-z].*$/, '')}`;
         report(progress, msg);
         
@@ -129,6 +130,9 @@ async function extract(progress:vscode.Progress<{message:string}>, opt:IHttpClie
             system.rmQuietly(opt.storeTempFile);
         } catch (e:any) {
             log.info('Failed extract:', e); // Validate later
+            if (OS.isWindows) {
+                await setTimeout(5_000); // Wait for Windows delayed writes (200ms x, 300ms o)
+            }
         }
     } finally {
         state.extractingMsg = undefined;

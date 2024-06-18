@@ -147,9 +147,8 @@ export async function download(
 	};
 	await httpClient.get(req);
 
-	// Validate (Don't use isValidHome to avoid Windows delayed writes)
-	//if (!await jdkExplorer.isValidHome(downloadVerDir)) {
-	if (!system.existsDirectory(path.join(downloadVerDir, 'bin'))) {
+	// Validate
+	if (!await jdkExplorer.isValidHome(downloadVerDir)) {
 		log.info('Failed download JDK:', downloadVerDir);
 		_.remove(runtimes, {name: runtimeName});
 		return; // Silent

@@ -596,8 +596,6 @@ export async function setDefault(javaConfig: redhat.IJavaConfig) {
 		},
 	]);
 	setIfUndefined('editor.unicodeHighlight.includeComments', true);
-	// VS Code Emmet
-	setIfUndefined('emmet.variables', {'lang': OS.locale.substring(0, 2)});
 	// VS Code Workbench
 	setIfUndefined('workbench.colorCustomizations', {
 		"[Default Dark Modern]": {
@@ -615,13 +613,15 @@ export async function setDefault(javaConfig: redhat.IJavaConfig) {
 		setIfUndefined('files.eol', '\n');
 		setIfUndefined('[bat]', {'files.eol': '\r\n'});
 	}
+	// VS Code Emmet
+	setIfUndefined('emmet.variables', {'lang': OS.locale.substring(0, 2)});
+	// Optional extensions
+	setIfUndefined('emmet.includeLanguages', {"jsp": "html"}, 'samuel-weinhardt.vscode-jsp-lang');
+	setIfUndefined('thunder-client.requestLayout', 'Top/Bottom', 'rangav.vscode-thunder-client');
 	// Included extensions
 	setIfUndefined('cSpell.diagnosticLevel', 'Hint', 'streetsidesoftware.code-spell-checker');
 	setIfUndefined('trailing-spaces.backgroundColor', 'rgba(255,0,0,0.1)', 'shardulm94.trailing-spaces');
 	setIfUndefined('trailing-spaces.includeEmptyLines', false, 'shardulm94.trailing-spaces');
-	// Optional extensions
-	setIfUndefined('emmet.includeLanguages', {"jsp": "html"}, 'samuel-weinhardt.vscode-jsp-lang');
-	setIfUndefined('thunder-client.requestLayout', 'Top/Bottom', 'rangav.vscode-thunder-client');
 	// VS Code Terminal
 	setIfUndefined('terminal.integrated.tabs.hideCondition', 'never');
 	setIfUndefined('terminal.integrated.enablePersistentSessions', false);

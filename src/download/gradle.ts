@@ -112,8 +112,10 @@ async function httpget(): Promise<string | undefined> {
 		extractDestDir: downloadDir,
 		targetMessage: `Gradle ${version}`,
 	});
+	
+	// Validate
 	if (!existsExe(downloadDir)) {
-		log.info('Invalid Gradle:', downloadDir);
+		log.info('Failed download Gradle:', downloadDir);
 		return undefined; // Silent: Remove config entry
 	}
 	fs.writeFileSync(versionFile, version); // Sync for catch

@@ -15,7 +15,10 @@
 			"outFiles": [
 				"${workspaceFolder}/dist/**/*.js"
 			],
-			"preLaunchTask": "npm: esbuild"
+			"preLaunchTask": "npm: esbuild",
+			"env": {
+				"VSCODE_AUTO_CONFIG_SHOW_PROGRESS": "true"
+			}
 		}
 	]
 }
