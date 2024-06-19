@@ -113,20 +113,22 @@ export namespace Profile {
  */
 export class SettingState {
 
-	private _isApplyDefaultProfile?: boolean;
-	get isApplyDefaultProfile() {
-		return this._isApplyDefaultProfile ?? false;
+	private _isDefaultProfileApplying?: boolean;
+	get isDefaultProfileApplying() {
+		return !!this._isDefaultProfileApplying;
 	}
-	set isApplyDefaultProfile(value: boolean) {
-		this._isApplyDefaultProfile = value;
+	set isDefaultProfileApplying(value: boolean) {
+		this.load();
+		this._isDefaultProfileApplying = value;
 		this.store();
 	}
 
 	private _eventStartTime?: number;
 	get isEventProcessing() {
-		if (this._eventStartTime && Date.now() - this._eventStartTime > 180_000) {
+		if (this._eventStartTime && Date.now() - this._eventStartTime > 60_000) {
 			log.debug('get isEventProcessing: Timeout');
 			this._eventStartTime = undefined;
+			this._isDefaultProfileApplying = undefined;
 			this.store();
 		}
 		const isProcessing = !!this._eventStartTime;
@@ -134,6 +136,7 @@ export class SettingState {
 		return isProcessing;
 	}
 	set isEventProcessing(value: boolean) {
+		this.load();
 		this._eventStartTime = value ? Date.now() : undefined;
 		log.debug(`set isEventProcessing: ${value}`);
 		this.store();
@@ -144,6 +147,7 @@ export class SettingState {
 		return this._originalProfileVersion;
 	}
 	set originalProfileVersion(value: number | undefined) {
+		this.load();
 		this._originalProfileVersion = value;
 		this.store();
 	}
@@ -159,18 +163,22 @@ export class SettingState {
 				fs.writeFileSync(storeFile, jsonStr); // Sync for catch
 			}
 		} catch (e:any) {
-			log.warn('Store SettingState:', e);
+			log.warn('store SettingState:', e);
 		}
 	}
 
-	static getInstance(): SettingState {
+	private load() {
 		try {
 			const json = JSON.parse(system.readString(SettingState.getStoreFile()) || '{}');
-			return Object.assign(new SettingState(), json); // Copy fields
+			Object.assign(this, json); // Copy fields
 		} catch (e:any) {
-			log.warn('Load SettingState:', e);
-			return new SettingState();
+			log.warn('load SettingState:', e);
 		}
+		return this;
+	}
+
+	static getInstance(): SettingState {
+		return new SettingState().load();
 	}
 }
 
@@ -193,8 +201,8 @@ export async function updateJavaRuntimes(
 
 	const profileRuntimeToApply = (() => {
 		const state = SettingState.getInstance();
-		if (state.isApplyDefaultProfile) {
-			state.isApplyDefaultProfile = false;
+		if (state.isDefaultProfileApplying) {
+			state.isDefaultProfileApplying = false;
 			const defaultProfileVer = Profile.getUserDefProfileVersion();
 			log.info(`Apply Default Profile Java ${defaultProfileVer}`);
 			return runtimes.findByVersion(defaultProfileVer);

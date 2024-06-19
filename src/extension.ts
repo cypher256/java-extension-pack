@@ -23,7 +23,7 @@ const AUTO_CONFIG_ENABLED = 'javaAutoConfig.enabled';
 export async function activate(context:vscode.ExtensionContext) {
 	try {
 		const isFirstStartup = system.init(context);
-		log.info(`activate START ${context.extension?.packageJSON?.version} --------------------`);
+		log.info(`Activate START ${context.extension?.packageJSON?.version} --------------------`);
 		log.info('Global Storage', system.getGlobalStoragePath());
 		copyRcfile();
 		setTerminalEnvironment();
@@ -34,9 +34,9 @@ export async function activate(context:vscode.ExtensionContext) {
 			setChangeEvent(javaConfig);
 			return;
 		}
-
 		const state = SettingState.getInstance();
 		if (state.isEventProcessing) {
+			log.info('Activate canceled due to processing');
 			return;
 		}
 		try {
@@ -50,7 +50,8 @@ export async function activate(context:vscode.ExtensionContext) {
 			setTerminalEnvironment();
 			
 		} finally {
-			state.isEventProcessing = false;
+			// Wait for another window event on change default profile
+			setTimeout(() => {state.isEventProcessing = false;}, 5_000);
 			// Delay for prevent self update (2024.05.23 Testing 5_000 -> 0)
 			setTimeout(() => setChangeEvent(javaConfig), 0);
 		}
@@ -60,7 +61,7 @@ export async function activate(context:vscode.ExtensionContext) {
 		log.error(e);
 		
 	} finally {
-		log.info('activate END');
+		log.info('Activate END');
 	}
 }
 
@@ -301,60 +302,61 @@ function setChangeEvent(javaConfig: redhat.IJavaConfig) {
 				await setTerminalEnvironment(); // await for catch
 				return;
 			}
-		} catch (e:any) {
-			log.error(e);
-		}
 
-		if (!settings.getWorkspace(AUTO_CONFIG_ENABLED)) {
-			return;
-		}
-		const state = SettingState.getInstance();
-		if (state.isEventProcessing) {
-			return;
-		}
-
-		try {
-			// Reconfigure Terminal Profiles
-			if (event.affectsConfiguration(redhat.JavaConfigRuntimes.CONFIG_NAME)) {
-				log.info(`Change Event: ${redhat.JavaConfigRuntimes.CONFIG_NAME}`);
-				state.isEventProcessing = true;
-				const runtimes = settings.getJavaConfigRuntimes();
-				await detect(javaConfig, runtimes); // Freeze without await
-				// Don't download due to heavy processing on event
-				//await download(javaConfig, runtimes);
+			// NOP
+			if (!settings.getWorkspace(AUTO_CONFIG_ENABLED)) {
+				return;
+			}
+			const state = SettingState.getInstance();
+			if (state.isEventProcessing || state.isDefaultProfileApplying) {
+				return;
 			}
 
-			// Change Default Profile (Some events with "terminal.integrated" prefix)
-			else if (event.affectsConfiguration(Profile.CONFIG_NAME_DEFAULT_PROFILE)) {
-				const changedVer = Profile.getUserDefProfileVersion();
-				if (!changedVer || changedVer === state.originalProfileVersion) {
+			try {
+				// Reconfigure Terminal Profiles
+				if (event.affectsConfiguration(redhat.JavaConfigRuntimes.CONFIG_NAME)) {
+					log.info(`Change Event: ${redhat.JavaConfigRuntimes.CONFIG_NAME}`);
+					state.isEventProcessing = true;
+					const runtimes = settings.getJavaConfigRuntimes();
+					await detect(javaConfig, runtimes); // Freeze without await
+					// Don't download due to heavy processing on event
+					//await download(javaConfig, runtimes);
 					return;
 				}
-				log.info(`Change Event: ${Profile.CONFIG_NAME_DEFAULT_PROFILE}`);
-				state.isEventProcessing = true;
-				const message = l10n.t(
-					'The default profile Java version has changed. Do you want to apply it as default for user settings?'
-				);
-				const cancelLabel = l10n.t('Cancel');
-				const reloadLabel = l10n.t('Reload and apply');
-				vscode.window.showWarningMessage(message, cancelLabel, reloadLabel).then(selection => {
-					if (selection === reloadLabel) {
-						state.isApplyDefaultProfile = true;
-						vscode.commands.executeCommand('workbench.action.reloadWindow');
+
+				// Change Default Profile (Some events with "terminal.integrated" prefix)
+				if (event.affectsConfiguration(Profile.CONFIG_NAME_DEFAULT_PROFILE)) {
+					const changedVer = Profile.getUserDefProfileVersion();
+					if (!changedVer || changedVer === state.originalProfileVersion) {
+						return;
 					}
-				});
+					log.info(`Change Event: ${Profile.CONFIG_NAME_DEFAULT_PROFILE}`);
+					state.isEventProcessing = true;
+					const message = l10n.t(
+						'The default profile Java version has changed. Do you want to apply it as default for user settings?'
+					);
+					const cancelLabel = l10n.t('Cancel');
+					const reloadLabel = l10n.t('Reload and apply');
+					vscode.window.showWarningMessage(message, cancelLabel, reloadLabel).then(selection => {
+						// Not called when auto-closing
+						if (selection === reloadLabel) {
+							state.isDefaultProfileApplying = true;
+							state.isEventProcessing = false;
+							vscode.commands.executeCommand('workbench.action.reloadWindow');
+						}
+					});
+					return;
+				}
+
+			} finally {
+				if (state.isEventProcessing) {
+					// Wait for another window event and showWarningMessage auto-close
+					setTimeout(() => {state.isEventProcessing = false;}, 5_000);
+				}
 			}
 
 		} catch (e:any) {
 			log.error(e);
-
-		} finally {
-			if (state.isEventProcessing) {
-				// Wait for another window to ignore change events
-				setTimeout(() => {
-					state.isEventProcessing = false;
-				}, 5_000);
-			}
 		}
 	});
 }

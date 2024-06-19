@@ -30,7 +30,7 @@ export async function scan(javaConfig: redhat.IJavaConfig, runtimes:redhat.JavaC
 		}
 		const majorVer = redhat.versionOf(runtime.name);
 		const originPath = runtime.path;
-		// Ignore manual setted path for force download (If invalid directory, temporary error)
+		// Ignore manual set path for force download (If invalid directory, temporary error)
 		if (javaConfig.downloadLtsVers.includes(majorVer)) { // Download LTS only
 			const downloadDir = jdk.getDownloadDir(javaConfig, majorVer);
 			if (system.equalsPath(originPath, downloadDir)) {
