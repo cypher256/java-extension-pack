@@ -115,31 +115,32 @@ export class SettingState {
 
 	private _isDefaultProfileApplying?: boolean;
 	get isDefaultProfileApplying() {
-		return !!this._isDefaultProfileApplying;
+		const isApplying = !!this._isDefaultProfileApplying;
+		log.debug(`SettingState: get isDefaultProfileApplying: ${isApplying}`);
+		return isApplying;
 	}
 	set isDefaultProfileApplying(value: boolean) {
-		this.load();
-		this._isDefaultProfileApplying = value;
-		this.store();
+		this.store(() => this._isDefaultProfileApplying = value);
 	}
 
 	private _eventStartTime?: number;
 	get isEventProcessing() {
 		if (this._eventStartTime && Date.now() - this._eventStartTime > 60_000) {
-			log.debug('get isEventProcessing: Timeout');
-			this._eventStartTime = undefined;
-			this._isDefaultProfileApplying = undefined;
-			this.store();
+			log.debug('SettingState: get isEventProcessing: Timeout');
+			this.store(() => {
+				this._eventStartTime = undefined;
+				this._isDefaultProfileApplying = undefined;
+			});
 		}
 		const isProcessing = !!this._eventStartTime;
-		log.debug(`get isEventProcessing: ${isProcessing}`);
+		log.debug(`SettingState: get isEventProcessing: ${isProcessing}`);
 		return isProcessing;
 	}
 	set isEventProcessing(value: boolean) {
-		this.load();
-		this._eventStartTime = value ? Date.now() : undefined;
-		log.debug(`set isEventProcessing: ${value}`);
-		this.store();
+		this.store(() => {
+			this._eventStartTime = value ? Date.now() : undefined;
+			log.debug(`SettingState: set isEventProcessing: ${value}`);
+		});
 	}
 
 	private _originalProfileVersion?: number;
@@ -147,38 +148,41 @@ export class SettingState {
 		return this._originalProfileVersion;
 	}
 	set originalProfileVersion(value: number | undefined) {
-		this.load();
-		this._originalProfileVersion = value;
-		this.store();
+		this.store(() => this._originalProfileVersion = value);
 	}
 
-	private constructor() {}
 	private static readonly getStoreFile = () => system.getGlobalStoragePath('.SettingState.json');
+	private constructor() {
+		this.load();
+	}
 
-	private store() {
+	static getInstance(): SettingState {
+		return new SettingState();
+	}
+
+	private store(setter: () => void) {
 		try {
-			const storeFile = SettingState.getStoreFile();
-			const jsonStr = JSON.stringify(this);
-			if (jsonStr !== system.readString(storeFile)) { // For performance
-				fs.writeFileSync(storeFile, jsonStr); // Sync for catch
+			const oldJsonStr = this.load();
+			setter();
+			const newJsonStr = JSON.stringify(this);
+			if (newJsonStr !== oldJsonStr) { // For performance
+				fs.writeFileSync(SettingState.getStoreFile(), newJsonStr); // Sync for catch
+				log.debug('SettingState: store', newJsonStr);
 			}
 		} catch (e:any) {
-			log.warn('store SettingState:', e);
+			log.warn('SettingState: store', e);
 		}
 	}
 
 	private load() {
 		try {
-			const json = JSON.parse(system.readString(SettingState.getStoreFile()) || '{}');
-			Object.assign(this, json); // Copy fields
+			const jsonStr = system.readString(SettingState.getStoreFile());
+			Object.assign(this, JSON.parse(jsonStr || '{}')); // Copy fields
+			return jsonStr;
 		} catch (e:any) {
-			log.warn('load SettingState:', e);
+			log.warn('SettingState: load', e);
+			return undefined;
 		}
-		return this;
-	}
-
-	static getInstance(): SettingState {
-		return new SettingState().load();
 	}
 }
 

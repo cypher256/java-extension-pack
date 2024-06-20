@@ -300,41 +300,30 @@ function setChangeEvent(javaConfig: redhat.IJavaConfig) {
 			) {
 				log.info('Change Event: Build Tools Path');
 				await setTerminalEnvironment(); // await for catch
-				return;
 			}
 
-			// NOP
-			if (!settings.getWorkspace(AUTO_CONFIG_ENABLED)) {
-				return;
-			}
-			const state = SettingState.getInstance();
-			if (state.isEventProcessing || state.isDefaultProfileApplying) {
-				return;
-			}
-
-			try {
-				// Reconfigure Terminal Profiles
-				if (event.affectsConfiguration(redhat.JavaConfigRuntimes.CONFIG_NAME)) {
+			// Reconfigure Terminal Profiles
+			else if (event.affectsConfiguration(redhat.JavaConfigRuntimes.CONFIG_NAME)) {
+				await lockProcess(async (state) => {
 					log.info(`Change Event: ${redhat.JavaConfigRuntimes.CONFIG_NAME}`);
 					state.isEventProcessing = true;
 					const runtimes = settings.getJavaConfigRuntimes();
 					await detect(javaConfig, runtimes); // Freeze without await
 					// Don't download due to heavy processing on event
 					//await download(javaConfig, runtimes);
-					return;
-				}
+				});
+			}
 
-				// Change Default Profile (Some events with "terminal.integrated" prefix)
-				if (event.affectsConfiguration(Profile.CONFIG_NAME_DEFAULT_PROFILE)) {
+			// Change Default Profile (Some events with "terminal.integrated" prefix)
+			else if (event.affectsConfiguration(Profile.CONFIG_NAME_DEFAULT_PROFILE)) {
+				await lockProcess(async (state) => {
 					const changedVer = Profile.getUserDefProfileVersion();
 					if (!changedVer || changedVer === state.originalProfileVersion) {
 						return;
 					}
 					log.info(`Change Event: ${Profile.CONFIG_NAME_DEFAULT_PROFILE}`);
 					state.isEventProcessing = true;
-					const message = l10n.t(
-						'The default profile Java version has changed. Do you want to apply it as default for user settings?'
-					);
+					const message = l10n.t('The default profile Java version has changed. Do you want to apply it as default for user settings?');
 					const cancelLabel = l10n.t('Cancel');
 					const reloadLabel = l10n.t('Reload and apply');
 					vscode.window.showWarningMessage(message, cancelLabel, reloadLabel).then(selection => {
@@ -345,18 +334,34 @@ function setChangeEvent(javaConfig: redhat.IJavaConfig) {
 							vscode.commands.executeCommand('workbench.action.reloadWindow');
 						}
 					});
-					return;
-				}
-
-			} finally {
-				if (state.isEventProcessing) {
-					// Wait for another window event and showWarningMessage auto-close
-					setTimeout(() => {state.isEventProcessing = false;}, 5_000);
-				}
+				});
 			}
 
 		} catch (e:any) {
 			log.error(e);
 		}
 	});
+}
+
+/**
+ * Locks the process to prevent multiple executions.
+ * @param process The process to execute.
+ * @returns A promise that resolves when the process is complete.
+ */
+async function lockProcess(process: (state: SettingState) => Promise<void>) {
+	if (!settings.getWorkspace(AUTO_CONFIG_ENABLED)) {
+		return;
+	}
+	const state = SettingState.getInstance();
+	if (state.isEventProcessing || state.isDefaultProfileApplying) {
+		return;
+	}
+	try {
+		await process(state);
+	} finally {
+		if (state.isEventProcessing) {
+			// Wait for another window event and showWarningMessage auto-close
+			setTimeout(() => {state.isEventProcessing = false;}, 5_000);
+		}
+	}
 }
