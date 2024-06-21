@@ -306,7 +306,6 @@ function setChangeEvent(javaConfig: redhat.IJavaConfig) {
 			else if (event.affectsConfiguration(redhat.JavaConfigRuntimes.CONFIG_NAME)) {
 				await lockProcess(async (state) => {
 					log.info(`Change Event: ${redhat.JavaConfigRuntimes.CONFIG_NAME}`);
-					state.isEventProcessing = true;
 					const runtimes = settings.getJavaConfigRuntimes();
 					await detect(javaConfig, runtimes); // Freeze without await
 					// Don't download due to heavy processing on event
@@ -316,13 +315,12 @@ function setChangeEvent(javaConfig: redhat.IJavaConfig) {
 
 			// Change Default Profile (Some events with "terminal.integrated" prefix)
 			else if (event.affectsConfiguration(Profile.CONFIG_NAME_DEFAULT_PROFILE)) {
+				const changedVer = Profile.getUserDefProfileVersion();
+				if (!changedVer || changedVer === SettingState.getInstance().originalProfileVersion) {
+					return;
+				}
 				await lockProcess(async (state) => {
-					const changedVer = Profile.getUserDefProfileVersion();
-					if (!changedVer || changedVer === state.originalProfileVersion) {
-						return;
-					}
 					log.info(`Change Event: ${Profile.CONFIG_NAME_DEFAULT_PROFILE}`);
-					state.isEventProcessing = true;
 					const message = l10n.t('The default profile Java version has changed. Do you want to apply it as default for user settings?');
 					const cancelLabel = l10n.t('Cancel');
 					const reloadLabel = l10n.t('Reload and apply');
@@ -357,11 +355,10 @@ async function lockProcess(process: (state: SettingState) => Promise<void>) {
 		return;
 	}
 	try {
+		state.isEventProcessing = true;
 		await process(state);
 	} finally {
-		if (state.isEventProcessing) {
-			// Wait for another window event and showWarningMessage auto-close
-			setTimeout(() => {state.isEventProcessing = false;}, 5_000);
-		}
+		// Wait for another window event and showWarningMessage auto-close
+		setTimeout(() => {state.isEventProcessing = false;}, 5_000);
 	}
 }

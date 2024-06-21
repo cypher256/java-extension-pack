@@ -226,7 +226,7 @@ export async function updateJavaRuntimes(
 			latestRuntime.default = duplicateRuntimes.findDefault() ? true : undefined; // undefined removes the entry
 			_.remove(runtimes, {path: latestDir});
 			runtimes.push(latestRuntime);
-			// Fix removed default profile settings
+			// Fix removed default profile settings (Set later except when duplicated)
 			const defaultProfileName = getUserDef<string>(Profile.CONFIG_NAME_DEFAULT_PROFILE);
 			if (Profile.invalidJavaRuntime(defaultProfileName, runtimes)) {
 				update(Profile.CONFIG_NAME_DEFAULT_PROFILE, Profile.nameOf(latestRuntime.name));
