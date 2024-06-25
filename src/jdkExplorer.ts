@@ -86,7 +86,7 @@ export async function scan(javaConfig: redhat.IJavaConfig, runtimes:redhat.JavaC
 			continue;
 		}
 		const latestJdk = detectedLatestMap.get(detectedJdk.majorVersion);
-		if (!latestJdk || isNewLeft(detectedJdk.fullVersion, latestJdk.fullVersion)) {
+		if (!latestJdk || isNewerLeft(detectedJdk.fullVersion, latestJdk.fullVersion)) {
 			detectedLatestMap.set(detectedJdk.majorVersion, detectedJdk);
 		}
 	}
@@ -96,15 +96,25 @@ export async function scan(javaConfig: redhat.IJavaConfig, runtimes:redhat.JavaC
 		const detectedName = redhat.nameOf(detectedJdk.majorVersion);
 		const configRuntime = runtimes.findByName(detectedName);
 		if (configRuntime) {
+			// User installed dir
 			if (system.isUserInstalled(configRuntime.path)) {
+				// Update new version
 				const configJdk = await findByPath(configRuntime.path);
-				if (configJdk && isNewLeft(detectedJdk.fullVersion, configJdk.fullVersion)) {
-					// Update new version (User installed)
+				if (configJdk && isNewerLeft(detectedJdk.fullVersion, configJdk.fullVersion)) {
 					configRuntime.path = detectedJdk.homePath;
 				}
 				// else Keep (Detected is same or older)
 			}
-			// else Keep (Auto-Download dir)
+			// Auto-Download dir
+			// Update duplicated old 'latest' path ('latest' dir is latestAvailableVer only)
+			else if (
+				detectedJdk.majorVersion !== javaConfig.latestAvailableVer &&
+				system.equalsPath(configRuntime.path, jdk.getDownloadLatestDir())
+			) {
+				configRuntime.path = detectedJdk.homePath;
+				configRuntime.default = undefined; // Set later in settings.ts
+			}
+			// else Keep (Other auto-Download dir)
 		} else {
 			// Add new entry
 			runtimes.push({name: detectedName, path: detectedJdk.homePath});
@@ -112,7 +122,7 @@ export async function scan(javaConfig: redhat.IJavaConfig, runtimes:redhat.JavaC
 	}
 }
 
-function isNewLeft(leftFullVer:string, rightFullVer:string): boolean {
+function isNewerLeft(leftFullVer:string, rightFullVer:string): boolean {
 	try {
 		const optimize = (s:string) => s.replace(/_/g, '.'); // e.g.) 1.8.0_362 => 1.8.0.362
 		return compare(optimize(leftFullVer), optimize(rightFullVer), '>');

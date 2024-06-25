@@ -223,8 +223,8 @@ export async function updateJavaRuntimes(
 		const duplicateRuntimes = runtimes.filter(runtime => runtime.path === latestDir) as redhat.JavaConfigRuntimes;
 		if (duplicateRuntimes.length >= 2) {
 			const latestRuntime = duplicateRuntimes.at(-1) as redhat.IJavaConfigRuntime;
-			latestRuntime.default = duplicateRuntimes.findDefault() ? true : undefined; // undefined removes the entry
-			_.remove(runtimes, {path: latestDir});
+			latestRuntime.default = duplicateRuntimes.findDefault() ? true : undefined; // undefined removes the 'default'
+			_.remove(runtimes, {path: latestDir}); // Clear all latest dir
 			runtimes.push(latestRuntime);
 			// Fix removed default profile settings (Set later except when duplicated)
 			const defaultProfileName = getUserDef<string>(Profile.CONFIG_NAME_DEFAULT_PROFILE);
@@ -245,7 +245,9 @@ export async function updateJavaRuntimes(
 		const previewableRuntime = runtimes.findByVersion(javaConfig.latestAvailableVer);
 		if (previewableRuntime) {
 			previewableRuntime.default = true; // Preview available only for latest and default
-		} // else No default (JAVA_HOME env var is used)
+		}
+		// else No default (JAVA_HOME env var is used)
+		// Do not set anything other than the latest because it is called before downloading.
 	}
 	if (!_.isEqual(runtimes, runtimesOld)) {
 		update(redhat.JavaConfigRuntimes.CONFIG_NAME, runtimes);
