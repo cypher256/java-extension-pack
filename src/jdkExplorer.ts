@@ -1,5 +1,6 @@
 /*! VS Code Extension (c) 2023 Shinji Kashihara (cypher256) @ WILL */
 import { compare } from 'compare-versions';
+import * as fs from 'fs';
 import * as jdkutils from 'jdk-utils';
 import * as os from "os";
 import * as path from 'path';
@@ -30,8 +31,9 @@ export async function scan(javaConfig: redhat.IJavaConfig, runtimes:redhat.JavaC
 		}
 		const majorVer = redhat.versionOf(runtime.name);
 		const originPath = runtime.path;
+		const isLts = javaConfig.downloadLtsVers.includes(majorVer);
 		// Ignore manual set path for force download (If invalid directory, temporary error)
-		if (javaConfig.downloadLtsVers.includes(majorVer)) { // Download LTS only
+		if (isLts) { // Download LTS only
 			const downloadDir = jdk.getDownloadDir(javaConfig, majorVer);
 			if (system.equalsPath(originPath, downloadDir)) {
 				if (!(await isValidHome(downloadDir))) { // Not yet downloaded
@@ -48,6 +50,30 @@ export async function scan(javaConfig: redhat.IJavaConfig, runtimes:redhat.JavaC
 			runtimes.splice(i, 1); // remove
 			needImmediateUpdate = true;
 			continue;
+		}
+		// Old latest
+		if (
+			majorVer !== javaConfig.latestAvailableVer &&
+			system.equalsPath(fixedPath, jdk.getDownloadLatestDir())
+		) {
+			if (isLts) {
+				// LTS to Non-LTS (e.g. 21 -> 22)
+				const ltsVerDir = jdk.getDownloadDir(javaConfig, majorVer);
+				if (!fs.existsSync(ltsVerDir)) {
+					try {
+						// Copy from 'latest' to LTS ver dir
+						fs.cpSync(fixedPath, ltsVerDir, {recursive: true});
+					} catch (e:any) {
+						log.warn('Failed cpSync:', e);
+					}
+				}
+				runtime.path = ltsVerDir;
+				runtime.default = undefined; // Set later in settings.ts
+			} else {
+				// Non-LTS to LTS (e.g. 24 -> 25)
+				runtimes.splice(i, 1); // remove
+				continue;
+			}
 		}
 		// Update path
 		if (fixedPath !== originPath) {
@@ -105,16 +131,7 @@ export async function scan(javaConfig: redhat.IJavaConfig, runtimes:redhat.JavaC
 				}
 				// else Keep (Detected is same or older)
 			}
-			// Auto-Download dir
-			// Update duplicated old 'latest' path ('latest' dir is latestAvailableVer only)
-			else if (
-				detectedJdk.majorVersion !== javaConfig.latestAvailableVer &&
-				system.equalsPath(configRuntime.path, jdk.getDownloadLatestDir())
-			) {
-				configRuntime.path = detectedJdk.homePath;
-				configRuntime.default = undefined; // Set later in settings.ts
-			}
-			// else Keep (Other auto-Download dir)
+			// else Keep (Auto-Download dir)
 		} else {
 			// Add new entry
 			runtimes.push({name: detectedName, path: detectedJdk.homePath});

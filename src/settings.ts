@@ -5,7 +5,6 @@ import * as _ from "lodash";
 import * as path from 'path';
 import * as vscode from 'vscode';
 import * as gradle from './download/gradle';
-import * as jdk from './download/jdk';
 import * as maven from './download/maven';
 import * as jdkExplorer from './jdkExplorer';
 import * as redhat from './redhat';
@@ -17,7 +16,7 @@ import { OS, log } from './system';
  * @param section Configuration name, supports _dotted_ names.
  * @returns The value `section` denotes or `undefined`. null is a valid value.
  */
-export function getUser<T>(section: string): T | undefined {
+export function getUserOrDefault<T>(section: string): T | undefined {
 	// Pending: ${userHome}
 	// Issue: Support variables when resolving values in settings
 	// Open) https://github.com/microsoft/vscode/issues/2809#new_comment_form
@@ -30,7 +29,7 @@ export function getUser<T>(section: string): T | undefined {
  * @param section Configuration name, supports _dotted_ names.
  * @returns The value `section` denotes or `undefined`. null is a valid value.
  */
-export function getUserDef<T>(section: string): T | undefined {
+export function getUserDefine<T>(section: string): T | undefined {
 	const info = vscode.workspace.getConfiguration().inspect(section);
 	return info?.globalValue as T;
 }
@@ -71,7 +70,7 @@ export async function remove(section:string) {
  * @returns An array of Java runtime objects. If no entry exists, returns an empty array.
  */
 export function getJavaConfigRuntimes(): redhat.JavaConfigRuntimes {
-	const redhatRuntimes: redhat.IJavaConfigRuntime[] = getUser(redhat.JavaConfigRuntimes.CONFIG_NAME) ?? [];
+	const redhatRuntimes: redhat.IJavaConfigRuntime[] = getUserOrDefault(redhat.JavaConfigRuntimes.CONFIG_NAME) ?? [];
 	return new redhat.JavaConfigRuntimes(...redhatRuntimes);
 }
 
@@ -80,7 +79,9 @@ export function getJavaConfigRuntimes(): redhat.JavaConfigRuntimes {
  */
 export namespace Profile {
 
-    export const CONFIG_NAME_DEFAULT_PROFILE = 'terminal.integrated.defaultProfile.' + OS.configName;
+    export const CONFIG_NAME_TERMINAL_DEFAULT_PROFILE = 'terminal.integrated.defaultProfile.' + OS.configName;
+	export const CONFIG_NAME_TERMINAL_PROFILES = 'terminal.integrated.profiles.' + OS.configName;
+
 	export const nameOf = (runtimeName: string) =>
 		runtimeName + (redhat.isLtsVersion(redhat.versionOf(runtimeName)) ? ' LTS' : '')
 	;
@@ -91,12 +92,7 @@ export namespace Profile {
 		isGeneratedRuntime(profileName) ? redhat.versionOf(toRuntimeName(profileName)) : undefined;
 	;
 	export const getUserDefProfileVersion = () =>
-		toVersion(getUserDef(CONFIG_NAME_DEFAULT_PROFILE) || '')
-	;
-	export const invalidJavaRuntime = (profileName: string | undefined, runtimes: redhat.JavaConfigRuntimes) =>
-		profileName &&
-		Profile.isGeneratedRuntime(profileName) &&
-		!runtimes.findByName(toRuntimeName(profileName))
+		toVersion(getUserDefine(CONFIG_NAME_TERMINAL_DEFAULT_PROFILE) || '')
 	;
 	export const isGeneratedRuntime = (profileName: string) =>
 		/^J(2|ava)SE-[\d.]+( LTS|)$/.test(profileName) // Strict names
@@ -199,7 +195,7 @@ export async function updateJavaRuntimes(
 	runtimesOld: redhat.JavaConfigRuntimes) {
 
 	const CONFIG_NAME_DEPRECATED_JAVA_HOME = 'java.home';
-	if (getUser(CONFIG_NAME_DEPRECATED_JAVA_HOME) !== null) { // null if no entry or null value
+	if (getUserOrDefault(CONFIG_NAME_DEPRECATED_JAVA_HOME) !== null) { // null if no entry or null value
 		remove(CONFIG_NAME_DEPRECATED_JAVA_HOME);
 	}
 
@@ -216,24 +212,6 @@ export async function updateJavaRuntimes(
 	const stableLtsRuntime = runtimes.findByVersion(javaConfig.stableLtsVer);
 	const latestLtsRuntime = runtimes.findByVersion(javaConfig.latestLtsVer);
 
-	// Remove Auto-downloaded non-LTS prev latest (e.g. 22 to 23)
-	runtimes.sort((a, b) => a.name.localeCompare(b.name));
-	{
-		const latestDir = jdk.getDownloadLatestDir();
-		const duplicateRuntimes = runtimes.filter(runtime => runtime.path === latestDir) as redhat.JavaConfigRuntimes;
-		if (duplicateRuntimes.length >= 2) {
-			const latestRuntime = duplicateRuntimes.at(-1) as redhat.IJavaConfigRuntime;
-			latestRuntime.default = duplicateRuntimes.findDefault() ? true : undefined; // undefined removes the 'default'
-			_.remove(runtimes, {path: latestDir}); // Clear all latest dir
-			runtimes.push(latestRuntime);
-			// Fix removed default profile settings (Set later except when duplicated)
-			const defaultProfileName = getUserDef<string>(Profile.CONFIG_NAME_DEFAULT_PROFILE);
-			if (Profile.invalidJavaRuntime(defaultProfileName, runtimes)) {
-				update(Profile.CONFIG_NAME_DEFAULT_PROFILE, Profile.nameOf(latestRuntime.name));
-			}
-		}
-	}
-
 	// Project Runtimes Default
 	if (profileRuntimeToApply) {
 		runtimes.forEach(runtime => runtime.default = undefined); // Clear
@@ -249,24 +227,22 @@ export async function updateJavaRuntimes(
 		// else No default (JAVA_HOME env var is used)
 		// Do not set anything other than the latest because it is called before downloading.
 	}
+	runtimes.sort((a, b) => a.name.localeCompare(b.name));
 	if (!_.isEqual(runtimes, runtimesOld)) {
 		update(redhat.JavaConfigRuntimes.CONFIG_NAME, runtimes);
 	}
 
 	//-------------------------------------------------------------------------
 	// Terminal Profiles Dropdown
-	const CONFIG_NAME_TERMINAL_PROFILES = 'terminal.integrated.profiles.' + OS.configName;
-	const defProfiles = getUserDef(CONFIG_NAME_TERMINAL_PROFILES) ?? {};
+	const defProfiles = getUserDefine(Profile.CONFIG_NAME_TERMINAL_PROFILES) ?? {};
 	const oldProfiles:any = _.cloneDeep(defProfiles); // Proxy to POJO for isEqual
 	const newProfiles:any = _.cloneDeep(oldProfiles);
-	const runtimeProfileNameMap = new Map<string, string>();
 	const _appendEnvPath = (javaHome: string) => [path.join(javaHome, 'bin'), '${env:PATH}'].join(path.delimiter);
 	const rcfileDir = system.getGlobalStoragePath();
 
 	for (const runtime of runtimes) {
 		const ver = redhat.versionOf(runtime.name);
 		const profileName = Profile.nameOf(runtime.name);
-		runtimeProfileNameMap.set(runtime.name, profileName);
 
 		// Old format 2024.05.22: Future deletion
 		const profileNameOldFormat = runtime.name;
@@ -314,7 +290,7 @@ export async function updateJavaRuntimes(
 	}
 	for (const profileName of Object.keys(newProfiles)) {
 		// Remove profiles that do not exist in runtimes
-		if (Profile.invalidJavaRuntime(profileName, runtimes)) {
+		if (Profile.isGeneratedRuntime(profileName) && !runtimes.findByName(Profile.toRuntimeName(profileName))) {
 			delete newProfiles[profileName];
 		}
 	}
@@ -348,39 +324,44 @@ export async function updateJavaRuntimes(
 	];
 	const sortedProfiles = Object.fromEntries(sortedNames.map(name => [name, newProfiles[name]]));
 	if (!_.isEqual(sortedProfiles, oldProfiles)) {
-		update(CONFIG_NAME_TERMINAL_PROFILES, sortedProfiles);
+		update(Profile.CONFIG_NAME_TERMINAL_PROFILES, sortedProfiles);
+	}
+	if (terminalDefaultRuntime) {
 		// [Windows/Mac/Linux] Default profile
 		// Linux Maven uses the Java version of the default profile rcfile
-		if (terminalDefaultRuntime) {
-			const terminalProfileName = runtimeProfileNameMap.get(terminalDefaultRuntime.name);
-			if (terminalProfileName) {
-				const defaultProfileName = getUserDef<string>(Profile.CONFIG_NAME_DEFAULT_PROFILE);
-				if (defaultProfileName) {
-					// Repair: Non-existing profile name
-					if (!Array.from(runtimeProfileNameMap.values()).includes(defaultProfileName)) {
-						update(Profile.CONFIG_NAME_DEFAULT_PROFILE, terminalProfileName);
-					}
-					// else Keep
-				} else {
-					// New
-					update(Profile.CONFIG_NAME_DEFAULT_PROFILE, terminalProfileName);
+		const newDefaultProfile = Profile.nameOf(terminalDefaultRuntime.name);
+		if (getUserOrDefault(Profile.CONFIG_NAME_TERMINAL_PROFILES + '.' + newDefaultProfile)) {
+			const oldDefaultProfile = getUserDefine<string>(Profile.CONFIG_NAME_TERMINAL_DEFAULT_PROFILE);
+			if (oldDefaultProfile) {
+				// Repair: Non-existing profile name (getUser: Includes PowerShell, pwsh, zsh, bash, etc...)
+				if (!getUserOrDefault(Profile.CONFIG_NAME_TERMINAL_PROFILES + '.' + oldDefaultProfile)) {
+					update(Profile.CONFIG_NAME_TERMINAL_DEFAULT_PROFILE, newDefaultProfile);
 				}
+				// else Keep
+			} else {
+				// New
+				update(Profile.CONFIG_NAME_TERMINAL_DEFAULT_PROFILE, newDefaultProfile);
 			}
 		}
-		if (OS.isWindows) {
-			// Suppress error 'Incorrect parameter format -/d' when using defaultProfile & args chcp
-			// Resolved) https://github.com/microsoft/vscode/issues/202691
-			update(`terminal.integrated.automationProfile.windows`, {"path": "cmd"});
-			// Not working "env"
-			// Open) https://github.com/microsoft/vscode-makefile-tools/issues/493
+	}
+	if (OS.isWindows) {
+		// Suppress error 'Incorrect parameter format -/d' when using defaultProfile & args chcp
+		// Resolved) https://github.com/microsoft/vscode/issues/202691
+		const CONFIG_NAME_AUTO_PROFILE = 'terminal.integrated.automationProfile.windows';
+		const newValue = {"path": "cmd"};
+		const oldValue = _.cloneDeep(getUserOrDefault(CONFIG_NAME_AUTO_PROFILE));
+		if (!_.isEqual(newValue, oldValue)) {
+			update(CONFIG_NAME_AUTO_PROFILE, newValue); // Note the order of entries in settings.json
 		}
+		// Not working "env"
+		// Open) https://github.com/microsoft/vscode-makefile-tools/issues/493
 	}
 
 	//-------------------------------------------------------------------------
 	// Test Debug Console Encoding (Ignored before Java 18)
 	if (OS.isWindows) {
 		const CONFIG_NAME_TEST_CONFIG = 'java.test.config';
-		const testConfig:any = _.cloneDeep(getUser(CONFIG_NAME_TEST_CONFIG) ?? {});
+		const testConfig:any = _.cloneDeep(getUserOrDefault(CONFIG_NAME_TEST_CONFIG) ?? {});
 		const testConfigOld = _.cloneDeep(testConfig);
 		const vmArgs: string[] = testConfig.vmArgs || [];
 
@@ -406,7 +387,7 @@ export async function updateJavaRuntimes(
 		// PRECEDENCE: Env Gradle/Maven > terminal.integrated.env JAVA_HOME > original PATH
 		if (OS.isWindows) {
 			const CONFIG_NAME_TERMINAL_ENV = 'terminal.integrated.env.' + OS.configName;
-			const terminalEnv:any = _.cloneDeep(getUser(CONFIG_NAME_TERMINAL_ENV) ?? {}); // Proxy to POJO for isEqual
+			const terminalEnv:any = _.cloneDeep(getUserOrDefault(CONFIG_NAME_TERMINAL_ENV) ?? {}); // Proxy to POJO for isEqual
 			const terminalEnvOld = _.cloneDeep(terminalEnv);
 			terminalEnv.JAVA_HOME = await _fixJavaHome(terminalEnv.JAVA_HOME, terminalDefaultRuntime);
 			terminalEnv.PATH = _appendEnvPath(terminalEnv.JAVA_HOME);
@@ -425,7 +406,7 @@ export async function updateJavaRuntimes(
 	const mavenJavaRuntime = latestLtsRuntime || stableLtsRuntime;
 	if (mavenJavaRuntime && maven.hasExtension()) {
 		const CONFIG_NAME_MAVEN_CUSTOM_ENV = 'maven.terminal.customEnv';
-		const customEnv:any[] = _.cloneDeep(getUser(CONFIG_NAME_MAVEN_CUSTOM_ENV) ?? []);
+		const customEnv:any[] = _.cloneDeep(getUserOrDefault(CONFIG_NAME_MAVEN_CUSTOM_ENV) ?? []);
 		const customEnvOld = _.cloneDeep(customEnv);
 		function _getCustomEnv(envName: string): {value: string} {
 			let element = customEnv.find(i => i.environmentVariable === envName);
@@ -477,7 +458,7 @@ export async function updateJavaRuntimes(
 	const gradleJavaRuntime = latestLtsRuntime || stableLtsRuntime;
 	if (gradleJavaRuntime && gradle.hasExtension()) {
 		const CONFIG_NAME_GRADLE_JAVA_HOME = 'java.import.gradle.java.home';
-		const originPath = getUser<string>(CONFIG_NAME_GRADLE_JAVA_HOME);
+		const originPath = getUserOrDefault<string>(CONFIG_NAME_GRADLE_JAVA_HOME);
 		function _updateGradleJavaHome(newPath: string) {
 			update(CONFIG_NAME_GRADLE_JAVA_HOME, newPath);
 			if (!profileRuntimeToApply) {
@@ -504,7 +485,7 @@ export async function updateJavaRuntimes(
 		if (!vscode.extensions.getExtension(extensionId)) {
 			return;
 		}
-		const originPath = getUser<string>(configKey);
+		const originPath = getUserOrDefault<string>(configKey);
 		if (javaConfig.embeddedJreVer) {
 			if (originPath) {
 				remove(configKey);
@@ -527,7 +508,7 @@ export async function updateJavaRuntimes(
 		if (!optionalRuntime || !vscode.extensions.getExtension(extensionId)) {
 			return;
 		}
-		const originPath = getUser<string>(configKey);
+		const originPath = getUserOrDefault<string>(configKey);
 		if (originPath) {
 			let fixedOrDefault = optionalRuntime.path;
 			if (system.isUserInstalled(originPath)) {
@@ -552,7 +533,7 @@ export async function updateJavaRuntimes(
 	// Optional Extensions java executable path (Keep if set)
 	if (stableLtsRuntime && vscode.extensions.getExtension('jebbs.plantuml')) {
 		const CONFIG_NAME_PLANTUML_JAVA = 'plantuml.java';
-		const originPath = getUser<string>(CONFIG_NAME_PLANTUML_JAVA);
+		const originPath = getUserOrDefault<string>(CONFIG_NAME_PLANTUML_JAVA);
 		if (!originPath || !system.existsFile(originPath)) {
 			const newPath = path.join(stableLtsRuntime.path, 'bin', jdkutils.JAVA_FILENAME);
 			update(CONFIG_NAME_PLANTUML_JAVA, newPath);
@@ -564,7 +545,7 @@ function setIfUndefined(section:string, value:any, extensionId?:string) {
 	if (extensionId && !vscode.extensions.getExtension(extensionId)) {
 		return;
 	}
-	if (getUserDef(section) === undefined) {
+	if (getUserDefine(section) === undefined) {
 		update(section, value);
 	}
 }
@@ -581,7 +562,7 @@ export async function setDefault(javaConfig: redhat.IJavaConfig) {
 	const redhatDependExId = 'redhat.fabric8-analytics';
 	if (vscode.extensions.getExtension(redhatDependExId)) {
 		if (!await jdkExplorer.isValidHome(process.env.JAVA_HOME) ||
-			(!getUser('redHatDependencyAnalytics.mvn.executable.path') && !(await system.whichPath('mvn')))
+			(!getUserOrDefault('redHatDependencyAnalytics.mvn.executable.path') && !(await system.whichPath('mvn')))
 		) {
 			log.warn('Needs Reload: Uninstall extension', redhatDependExId);
 			vscode.commands.executeCommand('workbench.extensions.uninstallExtension', redhatDependExId);

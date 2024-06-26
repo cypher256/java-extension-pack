@@ -33,7 +33,7 @@ export async function download() {
 		return;
 	}
 	// Use 'getDefinition' instead of 'get' to get empty definition
-	const mavenExeOld = settings.getUserDef<string>(CONFIG_NAME_MAVEN_EXE_PATH);
+	const mavenExeOld = settings.getUserDefine<string>(CONFIG_NAME_MAVEN_EXE_PATH);
 	if (mavenExeOld === '') {
 		log.info('Use mvnw because', CONFIG_NAME_MAVEN_EXE_PATH, 'is empty');
 		return;	// Note: mvnw is used only if undefined or empty
@@ -46,7 +46,7 @@ export async function download() {
 			mavenExeNew = await httpget();
 		} catch (e:any) {
 			// Silent: offline, 404, 503 proxy auth error, or etc.
-			log.info('Failed download Maven.', e);
+			log.info('Updates Disabled Maven:', e);
 		}
 	}
 	if (mavenExeOld !== mavenExeNew) {

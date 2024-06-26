@@ -118,7 +118,7 @@ export async function download(
 		apiRes.fullVer = json.release_name;
 	} catch (e:any) {
 		// Silent: offline, 404, 503 proxy auth error, or etc.
-		log.info('Failed access JDK API.', e);
+		log.info('Updates Disabled JDK:', e);
 		return;
 	}
 

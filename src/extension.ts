@@ -313,19 +313,27 @@ function setChangeEvent(javaConfig: redhat.IJavaConfig) {
 				});
 			}
 
-			// Change Default Profile (Some events with "terminal.integrated" prefix)
-			else if (event.affectsConfiguration(Profile.CONFIG_NAME_DEFAULT_PROFILE)) {
-				const changedVer = Profile.getUserDefProfileVersion();
+			// Change Default Terminal Profile (Some events with "terminal.integrated" prefix)
+			else if (event.affectsConfiguration(Profile.CONFIG_NAME_TERMINAL_DEFAULT_PROFILE)) {
+				const changedName = settings.getUserDefine<string>(Profile.CONFIG_NAME_TERMINAL_DEFAULT_PROFILE);
+				if (!changedName) {
+					return;
+				}
+				const profileNames = Object.keys(settings.getUserDefine(Profile.CONFIG_NAME_TERMINAL_PROFILES) ?? {});
+				if (!profileNames.includes(changedName)) {
+					return;
+				}
+				const changedVer = Profile.toVersion(changedName);
 				if (!changedVer || changedVer === SettingState.getInstance().originalProfileVersion) {
 					return;
 				}
 				await lockProcess(async (state) => {
-					log.info(`Change Event: ${Profile.CONFIG_NAME_DEFAULT_PROFILE}`);
+					log.info(`Change Event: ${Profile.CONFIG_NAME_TERMINAL_DEFAULT_PROFILE}`);
 					const message = l10n.t('The default profile Java version has changed. Do you want to apply it as default for user settings?');
 					const cancelLabel = l10n.t('Cancel');
 					const reloadLabel = l10n.t('Reload and apply');
 					vscode.window.showWarningMessage(message, cancelLabel, reloadLabel).then(selection => {
-						// Not called when auto-closing
+						// Note that this is not called when MessageItem is autoclosed
 						if (selection === reloadLabel) {
 							state.isDefaultProfileApplying = true;
 							state.isEventProcessing = false;
@@ -358,7 +366,7 @@ async function lockProcess(process: (state: SettingState) => Promise<void>) {
 		state.isEventProcessing = true;
 		await process(state);
 	} finally {
-		// Wait for another window event and showWarningMessage auto-close
+		// Wait for another window event and MessageItem auto-close
 		setTimeout(() => {state.isEventProcessing = false;}, 5_000);
 	}
 }

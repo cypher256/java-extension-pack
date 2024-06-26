@@ -36,7 +36,7 @@ export async function download() {
 	if (!hasExtension()) {
 		return;
 	}
-	const gradleHomeOld = settings.getUser<string>(CONFIG_NAME_GRADLE_HOME);
+	const gradleHomeOld = settings.getUserOrDefault<string>(CONFIG_NAME_GRADLE_HOME);
 	let gradleHomeNew = await resolvePath(gradleHomeOld);
 	if (gradleHomeNew && system.isUserInstalled(gradleHomeNew)) {
 		log.info('Available Gradle (User installed)', CONFIG_NAME_GRADLE_HOME, gradleHomeNew);
@@ -45,7 +45,7 @@ export async function download() {
 			gradleHomeNew = await httpget();
 		} catch (e:any) {
 			// Silent: offline, 404, 503 proxy auth error, or etc.
-			log.info('Failed download Gradle.', e);
+			log.info('Updates Disabled Gradle:', e);
 		}
 	}
 	if (gradleHomeOld !== gradleHomeNew) {
