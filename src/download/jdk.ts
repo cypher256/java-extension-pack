@@ -3,7 +3,7 @@ import axios from 'axios';
 import * as fs from 'fs';
 import * as _ from "lodash";
 import * as path from 'path';
-import * as httpClient from '../httpClient';
+import * as downloader from '../downloader';
 import * as jdkExplorer from '../jdkExplorer';
 import * as redhat from '../redhat';
 import * as system from '../system';
@@ -64,7 +64,7 @@ function apiParamsOf(javaVersion: number): ApiParams | undefined {
  * @param majorVer The major version of the JDK.
  * @returns The path of the JDK download directory.
  */
-export function getDownloadDir(javaConfig:redhat.IJavaConfig, majorVer:number): string {
+export function getDownloadDir(javaConfig: redhat.IJavaConfig, majorVer: number): string {
 	const verDir = majorVer === javaConfig.latestAvailableVer ? 'latest' : String(majorVer);
 	return system.getGlobalStoragePath('java', verDir);
 }
@@ -85,10 +85,10 @@ export function getDownloadLatestDir(): string {
  */
 export async function download(
 	javaConfig: redhat.IJavaConfig,
-	runtimes:redhat.JavaConfigRuntimes,
-	majorVer:number) {
+	runtimes: redhat.JavaConfigRuntimes,
+	majorVer: number) {
 
-	// Skip User Installed
+	// Skip if installed by user
 	const runtimeName = redhat.nameOf(majorVer);
 	const matchedRuntime = runtimes.findByName(runtimeName);
 	if (matchedRuntime && system.isUserInstalled(matchedRuntime.path)) {
@@ -116,7 +116,7 @@ export async function download(
 		const json = (await axios.get(apiUrl)).data[0];
 		apiRes.downloadUrl = json.binaries[0].package.link;
 		apiRes.fullVer = json.release_name;
-	} catch (e:any) {
+	} catch (e: any) {
 		// Silent: offline, 404, 503 proxy auth error, or etc.
 		log.info('Updates Disabled JDK:', e);
 		return;
@@ -135,15 +135,14 @@ export async function download(
 	}
 
 	// Download
-	const req:httpClient.IHttpClientRequest = {
+	const req: downloader.IDownloaderRequest = {
 		url: apiRes.downloadUrl,
-		storeTempFile: downloadVerDir + '_download_tmp.' + (OS.isWindows ? 'zip' : 'tar.gz'),
+		localZipFile: downloadVerDir + '_download_tmp.' + (OS.isWindows ? 'zip' : 'tar.gz'),
 		extractDestDir: downloadVerDir,
-		targetMessage: apiRes.fullVer,
+		targetLabel: apiRes.fullVer,
 		removeLeadingPath: OS.isMac ? 3 : 1, // Remove leading 'jdk-xxx/Contents/Home/' for Mac
-		is404Ignore: true,
 	};
-	await httpClient.get(req);
+	await downloader.execute(req);
 
 	// Validate
 	if (!await jdkExplorer.isValidHome(downloadVerDir)) {

@@ -3,7 +3,7 @@ import axios from 'axios';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as vscode from 'vscode';
-import * as httpClient from '../httpClient';
+import * as downloader from '../downloader';
 import * as settings from '../settings';
 import * as system from '../system';
 import { log } from '../system';
@@ -44,7 +44,7 @@ export async function download() {
 	} else {
 		try {
 			mavenExeNew = await httpget();
-		} catch (e:any) {
+		} catch (e: any) {
 			// Silent: offline, 404, 503 proxy auth error, or etc.
 			log.info('Updates Disabled Maven:', e);
 		}
@@ -58,7 +58,7 @@ function getDownloadDir(): string {
 	return system.getGlobalStoragePath('maven', 'latest');
 }
 
-async function resolvePath(configMavenExe:string | undefined): Promise<string | undefined> {
+async function resolvePath(configMavenExe: string | undefined): Promise<string | undefined> {
 	if (configMavenExe) {
 		const fixedPath = fixPath(configMavenExe);
 		if (!fixedPath) {
@@ -93,7 +93,7 @@ async function httpget(): Promise<string | undefined> {
 	// Get Latest Version
     const URL_PREFIX = 'https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/';
 	const xml = (await axios.get(URL_PREFIX + 'maven-metadata.xml')).data;
-    const versionTag:string = xml.match(/<version>\d+\.\d+\.\d+<\/version>/g).at(-1) ?? '';
+    const versionTag: string = xml.match(/<version>\d+\.\d+\.\d+<\/version>/g).at(-1) ?? '';
     const version = versionTag.replace(/<.+?>/g, '');
 
 	// Check Version File
@@ -107,11 +107,11 @@ async function httpget(): Promise<string | undefined> {
 	}
 
     // Download
-	await httpClient.get({
+	await downloader.execute({
 		url: `${URL_PREFIX}${version}/apache-maven-${version}-bin.tar.gz`,
-		storeTempFile: downloadDir + '_download_tmp.tar.gz',
+		localZipFile: downloadDir + '_download_tmp.tar.gz',
 		extractDestDir: downloadDir,
-		targetMessage: `Maven ${version}`,
+		targetLabel: `Maven ${version}`,
 	});
 	
 	// Validate
@@ -123,15 +123,15 @@ async function httpget(): Promise<string | undefined> {
 	return getExePath(downloadDir);
 }
 
-function existsExe(homeDir:string) {
+function existsExe(homeDir: string) {
     return system.existsFile(getExePath(homeDir));
 }
 
-function getExePath(homeDir:string) {
+function getExePath(homeDir: string) {
 	return path.join(homeDir, 'bin', 'mvn');
 }
 
-function fixPath(exePath:string): string | undefined {
+function fixPath(exePath: string): string | undefined {
 	for (const fixedPath of [
 		exePath,
 		path.join(exePath, 'mvn'),

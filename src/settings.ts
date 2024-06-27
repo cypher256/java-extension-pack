@@ -49,7 +49,7 @@ export function getWorkspace<T>(section: string): T | undefined {
  * @param value The new value. Remove configuration entry when passed `undefined`.
  * @returns A promise that resolves when the configuration is updated.
  */
-export async function update(section:string, value:any) {
+export async function update(section: string, value: any) {
 	const config = vscode.workspace.getConfiguration();
 	value = Array.isArray(value) && value.length === 0 ? undefined : value;
 	log.info(`${value ? 'Update' : 'Remove'} Settings:`, section, _.isObject(value) ? '' : value);
@@ -61,7 +61,7 @@ export async function update(section:string, value:any) {
  * @param section Configuration name, supports _dotted_ names.
  * @returns A promise that resolves when the configuration is removed.
  */
-export async function remove(section:string) {
+export async function remove(section: string) {
 	return await update(section, undefined);
 }
 
@@ -165,7 +165,7 @@ export class SettingState {
 				fs.writeFileSync(SettingState.getStoreFile(), newJsonStr); // Sync for catch
 				log.debug('SettingState: store', newJsonStr);
 			}
-		} catch (e:any) {
+		} catch (e: any) {
 			log.warn('SettingState: store', e);
 		}
 	}
@@ -175,7 +175,7 @@ export class SettingState {
 			const jsonStr = system.readString(SettingState.getStoreFile());
 			Object.assign(this, JSON.parse(jsonStr || '{}')); // Copy fields
 			return jsonStr;
-		} catch (e:any) {
+		} catch (e: any) {
 			log.warn('SettingState: load', e);
 			return undefined;
 		}
@@ -235,8 +235,8 @@ export async function updateJavaRuntimes(
 	//-------------------------------------------------------------------------
 	// Terminal Profiles Dropdown
 	const defProfiles = getUserDefine(Profile.CONFIG_NAME_TERMINAL_PROFILES) ?? {};
-	const oldProfiles:any = _.cloneDeep(defProfiles); // Proxy to POJO for isEqual
-	const newProfiles:any = _.cloneDeep(oldProfiles);
+	const oldProfiles: any = _.cloneDeep(defProfiles); // Proxy to POJO for isEqual
+	const newProfiles: any = _.cloneDeep(oldProfiles);
 	const _appendEnvPath = (javaHome: string) => [path.join(javaHome, 'bin'), '${env:PATH}'].join(path.delimiter);
 	const rcfileDir = system.getGlobalStoragePath();
 
@@ -252,7 +252,7 @@ export async function updateJavaRuntimes(
 		}
 
 		// Create from config runtimes (Always overwrite), Proxy to POJO for isEqual
-		const profile:any = _.cloneDeep(newProfiles[profileName]) ?? {};
+		const profile: any = _.cloneDeep(newProfiles[profileName]) ?? {};
 		newProfiles[profileName] = profile;
 		profile.overrideName = true;
 		profile.env = {};
@@ -361,7 +361,7 @@ export async function updateJavaRuntimes(
 	// Test Debug Console Encoding (Ignored before Java 18)
 	if (OS.isWindows) {
 		const CONFIG_NAME_TEST_CONFIG = 'java.test.config';
-		const testConfig:any = _.cloneDeep(getUserOrDefault(CONFIG_NAME_TEST_CONFIG) ?? {});
+		const testConfig: any = _.cloneDeep(getUserOrDefault(CONFIG_NAME_TEST_CONFIG) ?? {});
 		const testConfigOld = _.cloneDeep(testConfig);
 		const vmArgs: string[] = testConfig.vmArgs || [];
 
@@ -387,7 +387,7 @@ export async function updateJavaRuntimes(
 		// PRECEDENCE: Env Gradle/Maven > terminal.integrated.env JAVA_HOME > original PATH
 		if (OS.isWindows) {
 			const CONFIG_NAME_TERMINAL_ENV = 'terminal.integrated.env.' + OS.configName;
-			const terminalEnv:any = _.cloneDeep(getUserOrDefault(CONFIG_NAME_TERMINAL_ENV) ?? {}); // Proxy to POJO for isEqual
+			const terminalEnv: any = _.cloneDeep(getUserOrDefault(CONFIG_NAME_TERMINAL_ENV) ?? {}); // Proxy to POJO for isEqual
 			const terminalEnvOld = _.cloneDeep(terminalEnv);
 			terminalEnv.JAVA_HOME = await _fixJavaHome(terminalEnv.JAVA_HOME, terminalDefaultRuntime);
 			terminalEnv.PATH = _appendEnvPath(terminalEnv.JAVA_HOME);
@@ -406,7 +406,7 @@ export async function updateJavaRuntimes(
 	const mavenJavaRuntime = latestLtsRuntime || stableLtsRuntime;
 	if (mavenJavaRuntime && maven.hasExtension()) {
 		const CONFIG_NAME_MAVEN_CUSTOM_ENV = 'maven.terminal.customEnv';
-		const customEnv:any[] = _.cloneDeep(getUserOrDefault(CONFIG_NAME_MAVEN_CUSTOM_ENV) ?? []);
+		const customEnv: any[] = _.cloneDeep(getUserOrDefault(CONFIG_NAME_MAVEN_CUSTOM_ENV) ?? []);
 		const customEnvOld = _.cloneDeep(customEnv);
 		function _getCustomEnv(envName: string): {value: string} {
 			let element = customEnv.find(i => i.environmentVariable === envName);
@@ -541,7 +541,7 @@ export async function updateJavaRuntimes(
 	}
 }
 
-function setIfUndefined(section:string, value:any, extensionId?:string) {
+function setIfUndefined(section: string, value: any, extensionId?: string) {
 	if (extensionId && !vscode.extensions.getExtension(extensionId)) {
 		return;
 	}

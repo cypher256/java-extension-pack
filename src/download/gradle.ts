@@ -3,7 +3,7 @@ import axios from 'axios';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as vscode from 'vscode';
-import * as httpClient from '../httpClient';
+import * as downloader from '../downloader';
 import * as settings from '../settings';
 import * as system from '../system';
 import { log } from '../system';
@@ -43,7 +43,7 @@ export async function download() {
 	} else {
 		try {
 			gradleHomeNew = await httpget();
-		} catch (e:any) {
+		} catch (e: any) {
 			// Silent: offline, 404, 503 proxy auth error, or etc.
 			log.info('Updates Disabled Gradle:', e);
 		}
@@ -59,7 +59,7 @@ function getDownloadDir(): string {
 	return system.getGlobalStoragePath('gradle', 'latest');
 }
 
-async function resolvePath(configGradleHome:string | undefined): Promise<string | undefined> {
+async function resolvePath(configGradleHome: string | undefined): Promise<string | undefined> {
 	if (configGradleHome) {
 		const fixedPath = fixPath(configGradleHome);
 		if (!fixedPath) {
@@ -106,11 +106,11 @@ async function httpget(): Promise<string | undefined> {
 	}
 
     // Download
-	await httpClient.get({
+	await downloader.execute({
 		url: json.downloadUrl,
-		storeTempFile: downloadDir + '_download_tmp.zip',
+		localZipFile: downloadDir + '_download_tmp.zip',
 		extractDestDir: downloadDir,
-		targetMessage: `Gradle ${version}`,
+		targetLabel: `Gradle ${version}`,
 	});
 	
 	// Validate
@@ -122,15 +122,15 @@ async function httpget(): Promise<string | undefined> {
 	return downloadDir;
 }
 
-function existsExe(homeDir:string) {
+function existsExe(homeDir: string) {
     return system.existsFile(getExePath(homeDir));
 }
 
-function getExePath(homeDir:string) {
+function getExePath(homeDir: string) {
 	return path.join(homeDir, 'bin', 'gradle');
 }
 
-function fixPath(homeDir:string): string | undefined {
+function fixPath(homeDir: string): string | undefined {
 	const MAX_UPPER_LEVEL = 2; // e.g. /xxx/bin/gradle -> /xxx
 	let d = homeDir;
 	for (let i = 0; i <= MAX_UPPER_LEVEL; i++) {

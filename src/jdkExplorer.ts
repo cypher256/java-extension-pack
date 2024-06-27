@@ -15,7 +15,7 @@ import { OS, log } from './system';
  * @param javaConfig The Java configuration.
  * @param runtimes The Java runtimes.
  */
-export async function scan(javaConfig: redhat.IJavaConfig, runtimes:redhat.JavaConfigRuntimes) {
+export async function scan(javaConfig: redhat.IJavaConfig, runtimes: redhat.JavaConfigRuntimes) {
 
 	// Fix JDK path
 	let needImmediateUpdate = false;
@@ -63,7 +63,7 @@ export async function scan(javaConfig: redhat.IJavaConfig, runtimes:redhat.JavaC
 					try {
 						// Copy from 'latest' to LTS ver dir
 						fs.cpSync(fixedPath, ltsVerDir, {recursive: true});
-					} catch (e:any) {
+					} catch (e: any) {
 						log.warn('Failed cpSync:', e);
 					}
 				}
@@ -139,13 +139,13 @@ export async function scan(javaConfig: redhat.IJavaConfig, runtimes:redhat.JavaC
 	}
 }
 
-function isNewerLeft(leftFullVer:string, rightFullVer:string): boolean {
+function isNewerLeft(leftFullVer: string, rightFullVer: string): boolean {
 	try {
-		const optimize = (s:string) => s.replace(/_/g, '.'); // e.g.) 1.8.0_362 => 1.8.0.362
+		const optimize = (s: string) => s.replace(/_/g, '.'); // e.g.) 1.8.0_362 => 1.8.0.362
 		return compare(optimize(leftFullVer), optimize(rightFullVer), '>');
 		// 21.0.0 > 21 = false
 		// 21.0.1 > 21 = true
-	} catch (e:any) {
+	} catch (e: any) {
 		log.warn(`Failed compare [${leftFullVer}] [${rightFullVer}]`, e);
 		return false;
 	}
@@ -155,7 +155,7 @@ function isNewerLeft(leftFullVer:string, rightFullVer:string): boolean {
  * @param homeDir The home dir of the JDK.
  * @returns true if valid JDK dir.
  */
-export async function isValidHome(homeDir:string | undefined): Promise<boolean> {
+export async function isValidHome(homeDir: string | undefined): Promise<boolean> {
 	if (!homeDir) {return false;}
 	const utilRuntime = await jdkutils.getRuntime(homeDir, { checkJavac: true });
 	return !!(utilRuntime?.hasJavac);
@@ -165,7 +165,7 @@ export async function isValidHome(homeDir:string | undefined): Promise<boolean> 
  * @param homeDir The home dir of the JDK.
  * @returns The fixed dir of the JDK. undefined if cannot fix.
  */
-export async function fixPath(homeDir:string | undefined): Promise<string | undefined> {
+export async function fixPath(homeDir: string | undefined): Promise<string | undefined> {
 	if (!homeDir) {return undefined;}
 	const MAX_UPPER_LEVEL = 2; // e.g. /jdk/bin/java -> /jdk
 	let d = homeDir;

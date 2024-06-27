@@ -31,7 +31,7 @@ export class JavaConfigRuntimes extends Array<IJavaConfigRuntime> {
 
 	/**
 	 * Finds the Java runtime configuration for the VS Code Java extension.
-	 * @param name The Java name to find. See nameOf(majorVer:number).
+	 * @param name The Java name to find. See nameOf(majorVer: number).
 	 * @returns A Java runtime object. If no entry exists, returns undefined.
 	 */
 	findByName(name: string | undefined): IJavaConfigRuntime | undefined {
@@ -77,7 +77,7 @@ export async function getJavaConfig(): Promise<IJavaConfig> {
     const downloadLtsVers = availableVers.filter(isLtsVersion).slice(-4);
     const latestLtsVer = downloadLtsVers.at(-1) ?? 0;
     
-    const javaConfig:IJavaConfig = {
+    const javaConfig: IJavaConfig = {
         availableNames,
         availableVers,
         downloadLtsVers,
@@ -97,7 +97,7 @@ export async function getJavaConfig(): Promise<IJavaConfig> {
  * @param ver The JDK major version.
  * @returns true if the given version is an LTS version.
  */
-export function isLtsVersion(ver:number): boolean {
+export function isLtsVersion(ver: number): boolean {
     return [8, 11].includes(ver) || (ver >= 17 && (ver - 17) % 4 === 0);
 }
 
@@ -137,7 +137,7 @@ function getAvailableNames(redhatExtension: vscode.Extension<any> | undefined): 
  * @param runtimeName The name of the VS Code JDT runtime.
  * @returns The JDK major version. NaN if invalid runtimeName.
  */
-export function versionOf(runtimeName:string): number {
+export function versionOf(runtimeName: string): number {
     return Number(runtimeName.replace(/^J(ava|2)SE-(1\.|)/, ''));
 }
 
@@ -146,7 +146,7 @@ export function versionOf(runtimeName:string): number {
  * @param majorVer The JDK major version.
  * @returns The VS Code JDT runtime name.
  */
-export function nameOf(majorVer:number): string {
+export function nameOf(majorVer: number): string {
     if (majorVer <= 5) {
         return 'J2SE-1.' + majorVer;
     }

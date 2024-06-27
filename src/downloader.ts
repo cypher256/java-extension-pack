@@ -12,15 +12,14 @@ import * as system from './system';
 import { OS, log } from './system';
 
 /**
- * An interface for the HTTP client request.
+ * An interface for the downloader request.
  */
-export interface IHttpClientRequest {
-    url:string,
-    readonly storeTempFile:string,
-    readonly extractDestDir:string,
-    readonly targetMessage:string,
-    removeLeadingPath?:number,
-    is404Ignore?:boolean,
+export interface IDownloaderRequest {
+    url: string,
+    readonly localZipFile: string,
+    readonly extractDestDir: string,
+    readonly targetLabel: string,
+    removeLeadingPath?: number,
 }
 
 /**
@@ -28,27 +27,20 @@ export interface IHttpClientRequest {
  * @param req The HTTP client request.
  * @returns A promise that resolves when the download and extract are completed.
  */
-export async function get(req:IHttpClientRequest) {
-    req.removeLeadingPath ??= 1;
+export async function execute(req: IDownloaderRequest) {
     await vscode.window.withProgress({location: vscode.ProgressLocation.Window}, async progress => {
         try {
             await download(progress, req);
             await extract(progress, req);
-		} catch (e:any) {
+		} catch (e: any) {
             // Silent: offline, 404, 503 proxy auth error, or etc.
-            if (req.is404Ignore && e?.response?.status === 404) {
-                // log.info(`Download skip ${opt.targetMessage}`);
-                // return; // Update version file (Skip version, e.g. No Windows version)
-                log.info(`Download 404 skip or waiting for build ${req.targetMessage}`);
-            } else {
-                log.info(`Download failed ${req.url}`, e);
-            }
+            log.info(`Download failed ${req.url}`, e);
             throw e; // Do not update version file (Retry next time)
         }
     });
 }
 
-function report(progress:vscode.Progress<{message:string}>, msg:string) {
+function report(progress: vscode.Progress<{message: string}>, msg: string) {
     progress.report({message: `Auto Config Java: ${msg}`});
 }
 
@@ -71,15 +63,15 @@ class DownloadState {
 	}
 }
 
-async function download(progress:vscode.Progress<{message:string}>, req:IHttpClientRequest) {
-    log.info(`Download START ${req.targetMessage}`, req.url);
+async function download(progress: vscode.Progress<{message: string}>, req: IDownloaderRequest) {
+    log.info(`Download START ${req.targetLabel}`, req.url);
     const state = DownloadState.getInstance();
     const isCreatedExtractDir = system.mkdirSyncQuietly(req.extractDestDir);
     const isShowProgressLaunchJson = process.env.VSCODE_AUTO_CONFIG_SHOW_PROGRESS === 'true';
     const res = await axios.get(req.url, {responseType: 'stream'});
 
     if (isCreatedExtractDir || isShowProgressLaunchJson) {
-        const msg = `${l10n.t('Downloading')}... ${req.targetMessage.replace(/[^A-z].*$/, '')}`;
+        const msg = `${l10n.t('Downloading')}... ${req.targetLabel.replace(/[^A-z].*$/, '')}`;
         report(progress, msg);
         
         const totalLength = res.headers['content-length'];
@@ -93,8 +85,8 @@ async function download(progress:vscode.Progress<{message:string}>, req:IHttpCli
                     return;
                 }
                 state.downloadingMsgs ??= [];
-                if (!state.downloadingMsgs.includes(req.targetMessage)) {
-                    state.downloadingMsgs.push(req.targetMessage);
+                if (!state.downloadingMsgs.includes(req.targetLabel)) {
+                    state.downloadingMsgs.push(req.targetLabel);
                     await state.store();
                 } else {
                     const percent = Math.floor((currentLength / totalLength) * 100);
@@ -104,31 +96,31 @@ async function download(progress:vscode.Progress<{message:string}>, req:IHttpCli
         }
     }
     try {
-        const writer = fs.createWriteStream(req.storeTempFile);
+        const writer = fs.createWriteStream(req.localZipFile); // Overwrite
         res.data.pipe(writer);
         await promisify(stream.finished)(writer);
     } finally {
         state.downloadingMsgs ??= [];
-        _.pull(state.downloadingMsgs, req.targetMessage);
+        _.pull(state.downloadingMsgs, req.targetLabel);
         await state.store();
-        log.info(`Download END ${req.targetMessage}`);
+        log.info(`Download END ${req.targetLabel}`);
     }
 }
 
-async function extract(progress:vscode.Progress<{message:string}>, opt:IHttpClientRequest) {
-    log.info(`Install START ${opt.targetMessage}`, opt.extractDestDir);
+async function extract(progress: vscode.Progress<{message: string}>, opt: IDownloaderRequest) {
+    log.info(`Extract START ${opt.targetLabel}`, opt.extractDestDir);
     const state = DownloadState.getInstance();
     try {
         const procLabel = system.existsDirectory(opt.extractDestDir) ? l10n.t('Updating') : l10n.t('Installing');
-        const msg = `${procLabel}... ${opt.targetMessage}`;
+        const msg = `${procLabel}... ${opt.targetLabel}`;
         state.extractingMsg = msg;
         await state.store();
         report(progress, msg);
         system.rmSyncQuietly(opt.extractDestDir);
         try {
-            await decompress(opt.storeTempFile, opt.extractDestDir, {strip: opt.removeLeadingPath});
-            system.rmQuietly(opt.storeTempFile);
-        } catch (e:any) {
+            await decompress(opt.localZipFile, opt.extractDestDir, {strip: opt.removeLeadingPath ?? 1});
+            system.rmQuietly(opt.localZipFile);
+        } catch (e: any) {
             log.info('Failed extract:', e); // Validate later
             if (OS.isWindows) {
                 await setTimeout(5_000); // Wait for Windows delayed writes (200ms x, 300ms o)
@@ -137,6 +129,6 @@ async function extract(progress:vscode.Progress<{message:string}>, opt:IHttpClie
     } finally {
         state.extractingMsg = undefined;
         await state.store();
-        log.info(`Install END ${opt.targetMessage}`);
+        log.info(`Extract END ${opt.targetLabel}`);
     }
 }

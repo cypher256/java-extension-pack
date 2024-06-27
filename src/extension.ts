@@ -20,7 +20,7 @@ const AUTO_CONFIG_ENABLED = 'javaAutoConfig.enabled';
  * @param context The extension context.
  * @returns A promise that resolves when the extension is activated.
  */
-export async function activate(context:vscode.ExtensionContext) {
+export async function activate(context: vscode.ExtensionContext) {
 	try {
 		const isFirstStartup = system.init(context);
 		log.info(`Activate START ${context.extension?.packageJSON?.version} --------------------`);
@@ -56,7 +56,7 @@ export async function activate(context:vscode.ExtensionContext) {
 			setTimeout(() => setChangeEvent(javaConfig), 0);
 		}
 
-	} catch (e:any) {
+	} catch (e: any) {
 		vscode.window.showErrorMessage(`Auto Config Java failed. ${e}`);
 		log.error(e);
 		
@@ -74,7 +74,7 @@ function copyRcfile() {
 	}
 	// Copy the resources directory as its path will change when updating the version
 	const resourcesDir = system.getExtensionContext().asAbsolutePath('resources');
-	function _copy(fileName:string) {
+	function _copy(fileName: string) {
 		const src = system.readString(path.join(resourcesDir, fileName));
 		const dst = system.readString(system.getGlobalStoragePath(fileName));
 		if (src && src !== dst) {
@@ -103,7 +103,7 @@ async function setTerminalEnvironment() {
 
 	// Set env var by workspace folder
 	const globalEnv = system.getExtensionContext().environmentVariableCollection;
-	const folderEnvs = vscode.workspace.workspaceFolders?.map(f => globalEnv.getScoped({workspaceFolder:f})) ?? [];
+	const folderEnvs = vscode.workspace.workspaceFolders?.map(f => globalEnv.getScoped({workspaceFolder: f})) ?? [];
 
 	for (const envVarColl of folderEnvs.concat(globalEnv)) {
 		envVarColl.clear(); // Clear persisted values (Not cleared on restart)
@@ -260,7 +260,7 @@ function getLangPackSuffix(): string | undefined {
  * Installs the extension.
  * @param extensionId The extension id.
  */
-async function installExtension(extensionId:string) {
+async function installExtension(extensionId: string) {
 	try {
 		await vscode.commands.executeCommand('workbench.extensions.installExtension', extensionId);
 		log.info('Installed extension', extensionId);
@@ -343,7 +343,7 @@ function setChangeEvent(javaConfig: redhat.IJavaConfig) {
 				});
 			}
 
-		} catch (e:any) {
+		} catch (e: any) {
 			log.error(e);
 		}
 	});

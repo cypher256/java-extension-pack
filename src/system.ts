@@ -8,7 +8,7 @@ import which from 'which';
 /**
  * The output channel for the extension.
  */
-export const log: vscode.LogOutputChannel = vscode.window.createOutputChannel('Auto Config Java', {log:true});
+export const log: vscode.LogOutputChannel = vscode.window.createOutputChannel('Auto Config Java', {log: true});
 
 /**
  * A namespace for the OS information.
@@ -56,11 +56,11 @@ export function getExtensionContext() {
  * @param optionalSubPaths The optional sub paths.
  * @returns The global storage path + optional sub paths.
  */
-export function getGlobalStoragePath(...optionalSubPaths:string[]): string {
+export function getGlobalStoragePath(...optionalSubPaths: string[]): string {
 	if (!extensionContext) {throw new Error('context is not initialized');}
 	let p = extensionContext.globalStorageUri.fsPath;
 	// Match drive letter case to glob search results
-	p = p.replace(/^([a-z])(:.*)/, (m, winDriveLetter:string, dir) => {
+	p = p.replace(/^([a-z])(:.*)/, (m, winDriveLetter: string, dir) => {
 		return winDriveLetter.toUpperCase() + dir;
 	});
 	return path.join(p, ...optionalSubPaths);
@@ -70,7 +70,7 @@ export function getGlobalStoragePath(...optionalSubPaths:string[]): string {
  * @param checkPath The path to check.
  * @returns true if checkPath is not included in the global storage path.
  */
-export function isUserInstalled(checkPath:string): boolean {
+export function isUserInstalled(checkPath: string): boolean {
 	return !containsPath(getGlobalStoragePath(), checkPath);
 }
 
@@ -79,7 +79,7 @@ export function isUserInstalled(checkPath:string): boolean {
  * @param paths The paths to join.
  * @returns The joined path. undefined if basePath is undefined.
  */
-export function joinPathIfPresent(basePath:string | undefined, ...paths:string[]) {
+export function joinPathIfPresent(basePath: string | undefined, ...paths: string[]) {
 	if (!basePath) {return undefined;}
 	return path.join(basePath, ...paths);
 }
@@ -89,7 +89,7 @@ export function joinPathIfPresent(basePath:string | undefined, ...paths:string[]
  * @param subPath The sub path to check.
  * @returns true if subPath is included in basePath.
  */
-export function containsPath(basePath:string, subPath:string | undefined): boolean {
+export function containsPath(basePath: string, subPath: string | undefined): boolean {
 	if (!subPath) {return false;}
 	const _subPath = normalizeCompare(subPath);
 	const _basePath = normalizeCompare(basePath);
@@ -108,7 +108,7 @@ export function equalsPath(path1:string, path2:string | undefined): boolean {
 	return _path1 === _path2;
 }
 
-function normalizeCompare(dir:string) {
+function normalizeCompare(dir: string) {
 	const d = path.normalize(dir).replace(/[/\\]$/, ''); // Remove trailing slash
 	return OS.isWindows ? d.toLowerCase() : d;
 }
@@ -118,7 +118,7 @@ function normalizeCompare(dir:string) {
  * @param cmd The command to search for.
  * @returns The full path to the command.
  */
-export async function whichPath(cmd:string) {
+export async function whichPath(cmd: string) {
 	try {
 		return await which(cmd);
 	} catch (error) {
@@ -131,7 +131,7 @@ export async function whichPath(cmd:string) {
  * @param p The path.
  * @returns true if the path is a file.
  */
-export function existsFile(p:string) {
+export function existsFile(p: string) {
 	return fs.existsSync(p) && fs.statSync(p).isFile();
 }
 
@@ -139,7 +139,7 @@ export function existsFile(p:string) {
  * @param p The path.
  * @returns true if the path is a directory.
  */
-export function existsDirectory(p:string) {
+export function existsDirectory(p: string) {
 	return fs.existsSync(p) && fs.statSync(p).isDirectory();
 }
 
@@ -147,7 +147,7 @@ export function existsDirectory(p:string) {
  * @param file The file path.
  * @returns The file content as string. undefined if not exists.
  */
-export function readString(file:string): string | undefined {
+export function readString(file: string): string | undefined {
 	return existsFile(file) ? fs.readFileSync(file).toString() : undefined;
 }
 
@@ -155,10 +155,10 @@ export function readString(file:string): string | undefined {
  * @param p The path.
  * @returns The file modified date as string.
  */
-export function getLastModified(p:string) {
+export function getLastModified(p: string) {
 	try {
 		return fs.statSync(p).mtime.toLocaleDateString();
-	} catch (e:any) {
+	} catch (e: any) {
 		log.info('Failed statSync:', e); // Silent
 		return undefined;
 	}
@@ -168,7 +168,7 @@ export function getLastModified(p:string) {
  * Remove directory recursively.
  * @param p The directory path.
  */
-export function rmQuietly(p:string) {
+export function rmQuietly(p: string) {
 	fs.rm(p, {recursive: true, force: true}, e => {
 		if (e) {
 			log.info('Failed rm:', e); // Silent
@@ -180,10 +180,10 @@ export function rmQuietly(p:string) {
  * Synchronous remove directory recursively.
  * @param p The directory path.
  */
-export function rmSyncQuietly(p:string) {
+export function rmSyncQuietly(p: string) {
 	try {
 		fs.rmSync(p, {recursive: true, force: true});
-	} catch (e:any) {
+	} catch (e: any) {
 		log.info('Failed rmSync:', e); // Silent
 	}
 }
@@ -193,13 +193,13 @@ export function rmSyncQuietly(p:string) {
  * @param p The directory path.
  * @returns true if created.
  */
-export function mkdirSyncQuietly(p:string): boolean {
+export function mkdirSyncQuietly(p: string): boolean {
 	try {
 		if (!fs.existsSync(p)) {
 			fs.mkdirSync(p, {recursive: true});
 			return true;
 		}
-	} catch (e:any) {
+	} catch (e: any) {
 		log.info('Failed mkdirSync:', e); // Silent
 	}
 	return false;
