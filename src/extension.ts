@@ -52,7 +52,7 @@ export async function activate(context: vscode.ExtensionContext) {
 		} finally {
 			// Wait for another window event on change default profile
 			setTimeout(() => {state.isEventProcessing = false;}, 5_000);
-			// Delay for prevent self update (2024.05.23 Testing 5_000 -> 0)
+			// Delay for prevent self update (2024.05.23 5_000 -> 0)
 			setTimeout(() => setChangeEvent(javaConfig), 0);
 		}
 

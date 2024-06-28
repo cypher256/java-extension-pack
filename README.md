@@ -138,7 +138,7 @@ JDK auto-scan targets (Best in the industry)
 * Toolchains: Gradle jdks directory, Maven toolchains.xml
 * Own Support: Windows `C:\Java\*`, `D:\Java\*` (e.g. `C:\Java\jdk-21.0.8`)
 
-The feature automatically fixes [errors such as](https://stackoverflow.com/search?tab=newest&q=vscode%20java_home)
+The feature automatically fixes [errors such as](https://stackoverflow.com/search?tab=newest&q=%5bvisual-studio-code%5d%20java_home)
 
 * Java Language Server requires a JDK xx+ to launch itself.
 * This setting is deprecated, please use 'java.jdt.ls.java.home' instead.
