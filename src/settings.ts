@@ -98,7 +98,7 @@ export namespace Profile {
 		/^J(2|ava)SE-[\d.]+( LTS|)$/.test(profileName) // Strict names
 	;
 	export const isJavaPrefix = (profileName: string) =>
-		/^J(2SE|ava)/.test(profileName) // Includes custom names by user
+		/^J(2|ava)SE/.test(profileName) // Includes custom names by user
 	;
 }
 
@@ -323,7 +323,7 @@ export async function updateJavaRuntimes(
 		..._.filter(profileNames, Profile.isJavaPrefix).sort(),
 	];
 	const sortedProfiles = Object.fromEntries(sortedNames.map(name => [name, newProfiles[name]]));
-	if (!_.isEqual(sortedProfiles, oldProfiles)) {
+	if (!_.isEqual(sortedNames, profileNames) || !_.isEqual(sortedProfiles, oldProfiles)) {
 		update(Profile.CONFIG_NAME_TERMINAL_PROFILES, sortedProfiles);
 	}
 	if (terminalDefaultRuntime) {
