@@ -303,13 +303,13 @@ For Included Extensions
 
 |Configuration Name|Original Default|Auto Default|
 |---|---|---|
-|[editor.codeActionsOnSave](https://github.com/redhat-developer/vscode-java/pull/3015)|`{}`|See below|
+|[editor.codeActionsOnSave](https://github.com/redhat-developer/vscode-java/pull/3015)|`{}`|Described later|
 |[editor.linkedEditing](https://code.visualstudio.com/Docs/languages/html#_auto-update-tags) (like *Auto Rename Tag*)|`false`|`true`|
 |[editor.minimap.enabled](https://code.visualstudio.com/docs/getstarted/userinterface#_minimap)|`true`|`false`|
-|[editor.rulers](https://code.visualstudio.com/api/references/theme-color#:~:text=location%20with%20%22-,editor.rulers,-%22)|`[]`|See below|
+|[editor.rulers](https://code.visualstudio.com/api/references/theme-color#:~:text=location%20with%20%22-,editor.rulers,-%22)|`[]`|Described later|
 |[editor.unicodeHighlight.includeComments](https://code.visualstudio.com/updates/v1_63#_unicode-highlighting)|`inUntrustedWorkspace`|`true`|
 |[emmet.variables](https://code.visualstudio.com/docs/editor/emmet#_emmet-configuration) > lang|`en`|OS locale|
-|[workbench.colorCustomizations](https://code.visualstudio.com/api/references/theme-color)|`{}`|See below|
+|[workbench.colorCustomizations](https://code.visualstudio.com/api/references/theme-color)|`{}`|Described later|
 |[workbench.editor.revealIfOpen](https://code.visualstudio.com/docs/getstarted/settings#:~:text=workbench.editor.revealIfOpen)|`false`|`true`|
 |[workbench.tree.indent](https://code.visualstudio.com/docs/getstarted/settings#:~:text=in%20pixels.%0A%20%20%22-,workbench.tree.indent,-%22%3A%208)|`8`|`20`|
 |[files.eol](https://code.visualstudio.com/docs/getstarted/settings#:~:text=line%20character.%0A%20%20%22-,files.eol,-%22%3A%20%22auto) (For Windows)|`auto`|`\n`|
@@ -319,17 +319,17 @@ For Included Extensions
 |[java.configuration.updateBuildConfiguration](https://github.com/redhat-developer/vscode-java#supported-vs-code-settings)|`interactive`|`automatic`|
 |[java.dependency.packagePresentation](https://github.com/microsoft/vscode-java-dependency/tree/main?tab=readme-ov-file#settings)|`flat`|`hierarchical`|
 |[java.sources.organizeImports.staticStarThreshold](https://github.com/redhat-developer/vscode-java#supported-vs-code-settings)|`99`|`1`|
-|*Debugger for Java*|
-|[java.debug.settings.hotCodeReplace](https://code.visualstudio.com/docs/java/java-debugging#_hot-code-replace)|`manual`|`auto`|
-|*Code Spell Checker*|
-|[cSpell.diagnosticLevel](https://streetsidesoftware.com/vscode-spell-checker/docs/configuration/#cspelldiagnosticlevel)|`Information`|`Hint`|
+|*Debugger for Java*<br>[java.debug.settings.hotCodeReplace](https://code.visualstudio.com/docs/java/java-debugging#_hot-code-replace)|`manual`|`auto`|
+|*Code Spell Checker*<br>[cSpell.diagnosticLevel](https://streetsidesoftware.com/vscode-spell-checker/docs/configuration/#cspelldiagnosticlevel)|`Information`|`Hint`|
 |*Trailing Spaces*|
-|[trailing-spaces.includeEmptyLines](https://marketplace.visualstudio.com/items?itemName=shardulm94.trailing-spaces#:~:text=will%20be%20ignored.-,Include%20Empty%20Lines,-Default%3A%20true)|`true`|`false`|
+|[trailing-spaces.backgroundColor](https://github.com/shardulm94/vscode-trailingspaces?tab=readme-ov-file#background-color)|`rgba(255,0,0,0.3)`|`rgba(255,0,0,0.1)`|
+|[trailing-spaces.includeEmptyLines](https://github.com/shardulm94/vscode-trailingspaces?tab=readme-ov-file#include-empty-lines)|`true`|`false`|
 
 For Optional Extensions (If installed)
 
 |Configuration Name|Original Default|Auto Default|
 |---|---|---|
+|*code-eol*<br>[code-eol.color](https://github.com/sohamkamani/code-eol?tab=readme-ov-file#settings)|`null` (Current theme color)|`rgba(150,150,150,0.5)`|
 |*JSP Language Support*<br>[emmet.includeLanguages](https://code.visualstudio.com/docs/editor/emmet#_emmet-abbreviations-in-other-file-types)|`{}`|`{"jsp": "html"}`|
 |*Thunder Client*<br>thunder-client.requestLayout|`Left/Right`|`Top/Bottom`|
 
@@ -389,42 +389,42 @@ A big thank you to the developers of VS Code and its extensions.
 
 The *`Extension Pack for Java`* is required. Other extensions can be [disabled](https://code.visualstudio.com/docs/editor/extension-marketplace#_disable-an-extension) or [uninstalled](https://code.visualstudio.com/docs/editor/extension-marketplace#_uninstall-an-extension) according to your preference. Note that uninstalling `Extension Pack for Java Auto Config` extension will <a href="https://github.com/microsoft/vscode/issues/169109">uninstall all</a> of the following extensions. If you want to set up extensions and configurations by development language, consider [Profile](https://code.visualstudio.com/docs/editor/profiles). (*) indicates that it will be installed if available in that environment at first startup.
 
-- ![](https://img.shields.io/visual-studio-marketplace/i/vscjava.vscode-java-pack?style=plastic)
-[Extension Pack for Java](https://marketplace.visualstudio.com/items?itemName=vscjava.vscode-java-pack) (Microsoft: MIT, Red Hat: EPL) / [VS Code Document](https://code.visualstudio.com/docs/java/java-tutorial#_creating-a-source-code-file)<br>
-Java IntelliSense, debugging, testing, Maven/Gradle support, Lombok and more.<br>
-- ![](https://img.shields.io/visual-studio-marketplace/i/vmware.vscode-boot-dev-pack?style=plastic)
-[Spring Boot Extension Pack](https://marketplace.visualstudio.com/items?itemName=vmware.vscode-boot-dev-pack) (Broadcom: EPL) / [VS Code Document](https://code.visualstudio.com/docs/java/java-spring-boot#_create-the-project)<br>
-A collection of extensions for developing Spring Boot applications.<br>
-- ![](https://img.shields.io/visual-studio-marketplace/i/vscjava.vscode-gradle?style=plastic)
-[Gradle for Java](https://marketplace.visualstudio.com/items?itemName=vscjava.vscode-gradle) (Microsoft: MIT) / [VS Code Document](https://code.visualstudio.com/docs/java/java-build#_gradle)<br>
-Manage Gradle Projects, run Gradle tasks and provide better Gradle file authoring experience in VS Code.<br>
-- ![](https://img.shields.io/visual-studio-marketplace/i/redhat.vscode-xml?style=plastic)
-[XML](https://marketplace.visualstudio.com/items?itemName=redhat.vscode-xml) (Red Hat: EPL)<br>
-XML Language Support by Red Hat (pom.xml etc.).
 - ![](https://img.shields.io/visual-studio-marketplace/i/streetsidesoftware.code-spell-checker?style=plastic)
 [Code Spell Checker](https://marketplace.visualstudio.com/items?itemName=streetsidesoftware.code-spell-checker) (Street Side Software: GPL)<br>
 Spelling checker for source code.
-- ![](https://img.shields.io/visual-studio-marketplace/i/Gruntfuggly.todo-tree?style=plastic)
-[Todo Tree](https://marketplace.visualstudio.com/items?itemName=Gruntfuggly.todo-tree) (Gruntfuggly: MIT)<br>
-Show TODO, FIXME, etc. comment tags in a tree view.
-- ![](https://img.shields.io/visual-studio-marketplace/i/ritwickdey.LiveServer?style=plastic)
-[Live Server](https://marketplace.visualstudio.com/items?itemName=ritwickdey.LiveServer) (Ritwick Dey: MIT)<br>
-Launch a development local Server with live reload feature for static & dynamic pages.
-- ![](https://img.shields.io/visual-studio-marketplace/i/shardulm94.trailing-spaces?style=plastic)
-[Trailing Spaces](https://marketplace.visualstudio.com/items?itemName=shardulm94.trailing-spaces) (Shardul Mahadik: MIT)<br>
-Highlight trailing spaces and delete them in a flash!
-- ![](https://img.shields.io/visual-studio-marketplace/i/oderwat.indent-rainbow?style=plastic)
-[Indent-Rainbow](https://marketplace.visualstudio.com/items?itemName=oderwat.indent-rainbow) (oderwat: MIT)<br>
-Makes indentation easier to read.
-- ![](https://img.shields.io/visual-studio-marketplace/i/mechatroner.rainbow-csv?style=plastic)
-[Rainbow CSV](https://marketplace.visualstudio.com/items?itemName=mechatroner.rainbow-csv) (mechatroner: MIT)<br>
-Highlight CSV and TSV files, Run SQL-like queries.
 - ![](https://img.shields.io/visual-studio-marketplace/i/intellsmi.comment-translate?style=plastic)
 (\*) [Comment Translate](https://marketplace.visualstudio.com/items?itemName=intellsmi.comment-translate) (intellsmi: MIT)<br>
 This plugin uses the Google Translate API to translate comments for the VS Code programming language.
+- ![](https://img.shields.io/visual-studio-marketplace/i/vscjava.vscode-java-pack?style=plastic)
+[Extension Pack for Java](https://marketplace.visualstudio.com/items?itemName=vscjava.vscode-java-pack) (Microsoft: MIT, Red Hat: EPL) / [VS Code Document](https://code.visualstudio.com/docs/java/java-tutorial#_creating-a-source-code-file)<br>
+Java IntelliSense, debugging, testing, Maven/Gradle support, Lombok and more.<br>
+- ![](https://img.shields.io/visual-studio-marketplace/i/vscjava.vscode-gradle?style=plastic)
+[Gradle for Java](https://marketplace.visualstudio.com/items?itemName=vscjava.vscode-gradle) (Microsoft: MIT) / [VS Code Document](https://code.visualstudio.com/docs/java/java-build#_gradle)<br>
+Manage Gradle Projects, run Gradle tasks and provide better Gradle file authoring experience in VS Code.<br>
+- ![](https://img.shields.io/visual-studio-marketplace/i/oderwat.indent-rainbow?style=plastic)
+[Indent-Rainbow](https://marketplace.visualstudio.com/items?itemName=oderwat.indent-rainbow) (oderwat: MIT)<br>
+Makes indentation easier to read.
 - ![](https://img.shields.io/visual-studio-marketplace/i/MS-CEINTL.vscode-language-pack-zh-hans?style=plastic)
 (\*) [Language Pack](https://marketplace.visualstudio.com/search?target=vscode&category=Language%20Packs) (Microsoft: MIT) / [VS Code Document](https://code.visualstudio.com/docs/getstarted/locales)<br>
 A language pack that matches the OS Locale.<br>
+- ![](https://img.shields.io/visual-studio-marketplace/i/ritwickdey.LiveServer?style=plastic)
+[Live Server](https://marketplace.visualstudio.com/items?itemName=ritwickdey.LiveServer) (Ritwick Dey: MIT)<br>
+Launch a development local Server with live reload feature for static & dynamic pages.
+- ![](https://img.shields.io/visual-studio-marketplace/i/mechatroner.rainbow-csv?style=plastic)
+[Rainbow CSV](https://marketplace.visualstudio.com/items?itemName=mechatroner.rainbow-csv) (mechatroner: MIT)<br>
+Highlight CSV and TSV files, Run SQL-like queries.
+- ![](https://img.shields.io/visual-studio-marketplace/i/vmware.vscode-boot-dev-pack?style=plastic)
+[Spring Boot Extension Pack](https://marketplace.visualstudio.com/items?itemName=vmware.vscode-boot-dev-pack) (Broadcom: EPL) / [VS Code Document](https://code.visualstudio.com/docs/java/java-spring-boot#_create-the-project)<br>
+A collection of extensions for developing Spring Boot applications.<br>
+- ![](https://img.shields.io/visual-studio-marketplace/i/Gruntfuggly.todo-tree?style=plastic)
+[Todo Tree](https://marketplace.visualstudio.com/items?itemName=Gruntfuggly.todo-tree) (Gruntfuggly: MIT)<br>
+Show TODO, FIXME, etc. comment tags in a tree view.
+- ![](https://img.shields.io/visual-studio-marketplace/i/shardulm94.trailing-spaces?style=plastic)
+[Trailing Spaces](https://marketplace.visualstudio.com/items?itemName=shardulm94.trailing-spaces) (Shardul Mahadik: MIT)<br>
+Highlight trailing spaces and delete them in a flash!
+- ![](https://img.shields.io/visual-studio-marketplace/i/redhat.vscode-xml?style=plastic)
+[XML](https://marketplace.visualstudio.com/items?itemName=redhat.vscode-xml) (Red Hat: EPL)<br>
+XML Language Support by Red Hat (pom.xml etc.).
 
 <br>
 <br>
@@ -434,39 +434,42 @@ A language pack that matches the OS Locale.<br>
 
 The following are not included but are very useful extensions. Try to install it if necessary.
 
-- ![](https://img.shields.io/visual-studio-marketplace/i/gengen0719.java-testingpair-opener?style=plastic)
-[Java TestingPair Opener](https://marketplace.visualstudio.com/items?itemName=gengen0719.java-testingpair-opener) (gengen0719: Apache)<br>
-This is an extension that opens JavaCode's TestingPair with a shortcut-key.
-- ![](https://img.shields.io/visual-studio-marketplace/i/rangav.vscode-thunder-client?style=plastic)
-[Thunder Client](https://marketplace.visualstudio.com/items?itemName=rangav.vscode-thunder-client) (Ranga Vadhineni: Free)<br>
-Lightweight Rest API Client for VS Code.
-- ![](https://img.shields.io/visual-studio-marketplace/i/usernamehw.errorlens?style=plastic)
-[Error Lens](https://marketplace.visualstudio.com/items?itemName=usernamehw.errorlens) (Phil Hindle: MIT)<br>
-Improve highlighting of errors, warnings and other language diagnostics.
-- ![](https://img.shields.io/visual-studio-marketplace/i/SonarSource.sonarlint-vscode?style=plastic)
-[SonarLint](https://marketplace.visualstudio.com/items?itemName=SonarSource.sonarlint-vscode) (SonarSource: GPL) / [VS Code Document](https://code.visualstudio.com/docs/java/java-linting#_sonarlint)<br>
-Detect and fix quality issues as you write code in C, C++, Java, JavaScript, PHP, Python, HTML and TypeScript.
 - ![](https://img.shields.io/visual-studio-marketplace/i/shengchen.vscode-checkstyle?style=plastic)
 [Checkstyle](https://marketplace.visualstudio.com/items?itemName=shengchen.vscode-checkstyle) (ShengChen: GPL) / [VS Code Document](https://code.visualstudio.com/docs/java/java-linting#_checkstyle)<br>
 Provide real-time feedback about Checkstyle violations and quick fix actions.
+- ![](https://img.shields.io/visual-studio-marketplace/i/sohamkamani.code-eol?style=plastic)
+[code-eol](https://marketplace.visualstudio.com/items?itemName=sohamkamani.code-eol) (sohamkamani: Free)<br>
+Display newline characters in your code.
+- ![](https://img.shields.io/visual-studio-marketplace/i/redhat.vscode-community-server-connector?style=plastic)
+[Community Server Connectors](https://marketplace.visualstudio.com/items?itemName=redhat.vscode-community-server-connector) (Red Hat: EPL) / [VS Code Document](https://code.visualstudio.com/docs/java/java-tomcat-jetty)<br>
+This extension can start, stop, publish, and control servers such as Apache Felix, Karaf, and Tomcat..<br>
+- ![](https://img.shields.io/visual-studio-marketplace/i/usernamehw.errorlens?style=plastic)
+[Error Lens](https://marketplace.visualstudio.com/items?itemName=usernamehw.errorlens) (Phil Hindle: MIT)<br>
+Improve highlighting of errors, warnings and other language diagnostics.
+- ![](https://img.shields.io/visual-studio-marketplace/i/vsls-contrib.gistfs?style=plastic)
+[GistPad](https://marketplace.visualstudio.com/items?itemName=vsls-contrib.gistfs) (Jonathan Carter: MIT)<br>
+Manage your code snippets and developer notes using GitHub Gists and repositories.
+- ![](https://img.shields.io/visual-studio-marketplace/i/s-nlf-fh.glassit?style=plastic)
+[GlassIt-VSC](https://marketplace.visualstudio.com/items?itemName=s-nlf-fh.glassit) (hikarin522: MIT)<br>
+VS Code Extension to set window to transparent on Windows and Linux platforms.
+- ![](https://img.shields.io/visual-studio-marketplace/i/gengen0719.java-testingpair-opener?style=plastic)
+[Java TestingPair Opener](https://marketplace.visualstudio.com/items?itemName=gengen0719.java-testingpair-opener) (gengen0719: Apache)<br>
+This is an extension that opens JavaCode's TestingPair with a shortcut-key.
+- ![](https://img.shields.io/visual-studio-marketplace/i/samuel-weinhardt.vscode-jsp-lang)
+[JSP Language Support](https://marketplace.visualstudio.com/items?itemName=samuel-weinhardt.vscode-jsp-lang) (Samuel Weinhardt: MIT)<br>
+JSP syntax highlighting for VS Code.
+- ![](https://img.shields.io/visual-studio-marketplace/i/SonarSource.sonarlint-vscode?style=plastic)
+[SonarLint](https://marketplace.visualstudio.com/items?itemName=SonarSource.sonarlint-vscode) (SonarSource: GPL) / [VS Code Document](https://code.visualstudio.com/docs/java/java-linting#_sonarlint)<br>
+Detect and fix quality issues as you write code in C, C++, Java, JavaScript, PHP, Python, HTML and TypeScript.
+- ![](https://img.shields.io/visual-studio-marketplace/i/rangav.vscode-thunder-client?style=plastic)
+[Thunder Client](https://marketplace.visualstudio.com/items?itemName=rangav.vscode-thunder-client) (Ranga Vadhineni: Free)<br>
+Lightweight Rest API Client for VS Code.
 - ![](https://img.shields.io/visual-studio-marketplace/i/LalithK90.thymeleaf-html5-snippets?style=plastic)
 [Thymeleaf HTML5 Snippets](https://marketplace.visualstudio.com/items?itemName=LalithK90.thymeleaf-html5-snippets) (Lalith Kahatapitiya: GPL)<br>
 Most common thymeleaf code snippets for .html file.
 - ![](https://img.shields.io/visual-studio-marketplace/i/sgruendel.thymeleaf-navigate?style=plastic)
 [Thymeleaf Navigation](https://marketplace.visualstudio.com/items?itemName=sgruendel.thymeleaf-navigate) (Stefan Gründel: GPL)<br>
 Navigate Thymeleaf 3 fragments.
-- ![](https://img.shields.io/visual-studio-marketplace/i/samuel-weinhardt.vscode-jsp-lang)
-[JSP Language Support](https://marketplace.visualstudio.com/items?itemName=samuel-weinhardt.vscode-jsp-lang) (Samuel Weinhardt: MIT)<br>
-JSP syntax highlighting for VS Code.
-- ![](https://img.shields.io/visual-studio-marketplace/i/redhat.vscode-community-server-connector?style=plastic)
-[Community Server Connectors](https://marketplace.visualstudio.com/items?itemName=redhat.vscode-community-server-connector) (Red Hat: EPL) / [VS Code Document](https://code.visualstudio.com/docs/java/java-tomcat-jetty)<br>
-This extension can start, stop, publish, and control servers such as Apache Felix, Karaf, and Tomcat..<br>
-- ![](https://img.shields.io/visual-studio-marketplace/i/s-nlf-fh.glassit?style=plastic)
-[GlassIt-VSC](https://marketplace.visualstudio.com/items?itemName=s-nlf-fh.glassit) (hikarin522: MIT)<br>
-VS Code Extension to set window to transparent on Windows and Linux platforms.
-- ![](https://img.shields.io/visual-studio-marketplace/i/vsls-contrib.gistfs?style=plastic)
-[GistPad](https://marketplace.visualstudio.com/items?itemName=vsls-contrib.gistfs) (Jonathan Carter: MIT)<br>
-Manage your code snippets and developer notes using GitHub Gists and repositories.
 
 Recommended Gradle/Maven plugin that supports Tomcat hot deployment.
 

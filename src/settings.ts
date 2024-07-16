@@ -613,6 +613,7 @@ export async function setDefault(javaConfig: redhat.IJavaConfig) {
 	// Optional extensions
 	setIfUndefined('emmet.includeLanguages', {"jsp": "html"}, 'samuel-weinhardt.vscode-jsp-lang');
 	setIfUndefined('thunder-client.requestLayout', 'Top/Bottom', 'rangav.vscode-thunder-client');
+	setIfUndefined('code-eol.color', 'rgba(150,150,150,0.5)', 'sohamkamani.code-eol');
 	// Included extensions
 	setIfUndefined('cSpell.diagnosticLevel', 'Hint', 'streetsidesoftware.code-spell-checker');
 	setIfUndefined('trailing-spaces.backgroundColor', 'rgba(255,0,0,0.1)', 'shardulm94.trailing-spaces');

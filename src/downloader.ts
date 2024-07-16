@@ -80,8 +80,8 @@ async function download(progress: vscode.Progress<{message: string}>, req: IDown
             
             res.data.on('data', async (chunk: Buffer) => {
                 currentLength += chunk.length;
-                if (state.extractingMsg) { // Prefer extracting message
-                    report(progress, state.extractingMsg); // Update for Windows
+                if (state.extractingMsg) { // Prefer extraction message
+                    report(progress, state.extractingMsg);
                     return;
                 }
                 state.downloadingMsgs ??= [];
