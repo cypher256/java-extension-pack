@@ -439,7 +439,7 @@ The following are not included but are very useful extensions. Try to install it
 Provide real-time feedback about Checkstyle violations and quick fix actions.
 - ![](https://img.shields.io/visual-studio-marketplace/i/sohamkamani.code-eol?style=plastic)
 [code-eol](https://marketplace.visualstudio.com/items?itemName=sohamkamani.code-eol) (sohamkamani: Free)<br>
-Display newline characters in your code.
+Display newline characters in your code. ([Mixed line endings are not supported](https://github.com/microsoft/vscode/issues/127))
 - ![](https://img.shields.io/visual-studio-marketplace/i/redhat.vscode-community-server-connector?style=plastic)
 [Community Server Connectors](https://marketplace.visualstudio.com/items?itemName=redhat.vscode-community-server-connector) (Red Hat: EPL) / [VS Code Document](https://code.visualstudio.com/docs/java/java-tomcat-jetty)<br>
 This extension can start, stop, publish, and control servers such as Apache Felix, Karaf, and Tomcat..<br>
