@@ -591,12 +591,13 @@ export async function setDefault(javaConfig: redhat.IJavaConfig) {
 		},
 	]);
 	setIfUndefined('editor.unicodeHighlight.includeComments', true);
+
 	// VS Code Workbench
 	setIfUndefined('workbench.colorCustomizations', {
 		"[Default Dark Modern]": {
             "tab.activeBorderTop": "#00FF00",
             "tab.unfocusedActiveBorderTop" : "#00FF0088",
-            "textCodeBlock.background": "#00000055",
+            "textCodeBlock.background": "#00000055", // Markdown preview code block
         },
 		"editor.wordHighlightStrongBorder": "#FF6347",
 		"editor.wordHighlightBorder": "#FFD700",
@@ -608,19 +609,33 @@ export async function setDefault(javaConfig: redhat.IJavaConfig) {
 		setIfUndefined('files.eol', '\n');
 		setIfUndefined('[bat]', {'files.eol': '\r\n'});
 	}
+
 	// VS Code Emmet
 	setIfUndefined('emmet.variables', {'lang': OS.locale.substring(0, 2)});
+
 	// Optional extensions
 	setIfUndefined('emmet.includeLanguages', {"jsp": "html"}, 'samuel-weinhardt.vscode-jsp-lang');
 	setIfUndefined('thunder-client.requestLayout', 'Top/Bottom', 'rangav.vscode-thunder-client');
-	setIfUndefined('code-eol.color', 'rgba(150,150,150,0.5)', 'sohamkamani.code-eol');
+	if (vscode.extensions.getExtension('sohamkamani.code-eol')) {
+		// code-eol: License unknown, default color is theme text color
+		setIfUndefined('code-eol.color', '#9999');
+	}
+	if (vscode.extensions.getExtension('jeff-hykin.code-eol') && OS.locale.startsWith('ja')) {
+		// code-eol 2022: License MIT, default color is theme whitespace color
+		setIfUndefined("code-eol.style", {"color": "#9999"});
+		setIfUndefined("code-eol.crlfCharacter", "↵");
+		setIfUndefined("code-eol.newlineCharacter", "↓");
+	}
+
 	// Included extensions
 	setIfUndefined('cSpell.diagnosticLevel', 'Hint', 'streetsidesoftware.code-spell-checker');
 	setIfUndefined('trailing-spaces.backgroundColor', 'rgba(255,0,0,0.1)', 'shardulm94.trailing-spaces');
 	setIfUndefined('trailing-spaces.includeEmptyLines', false, 'shardulm94.trailing-spaces');
+
 	// VS Code Terminal
 	setIfUndefined('terminal.integrated.tabs.hideCondition', 'never');
 	setIfUndefined('terminal.integrated.enablePersistentSessions', false);
+
 	// Java extensions
 	setIfUndefined('java.configuration.detectJdksAtStart', false);
 	setIfUndefined('java.configuration.updateBuildConfiguration', 'automatic');

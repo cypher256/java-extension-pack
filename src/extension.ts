@@ -333,7 +333,7 @@ function setChangeEvent(javaConfig: redhat.IJavaConfig) {
 					const cancelLabel = l10n.t('Cancel');
 					const reloadLabel = l10n.t('Reload and apply');
 					vscode.window.showWarningMessage(message, cancelLabel, reloadLabel).then(selection => {
-						// Note that this is not called when MessageItem is autoclosed
+						// Note that this is not called when MessageItem is auto-closed
 						if (selection === reloadLabel) {
 							state.isDefaultProfileApplying = true;
 							state.isEventProcessing = false;

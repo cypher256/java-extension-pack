@@ -329,7 +329,6 @@ For Optional Extensions (If installed)
 
 |Configuration Name|Original Default|Auto Default|
 |---|---|---|
-|*code-eol*<br>[code-eol.color](https://github.com/sohamkamani/code-eol?tab=readme-ov-file#settings)|`null` (Current theme color)|`rgba(150,150,150,0.5)`|
 |*JSP Language Support*<br>[emmet.includeLanguages](https://code.visualstudio.com/docs/editor/emmet#_emmet-abbreviations-in-other-file-types)|`{}`|`{"jsp": "html"}`|
 |*Thunder Client*<br>thunder-client.requestLayout|`Left/Right`|`Top/Bottom`|
 
@@ -434,15 +433,17 @@ XML Language Support by Red Hat (pom.xml etc.).
 
 The following are not included but are very useful extensions. Try to install it if necessary.
 
+- ![](https://img.shields.io/visual-studio-marketplace/i/sohamkamani.code-eol?style=plastic)
+[code-eol 2022](https://marketplace.visualstudio.com/items?itemName=jeff-hykin.code-eol) (Jeff Hykin: MIT)<br>
+Display newline characters in your code. (VSCode does not support CR: [#127](https://github.com/microsoft/vscode/issues/127#new_comment_form), [#35797](https://github.com/microsoft/vscode/issues/35797#new_comment_form))
 - ![](https://img.shields.io/visual-studio-marketplace/i/shengchen.vscode-checkstyle?style=plastic)
 [Checkstyle](https://marketplace.visualstudio.com/items?itemName=shengchen.vscode-checkstyle) (ShengChen: GPL) / [VS Code Document](https://code.visualstudio.com/docs/java/java-linting#_checkstyle)<br>
 Provide real-time feedback about Checkstyle violations and quick fix actions.
-- ![](https://img.shields.io/visual-studio-marketplace/i/sohamkamani.code-eol?style=plastic)
-[code-eol](https://marketplace.visualstudio.com/items?itemName=sohamkamani.code-eol) (sohamkamani: Free)<br>
-Display newline characters in your code. ([Mixed line endings are not supported](https://github.com/microsoft/vscode/issues/127))
+<!--
 - ![](https://img.shields.io/visual-studio-marketplace/i/redhat.vscode-community-server-connector?style=plastic)
 [Community Server Connectors](https://marketplace.visualstudio.com/items?itemName=redhat.vscode-community-server-connector) (Red Hat: EPL) / [VS Code Document](https://code.visualstudio.com/docs/java/java-tomcat-jetty)<br>
 This extension can start, stop, publish, and control servers such as Apache Felix, Karaf, and Tomcat..<br>
+-->
 - ![](https://img.shields.io/visual-studio-marketplace/i/usernamehw.errorlens?style=plastic)
 [Error Lens](https://marketplace.visualstudio.com/items?itemName=usernamehw.errorlens) (Phil Hindle: MIT)<br>
 Improve highlighting of errors, warnings and other language diagnostics.
