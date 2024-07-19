@@ -439,11 +439,6 @@ Display newline characters in your code. (VSCode does not support CR: [#127](htt
 - ![](https://img.shields.io/visual-studio-marketplace/i/shengchen.vscode-checkstyle?style=plastic)
 [Checkstyle](https://marketplace.visualstudio.com/items?itemName=shengchen.vscode-checkstyle) (ShengChen: GPL) / [VS Code Document](https://code.visualstudio.com/docs/java/java-linting#_checkstyle)<br>
 Provide real-time feedback about Checkstyle violations and quick fix actions.
-<!--
-- ![](https://img.shields.io/visual-studio-marketplace/i/redhat.vscode-community-server-connector?style=plastic)
-[Community Server Connectors](https://marketplace.visualstudio.com/items?itemName=redhat.vscode-community-server-connector) (Red Hat: EPL) / [VS Code Document](https://code.visualstudio.com/docs/java/java-tomcat-jetty)<br>
-This extension can start, stop, publish, and control servers such as Apache Felix, Karaf, and Tomcat..<br>
--->
 - ![](https://img.shields.io/visual-studio-marketplace/i/usernamehw.errorlens?style=plastic)
 [Error Lens](https://marketplace.visualstudio.com/items?itemName=usernamehw.errorlens) (Phil Hindle: MIT)<br>
 Improve highlighting of errors, warnings and other language diagnostics.
@@ -471,6 +466,12 @@ Most common thymeleaf code snippets for .html file.
 - ![](https://img.shields.io/visual-studio-marketplace/i/sgruendel.thymeleaf-navigate?style=plastic)
 [Thymeleaf Navigation](https://marketplace.visualstudio.com/items?itemName=sgruendel.thymeleaf-navigate) (Stefan Gründel: GPL)<br>
 Navigate Thymeleaf 3 fragments.
+<!--
+- ![](https://img.shields.io/visual-studio-marketplace/i/redhat.vscode-community-server-connector?style=plastic)
+[Community Server Connectors](https://marketplace.visualstudio.com/items?itemName=redhat.vscode-community-server-connector) (Red Hat: EPL) / [VS Code Document](https://code.visualstudio.com/docs/java/java-tomcat-jetty)<br>
+This extension can start, stop, publish, and control servers such as Apache Felix, Karaf, and Tomcat..<br>
+-->
+<br>
 
 Recommended Gradle/Maven plugin that supports Tomcat hot deployment.
 
