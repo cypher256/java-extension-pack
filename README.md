@@ -386,7 +386,7 @@ A big thank you to the developers of VS Code and its extensions.
 
 ## Included Extensions
 
-The *`Extension Pack for Java`* is required. Other extensions can be [disabled](https://code.visualstudio.com/docs/editor/extension-marketplace#_disable-an-extension) or [uninstalled](https://code.visualstudio.com/docs/editor/extension-marketplace#_uninstall-an-extension) according to your preference. Note that uninstalling `Extension Pack for Java Auto Config` extension will <a href="https://github.com/microsoft/vscode/issues/169109">uninstall all</a> of the following extensions. If you want to set up extensions and configurations by development language, consider [Profile](https://code.visualstudio.com/docs/editor/profiles). (*) indicates that it will be installed if available in that environment at first startup.
+The *`Extension Pack for Java`* is required. Other extensions can be [disabled](https://code.visualstudio.com/docs/editor/extension-marketplace#_disable-an-extension) or [uninstalled](https://code.visualstudio.com/docs/editor/extension-marketplace#_uninstall-an-extension) according to your preference. If you want to set up extensions and configurations by development language, consider [Profile](https://code.visualstudio.com/docs/editor/profiles). (*) indicates that it will be installed if available in that environment at first startup. Note that uninstalling `Extension Pack for Java Auto Config` extension will <a href="https://github.com/microsoft/vscode/issues/169109">uninstall all</a> of the following extensions.
 
 - ![](https://img.shields.io/visual-studio-marketplace/i/streetsidesoftware.code-spell-checker?style=plastic)
 [Code Spell Checker](https://marketplace.visualstudio.com/items?itemName=streetsidesoftware.code-spell-checker) (Street Side Software: GPL)<br>
@@ -435,7 +435,7 @@ The following are not included but are very useful extensions. Try to install it
 
 - ![](https://img.shields.io/visual-studio-marketplace/i/sohamkamani.code-eol?style=plastic)
 [code-eol 2022](https://marketplace.visualstudio.com/items?itemName=jeff-hykin.code-eol) (Jeff Hykin: MIT)<br>
-Display newline characters in your code. (VSCode does not support CR: [#127](https://github.com/microsoft/vscode/issues/127#new_comment_form), [#35797](https://github.com/microsoft/vscode/issues/35797#new_comment_form))
+Display newline characters in your code. (VSCode does not support CR: [#212770](https://github.com/microsoft/vscode/issues/212770))
 - ![](https://img.shields.io/visual-studio-marketplace/i/shengchen.vscode-checkstyle?style=plastic)
 [Checkstyle](https://marketplace.visualstudio.com/items?itemName=shengchen.vscode-checkstyle) (ShengChen: GPL) / [VS Code Document](https://code.visualstudio.com/docs/java/java-linting#_checkstyle)<br>
 Provide real-time feedback about Checkstyle violations and quick fix actions.

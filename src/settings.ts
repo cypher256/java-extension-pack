@@ -624,6 +624,7 @@ export async function setDefault(javaConfig: redhat.IJavaConfig) {
 		// code-eol 2022: License MIT, default color is theme whitespace color
 		setIfUndefined("code-eol.style", {"color": "#9999"});
 		setIfUndefined("code-eol.crlfCharacter", "↵");
+		setIfUndefined("code-eol.returnCharacter", "←");
 		setIfUndefined("code-eol.newlineCharacter", "↓");
 	}
 

@@ -138,7 +138,7 @@
     "axios": "1.x",
     "compare-versions": "6.x",
     "decompress": "4.x",
-    "glob": "10.x",
+    "glob": "11.x",
     "jdk-utils": "0.x",
     "lodash": "4.x"
   },

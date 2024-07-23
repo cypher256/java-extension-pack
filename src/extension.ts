@@ -68,13 +68,13 @@ export async function activate(context: vscode.ExtensionContext) {
 /**
  * Copies the rcfile files.
  */
-function copyRcfile() {
+async function copyRcfile() {
 	if (OS.isWindows) {
 		return;
 	}
 	// Copy the resources directory as its path will change when updating the version
 	const resourcesDir = system.getExtensionContext().asAbsolutePath('resources');
-	function _copy(fileName: string) {
+	async function _copy(fileName: string) {
 		const src = system.readString(path.join(resourcesDir, fileName));
 		const dst = system.readString(system.getGlobalStoragePath(fileName));
 		if (src && src !== dst) {
