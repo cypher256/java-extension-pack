@@ -435,7 +435,7 @@ The following are not included but are very useful extensions. Try to install it
 
 - ![](https://img.shields.io/visual-studio-marketplace/i/sohamkamani.code-eol?style=plastic)
 [code-eol 2022](https://marketplace.visualstudio.com/items?itemName=jeff-hykin.code-eol) (Jeff Hykin: MIT)<br>
-Display newline characters in your code. (VSCode does not support CR: [#212770](https://github.com/microsoft/vscode/issues/212770))
+Display newline characters in your code. (VSCode does not support CR or mixed: [#211461](https://github.com/microsoft/vscode/issues/211461))
 - ![](https://img.shields.io/visual-studio-marketplace/i/shengchen.vscode-checkstyle?style=plastic)
 [Checkstyle](https://marketplace.visualstudio.com/items?itemName=shengchen.vscode-checkstyle) (ShengChen: GPL) / [VS Code Document](https://code.visualstudio.com/docs/java/java-linting#_checkstyle)<br>
 Provide real-time feedback about Checkstyle violations and quick fix actions.

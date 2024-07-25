@@ -20,8 +20,17 @@ export function hasExtension(): boolean {
  * @returns The bin directory path based on workspace configuration.
  */
 export async function getWorkspaceBinDir(): Promise<string | undefined> {
-	const mvnExePath = settings.getWorkspace<string>(CONFIG_NAME_MAVEN_EXE_PATH);
-	return system.joinPathIfPresent(mvnExePath, '..');
+	if (hasExtension() && settings.getWorkspace(settings.AUTO_CONFIG_ENABLED)) {
+		const mavenExeOld = settings.getUserDefine<string>(CONFIG_NAME_MAVEN_EXE_PATH);
+		if (mavenExeOld) {
+			const mavenExeNew = await resolvePath(mavenExeOld);
+			if (mavenExeNew && mavenExeNew !== mavenExeOld) {
+				await settings.update(CONFIG_NAME_MAVEN_EXE_PATH, mavenExeNew);
+			}
+		}
+	}
+	const workspaceResolved = settings.getWorkspace<string>(CONFIG_NAME_MAVEN_EXE_PATH);
+	return system.joinPathIfPresent(workspaceResolved, '..');
 }
 
 /**
@@ -32,7 +41,7 @@ export async function download() {
 	if (!hasExtension()) {
 		return;
 	}
-	// Use 'getDefinition' instead of 'get' to get empty definition
+	// Use 'getUserDefine' instead of 'getUserOrDefault' to get empty definition
 	const mavenExeOld = settings.getUserDefine<string>(CONFIG_NAME_MAVEN_EXE_PATH);
 	if (mavenExeOld === '') {
 		log.info('Use mvnw because', CONFIG_NAME_MAVEN_EXE_PATH, 'is empty');
@@ -49,8 +58,8 @@ export async function download() {
 			log.info('Updates Disabled Maven:', e);
 		}
 	}
-	if (mavenExeOld !== mavenExeNew) {
-		await settings.update(CONFIG_NAME_MAVEN_EXE_PATH, mavenExeNew);
+	if (mavenExeNew !== mavenExeOld) {
+		await settings.update(CONFIG_NAME_MAVEN_EXE_PATH, mavenExeNew); // Remove if undefined
 	}
 }
 
@@ -62,11 +71,11 @@ async function resolvePath(configMavenExe: string | undefined): Promise<string |
 	if (configMavenExe) {
 		const fixedPath = fixPath(configMavenExe);
 		if (!fixedPath) {
-			log.info('Remove invalid settings', CONFIG_NAME_MAVEN_EXE_PATH, configMavenExe);
+			log.info('Invalid Settings', CONFIG_NAME_MAVEN_EXE_PATH, configMavenExe);
 			configMavenExe = undefined; // Fallback to auto-download
 		} else {
 			if (fixedPath !== configMavenExe) {
-				log.info(`Fix ${CONFIG_NAME_MAVEN_EXE_PATH}\n   ${configMavenExe}\n-> ${fixedPath}`);
+				log.info(`Fix ${CONFIG_NAME_MAVEN_EXE_PATH}\n- ${configMavenExe}\n+ ${fixedPath}`);
 			}
 			configMavenExe = fixedPath;
 		}

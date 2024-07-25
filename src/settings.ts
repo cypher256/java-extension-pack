@@ -1,5 +1,4 @@
 /*! VS Code Extension (c) 2023 Shinji Kashihara (cypher256) @ WILL */
-import * as fs from 'fs';
 import * as jdkutils from 'jdk-utils';
 import * as _ from "lodash";
 import * as path from 'path';
@@ -8,8 +7,10 @@ import * as gradle from './download/gradle';
 import * as maven from './download/maven';
 import * as jdkExplorer from './jdkExplorer';
 import * as redhat from './redhat';
+import { SettingState } from './SettingState';
 import * as system from './system';
 import { OS, log } from './system';
+export const AUTO_CONFIG_ENABLED = 'javaAutoConfig.enabled';
 
 /**
  * Return a value from user/remote settings.json or default configuration.
@@ -100,86 +101,6 @@ export namespace Profile {
 	export const isJavaPrefix = (profileName: string) =>
 		/^J(2|ava)SE/.test(profileName) // Includes custom names by user
 	;
-}
-
-/**
- * Settings state class.
- * GlobalState cannot be applied instantly to multiple windows, so it is saved in a file.
- * OS-specific considerations are not necessary, as the GlobalStorage destination varies by OS.
- */
-export class SettingState {
-
-	private _isDefaultProfileApplying?: boolean;
-	get isDefaultProfileApplying() {
-		const isApplying = !!this._isDefaultProfileApplying;
-		log.debug(`SettingState: get isDefaultProfileApplying: ${isApplying}`);
-		return isApplying;
-	}
-	set isDefaultProfileApplying(value: boolean) {
-		this.store(() => this._isDefaultProfileApplying = value);
-	}
-
-	private _eventStartTime?: number;
-	get isEventProcessing() {
-		if (this._eventStartTime && Date.now() - this._eventStartTime > 60_000) {
-			log.debug('SettingState: get isEventProcessing: Timeout');
-			this.store(() => {
-				this._eventStartTime = undefined;
-				this._isDefaultProfileApplying = undefined;
-			});
-		}
-		const isProcessing = !!this._eventStartTime;
-		log.debug(`SettingState: get isEventProcessing: ${isProcessing}`);
-		return isProcessing;
-	}
-	set isEventProcessing(value: boolean) {
-		this.store(() => {
-			this._eventStartTime = value ? Date.now() : undefined;
-			log.debug(`SettingState: set isEventProcessing: ${value}`);
-		});
-	}
-
-	private _originalProfileVersion?: number;
-	get originalProfileVersion(): number | undefined {
-		return this._originalProfileVersion;
-	}
-	set originalProfileVersion(value: number | undefined) {
-		this.store(() => this._originalProfileVersion = value);
-	}
-
-	private static readonly getStoreFile = () => system.getGlobalStoragePath('.SettingState.json');
-	private constructor() {
-		this.load();
-	}
-
-	static getInstance(): SettingState {
-		return new SettingState();
-	}
-
-	private store(setter: () => void) {
-		try {
-			const oldJsonStr = this.load();
-			setter();
-			const newJsonStr = JSON.stringify(this);
-			if (newJsonStr !== oldJsonStr) { // For performance
-				fs.writeFileSync(SettingState.getStoreFile(), newJsonStr); // Sync for catch
-				log.debug('SettingState: store', newJsonStr);
-			}
-		} catch (e: any) {
-			log.warn('SettingState: store', e);
-		}
-	}
-
-	private load() {
-		try {
-			const jsonStr = system.readString(SettingState.getStoreFile());
-			Object.assign(this, JSON.parse(jsonStr || '{}')); // Copy fields
-			return jsonStr;
-		} catch (e: any) {
-			log.warn('SettingState: load', e);
-			return undefined;
-		}
-	}
 }
 
 /**

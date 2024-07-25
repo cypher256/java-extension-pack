@@ -77,7 +77,7 @@ export async function scan(javaConfig: redhat.IJavaConfig, runtimes: redhat.Java
 		}
 		// Update path
 		if (fixedPath !== originPath) {
-			log.info(`Fix path\n   ${originPath}\n-> ${fixedPath}`);
+			log.info(`Fix path\n- ${originPath}\n+ ${fixedPath}`);
 			runtime.path = fixedPath;
 			needImmediateUpdate = true;
 		}
@@ -221,10 +221,10 @@ class DetectedJdkArray extends Array<IDetectedJdk> {
 	}
 
 	async pushByGlob(logMessage: string, ...globPatterns: string[]) {
-		const javaExePats = globPatterns.map(p => path.join(p, '*', 'bin', jdkutils.JAVAC_FILENAME));
+		const javacExePats = globPatterns.map(p => path.join(p, '*', 'bin', jdkutils.JAVAC_FILENAME));
 		const globOptions = { realpath: true, ignore: '**/current/bin/**' }; // ignore: scoop, homebrew, etc.
-		for (const javaExeFile of await system.globSearch(javaExePats, globOptions)) {
-			const jdk = await findByPath(path.join(javaExeFile, '..', '..'));
+		for (const javacExeFile of (await system.globSearch(javacExePats, globOptions)).sort()) {
+			const jdk = await findByPath(path.join(javacExeFile, '..', '..'));
 			this.pushJdk(logMessage, jdk);
 		}
 	}

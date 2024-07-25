@@ -10,10 +10,10 @@ import * as maven from './download/maven';
 import * as jdkExplorer from './jdkExplorer';
 import * as redhat from './redhat';
 import * as settings from './settings';
-import { Profile, SettingState } from './settings';
+import { Profile } from './settings';
+import { SettingState } from './SettingState';
 import * as system from './system';
 import { OS, log } from './system';
-const AUTO_CONFIG_ENABLED = 'javaAutoConfig.enabled';
 
 /**
  * Activates the extension.
@@ -29,8 +29,8 @@ export async function activate(context: vscode.ExtensionContext) {
 		setTerminalEnvironment();
 		const javaConfig = await redhat.getJavaConfig();
 
-		if (!settings.getWorkspace(AUTO_CONFIG_ENABLED)) {
-			log.info(`${AUTO_CONFIG_ENABLED}: false`);
+		if (!settings.getWorkspace(settings.AUTO_CONFIG_ENABLED)) {
+			log.info(`${settings.AUTO_CONFIG_ENABLED}: false`);
 			setChangeEvent(javaConfig);
 			return;
 		}
@@ -46,13 +46,13 @@ export async function activate(context: vscode.ExtensionContext) {
 			const runtimesOld = _.cloneDeep(runtimes);
 			await detect(javaConfig, runtimes);
 			await download(javaConfig, runtimes);
-			onComplete(javaConfig, runtimes, runtimesOld, isFirstStartup);
+			showMessage(javaConfig, runtimes, runtimesOld, isFirstStartup);
 			setTerminalEnvironment();
 			
 		} finally {
 			// Wait for another window event on change default profile
 			setTimeout(() => {state.isEventProcessing = false;}, 5_000);
-			// Delay for prevent self update (2024.05.23 5_000 -> 0)
+			// Delay for prevent self update (2024.05.23 5s -> 0)
 			setTimeout(() => setChangeEvent(javaConfig), 0);
 		}
 
@@ -182,13 +182,13 @@ async function download(
 }
 
 /**
- * Processes the completion of the extension activation.
+ * Shows the message for automatic configuration.
  * @param javaConfig The Java configuration.
  * @param runtimesNew The Java runtimes after update.
  * @param runtimesOld The Java runtimes before update.
  * @param isFirstStartup Whether this is the first startup.
  */
-function onComplete(
+function showMessage(
 	javaConfig: redhat.IJavaConfig,
 	runtimesNew: redhat.JavaConfigRuntimes,
 	runtimesOld: redhat.JavaConfigRuntimes,
@@ -298,23 +298,32 @@ function setChangeEvent(javaConfig: redhat.IJavaConfig) {
 				event.affectsConfiguration(gradle.CONFIG_NAME_GRADLE_HOME) ||
 				event.affectsConfiguration(maven.CONFIG_NAME_MAVEN_EXE_PATH)
 			) {
-				log.info('Change Event: Build Tools Path');
-				await setTerminalEnvironment(); // await for catch
+				/* For catch */ await SettingState.lockUpdate(async (state) => {
+					log.info('Change Event: Build Tools Path');
+					await setTerminalEnvironment();
+				});
+				return;
+			}
+
+			// return if auto configuration is disabled
+			if (!settings.getWorkspace(settings.AUTO_CONFIG_ENABLED)) {
+				return;
 			}
 
 			// Reconfigure Terminal Profiles
-			else if (event.affectsConfiguration(redhat.JavaConfigRuntimes.CONFIG_NAME)) {
-				await lockProcess(async (state) => {
+			if (event.affectsConfiguration(redhat.JavaConfigRuntimes.CONFIG_NAME)) {
+				/* For catch */ await SettingState.lockUpdate(async (state) => {
 					log.info(`Change Event: ${redhat.JavaConfigRuntimes.CONFIG_NAME}`);
 					const runtimes = settings.getJavaConfigRuntimes();
 					await detect(javaConfig, runtimes); // Freeze without await
 					// Don't download due to heavy processing on event
 					//await download(javaConfig, runtimes);
 				});
+				return;
 			}
 
 			// Change Default Terminal Profile (Some events with "terminal.integrated" prefix)
-			else if (event.affectsConfiguration(Profile.CONFIG_NAME_TERMINAL_DEFAULT_PROFILE)) {
+			if (event.affectsConfiguration(Profile.CONFIG_NAME_TERMINAL_DEFAULT_PROFILE)) {
 				const changedName = settings.getUserDefine<string>(Profile.CONFIG_NAME_TERMINAL_DEFAULT_PROFILE);
 				if (!changedName) {
 					return;
@@ -327,7 +336,7 @@ function setChangeEvent(javaConfig: redhat.IJavaConfig) {
 				if (!changedVer || changedVer === SettingState.getInstance().originalProfileVersion) {
 					return;
 				}
-				await lockProcess(async (state) => {
+				/* For catch */ await SettingState.lockUpdate(async (state) => {
 					log.info(`Change Event: ${Profile.CONFIG_NAME_TERMINAL_DEFAULT_PROFILE}`);
 					const message = l10n.t('The default profile Java version has changed. Do you want to apply it as default for user settings?');
 					const cancelLabel = l10n.t('Cancel');
@@ -341,32 +350,11 @@ function setChangeEvent(javaConfig: redhat.IJavaConfig) {
 						}
 					});
 				});
+				return;
 			}
 
 		} catch (e: any) {
 			log.error(e);
 		}
 	});
-}
-
-/**
- * Locks the process to prevent multiple executions.
- * @param process The process to execute.
- * @returns A promise that resolves when the process is complete.
- */
-async function lockProcess(process: (state: SettingState) => Promise<void>) {
-	if (!settings.getWorkspace(AUTO_CONFIG_ENABLED)) {
-		return;
-	}
-	const state = SettingState.getInstance();
-	if (state.isEventProcessing || state.isDefaultProfileApplying) {
-		return;
-	}
-	try {
-		state.isEventProcessing = true;
-		await process(state);
-	} finally {
-		// Wait for another window event and MessageItem auto-close
-		setTimeout(() => {state.isEventProcessing = false;}, 5_000);
-	}
 }

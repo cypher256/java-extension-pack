@@ -24,8 +24,17 @@ export function hasExtension(): boolean {
  * @returns The bin directory path based on workspace configuration.
  */
 export async function getWorkspaceBinDir(): Promise<string | undefined> {
-	const gradleHome = settings.getWorkspace<string>(CONFIG_NAME_GRADLE_HOME);
-	return system.joinPathIfPresent(gradleHome, 'bin');
+	if (hasExtension() && settings.getWorkspace(settings.AUTO_CONFIG_ENABLED)) {
+		const gradleHomeOld = settings.getUserDefine<string>(CONFIG_NAME_GRADLE_HOME);
+		if (gradleHomeOld) {
+			const gradleHomeNew = await resolvePath(gradleHomeOld);
+			if (gradleHomeNew && gradleHomeNew !== gradleHomeOld) {
+				await settings.update(CONFIG_NAME_GRADLE_HOME, gradleHomeNew);
+			}
+		}
+	}
+	const workspaceResolved = settings.getWorkspace<string>(CONFIG_NAME_GRADLE_HOME);
+	return system.joinPathIfPresent(workspaceResolved, 'bin');
 }
 
 /**
@@ -48,9 +57,9 @@ export async function download() {
 			log.info('Updates Disabled Gradle:', e);
 		}
 	}
-	if (gradleHomeOld !== gradleHomeNew) {
+	if (gradleHomeNew !== gradleHomeOld) {
 		// Preferred over toolchains in build.gradle
-		await settings.update(CONFIG_NAME_GRADLE_HOME, gradleHomeNew);
+		await settings.update(CONFIG_NAME_GRADLE_HOME, gradleHomeNew); // Remove if undefined
 	}
 	// Note: This setting is ignored if gradlew is exists
 }
@@ -63,11 +72,11 @@ async function resolvePath(configGradleHome: string | undefined): Promise<string
 	if (configGradleHome) {
 		const fixedPath = fixPath(configGradleHome);
 		if (!fixedPath) {
-			log.info('Remove invalid settings', CONFIG_NAME_GRADLE_HOME, configGradleHome);
+			log.info('Invalid Settings', CONFIG_NAME_GRADLE_HOME, configGradleHome);
 			configGradleHome = undefined; // Fallback to auto-download
 		} else {
 			if (fixedPath !== configGradleHome) {
-				log.info(`Fix ${CONFIG_NAME_GRADLE_HOME}\n   ${configGradleHome}\n-> ${fixedPath}`);
+				log.info(`Fix ${CONFIG_NAME_GRADLE_HOME}\n- ${configGradleHome}\n+ ${fixedPath}`);
 			}
 			configGradleHome = fixedPath;
 		}
