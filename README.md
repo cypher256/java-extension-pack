@@ -434,8 +434,8 @@ XML Language Support by Red Hat (pom.xml etc.).
 The following are not included but are very useful extensions. Try to install it if necessary.
 
 - ![](https://img.shields.io/visual-studio-marketplace/i/sohamkamani.code-eol?style=plastic)
-[code-eol 2022](https://marketplace.visualstudio.com/items?itemName=jeff-hykin.code-eol) (Jeff Hykin: MIT)<br>
-Display newline characters in your code. (VSCode does not support CR or mixed: [#211461](https://github.com/microsoft/vscode/issues/211461))
+[code-eol 2022](https://marketplace.visualstudio.com/items?itemName=jeff-hykin.code-eol) (Jeff Hykin: MIT) / [code-eol](https://marketplace.visualstudio.com/items?itemName=sohamkamani.code-eol) (sohamkamani: Free)<br>
+Display newline characters in your code. ([VSCode does not support CR](https://github.com/microsoft/vscode/issues?q=is%3Aissue+cr+lf+crlf+sort%3Aupdated-desc))
 - ![](https://img.shields.io/visual-studio-marketplace/i/shengchen.vscode-checkstyle?style=plastic)
 [Checkstyle](https://marketplace.visualstudio.com/items?itemName=shengchen.vscode-checkstyle) (ShengChen: GPL) / [VS Code Document](https://code.visualstudio.com/docs/java/java-linting#_checkstyle)<br>
 Provide real-time feedback about Checkstyle violations and quick fix actions.

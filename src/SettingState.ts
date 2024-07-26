@@ -10,6 +10,65 @@ import { log } from './system';
  */
 export class SettingState {
 
+	private constructor() {
+		this.load();
+	}
+
+	/**
+	 * Gets the SettingState instance.
+	 * @returns The SettingState instance.
+	 */
+	static getInstance(): SettingState {
+		return new SettingState();
+	}
+
+	/**
+	 * Locks the update of the SettingState.
+	 * @param callback The callback function.
+	 * @returns The promise object.
+	 */
+	static async lockUpdate(callback: (state: SettingState) => Promise<void>) {
+		const state = SettingState.getInstance();
+		if (state.isEventProcessing || state.isDefaultProfileApplying) {
+			return;
+		}
+		try {
+			state.isEventProcessing = true;
+			await callback(state);
+		} finally {
+			// Wait for another window event and MessageItem auto-close (2024.07.25 5s -> 3s)
+			setTimeout(() => {state.isEventProcessing = false;}, 3_000);
+		}
+	}
+
+	private readonly getStoreFile = () =>
+		system.getGlobalStoragePath('.SettingState.json');
+	
+	private store(setter: () => void) {
+		try {
+			const oldJsonStr = this.load();
+			setter();
+			const newJsonStr = JSON.stringify(this);
+			if (newJsonStr !== oldJsonStr) { // For performance
+				fs.writeFileSync(this.getStoreFile(), newJsonStr); // Sync for catch
+				log.debug('SettingState: store', newJsonStr);
+			}
+		} catch (e: any) {
+			log.warn('SettingState: store', e);
+		}
+	}
+
+	private load() {
+		try {
+			const jsonStr = system.readString(this.getStoreFile());
+			Object.assign(this, JSON.parse(jsonStr || '{}')); // Copy fields
+			return jsonStr;
+		} catch (e: any) {
+			log.warn('SettingState: load', e);
+			return undefined;
+		}
+	}
+
 	private _isDefaultProfileApplying?: boolean;
 	get isDefaultProfileApplying() {
 		const isApplying = !!this._isDefaultProfileApplying;
@@ -46,53 +105,5 @@ export class SettingState {
 	}
 	set originalProfileVersion(value: number | undefined) {
 		this.store(() => this._originalProfileVersion = value);
-	}
-
-	private static readonly getStoreFile = () => system.getGlobalStoragePath('.SettingState.json');
-	private constructor() {
-		this.load();
-	}
-
-	static getInstance(): SettingState {
-		return new SettingState();
-	}
-
-	static async lockUpdate(callback: (state: SettingState) => Promise<void>) {
-		const state = SettingState.getInstance();
-		if (state.isEventProcessing || state.isDefaultProfileApplying) {
-			return;
-		}
-		try {
-			state.isEventProcessing = true;
-			await callback(state);
-		} finally {
-			// Wait for another window event and MessageItem auto-close (2024.07.25 5s -> 3s)
-			setTimeout(() => {state.isEventProcessing = false;}, 3_000);
-		}
-	}
-
-	private store(setter: () => void) {
-		try {
-			const oldJsonStr = this.load();
-			setter();
-			const newJsonStr = JSON.stringify(this);
-			if (newJsonStr !== oldJsonStr) { // For performance
-				fs.writeFileSync(SettingState.getStoreFile(), newJsonStr); // Sync for catch
-				log.debug('SettingState: store', newJsonStr);
-			}
-		} catch (e: any) {
-			log.warn('SettingState: store', e);
-		}
-	}
-
-	private load() {
-		try {
-			const jsonStr = system.readString(SettingState.getStoreFile());
-			Object.assign(this, JSON.parse(jsonStr || '{}')); // Copy fields
-			return jsonStr;
-		} catch (e: any) {
-			log.warn('SettingState: load', e);
-			return undefined;
-		}
 	}
 }
