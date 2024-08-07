@@ -114,7 +114,7 @@
     "esbuild": "npm run esbuild-base -- --sourcemap",
     "esbuild-watch": "npm run esbuild-base -- --sourcemap --watch",
     "eslint": "eslint . --ext .ts",
-    "update": "npm update && ncu -x @types/vscode,eslint",
+    "update": "npm update && ncu -x @types/vscode",
     "package": "npx vsce package",
     "package-install": "npx vsce package --out a.vsix && code --install-extension a.vsix"
   },
@@ -123,15 +123,15 @@
   },
   "devDependencies": {
     "@types/vscode": "^1.77.0",
+    "@types/node": "22.x",
     "@types/decompress": "4.x",
     "@types/lodash": "4.x",
-    "@types/node": "20.x",
     "@types/which": "3.x",
-    "@typescript-eslint/eslint-plugin": "7.x",
-    "@typescript-eslint/parser": "7.x",
+    "@typescript-eslint/eslint-plugin": "8.x",
+    "@typescript-eslint/parser": "8.x",
     "@vscode/l10n-dev": "0.0.x",
     "esbuild": "0.x",
-    "eslint": "8.x",
+    "eslint": "9.x",
     "typescript": "5.x"
   },
   "dependencies": {
