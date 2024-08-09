@@ -46,8 +46,8 @@ function report(progress: vscode.Progress<{message: string}>, msg: string) {
 
 class DownloadState {
 
-    downloadingMsgs: string[] | undefined;
-    extractingMsg: string | undefined;
+    downloadingMsgs?: string[];
+    extractingMsg?: string;
 	private constructor() {}
 
 	async store() { // Setter cannot be await

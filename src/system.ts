@@ -79,7 +79,7 @@ export function isUserInstalled(checkPath: string): boolean {
  * @param paths The paths to join.
  * @returns The joined path. undefined if basePath is undefined.
  */
-export function joinPathIfPresent(basePath: string | undefined, ...paths: string[]) {
+export function joinPathIfPresent(basePath?: string, ...paths: string[]) {
 	if (!basePath) {return undefined;}
 	return path.join(basePath, ...paths);
 }
@@ -89,7 +89,7 @@ export function joinPathIfPresent(basePath: string | undefined, ...paths: string
  * @param subPath The sub path to check.
  * @returns true if subPath is included in basePath.
  */
-export function containsPath(basePath: string, subPath: string | undefined): boolean {
+export function containsPath(basePath: string, subPath?: string): boolean {
 	if (!subPath) {return false;}
 	const _subPath = normalizeCompare(subPath);
 	const _basePath = normalizeCompare(basePath);
@@ -101,7 +101,7 @@ export function containsPath(basePath: string, subPath: string | undefined): boo
  * @param path2 The path2 to check.
  * @returns true if path1 and path2 are equal.
  */
-export function equalsPath(path1:string, path2:string | undefined): boolean {
+export function equalsPath(path1:string, path2?:string): boolean {
 	if (!path2) {return false;}
 	const _path1 = normalizeCompare(path1);
 	const _path2 = normalizeCompare(path2);
@@ -213,7 +213,7 @@ export function mkdirSyncQuietly(p: string): boolean {
  */
 export async function globSearch(
 	pattern: string | string[],
-	options?: GlobOptionsWithFileTypesUnset | undefined): Promise<string[]> {
+	options?: GlobOptionsWithFileTypesUnset): Promise<string[]> {
 	try {
 		const pats = Array.isArray(pattern) ? pattern : [pattern];
 		const slashGlobs = pats.map(p => p.replace(/\\/g, '/'));

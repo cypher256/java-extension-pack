@@ -34,7 +34,7 @@ export class JavaConfigRuntimes extends Array<IJavaConfigRuntime> {
 	 * @param name The Java name to find. See nameOf(majorVer: number).
 	 * @returns A Java runtime object. If no entry exists, returns undefined.
 	 */
-	findByName(name: string | undefined): IJavaConfigRuntime | undefined {
+	findByName(name?: string): IJavaConfigRuntime | undefined {
         if (!name) {return undefined;}
 		return this.find(runtime => runtime.name === name);
 	}
@@ -44,7 +44,7 @@ export class JavaConfigRuntimes extends Array<IJavaConfigRuntime> {
 	 * @param version The Java version to find.
 	 * @returns A Java runtime object. If no entry exists, returns undefined.
 	 */
-	findByVersion(version: number | undefined): IJavaConfigRuntime | undefined {
+	findByVersion(version?: number): IJavaConfigRuntime | undefined {
         if (version === undefined) {return undefined;}
 		return this.findByName(nameOf(version));
 	}
@@ -101,7 +101,7 @@ export function isLtsVersion(ver: number): boolean {
     return [8, 11].includes(ver) || (ver >= 17 && (ver - 17) % 4 === 0);
 }
 
-async function findEmbeddedJREVersion(redhatExtension: vscode.Extension<any> | undefined): Promise<number | undefined> {
+async function findEmbeddedJREVersion(redhatExtension?: vscode.Extension<any>): Promise<number | undefined> {
     const redhatExtDir = redhatExtension?.extensionUri?.fsPath;
     if (redhatExtDir) {
         // C:\Users\(UserName)\.vscode\extensions\redhat.java-1.21.0-win32-x64\jre\17.0.7-win32-x86_64\bin
@@ -118,7 +118,7 @@ async function findEmbeddedJREVersion(redhatExtension: vscode.Extension<any> | u
     return undefined;
 }
 
-function getAvailableNames(redhatExtension: vscode.Extension<any> | undefined): string[] {
+function getAvailableNames(redhatExtension?: vscode.Extension<any>): string[] {
     let config = redhatExtension?.packageJSON?.contributes?.configuration;
     if (Array.isArray(config)) {
         // 2023-12-1 (1.25 and later): Array

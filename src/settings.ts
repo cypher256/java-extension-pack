@@ -424,7 +424,7 @@ export async function updateJavaRuntimes(
 	//-------------------------------------------------------------------------
 	// Optional Extensions LS Java Home (Keep if set)
 	async function _updateOptionJavaHome(extensionId: string, configKey: string,
-		optionalRuntime: redhat.IJavaConfigRuntime | undefined)
+		optionalRuntime?: redhat.IJavaConfigRuntime)
 	{
 		if (!optionalRuntime || !vscode.extensions.getExtension(extensionId)) {
 			return;

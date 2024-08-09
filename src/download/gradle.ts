@@ -68,7 +68,7 @@ function getDownloadDir(): string {
 	return system.getGlobalStoragePath('gradle', 'latest');
 }
 
-async function resolvePath(configGradleHome: string | undefined): Promise<string | undefined> {
+async function resolvePath(configGradleHome?: string): Promise<string | undefined> {
 	if (configGradleHome) {
 		const fixedPath = fixPath(configGradleHome);
 		if (!fixedPath) {

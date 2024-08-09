@@ -155,7 +155,7 @@ function isNewerLeft(leftFullVer: string, rightFullVer: string): boolean {
  * @param homeDir The home dir of the JDK.
  * @returns true if valid JDK dir.
  */
-export async function isValidHome(homeDir: string | undefined): Promise<boolean> {
+export async function isValidHome(homeDir?: string): Promise<boolean> {
 	if (!homeDir) {return false;}
 	const utilRuntime = await jdkutils.getRuntime(homeDir, { checkJavac: true });
 	return !!(utilRuntime?.hasJavac);
@@ -165,7 +165,7 @@ export async function isValidHome(homeDir: string | undefined): Promise<boolean>
  * @param homeDir The home dir of the JDK.
  * @returns The fixed dir of the JDK. undefined if cannot fix.
  */
-export async function fixPath(homeDir: string | undefined): Promise<string | undefined> {
+export async function fixPath(homeDir?: string): Promise<string | undefined> {
 	if (!homeDir) {return undefined;}
 	const MAX_UPPER_LEVEL = 2; // e.g. /jdk/bin/java -> /jdk
 	let d = homeDir;
@@ -197,7 +197,7 @@ interface IDetectedJdk {
 	readonly homePath: string;
 }
 
-function createJdk(utilRuntime: jdkutils.IJavaRuntime | undefined): IDetectedJdk | undefined {
+function createJdk(utilRuntime?: jdkutils.IJavaRuntime): IDetectedJdk | undefined {
 	if (
 		utilRuntime?.hasJavac &&
 		utilRuntime.version &&
@@ -214,7 +214,7 @@ function createJdk(utilRuntime: jdkutils.IJavaRuntime | undefined): IDetectedJdk
 
 class DetectedJdkArray extends Array<IDetectedJdk> {
 
-	pushJdk(logMessage: string, jdk: IDetectedJdk | undefined) {
+	pushJdk(logMessage: string, jdk?: IDetectedJdk) {
 		if (!jdk) {return;} // undefined if JRE
 		this.push(jdk);
 		log.info(`Detected ${logMessage} ${jdk.majorVersion} (${jdk.fullVersion}) ${jdk.homePath}`);

@@ -67,7 +67,7 @@ function getDownloadDir(): string {
 	return system.getGlobalStoragePath('maven', 'latest');
 }
 
-async function resolvePath(configMavenExe: string | undefined): Promise<string | undefined> {
+async function resolvePath(configMavenExe?: string): Promise<string | undefined> {
 	if (configMavenExe) {
 		const fixedPath = fixPath(configMavenExe);
 		if (!fixedPath) {
