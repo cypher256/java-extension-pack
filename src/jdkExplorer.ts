@@ -112,7 +112,7 @@ export async function scan(javaConfig: redhat.IJavaConfig, runtimes: redhat.Java
 			continue;
 		}
 		const latestJdk = detectedLatestMap.get(detectedJdk.majorVersion);
-		if (!latestJdk || isNewerLeft(detectedJdk.fullVersion, latestJdk.fullVersion)) {
+		if (!latestJdk || isNewerLeft(detectedJdk, latestJdk)) {
 			detectedLatestMap.set(detectedJdk.majorVersion, detectedJdk);
 		}
 	}
@@ -126,7 +126,7 @@ export async function scan(javaConfig: redhat.IJavaConfig, runtimes: redhat.Java
 			if (system.isUserInstalled(configRuntime.path)) {
 				// Update new version
 				const configJdk = await findByPath(configRuntime.path);
-				if (configJdk && isNewerLeft(detectedJdk.fullVersion, configJdk.fullVersion)) {
+				if (configJdk && isNewerLeft(detectedJdk, configJdk)) {
 					configRuntime.path = detectedJdk.homePath;
 				}
 				// else Keep (Detected is same or older)
@@ -139,14 +139,19 @@ export async function scan(javaConfig: redhat.IJavaConfig, runtimes: redhat.Java
 	}
 }
 
-function isNewerLeft(leftFullVer: string, rightFullVer: string): boolean {
+function isNewerLeft(leftJdk: IDetectedJdk, rightJdk: IDetectedJdk): boolean {
 	try {
-		const optimize = (s: string) => s.replace(/_/g, '.'); // e.g.) 1.8.0_362 => 1.8.0.362
-		return compare(optimize(leftFullVer), optimize(rightFullVer), '>');
+		const _optimize = (s: string) => s.replace(/_/g, '.'); // e.g.) 1.8.0_362 => 1.8.0.362
+		const leftVer = _optimize(leftJdk.fullVersion);
+		const rightVer = _optimize(rightJdk.fullVersion);
+		if (leftVer === rightVer && leftJdk.homePath.length < rightJdk.homePath.length) {
+			return true; // Prefer shorter path if same version
+		}
+		return compare(leftVer, rightVer, '>');
 		// 21.0.0 > 21 = false
 		// 21.0.1 > 21 = true
 	} catch (e: any) {
-		log.warn(`Failed compare [${leftFullVer}] [${rightFullVer}]`, e);
+		log.warn(`Failed compare [${leftJdk.fullVersion}] [${rightJdk.fullVersion}]`, e);
 		return false;
 	}
 }
@@ -223,7 +228,7 @@ class DetectedJdkArray extends Array<IDetectedJdk> {
 	async pushByGlob(logMessage: string, ...globPatterns: string[]) {
 		const javacExePats = globPatterns.map(p => path.join(p, '*', 'bin', jdkutils.JAVAC_FILENAME));
 		const globOptions = { realpath: true, ignore: '**/current/bin/**' }; // ignore: scoop, homebrew, etc.
-		for (const javacExeFile of (await system.globSearch(javacExePats, globOptions)).sort()) {
+		for (const javacExeFile of (await system.globSearch(javacExePats, globOptions))) {
 			const jdk = await findByPath(path.join(javacExeFile, '..', '..'));
 			this.pushJdk(logMessage, jdk);
 		}

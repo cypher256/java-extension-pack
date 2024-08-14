@@ -1,146 +1,148 @@
 {
-  "name": "java-extension-pack-jdk",
-  "displayName": "Extension Pack for Java Auto Config",
-  "description": "JDK Auto-Configuration + Extension Pack for Java + Spring Boot Extension Pack",
-  "icon": "README_icon.png",
-  "publisher": "Pleiades",
-  "license": "MIT",
-  "repository": {
-    "url": "https://github.com/cypher256/java-extension-pack.git"
-  },
-  "sponsor": {
-    "url": "https://github.com/sponsors/cypher256"
-  },
-  "author": {
-    "name": "Shinji Kashihara"
-  },
-  "keywords": [
-    "asdf",
-    "auto",
-    "bash",
-    "boot",
-    "chinese",
-    "chocolatey",
-    "cmd",
-    "command",
-    "config",
-    "configuration",
-    "debug",
-    "eclipse",
-    "encoding",
-    "gradle",
-    "highlight",
-    "homebrew",
-    "ide",
-    "intellij",
-    "jabba",
-    "jakarta",
-    "japanese",
-    "java_home",
-    "java",
-    "jdk",
-    "jenv",
-    "junit",
-    "lombok",
-    "lsp",
-    "maven",
-    "mise",
-    "multiple",
-    "path",
-    "plantuml",
-    "portuguese",
-    "runtime",
-    "runtimes",
-    "russian",
-    "salesforce",
-    "scala",
-    "scoop",
-    "sdkman",
-    "server",
-    "setting",
-    "settings",
-    "spanish",
-    "spring-boot",
-    "spring",
-    "terminal",
-    "tomcat",
-    "uml",
-    "vfox",
-    "xml",
-    "zowe",
-    "zsh"
-  ],
-  "categories": [
-    "Programming Languages",
-    "Linters",
-    "Debuggers",
-    "Formatters",
-    "Language Packs",
-    "Extension Packs"
-  ],
-  "extensionDependencies": [],
-  "extensionPack": [
-    "vscjava.vscode-java-pack",
-    "vmware.vscode-boot-dev-pack",
-    "vscjava.vscode-gradle",
-    "redhat.vscode-xml",
-    "streetsidesoftware.code-spell-checker",
-    "Gruntfuggly.todo-tree",
-    "ritwickdey.LiveServer",
-    "shardulm94.trailing-spaces",
-    "oderwat.indent-rainbow",
-    "mechatroner.rainbow-csv"
-  ],
-  "activationEvents": [
-    "onStartupFinished"
-  ],
-  "main": "./dist/main.js",
-  "l10n": "./l10n",
-  "contributes": {
-    "configuration": {
-        "title": "Java Auto Config",
-        "properties": {
-            "javaAutoConfig.enabled": {
-                "type": "boolean",
-                "default": true,
-                "markdownDescription": "%description.enabled%"
-            }
-        }
-    }
-  },
-  "scripts": {
-    "vscode:prepublish": "npm run esbuild-base -- --minify",
-    "esbuild-base": "esbuild ./src/extension.ts --bundle --outfile=dist/main.js --external:vscode --format=cjs --platform=node",
-    "esbuild": "npm run esbuild-base -- --sourcemap",
-    "esbuild-watch": "npm run esbuild-base -- --sourcemap --watch",
-    "eslint": "eslint . --ext .ts",
-    "update": "npm update && ncu -x @types/vscode",
-    "package": "npx vsce package",
-    "package-install": "npx vsce package --out a.vsix && code --install-extension a.vsix"
-  },
-  "engines": {
-    "vscode": "^1.77.0"
-  },
-  "devDependencies": {
-    "@types/vscode": "^1.77.0",
-    "@types/node": "22.x",
-    "@types/decompress": "4.x",
-    "@types/lodash": "4.x",
-    "@types/which": "3.x",
-    "@typescript-eslint/eslint-plugin": "8.x",
-    "@typescript-eslint/parser": "8.x",
-    "@vscode/l10n-dev": "0.0.x",
-    "esbuild": "0.x",
-    "eslint": "9.x",
-    "typescript": "5.x"
-  },
-  "dependencies": {
-    "axios": "1.x",
-    "compare-versions": "6.x",
-    "decompress": "4.x",
-    "glob": "11.x",
-    "jdk-utils": "0.x",
-    "lodash": "4.x"
-  },
-  "version": "2024.725.0"
+	"name": "java-extension-pack-jdk",
+	"displayName": "Extension Pack for Java Auto Config",
+	"description": "JDK Auto-Configuration + Extension Pack for Java + Spring Boot Extension Pack",
+	"icon": "README_icon.png",
+	"publisher": "Pleiades",
+	"license": "MIT",
+	"repository": {
+		"url": "https://github.com/cypher256/java-extension-pack.git"
+	},
+	"sponsor": {
+		"url": "https://github.com/sponsors/cypher256"
+	},
+	"author": {
+		"name": "Shinji Kashihara"
+	},
+	"keywords": [
+		"asdf",
+		"auto",
+		"bash",
+		"boot",
+		"chinese",
+		"chocolatey",
+		"cmd",
+		"command",
+		"config",
+		"configuration",
+		"debug",
+		"eclipse",
+		"encoding",
+		"gradle",
+		"highlight",
+		"homebrew",
+		"ide",
+		"intellij",
+		"jabba",
+		"jakarta",
+		"japanese",
+		"java_home",
+		"java",
+		"jdk",
+		"jenv",
+		"junit",
+		"lombok",
+		"lsp",
+		"maven",
+		"mise",
+		"multiple",
+		"path",
+		"plantuml",
+		"portuguese",
+		"runtime",
+		"runtimes",
+		"russian",
+		"salesforce",
+		"scala",
+		"scoop",
+		"sdkman",
+		"server",
+		"setting",
+		"settings",
+		"spanish",
+		"spring-boot",
+		"spring",
+		"terminal",
+		"tomcat",
+		"uml",
+		"vfox",
+		"xml",
+		"zowe",
+		"zsh"
+	],
+	"categories": [
+		"Programming Languages",
+		"Linters",
+		"Debuggers",
+		"Formatters",
+		"Language Packs",
+		"Extension Packs"
+	],
+	"extensionDependencies": [],
+	"extensionPack": [
+		"vscjava.vscode-java-pack",
+		"vmware.vscode-boot-dev-pack",
+		"vscjava.vscode-gradle",
+		"redhat.vscode-xml",
+		"streetsidesoftware.code-spell-checker",
+		"Gruntfuggly.todo-tree",
+		"ritwickdey.LiveServer",
+		"shardulm94.trailing-spaces",
+		"oderwat.indent-rainbow",
+		"mechatroner.rainbow-csv"
+	],
+	"activationEvents": [
+		"onStartupFinished"
+	],
+	"main": "./dist/main.js",
+	"l10n": "./l10n",
+	"contributes": {
+		"configuration": {
+			"title": "Java Auto Config",
+			"properties": {
+				"javaAutoConfig.enabled": {
+					"type": "boolean",
+					"default": true,
+					"markdownDescription": "%description.enabled%"
+				}
+			}
+		}
+	},
+	"scripts": {
+		"vscode:prepublish": "npm run esbuild-base -- --minify",
+		"esbuild-base": "esbuild ./src/extension.ts --bundle --outfile=dist/main.js --external:vscode --format=cjs --platform=node",
+		"esbuild": "npm run esbuild-base -- --sourcemap",
+		"esbuild-watch": "npm run esbuild-base -- --sourcemap --watch",
+		"lint": "eslint .",
+		"update": "npm update && ncu -x @types/vscode",
+		"package": "npm run lint && npx vsce package",
+		"package-install": "npm run lint && npx vsce package --out a.vsix && code --install-extension a.vsix"
+	},
+	"engines": {
+		"vscode": "^1.77.0"
+	},
+	"devDependencies": {
+		"@types/vscode": "^1.77.0",
+		"@types/node": "22.x",
+		"@types/decompress": "4.x",
+		"@types/lodash": "4.x",
+		"@types/which": "3.x",
+		"@typescript-eslint/eslint-plugin": "8.x",
+		"@vscode/l10n-dev": "0.0.x",
+		"esbuild": "0.x",
+		"eslint": "9.x",
+		"typescript": "5.x"
+	},
+	"dependencies": {
+		"axios": "1.x",
+		"compare-versions": "6.x",
+		"decompress": "4.x",
+		"glob": "11.x",
+		"jdk-utils": "0.x",
+		"lodash": "4.x"
+	},
+	"volta": {
+		"node": "20.16.0"
+	},
+	"version": "2024.725.0"
 }
