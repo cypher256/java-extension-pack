@@ -76,7 +76,7 @@ The `Extension Pack for Java Auto Config` has been extended to automatically con
   java.sourceCompatibility = javaVersion // Make it recognize to VS Code
   compileJava.options.release = javaVersion // JEP 247: API validation
   ```
-  [Toolchain](https://docs.gradle.org/current/userguide/building_java_projects.html#sec:java_cross_compilation) allows you to specify exactly which JDK version to build. Note that **toolchains are [required to use the latest Java version](https://docs.gradle.org/current/userguide/compatibility.html#java) with Gradle**.
+  [Gradle Toolchain](https://docs.gradle.org/current/userguide/building_java_projects.html#sec:java_cross_compilation) allows you to specify exactly which JDK version to build.
   ```gradle
   java.toolchain.languageVersion = JavaLanguageVersion.of(23)
   ```
@@ -103,7 +103,7 @@ The `Extension Pack for Java Auto Config` has been extended to automatically con
       <maven.compiler.release>17</maven.compiler.release><!-- JEP 247: API validation -->
   </properties>
   ```
-  [Toolchain](https://maven.apache.org/guides/mini/guide-using-toolchains.html) allows you to specify exactly which JDK version to build.
+  [Maven Toolchain](https://maven.apache.org/guides/mini/guide-using-toolchains.html) allows you to specify exactly which JDK version to build.
 <br><br>
 
 (*1) The `settings.json` [can be overridden by project (workspace)](https://code.visualstudio.com/docs/getstarted/settings#_workspace-settings).<br>
