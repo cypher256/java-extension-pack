@@ -159,7 +159,7 @@ For Included Extensions
 |*Spring Boot Tools*|
 |[spring-boot.ls.java.home](https://github.com/spring-projects/sts4/blob/main/vscode-extensions/commons-vscode/src/launch-util.ts#L140)<br>([Issues](https://github.com/spring-projects/sts4/issues?q=is%3Aissue+spring-boot.ls.java.home)) 🛠️|Remove setting if Red Hat embedded JRE exists<br>[`settings.json` > Embedded JRE > `JAVA_HOME` > `PATH`]|
 |*Gradle for Java*|
-|[java.import.gradle.java.home](https://github.com/microsoft/vscode-gradle#java-specific-settings)<br>([Issues](https://github.com/microsoft/vscode-gradle/issues?q=is%3Aissue+java.import.gradle.java.home)) ⭐|Set latest LTS JDK if unset<br>[`settings.json` > `java.jdt.ls.java.home` > `JAVA_HOME` > `PATH`]|
+|[java.import.gradle.java.home](https://github.com/microsoft/vscode-gradle#java-specific-settings)<br>([Issues](https://github.com/microsoft/vscode-gradle/issues?q=is%3Aissue+java.import.gradle.java.home)) ⭐|Set latest LTS JDK if unset<br>[`settings.json` > Embedded JRE > `java.jdt.ls.java.home` > `JAVA_HOME` > `PATH` > jdk-utils > `java.configuration.runtimes` default]|
 |[java.import.gradle.home](https://github.com/microsoft/vscode-gradle#java-specific-settings)<br>([Issues](https://github.com/microsoft/vscode-gradle/issues?q=is%3Aissue+java.import.gradle.home))|Set auto-downloaded gradle if unset<br>[**`gradlew`** > `settings.json` > `PATH` > `GRADLE_HOME`]|
 |*Maven for Java*|
 |[maven.terminal.customEnv](https://marketplace.visualstudio.com/items?itemName=vscjava.vscode-maven#additional-configurations)<br>([Issues](https://github.com/microsoft/vscode-maven/issues?q=is%3Aissue+maven.terminal.customEnv)) ⭐|Set latest LTS JDK if unset<br>[`settings.json` > `JAVA_HOME`]|
@@ -316,6 +316,7 @@ For Included Extensions
 |[files.eol](https://code.visualstudio.com/docs/getstarted/settings#:~:text=line%20character.%0A%20%20%22-,files.eol,-%22%3A%20%22auto) (For Windows)|`auto`|`\n`|
 |`[bat]` > `files.eol`|`auto`|`\r\n`|
 |*Language support for Java*|
+|[java.compile.nullAnalysis.mode](https://github.com/redhat-developer/vscode-java#supported-vs-code-settings)|`interactive`|`automatic`|
 |[java.configuration.detectJdksAtStart](https://github.com/redhat-developer/vscode-java#supported-vs-code-settings)|`true`|`false`|
 |[java.configuration.updateBuildConfiguration](https://github.com/redhat-developer/vscode-java#supported-vs-code-settings)|`interactive`|`automatic`|
 |[java.dependency.packagePresentation](https://github.com/microsoft/vscode-java-dependency/tree/main?tab=readme-ov-file#settings)|`flat`|`hierarchical`|

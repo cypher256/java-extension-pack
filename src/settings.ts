@@ -559,6 +559,7 @@ export async function setDefault(javaConfig: redhat.IJavaConfig) {
 	setIfUndefined('terminal.integrated.enablePersistentSessions', false);
 
 	// Java extensions
+	setIfUndefined('java.compile.nullAnalysis.mode', 'automatic');
 	setIfUndefined('java.configuration.detectJdksAtStart', false);
 	setIfUndefined('java.configuration.updateBuildConfiguration', 'automatic');
 	setIfUndefined('java.debug.settings.hotCodeReplace', 'auto');
