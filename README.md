@@ -119,7 +119,7 @@ The `Extension Pack for Java Auto Config` has been extended to automatically con
 
 # Features
 
-The JDK, build tools, terminal and other settings are automatically configured and updated at startup according to the current environment, as shown below. If you want to disable all auto-configuration features, set `javaAutoConfig.enabled` to `false`.
+The JDK, build tools, terminal and other settings are automatically configured and updated at startup according to the current environment, as shown below. If you want to disable all auto-configuration features, set `javaAutoConfig.enabled` to `false`. However, `java.import.gradle.java.home` and `maven.executable.path` are always prepend to the `PATH` in the terminal.
 <br>
 <br>
 
