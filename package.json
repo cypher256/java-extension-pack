@@ -122,16 +122,15 @@
 		"vscode": "^1.92.0"
 	},
 	"devDependencies": {
-		"@types/vscode": "^1.92.0",
-		"@types/node": "22.x",
 		"@types/decompress": "4.x",
 		"@types/lodash": "4.x",
+		"@types/node": "22.x",
+		"@types/vscode": "^1.92.0",
 		"@types/which": "3.x",
-		"@typescript-eslint/eslint-plugin": "8.x",
-		"@vscode/l10n-dev": "0.0.x",
+		"@vscode/l10n-dev": "0.x",
 		"esbuild": "0.x",
-		"eslint": "9.x",
-		"typescript": "5.x"
+		"typescript": "5.x",
+		"typescript-eslint": "8.x"
 	},
 	"dependencies": {
 		"axios": "1.x",
@@ -142,7 +141,7 @@
 		"lodash": "4.x"
 	},
 	"volta": {
-		"node": "20.16.0"
+		"node": "20.17.0"
 	},
 	"version": "2024.725.0"
 }

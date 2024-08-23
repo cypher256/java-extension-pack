@@ -31,8 +31,8 @@ mvn -v
 
 <br>
 
-### Specify Project Java Version
-The `Extension Pack for Java Auto Config` has been extended to automatically configure the **user** (global) [`settings.json`](https://code.visualstudio.com/docs/getstarted/settings#_settingsjson) at startup and apply the Java version selected in [Select Default Profile](https://code.visualstudio.com/docs/terminal/profiles) to settings.json (⭐). To specify the Java version individually, edit the following files.
+### Specify Default Java Version
+The standard [Select Default Profile](https://code.visualstudio.com/docs/terminal/profiles) in VSCode only switches the default terminal profile. However, this extension applies the selected profile's Java version to all Java settings (⭐) within the **user** (global) [`settings.json`](https://code.visualstudio.com/docs/getstarted/settings#_settingsjson). To specify the Java version individually, edit the following files.
 <br>
 <br>
 

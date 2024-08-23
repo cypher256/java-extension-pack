@@ -245,7 +245,8 @@ export async function updateJavaRuntimes(
 	];
 	const sortedProfiles = Object.fromEntries(sortedNames.map(name => [name, newProfiles[name]]));
 	if (!_.isEqual(sortedNames, profileNames) || !_.isEqual(sortedProfiles, oldProfiles)) {
-		update(Profile.CONFIG_NAME_TERMINAL_PROFILES, sortedProfiles);
+		await update(Profile.CONFIG_NAME_TERMINAL_PROFILES, sortedProfiles);
+		// await for following defaultProfile update
 	}
 	if (terminalDefaultRuntime) {
 		// [Windows/Mac/Linux] Default profile
