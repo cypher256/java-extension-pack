@@ -57,11 +57,11 @@ export async function scan(javaConfig: redhat.IJavaConfig, runtimes: redhat.Java
 			system.equalsPath(fixedPath, jdk.getDownloadLatestDir())
 		) {
 			if (isLts) {
-				// LTS to Non-LTS (e.g. 21 -> 22)
+				// * LTS to Non-LTS (e.g. 21 -> 22)
 				const ltsVerDir = jdk.getDownloadDir(javaConfig, majorVer);
 				if (!fs.existsSync(ltsVerDir)) {
 					try {
-						// Copy from 'latest' to LTS ver dir
+						// e.g. Copy 'latest'(21) -> `21`(Save as LTS) dir, Download 'latest'(22)
 						fs.cpSync(fixedPath, ltsVerDir, {recursive: true});
 					} catch (e: any) {
 						log.warn('Failed cpSync:', e);
@@ -70,8 +70,10 @@ export async function scan(javaConfig: redhat.IJavaConfig, runtimes: redhat.Java
 				runtime.path = ltsVerDir;
 				runtime.default = undefined; // Set later in settings.ts
 			} else {
-				// Non-LTS to LTS (e.g. 24 -> 25)
-				runtimes.splice(i, 1); // remove
+				// * Non-LTS to Non-LTS (e.g. 23 -> 24)
+				// * Non-LTS to     LTS (e.g. 24 -> 25)
+				// e.g. Remove entry JavaSE-24('latest'), Keep 'latest'(24 -> 25 Download) dir
+				runtimes.splice(i, 1);
 				continue;
 			}
 		}

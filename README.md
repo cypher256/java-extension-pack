@@ -1,6 +1,6 @@
 # Extension Pack for Java Auto Config
 
-<!-- ![Java 23 Ready](https://img.shields.io/badge/Java%2023-ready-agreen?style=for-the-badge) -->
+<!-- ![Java 23 Ready](https://img.shields.io/badge/java%2023-ready-agreen?style=for-the-badge) -->
 ![Downloads](https://img.shields.io/visual-studio-marketplace/d/Pleiades.java-extension-pack-jdk?style=for-the-badge&logo=microsoft&color=yellow)
 ![Installes](https://img.shields.io/visual-studio-marketplace/i/Pleiades.java-extension-pack-jdk?style=for-the-badge&logo=visual-studio-code&color=blue)
 [![Buy Me a Coffee](https://img.shields.io/static/v1?label=Buy%20me%20a%20coffee&message=%E2%9D%A4&logo=coffeescript&color=orange&style=for-the-badge)](https://github.com/sponsors/cypher256)
@@ -10,7 +10,7 @@
 # Overview
 Just install this extension and start Java development right out of the box with zero configuration.
 * No need to install JDK, Gradle or Maven, no need to set JAVA_HOME or PATH environment variables.
-* Automatically configure, update, and fix multiple Java versions (at least the four latest LTSs).
+* Automatically configure, update, and fix multiple Java versions (4 LTSs and the latest).
 * Includes extensions for de facto standard Java development from Microsoft, Red Hat and others.
 <br><br>
 GitHub Issues
@@ -21,7 +21,7 @@ GitHub Issues
 <br>
 
 ### Open Terminals by Java Version
-This extension adds the Java versions available in your current environment to the VS Code terminal drop-down. Select the Java version you want to use, [open terminals](https://code.visualstudio.com/docs/terminal/basics), and you can check the complete version with the following commands. The latest versions of gradle and mvn are available, but it is generally recommended to use wrappers (gradlew, mvnw) for each project.
+This extension adds the Java versions available in your current environment to the VS Code terminal profiles dropdown. Select the Java version you want to use, [open terminals](https://code.visualstudio.com/docs/terminal/basics), and you can check the complete version with the following commands. The latest versions of gradle and mvn are available, but it is generally recommended to use wrappers (gradlew, mvnw) for each project.
 ```bash
 java -version
 gradle -v
