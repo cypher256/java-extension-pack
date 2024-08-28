@@ -1,7 +1,7 @@
 # Extension Pack for Java Auto Config
 
-<!-- ![Java 23 Ready](https://img.shields.io/badge/java%2023-ready-agreen?style=for-the-badge) -->
-![Downloads](https://img.shields.io/visual-studio-marketplace/d/Pleiades.java-extension-pack-jdk?style=for-the-badge&logo=microsoft&color=yellow)
+<!-- ![Java 23 Ready](https://img.shields.io/badge/java%2023-ready-agreen?style=for-the-badge&color=red) -->
+![Downloads](https://img.shields.io/visual-studio-marketplace/d/Pleiades.java-extension-pack-jdk?style=for-the-badge&logo=microsoft)
 ![Installes](https://img.shields.io/visual-studio-marketplace/i/Pleiades.java-extension-pack-jdk?style=for-the-badge&logo=visual-studio-code&color=blue)
 [![Buy Me a Coffee](https://img.shields.io/static/v1?label=Buy%20me%20a%20coffee&message=%E2%9D%A4&logo=coffeescript&color=orange&style=for-the-badge)](https://github.com/sponsors/cypher256)
 
@@ -10,7 +10,7 @@
 # Overview
 Just install this extension and start Java development right out of the box with zero configuration.
 * No need to install JDK, Gradle or Maven, no need to set JAVA_HOME or PATH environment variables.
-* Automatically configure, update, and fix multiple Java versions (4 LTSs and the latest).
+* Automatically configure, update, and fix multiple Java versions (At least 4 LTSs and latest).
 * Includes extensions for de facto standard Java development from Microsoft, Red Hat and others.
 <br><br>
 GitHub Issues
@@ -130,10 +130,10 @@ Automatically configure multiple versions of the JDK and build tools. If there a
 1. Auto-remove configuration entries when JDK uninstalled or version path changed
 1. Auto-scan from OS specific locations, Package Managers and Toolchains (See next section)
 1. Auto-detect environment variables `JAVA_HOME`, `JDK_HOME` and `PATH`
-1. Auto-download Adoptium LTS JDKs, Gradle, Maven if not installed
+1. Auto-download Adoptium LTS JDKs, Gradle, Maven if not detected
 1. Auto-update auto-downloaded JDKs, Gradle, Maven to the latest version
 
-JDK auto-scan targets (Best in the industry)
+Best Auto-Scan
 * OS specific locations: Adoptium, BellSoft, Corretto, Microsoft, Oracle, Red Hat, Semeru, Zulu etc...
 * Package Managers: asdf, Chocolatey, jabba, jEnv, Homebrew, IntelliJ, mise, Scoop, SDKMAN, vfox etc...
 * Toolchains: Gradle jdks directory, Maven toolchains.xml
@@ -184,7 +184,7 @@ For Optional Extensions (If installed)
 #### Auto-Download Support
 Automatic download is enabled if the [extensions.autoUpdate](https://code.visualstudio.com/docs/editor/extension-marketplace#_extension-autoupdate) configuration is NOT `false`. Java downloads multiple versions, but Gradle/Maven downloads only the latest version. If you use an older version of Gradle/Maven due to compatibility issues, please introduce `gradlew` ([Compatibility](https://docs.gradle.org/current/userguide/compatibility.html)) or `mvnw` ([Compatibility](https://maven.apache.org/developers/compatibility-plan.html)) in your project or manually set `java.import.gradle.home` or `maven.executable.path` in `settings.json`.
 
-- Adoptium JDK - [Latest LTS 4 versions](https://adoptium.net/support/#_release_roadmap) if not installed ([VS Code supported versions](https://github.com/redhat-developer/vscode-java#features))
+- JDK - [Latest Adoptium LTS 4 versions](https://adoptium.net/support/#_release_roadmap) if not detected ([VS Code supported versions](https://github.com/redhat-developer/vscode-java#features))
 - Gradle - Latest version
 - Maven - Latest version
 

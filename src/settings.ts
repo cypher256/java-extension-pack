@@ -116,7 +116,7 @@ export async function updateJavaRuntimes(
 	runtimesOld: redhat.JavaConfigRuntimes) {
 
 	const CONFIG_NAME_DEPRECATED_JAVA_HOME = 'java.home';
-	if (getUserOrDefault(CONFIG_NAME_DEPRECATED_JAVA_HOME) !== null) { // null if no entry or null value
+	if (getUserDefine(CONFIG_NAME_DEPRECATED_JAVA_HOME) !== null) { // null if no entry or null value
 		remove(CONFIG_NAME_DEPRECATED_JAVA_HOME);
 	}
 
@@ -252,15 +252,18 @@ export async function updateJavaRuntimes(
 		// [Windows/Mac/Linux] Default profile
 		// Linux Maven uses the Java version of the default profile rcfile
 		const newDefaultProfile = Profile.nameOf(terminalDefaultRuntime.name);
-		if (getUserOrDefault(Profile.CONFIG_NAME_TERMINAL_PROFILES + '.' + newDefaultProfile)) {
+		const profiles: any = getUserOrDefault(Profile.CONFIG_NAME_TERMINAL_PROFILES);
+		if (profiles && profiles[newDefaultProfile]) {
 			const oldDefaultProfile = getUserDefine<string>(Profile.CONFIG_NAME_TERMINAL_DEFAULT_PROFILE);
 			if (oldDefaultProfile) {
 				// Repair: Non-existing profile name (getUser: Includes PowerShell, pwsh, zsh, bash, etc...)
-				if (!getUserOrDefault(Profile.CONFIG_NAME_TERMINAL_PROFILES + '.' + oldDefaultProfile)) {
+				if (!profiles[oldDefaultProfile]) {
+					log.info('1118');
 					update(Profile.CONFIG_NAME_TERMINAL_DEFAULT_PROFILE, newDefaultProfile);
 				}
 				// else Keep
 			} else {
+				log.info('1119');
 				// New
 				update(Profile.CONFIG_NAME_TERMINAL_DEFAULT_PROFILE, newDefaultProfile);
 			}
@@ -540,11 +543,11 @@ export async function setDefault(javaConfig: redhat.IJavaConfig) {
 	setIfUndefined('thunder-client.requestLayout', 'Top/Bottom', 'rangav.vscode-thunder-client');
 	if (vscode.extensions.getExtension('sohamkamani.code-eol')) {
 		// code-eol: License unknown, default color is theme text color
-		setIfUndefined('code-eol.color', '#9999');
+		setIfUndefined('code-eol.color', '#8888');
 	}
 	if (vscode.extensions.getExtension('jeff-hykin.code-eol') && OS.locale.startsWith('ja')) {
 		// code-eol 2022: License MIT, default color is theme whitespace color
-		setIfUndefined("code-eol.style", {"color": "#9999"});
+		setIfUndefined("code-eol.style", {"color": "#8888"});
 		setIfUndefined("code-eol.crlfCharacter", "↵");
 		setIfUndefined("code-eol.returnCharacter", "←");
 		setIfUndefined("code-eol.newlineCharacter", "↓");

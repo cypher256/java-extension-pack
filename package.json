@@ -114,9 +114,9 @@
 		"esbuild": "npm run esbuild-base -- --sourcemap",
 		"esbuild-watch": "npm run esbuild-base -- --sourcemap --watch",
 		"lint": "eslint .",
-		"update": "npm update && ncu -x @types/vscode",
-		"package": "npm run lint && npx vsce package",
-		"package-install": "npm run lint && npx vsce package --out a.vsix && code --install-extension a.vsix"
+		"update": "npm update && npm run lint && ncu -x @types/vscode",
+		"package": "npx vsce package",
+		"package-install": "npx vsce package --out dist/a.vsix && code --install-extension dist/a.vsix"
 	},
 	"engines": {
 		"vscode": "^1.92.0"
@@ -143,5 +143,5 @@
 	"volta": {
 		"node": "20.17.0"
 	},
-	"version": "2024.725.0"
+	"version": "2024.828.0"
 }
