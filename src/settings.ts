@@ -253,17 +253,15 @@ export async function updateJavaRuntimes(
 		// Linux Maven uses the Java version of the default profile rcfile
 		const newDefaultProfile = Profile.nameOf(terminalDefaultRuntime.name);
 		const profiles: any = getUserOrDefault(Profile.CONFIG_NAME_TERMINAL_PROFILES);
-		if (profiles && profiles[newDefaultProfile]) {
+		if (profiles?.[newDefaultProfile]) {
 			const oldDefaultProfile = getUserDefine<string>(Profile.CONFIG_NAME_TERMINAL_DEFAULT_PROFILE);
 			if (oldDefaultProfile) {
 				// Repair: Non-existing profile name (getUser: Includes PowerShell, pwsh, zsh, bash, etc...)
 				if (!profiles[oldDefaultProfile]) {
-					log.info('1118');
 					update(Profile.CONFIG_NAME_TERMINAL_DEFAULT_PROFILE, newDefaultProfile);
 				}
 				// else Keep
 			} else {
-				log.info('1119');
 				// New
 				update(Profile.CONFIG_NAME_TERMINAL_DEFAULT_PROFILE, newDefaultProfile);
 			}
