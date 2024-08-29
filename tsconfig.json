@@ -1,11 +1,14 @@
 {
+	// Module output format
+	// https://www.typescriptlang.org/docs/handbook/modules/theory.html#the-module-output-format
+	// Implied and enforced options
+	// https://www.typescriptlang.org/docs/handbook/modules/reference.html#implied-and-enforced-options
 	"compilerOptions": {
-		// https://www.typescriptlang.org/ja/tsconfig/#target
-		"target": "ESNext",
-		"lib": ["ESNext"],
+		// "target": "ESNext",
+		// "lib": ["ESNext"],
 		"module": "NodeNext",
-		"moduleResolution": "NodeNext",
-		"esModuleInterop": true,
+		// "moduleResolution": "NodeNext",
+		// "esModuleInterop": true,
 		"rootDir": "src",
 		"outDir": "dist",
 		"sourceMap": true,

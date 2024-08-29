@@ -1,6 +1,6 @@
 # Extension Pack for Java Auto Config
 
-<!-- ![Java 23 Ready](https://img.shields.io/badge/java%2023-ready-agreen?style=for-the-badge&color=red) -->
+[![Java 22 Ready](https://img.shields.io/badge/java%2022-ready-agreen?style=for-the-badge&color=red)](https://github.com/redhat-developer/vscode-java#features)
 ![Downloads](https://img.shields.io/visual-studio-marketplace/d/Pleiades.java-extension-pack-jdk?style=for-the-badge&logo=microsoft)
 ![Installes](https://img.shields.io/visual-studio-marketplace/i/Pleiades.java-extension-pack-jdk?style=for-the-badge&logo=visual-studio-code&color=blue)
 [![Buy Me a Coffee](https://img.shields.io/static/v1?label=Buy%20me%20a%20coffee&message=%E2%9D%A4&logo=coffeescript&color=orange&style=for-the-badge)](https://github.com/sponsors/cypher256)
@@ -14,7 +14,7 @@ Just install this extension and start Java development right out of the box with
 * Includes extensions for de facto standard Java development from Microsoft, Red Hat and others.
 <br><br>
 GitHub Issues
-  * Microsoft: [Extension Pack for Java](https://github.com/microsoft/vscode-java-pack/issues?q=is%3Aissue+sort%3Aupdated-desc) | [Maven](https://github.com/microsoft/vscode-maven/issues?q=is%3Aissue+sort%3Aupdated-desc) | [Gradle](https://github.com/microsoft/vscode-gradle/issues?q=is%3Aissue+sort%3Aupdated-desc+) | [Debug](https://github.com/microsoft/vscode-java-debug/issues?q=is%3Aissue+sort%3Aupdated-desc) | [Test](https://github.com/microsoft/vscode-java-test/issues?q=is%3Aissue+sort%3Aupdated-desc) | [Project Manager](https://github.com/microsoft/vscode-java-dependency/issues?q=is%3Aissue+sort%3Aupdated-desc) | [IntelliCode](https://github.com/MicrosoftDocs/intellicode/issues?q=is%3Aissue+sort%3Aupdated-desc+java)
+  * Microsoft: [Extension Pack for Java](https://github.com/microsoft/vscode-java-pack/issues?q=is%3Aissue+sort%3Aupdated-desc) | [Maven](https://github.com/microsoft/vscode-maven/issues?q=is%3Aissue+sort%3Aupdated-desc) | [Gradle](https://github.com/microsoft/vscode-gradle/issues?q=is%3Aissue+sort%3Aupdated-desc+) | [Debug](https://github.com/microsoft/vscode-java-debug/issues?q=is%3Aissue+sort%3Aupdated-desc) | [Test](https://github.com/microsoft/vscode-java-test/issues?q=is%3Aissue+sort%3Aupdated-desc) | [Project Manager](https://github.com/microsoft/vscode-java-dependency/issues?q=is%3Aissue+sort%3Aupdated-desc)
   * Red Hat: [Language Support for Java](https://github.com/redhat-developer/vscode-java/issues?q=is%3Aissue+sort%3Aupdated-desc) | [XML](https://github.com/redhat-developer/vscode-xml/issues?q=is%3Aissue+sort%3Aupdated-desc+)
   * Broadcom: [Spring Boot Extension Pack](https://github.com/spring-projects/sts4/issues?q=is%3Aissue+sort%3Aupdated-desc) | [Initializr](https://github.com/microsoft/vscode-spring-initializr/issues?q=is%3Aissue+sort%3Aupdated-desc) | [Dashboard](https://github.com/microsoft/vscode-spring-boot-dashboard/issues?q=is%3Aissue+sort%3Aupdated-desc)
 
@@ -79,7 +79,7 @@ The standard [Select Default Profile](https://code.visualstudio.com/docs/termina
   ```
   [Gradle Toolchain](https://docs.gradle.org/current/userguide/building_java_projects.html#sec:java_cross_compilation) allows you to specify exactly which JDK version to build.
   ```gradle
-  java.toolchain.languageVersion = JavaLanguageVersion.of(23)
+  java.toolchain.languageVersion = JavaLanguageVersion.of(17)
   ```
 <br>
 

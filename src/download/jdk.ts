@@ -65,8 +65,9 @@ function apiParamsOf(javaVersion: number): ApiParams | undefined {
  * @returns The path of the JDK download directory.
  */
 export function getDownloadDir(javaConfig: redhat.IJavaConfig, majorVer: number): string {
-	const verDir = majorVer === javaConfig.latestAvailableVer ? 'latest' : String(majorVer);
-	return system.getGlobalStoragePath('java', verDir);
+	return majorVer === javaConfig.latestAvailableVer
+		? getDownloadLatestDir()
+		: system.getGlobalStoragePath('java', String(majorVer));
 }
 
 /**

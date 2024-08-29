@@ -114,9 +114,10 @@
 		"esbuild": "npm run esbuild-base -- --sourcemap",
 		"esbuild-watch": "npm run esbuild-base -- --sourcemap --watch",
 		"lint": "eslint .",
-		"update": "npm update && npm run lint && ncu -x @types/vscode",
-		"package": "npx vsce package",
-		"package-install": "npx vsce package --out dist/a.vsix && code --install-extension dist/a.vsix"
+		"update": "npm update && npm run lint && ncu -x @types/vscode && npm run package-json-update",
+		"package-json-update": "ts-node package.json.update.mjs",
+		"package": "npx vsce package --out dist/a.vsix",
+		"package-install": "npm run package && code --install-extension dist/a.vsix"
 	},
 	"engines": {
 		"vscode": "^1.92.0"
@@ -129,6 +130,7 @@
 		"@types/which": "3.x",
 		"@vscode/l10n-dev": "0.x",
 		"esbuild": "0.x",
+		"ts-node": "10.x",
 		"typescript": "5.x",
 		"typescript-eslint": "8.x"
 	},
