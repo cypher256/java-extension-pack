@@ -117,7 +117,7 @@ export async function download(
 		const json = (await axios.get(apiUrl)).data[0];
 		apiRes.downloadUrl = json.binaries[0].package.link;
 		apiRes.fullVer = json.release_name;
-	} catch (e: any) {
+	} catch (e: unknown) {
 		// Silent: offline, 404, 503 proxy auth error, or etc.
 		log.info('Updates Disabled JDK:', e);
 		return;

@@ -53,7 +53,7 @@ export class SettingState {
 				fs.writeFileSync(this.getStoreFile(), newJsonStr); // Sync for catch
 				log.debug('SettingState: store', newJsonStr);
 			}
-		} catch (e: any) {
+		} catch (e: unknown) {
 			log.warn('SettingState: store', e);
 		}
 	}
@@ -63,7 +63,7 @@ export class SettingState {
 			const jsonStr = system.readString(this.getStoreFile());
 			Object.assign(this, JSON.parse(jsonStr || '{}')); // Copy fields
 			return jsonStr;
-		} catch (e: any) {
+		} catch (e: unknown) {
 			log.warn('SettingState: load', e);
 			return undefined;
 		}

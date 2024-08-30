@@ -1,7 +1,7 @@
 {
-	// Module output format
+	// TypeScript: Module output format
 	// https://www.typescriptlang.org/docs/handbook/modules/theory.html#the-module-output-format
-	// Implied and enforced options
+	// TypeScript: Implied and enforced options
 	// https://www.typescriptlang.org/docs/handbook/modules/reference.html#implied-and-enforced-options
 	"compilerOptions": {
 		// "target": "ESNext",

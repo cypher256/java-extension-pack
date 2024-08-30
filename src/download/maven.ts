@@ -53,7 +53,7 @@ export async function download() {
 	} else {
 		try {
 			mavenExeNew = await httpget();
-		} catch (e: any) {
+		} catch (e: unknown) {
 			// Silent: offline, 404, 503 proxy auth error, or etc.
 			log.info('Updates Disabled Maven:', e);
 		}

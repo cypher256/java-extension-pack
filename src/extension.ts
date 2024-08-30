@@ -56,9 +56,9 @@ export async function activate(context: vscode.ExtensionContext) {
 			setTimeout(() => setChangeEvent(javaConfig), 0);
 		}
 
-	} catch (e: any) {
+	} catch (e: unknown) {
 		vscode.window.showErrorMessage(`Auto Config Java failed. ${e}`);
-		log.error(e);
+		log.error('Failed activate', e);
 		
 	} finally {
 		log.info('Activate END');
@@ -353,8 +353,8 @@ function setChangeEvent(javaConfig: redhat.IJavaConfig) {
 				return;
 			}
 
-		} catch (e: any) {
-			log.error(e);
+		} catch (e: unknown) {
+			log.error('Failed onDidChangeConfiguration', e);
 		}
 	});
 }

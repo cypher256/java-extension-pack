@@ -52,7 +52,7 @@ export async function download() {
 	} else {
 		try {
 			gradleHomeNew = await httpget();
-		} catch (e: any) {
+		} catch (e: unknown) {
 			// Silent: offline, 404, 503 proxy auth error, or etc.
 			log.info('Updates Disabled Gradle:', e);
 		}

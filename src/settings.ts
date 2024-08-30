@@ -4,6 +4,7 @@ import * as _ from "lodash";
 import * as path from 'path';
 import * as vscode from 'vscode';
 import * as gradle from './download/gradle';
+import * as jdk from './download/jdk';
 import * as maven from './download/maven';
 import * as jdkExplorer from './jdkExplorer';
 import * as redhat from './redhat';
@@ -116,7 +117,7 @@ export async function updateJavaRuntimes(
 	runtimesOld: redhat.JavaConfigRuntimes) {
 
 	const CONFIG_NAME_DEPRECATED_JAVA_HOME = 'java.home';
-	if (getUserDefine(CONFIG_NAME_DEPRECATED_JAVA_HOME) !== null) { // null if no entry or null value
+	if (getUserDefine(CONFIG_NAME_DEPRECATED_JAVA_HOME) !== undefined) {
 		remove(CONFIG_NAME_DEPRECATED_JAVA_HOME);
 	}
 
@@ -153,6 +154,20 @@ export async function updateJavaRuntimes(
 		update(redhat.JavaConfigRuntimes.CONFIG_NAME, runtimes);
 	}
 
+	async function _fixJavaHome(currentJavaHome: string, defaultRuntime: redhat.IJavaConfigRuntime): Promise<string> {
+		if (profileRuntimeToApply?.path) {
+			return profileRuntimeToApply.path;
+		}
+		const fixedPath = await jdkExplorer.fixPath(currentJavaHome);
+		if (fixedPath) {
+			if (javaConfig.latestVerPath && system.equalsPath(fixedPath, jdk.getDownloadLatestDir())) {
+				return javaConfig.latestVerPath;
+			}
+			return fixedPath;
+		}
+		return defaultRuntime.path;
+	}
+
 	//-------------------------------------------------------------------------
 	// Terminal Profiles Dropdown
 	const defProfiles = getUserDefine(Profile.CONFIG_NAME_TERMINAL_PROFILES) ?? {};
@@ -164,13 +179,6 @@ export async function updateJavaRuntimes(
 	for (const runtime of runtimes) {
 		const ver = redhat.versionOf(runtime.name);
 		const profileName = Profile.nameOf(runtime.name);
-
-		// Old format 2024.05.22: Future deletion
-		const profileNameOldFormat = runtime.name;
-		if (profileNameOldFormat !== profileName && newProfiles[profileNameOldFormat]) {
-			newProfiles[profileName] = newProfiles[profileNameOldFormat];
-			delete newProfiles[profileNameOldFormat];
-		}
 
 		// Create from config runtimes (Always overwrite), Proxy to POJO for isEqual
 		const profile: any = _.cloneDeep(newProfiles[profileName]) ?? {};
@@ -215,9 +223,6 @@ export async function updateJavaRuntimes(
 			delete newProfiles[profileName];
 		}
 	}
-	const _fixJavaHome = async (currentJavaHome: string, defaultRuntime: redhat.IJavaConfigRuntime) =>
-		profileRuntimeToApply?.path || await jdkExplorer.fixPath(currentJavaHome) || defaultRuntime.path;
-	;
 	const terminalDefaultRuntime = latestLtsRuntime || stableLtsRuntime;
 	if (terminalDefaultRuntime) {
 		// Create or update default zsh/bash profiles
@@ -384,10 +389,12 @@ export async function updateJavaRuntimes(
 		const originPath = getUserOrDefault<string>(CONFIG_NAME_GRADLE_JAVA_HOME);
 		function _updateGradleJavaHome(newPath: string) {
 			update(CONFIG_NAME_GRADLE_JAVA_HOME, newPath);
+			/* Comment Out: Gradle extension shows reload dialog
 			if (!profileRuntimeToApply) {
 				javaConfig.needsReload = true;
 				log.info(`Needs Reload: Restart Gradle Daemon\n${originPath}\n${newPath}`);
 			}
+			*/
 		}
 		if (originPath) {
 			const fixedOrDefault = await _fixJavaHome(originPath, gradleJavaRuntime);

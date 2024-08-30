@@ -1,4 +1,5 @@
 import axios from 'axios';
+import console from 'console';
 import * as fs from 'fs';
 
 const RUNTIMES_CONFIG_NAME = 'java.configuration.runtimes';

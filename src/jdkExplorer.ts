@@ -17,10 +17,13 @@ import { OS, log } from './system';
  */
 export async function scan(javaConfig: redhat.IJavaConfig, runtimes: redhat.JavaConfigRuntimes) {
 
-	// Fix JDK path
 	let needImmediateUpdate = false;
+	javaConfig.latestVerPath = undefined;
+	
+	// Fix JDK path
 	for (let i = runtimes.length - 1; i >= 0; i--) { // Decrement for splice (remove)
 		const runtime = runtimes[i];
+
 		// Unsupported name
 		const availableNames = javaConfig.availableNames;
 		if (availableNames.length > 0 && !availableNames.includes(runtime.name)) {
@@ -32,6 +35,7 @@ export async function scan(javaConfig: redhat.IJavaConfig, runtimes: redhat.Java
 		const majorVer = redhat.versionOf(runtime.name);
 		const originPath = runtime.path;
 		const isLts = javaConfig.downloadLtsVers.includes(majorVer);
+
 		// Ignore manual set path for force download (If invalid directory, temporary error)
 		if (isLts) { // Download LTS only
 			const downloadDir = jdk.getDownloadDir(javaConfig, majorVer);
@@ -43,7 +47,9 @@ export async function scan(javaConfig: redhat.IJavaConfig, runtimes: redhat.Java
 				continue;
 			}
 		}
+
 		// Invalid path
+		// Don't check mismatches between manually set name and path
 		const fixedPath = await fixPath(originPath);
 		if (!fixedPath) {
 			log.info(`Remove invalid path ${originPath}`);
@@ -51,6 +57,14 @@ export async function scan(javaConfig: redhat.IJavaConfig, runtimes: redhat.Java
 			needImmediateUpdate = true;
 			continue;
 		}
+
+		// Update path
+		if (fixedPath !== originPath) {
+			log.info(`Fix path\n- ${originPath}\n+ ${fixedPath}`);
+			runtime.path = fixedPath;
+			needImmediateUpdate = true;
+		}
+
 		// Old latest
 		if (
 			majorVer !== javaConfig.latestAvailableVer &&
@@ -62,32 +76,25 @@ export async function scan(javaConfig: redhat.IJavaConfig, runtimes: redhat.Java
 				if (!fs.existsSync(ltsVerDir)) {
 					try {
 						// e.g. Copy 'latest'(21) -> `21`(Save as LTS) dir,
-						//   DL later '21' and 'latest'(22)
+						//   DL later 'latest'(22)
 						fs.cpSync(fixedPath, ltsVerDir, {recursive: true});
-					} catch (e: any) {
+					} catch (e: unknown) {
 						log.warn('Failed cpSync:', e);
 					}
 				}
 				runtime.path = ltsVerDir;
 				runtime.default = undefined; // Set later in settings.ts
-				// TODO Keep settings for LTS (Like profileRuntimeToApply)
-				//javaConfig.latestVerPath = ltsVerDir;
+				// Change 'latest' setting to ver dir (Apply in settings.ts)
+				javaConfig.latestVerPath = ltsVerDir;
 			} else {
 				// * Non-LTS to Non-LTS (e.g. 23 -> 24)
 				// * Non-LTS to     LTS (e.g. 24 -> 25)
 				//   Remove entry JavaSE-24('latest'), Keep 'latest'(24 -> 25 DL later) dir
 				runtimes.splice(i, 1);
-				continue;
 			}
 		}
-		// Update path
-		if (fixedPath !== originPath) {
-			log.info(`Fix path\n- ${originPath}\n+ ${fixedPath}`);
-			runtime.path = fixedPath;
-			needImmediateUpdate = true;
-		}
-		// Don't check mismatches between manually set name and path
 	}
+
 	if (needImmediateUpdate) {
 		// Immediate update for suppress invalid path error dialog (without await)
 		settings.update(redhat.JavaConfigRuntimes.CONFIG_NAME, runtimes);
@@ -155,7 +162,7 @@ function isNewerLeft(leftJdk: IDetectedJdk, rightJdk: IDetectedJdk): boolean {
 		return compare(leftVer, rightVer, '>');
 		// 21.0.0 > 21 = false
 		// 21.0.1 > 21 = true
-	} catch (e: any) {
+	} catch (e: unknown) {
 		log.warn(`Failed compare [${leftJdk.fullVersion}] [${rightJdk.fullVersion}]`, e);
 		return false;
 	}

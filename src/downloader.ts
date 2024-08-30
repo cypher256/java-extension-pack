@@ -32,7 +32,7 @@ export async function execute(req: IDownloaderRequest) {
         try {
             await download(progress, req);
             await extract(progress, req);
-		} catch (e: any) {
+		} catch (e: unknown) {
             // Silent: offline, 404, 503 proxy auth error, or etc.
             log.info(`Download failed ${req.url}`, e);
             throw e; // Do not update version file (Retry next time)
@@ -120,7 +120,7 @@ async function extract(progress: vscode.Progress<{message: string}>, opt: IDownl
         try {
             await decompress(opt.localZipFile, opt.extractDestDir, {strip: opt.removeLeadingPath ?? 1});
             system.rmQuietly(opt.localZipFile);
-        } catch (e: any) {
+        } catch (e: unknown) {
             log.info('Failed extract:', e); // Validate later
             if (OS.isWindows) {
                 await setTimeout(5_000); // Wait for Windows delayed writes (200ms x, 300ms o)

@@ -11,20 +11,22 @@ import which from 'which';
 export const log: vscode.LogOutputChannel = vscode.window.createOutputChannel('Auto Config Java', {log: true});
 
 /**
- * A namespace for the OS information.
+ * A class for the OS information.
  */
-export namespace OS {
-	let _locale = 'en';
-	try {
-		_locale = JSON.parse(process.env.VSCODE_NLS_CONFIG!)?.osLocale.toLowerCase() ?? _locale;
-	} catch (error) {
-		log.info('Failed get osLocale', error);
-	}
-	export const locale = _locale;
-	export const isWindows = process.platform === 'win32';
-	export const isMac     = process.platform === 'darwin';
-	export const isLinux   = process.platform === 'linux';
-	export const configName = isWindows ? 'windows' : isMac ? 'osx' : 'linux';
+export class OS {
+	private constructor() {}
+	static readonly locale: string = (() => {
+		try {
+			return JSON.parse(process.env.VSCODE_NLS_CONFIG!)?.osLocale.toLowerCase();
+		} catch (error) {
+			log.info('Failed get osLocale', error);
+			return 'en';
+		}
+	})();
+	static readonly isWindows = process.platform === 'win32';
+	static readonly isMac     = process.platform === 'darwin';
+	static readonly isLinux   = process.platform === 'linux';
+	static readonly configName = this.isWindows ? 'windows' : this.isMac ? 'osx' : 'linux';
 }
 
 /**
@@ -158,7 +160,7 @@ export function readString(file: string): string | undefined {
 export function getLastModified(p: string) {
 	try {
 		return fs.statSync(p).mtime.toLocaleDateString();
-	} catch (e: any) {
+	} catch (e: unknown) {
 		log.info('Failed statSync:', e); // Silent
 		return undefined;
 	}
@@ -183,7 +185,7 @@ export function rmQuietly(p: string) {
 export function rmSyncQuietly(p: string) {
 	try {
 		fs.rmSync(p, {recursive: true, force: true});
-	} catch (e: any) {
+	} catch (e: unknown) {
 		log.info('Failed rmSync:', e); // Silent
 	}
 }
@@ -199,7 +201,7 @@ export function mkdirSyncQuietly(p: string): boolean {
 			fs.mkdirSync(p, {recursive: true});
 			return true;
 		}
-	} catch (e: any) {
+	} catch (e: unknown) {
 		log.info('Failed mkdirSync:', e); // Silent
 	}
 	return false;
