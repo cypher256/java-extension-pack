@@ -11,11 +11,10 @@ import which from 'which';
 export const log: vscode.LogOutputChannel = vscode.window.createOutputChannel('Auto Config Java', {log: true});
 
 /**
- * A class for the OS information.
+ * A namespace for the OS information.
  */
-export class OS {
-	private constructor() {}
-	static readonly locale: string = (() => {
+export namespace OS {
+	export const locale = (() => {
 		try {
 			return JSON.parse(process.env.VSCODE_NLS_CONFIG!)?.osLocale.toLowerCase();
 		} catch (error) {
@@ -23,10 +22,10 @@ export class OS {
 			return 'en';
 		}
 	})();
-	static readonly isWindows = process.platform === 'win32';
-	static readonly isMac     = process.platform === 'darwin';
-	static readonly isLinux   = process.platform === 'linux';
-	static readonly configName = this.isWindows ? 'windows' : this.isMac ? 'osx' : 'linux';
+	export const isWindows = process.platform === 'win32';
+	export const isMac     = process.platform === 'darwin';
+	export const isLinux   = process.platform === 'linux';
+	export const configName = isWindows ? 'windows' : isMac ? 'osx' : 'linux';
 }
 
 /**
