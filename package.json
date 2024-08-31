@@ -112,9 +112,8 @@
 		"esbuild-base": "esbuild ./src/extension.ts --bundle --outfile=dist/main.js --external:vscode --format=cjs --platform=node",
 		"esbuild": "npm run esbuild-base -- --sourcemap",
 		"esbuild-watch": "npm run esbuild-base -- --sourcemap --watch",
-		"lint": "eslint .",
-		"update": "npm update && npm run lint && ncu -x @types/vscode && npm run update-package-json",
-		"update-package-json": "ts-node package.json.update.mjs",
+		"eslint": "eslint .",
+		"update": "npm update && npm run eslint && ncu -x @types/vscode && ts-node package.json.update.mjs",
 		"package": "npx vsce package --out dist/a.vsix",
 		"package-install": "npm run package && code --install-extension dist/a.vsix"
 	},
