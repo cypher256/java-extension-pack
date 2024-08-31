@@ -241,7 +241,7 @@ Command Palette **>Preferences: Open User Settings (JSON)**
 <br>
 
 ## Terminal Auto-Configuration
-The terminal dropdown items by Java version are automatically created based on the "java.configuration.runtimes" above. You can easily open a terminal by selecting the Java version from command **>Terminal: Create New Terminal (With Profile)** or Terminal (Ctrl + \`) ≫ Profiles dropdown. Besides `java`, `gradle` and `mvn` commands can also be used. The configured environment variables have no effect outside the terminal, so the system and OS user environment remain clean. The terminal configuration `terminal.integrated.profiles` is always overwritten from `java.configuration.runtimes`, so if you want to customize it, copy the terminal configuration entry and create an entry with a different name.
+The terminal dropdown items by Java version are automatically created based on the `java.configuration.runtimes` above. You can easily open a terminal by selecting the Java version from command **>Terminal: Create New Terminal (With Profile)** or Terminal (Ctrl + \`) ≫ Profiles dropdown. Besides `java`, `gradle` and `mvn` commands can also be used. The configured environment variables have no effect outside the terminal, so the system and OS user environment remain clean. The terminal configuration `terminal.integrated.profiles` is always overwritten from `java.configuration.runtimes`, so if you want to customize it, copy the terminal configuration entry and create an entry with a different name.
 
 |Configuration Name|Configured Value [Original Default]|
 |---|---|
