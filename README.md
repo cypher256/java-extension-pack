@@ -36,7 +36,7 @@ The standard [Select Default Profile](https://code.visualstudio.com/docs/termina
 <br>
 <br>
 
-* **No Build Tools ([vscode-java](https://github.com/redhat-developer/vscode-java?tab=readme-ov-file#project-jdks))**<br>
+* **General ([vscode-java](https://github.com/redhat-developer/vscode-java?tab=readme-ov-file#project-jdks))**<br>
   (*1) User `settings.json` (Java runtimes common settings)
 
 
