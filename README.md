@@ -320,6 +320,7 @@ For Included Extensions
 |[java.configuration.detectJdksAtStart](https://github.com/redhat-developer/vscode-java#supported-vs-code-settings)|`true`|`false`|
 |[java.configuration.updateBuildConfiguration](https://github.com/redhat-developer/vscode-java#supported-vs-code-settings)|`interactive`|`automatic`|
 |[java.dependency.packagePresentation](https://github.com/microsoft/vscode-java-dependency/tree/main?tab=readme-ov-file#settings)|`flat`|`hierarchical`|
+|[java.maxConcurrentBuilds](https://github.com/redhat-developer/vscode-java#supported-vs-code-settings)|`1`|Number of logical CPU|
 |[java.sources.organizeImports.staticStarThreshold](https://github.com/redhat-developer/vscode-java#supported-vs-code-settings)|`99`|`1`|
 |*Debugger for Java*<br>[java.debug.settings.hotCodeReplace](https://code.visualstudio.com/docs/java/java-debugging#_hot-code-replace)|`manual`|`auto`|
 |*Code Spell Checker*<br>[cSpell.diagnosticLevel](https://streetsidesoftware.com/vscode-spell-checker/docs/configuration/#cspelldiagnosticlevel)|`Information`|`Hint`|

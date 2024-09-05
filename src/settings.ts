@@ -1,6 +1,7 @@
 /*! VS Code Extension (c) 2023 Shinji Kashihara (cypher256) @ WILL */
 import * as jdkutils from 'jdk-utils';
 import * as _ from "lodash";
+import * as os from 'os';
 import * as path from 'path';
 import * as vscode from 'vscode';
 import * as gradle from './download/gradle';
@@ -573,5 +574,6 @@ export async function setDefault(javaConfig: redhat.IJavaConfig) {
 	setIfUndefined('java.configuration.updateBuildConfiguration', 'automatic');
 	setIfUndefined('java.debug.settings.hotCodeReplace', 'auto');
 	setIfUndefined('java.dependency.packagePresentation', 'hierarchical');
+	setIfUndefined('java.maxConcurrentBuilds', os.cpus().length);
 	setIfUndefined('java.sources.organizeImports.staticStarThreshold', 1);
 }
