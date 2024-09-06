@@ -476,7 +476,7 @@ function setIfUndefined(section: string, value: any, extensionId?: string) {
 	if (extensionId && !vscode.extensions.getExtension(extensionId)) {
 		return;
 	}
-	if (getUserDefine(section) === undefined) {
+	if (value !== undefined && getUserDefine(section) === undefined) {
 		update(section, value);
 	}
 }
@@ -574,6 +574,6 @@ export async function setDefault(javaConfig: redhat.IJavaConfig) {
 	setIfUndefined('java.configuration.updateBuildConfiguration', 'automatic');
 	setIfUndefined('java.debug.settings.hotCodeReplace', 'auto');
 	setIfUndefined('java.dependency.packagePresentation', 'hierarchical');
-	setIfUndefined('java.maxConcurrentBuilds', os.cpus().length);
+	setIfUndefined('java.maxConcurrentBuilds', os.cpus().length || undefined);
 	setIfUndefined('java.sources.organizeImports.staticStarThreshold', 1);
 }
