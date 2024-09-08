@@ -113,7 +113,7 @@ export async function download(
 			return;
 		}
 		const apiBaseUrl = `https://api.adoptium.net/v3/assets/feature_releases/${majorVer}/ga`;
-		const apiUrl = `${apiBaseUrl}?os=${p.os}&architecture=${p.architecture}&image_type=jdk`;
+		const apiUrl = `${apiBaseUrl}?image_type=jdk&os=${p.os}&architecture=${p.architecture}`;
 		const json = (await axios.get(apiUrl)).data[0];
 		apiRes.downloadUrl = json.binaries[0].package.link;
 		apiRes.fullVer = json.release_name;
