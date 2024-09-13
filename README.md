@@ -9,7 +9,7 @@
 
 # Overview
 Just install this extension and start Java development right out of the box with zero configuration.
-* No need to install JDK, Gradle or Maven, no need to set JAVA_HOME or PATH environment variables.
+* No need to install JDKs, Gradle or Maven, no need to set JAVA_HOME or PATH environment variables.
 * Automatically configure, update, and fix multiple Java versions (At least 4 LTSs and latest).
 * Includes extensions for de facto standard Java development from Microsoft, Red Hat and others.
 <br><br>
@@ -119,7 +119,7 @@ The standard [Select Default Profile](https://code.visualstudio.com/docs/termina
 
 # Features
 
-The JDK, build tools, terminal and other settings are automatically configured and updated at startup according to the current environment, as shown below. If you want to disable all auto-configuration features, set `javaAutoConfig.enabled` to `false`. However, `java.import.gradle.java.home` and `maven.executable.path` are always prepend to the `PATH` in the terminal.
+The JDKs, build tools, terminal and other settings are automatically configured and updated at startup according to the current environment, as shown below. If you want to disable all auto-configuration features, set `javaAutoConfig.enabled` to `false`. However, `java.import.gradle.java.home` and `maven.executable.path` are always prepend to the `PATH` in the terminal.
 <br>
 <br>
 
