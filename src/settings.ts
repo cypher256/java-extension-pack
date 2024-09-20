@@ -502,9 +502,6 @@ export async function setDefault(javaConfig: redhat.IJavaConfig) {
 	}
 
 	// VS Code Editor
-	setIfUndefined('editor.codeActionsOnSave', {
-		"source.organizeImports": 'explicit'
-	});
 	setIfUndefined('editor.linkedEditing', true);
 	setIfUndefined('editor.minimap.enabled', false);
 	setIfUndefined('editor.rulers', [
@@ -522,6 +519,10 @@ export async function setDefault(javaConfig: redhat.IJavaConfig) {
 		},
 	]);
 	setIfUndefined('editor.unicodeHighlight.includeComments', true);
+	// Deprecated: Order differs from other IDEs, removed when writing imports in TS
+	// setIfUndefined('editor.codeActionsOnSave', {
+	// 	"source.organizeImports": 'explicit'
+	// });
 
 	// VS Code Workbench
 	setIfUndefined('workbench.colorCustomizations', {
