@@ -9,9 +9,9 @@
 
 # Overview
 Just install this extension and start Java development right out of the box with zero configuration.
-* No need to install JDKs, Gradle or Maven, no need to set JAVA_HOME or PATH environment variables.
-* Automatically configure, update, and fix multiple Java versions (At least 4 LTSs and latest).
-* Includes extensions for de facto standard Java development from Microsoft, Red Hat and others.
+* No need to install JDKs, Gradle, or Maven, and no need to set `JAVA_HOME` or `PATH` environment variables.
+* Automatically configures, updates, and fixes multiple Java versions (at least 4 LTS versions and the latest).
+* Includes extensions for de facto standard Java development from Microsoft, Red Hat, and others.
 <br><br>
 GitHub Issues
   * Microsoft: [Extension Pack for Java](https://github.com/microsoft/vscode-java-pack/issues?q=is%3Aissue+sort%3Aupdated-desc) | [Maven](https://github.com/microsoft/vscode-maven/issues?q=is%3Aissue+sort%3Aupdated-desc) | [Gradle](https://github.com/microsoft/vscode-gradle/issues?q=is%3Aissue+sort%3Aupdated-desc+) | [Debug](https://github.com/microsoft/vscode-java-debug/issues?q=is%3Aissue+sort%3Aupdated-desc) | [Test](https://github.com/microsoft/vscode-java-test/issues?q=is%3Aissue+sort%3Aupdated-desc) | [Project Manager](https://github.com/microsoft/vscode-java-dependency/issues?q=is%3Aissue+sort%3Aupdated-desc)
@@ -21,7 +21,7 @@ GitHub Issues
 <br>
 
 ### Open Terminals by Java Version
-This extension adds the Java versions available in your current environment to the VS Code terminal profiles dropdown. Select the Java version you want to use, [open terminals](https://code.visualstudio.com/docs/terminal/basics), and you can check the complete version with the following commands. The latest versions of gradle and mvn are available, but it is generally recommended to use wrappers (gradlew, mvnw) for each project.
+This extension adds the Java versions available in your current environment to the VS Code terminal profiles dropdown. Select the Java version you want to use, [open a new terminal](https://code.visualstudio.com/docs/terminal/basics), and you can check the version with the following commands. While the latest versions of Gradle and Maven are available, it's generally recommended to use wrappers (gradlew, mvnw) for each project.
 ```bash
 java -version
 gradle -v
@@ -32,7 +32,7 @@ mvn -v
 <br>
 
 ### Set Default Java Version
-The standard [Select Default Profile](https://code.visualstudio.com/docs/terminal/profiles) in VSCode only switches the default terminal profile. However, this extension applies the selected profile's Java version to all Java settings (⭐) within the **user** (global) [`settings.json`](https://code.visualstudio.com/docs/getstarted/settings#_settingsjson). To specify the Java version individually, edit the following files.
+The built-in [Select Default Profile](https://code.visualstudio.com/docs/terminal/profiles) in VSCode only changes the default terminal profile. However, this extension applies the selected profile's Java version to all Java-related settings (⭐) within the **user** (global) [`settings.json`](https://code.visualstudio.com/docs/getstarted/settings#_settingsjson). To specify a different Java version for individual settings, edit the following files.
 <br>
 <br>
 
@@ -77,7 +77,7 @@ The standard [Select Default Profile](https://code.visualstudio.com/docs/termina
   java.sourceCompatibility = javaVersion // Make it recognize to VS Code
   compileJava.options.release = javaVersion // JEP 247: API validation
   ```
-  [Gradle Toolchain](https://docs.gradle.org/current/userguide/building_java_projects.html#sec:java_cross_compilation) allows you to specify exactly which JDK version to build.
+  The [Gradle Toolchain](https://docs.gradle.org/current/userguide/building_java_projects.html#sec:java_cross_compilation) allows you to specify the exact JDK version to use for building.
   ```gradle
   java.toolchain.languageVersion = JavaLanguageVersion.of(17)
   ```
@@ -104,14 +104,14 @@ The standard [Select Default Profile](https://code.visualstudio.com/docs/termina
       <maven.compiler.release>17</maven.compiler.release><!-- JEP 247: API validation -->
   </properties>
   ```
-  [Maven Toolchain](https://maven.apache.org/guides/mini/guide-using-toolchains.html) allows you to specify exactly which JDK version to build.
+  The [Maven Toolchain](https://maven.apache.org/guides/mini/guide-using-toolchains.html) allows you to specify the exact JDK version to use for building.
 <br><br>
 
-(*1) The `settings.json` [can be overridden by project (workspace)](https://code.visualstudio.com/docs/getstarted/settings#_workspace-settings).<br>
-(*2) The `java.configuration.runtimes` that best matches this version will be used. Setting the `release` ensures the specified version syntax and api is used regardless of which compiler version actually performs the compilation.
+(*1) The `settings.json` [can be overridden by the project (workspace)](https://code.visualstudio.com/docs/getstarted/settings#_workspace-settings).<br>
+(*2) The `java.configuration.runtimes` that best matches this version will be used. Setting the `release` ensures the specified version syntax and API are used, regardless of which compiler version actually performs the compilation.
 * JEP 182: [Retiring javac -source and -target](https://openjdk.org/jeps/182) / JEP 247: [Compile for Older Platform Versions](https://openjdk.org/jeps/247)
-* Since Spring Boot 3.1, Maven [`<java.version>` value is set to `<maven.compiler.release>`](https://github.com/spring-projects/spring-boot/pull/34365).
-* [Enabling Java preview features](https://github.com/redhat-developer/vscode-java/wiki/Enabling-Java-preview-features)
+* Since Spring Boot 3.1, Maven's [`<java.version>` value is set to `<maven.compiler.release>`](https://github.com/spring-projects/spring-boot/pull/34365).
+* [Enabling Java Preview Features](https://github.com/redhat-developer/vscode-java/wiki/Enabling-Java-preview-features)
 
 <br>
 <br>
@@ -119,12 +119,12 @@ The standard [Select Default Profile](https://code.visualstudio.com/docs/termina
 
 # Features
 
-The JDKs, build tools, terminal and other settings are automatically configured and updated at startup according to the current environment, as shown below. If you want to disable all auto-configuration features, set `javaAutoConfig.enabled` to `false`. However, `java.import.gradle.java.home` and `maven.executable.path` are always prepend to the `PATH` in the terminal.
+JDKs, build tools, terminal settings, and other configurations are automatically set up and updated at startup based on the current environment, as shown below. If you want to disable all auto-configuration features, set `javaAutoConfig.enabled` to `false`. However, `java.import.gradle.java.home` and `maven.executable.path` are always prepended to the `PATH` in the terminal.
 <br>
 <br>
 
 ## JDK Auto-Configuration
-Automatically configure multiple versions of the JDK and build tools. If there are multiple JDKs of the same version, the latest minor version among them is used. If you installed the JDK manually or encountered a configuration error, restart VS Code or execute Command Palette **>Java: Clean Java Language Server Workspace ≫ Reload and delete**. These apply to User `settings.json` (VS Code global), but can be manually edited to customize them. If you want to customize your settings even further, consider using [workspace settings](https://code.visualstudio.com/docs/getstarted/settings) or [profiles](https://code.visualstudio.com/docs/editor/profiles).
+Automatically configure multiple versions of the JDK and build tools. If there are multiple JDKs of the same version, the latest minor version will be used. If you installed the JDK manually or encountered a configuration error, restart VS Code or execute **>Java: Clean Java Language Server Workspace ≫ Reload and delete** from the Command Palette. These settings are applied to the user `settings.json` (VS Code global), but can be manually edited for customization. If you want to further customize your setup, consider using [workspace settings](https://code.visualstudio.com/docs/getstarted/settings) or [profiles](https://code.visualstudio.com/docs/editor/profiles).
 
 1. Auto-fix invalid JDK configuration (e.g. `/foo/jdk-21.0.8/bin` -> `/foo/jdk-21.0.8`)
 1. Auto-remove configuration entries when JDK uninstalled or version path changed
@@ -182,7 +182,7 @@ For Optional Extensions (If installed)
 <br>
 
 #### Auto-Download Support
-Automatic download is enabled if the [extensions.autoUpdate](https://code.visualstudio.com/docs/editor/extension-marketplace#_extension-autoupdate) configuration is NOT `false`. Java downloads multiple versions, but Gradle/Maven downloads only the latest version. If you use an older version of Gradle/Maven due to compatibility issues, please introduce `gradlew` ([Compatibility](https://docs.gradle.org/current/userguide/compatibility.html)) or `mvnw` ([Compatibility](https://maven.apache.org/developers/compatibility-plan.html)) in your project or manually set `java.import.gradle.home` or `maven.executable.path` in `settings.json`.
+Automatic downloads are enabled if the [extensions.autoUpdate](https://code.visualstudio.com/docs/editor/extension-marketplace#_extension-autoupdate) setting is NOT set to `false`. Java will download multiple versions, but Gradle and Maven will only download the latest version. If you use an older version of Gradle/Maven due to compatibility issues, consider using `gradlew` ([Compatibility](https://docs.gradle.org/current/userguide/compatibility.html)) or `mvnw` ([Compatibility](https://maven.apache.org/developers/compatibility-plan.html)) in your project or manually set `java.import.gradle.home` or `maven.executable.path` in `settings.json`.
 
 - JDK - [Latest Adoptium LTS 4 versions](https://adoptium.net/support/#_release_roadmap) if not detected ([VS Code supported versions](https://github.com/redhat-developer/vscode-java#features))
 - Gradle - Latest version
@@ -298,7 +298,7 @@ Command Palette **>Preferences: Open User Settings (JSON)**
 <br>
 
 ## Auto-Default Settings
-Entries that do not have the following configuration in the user settings are automatically set to the default values of `Extension Pack for Java Auto Config`. To prevent automatic setting, set the Original Default value below. Note that a debug run is required to enable Hot Code Replace (Hot Deploy).
+Entries without the following configurations in the user settings are automatically set to the default values of `Extension Pack for Java Auto Config`. To prevent automatic configuration, set the original default values listed below. Note that a debug run is required to enable Hot Code Replace (Hot Deploy).
 
 For Included Extensions
 
@@ -389,7 +389,7 @@ A big thank you to the developers of VS Code and its extensions.
 
 ## Included Extensions
 
-The *`Extension Pack for Java`* is required. Other extensions can be [disabled](https://code.visualstudio.com/docs/editor/extension-marketplace#_disable-an-extension) or [uninstalled](https://code.visualstudio.com/docs/editor/extension-marketplace#_uninstall-an-extension) according to your preference. If you want to set up extensions and configurations by development language, consider [Profile](https://code.visualstudio.com/docs/editor/profiles). (*) indicates that it will be installed if available in that environment at first startup. Note that uninstalling `Extension Pack for Java Auto Config` extension will <a href="https://github.com/microsoft/vscode/issues/169109">uninstall all</a> of the following extensions.
+The *`Extension Pack for Java`* is required. Other extensions can be [disabled](https://code.visualstudio.com/docs/editor/extension-marketplace#_disable-an-extension) or [uninstalled](https://code.visualstudio.com/docs/editor/extension-marketplace#_uninstall-an-extension) based on your preference. If you want to configure extensions and configurations by development language, consider using [Profiles](https://code.visualstudio.com/docs/editor/profiles). Extensions marked with (*) will be installed automatically if available in the environment at first startup. Note that uninstalling the `Extension Pack for Java Auto Config` will <a href="https://github.com/microsoft/vscode/issues/169109">uninstall all</a> of the following extensions.
 
 - ![](https://img.shields.io/visual-studio-marketplace/i/streetsidesoftware.code-spell-checker?style=plastic)
 [Code Spell Checker](https://marketplace.visualstudio.com/items?itemName=streetsidesoftware.code-spell-checker) (Street Side Software: GPL)<br>
@@ -431,7 +431,7 @@ XML Language Support by Red Hat (pom.xml etc.).
 
 # Recommended Extensions
 
-The following are not included but are very useful extensions. Try to install it if necessary.
+The following are not included but are highly useful extensions. Consider installing them if needed.
 
 - ![](https://img.shields.io/visual-studio-marketplace/i/sohamkamani.code-eol?style=plastic)
 [code-eol 2022](https://marketplace.visualstudio.com/items?itemName=jeff-hykin.code-eol) (Jeff Hykin: MIT) / [code-eol](https://marketplace.visualstudio.com/items?itemName=sohamkamani.code-eol) (sohamkamani: Free)<br>
@@ -473,7 +473,7 @@ This extension can start, stop, publish, and control servers such as Apache Feli
 -->
 <br>
 
-Recommended Gradle/Maven plugin that supports Tomcat hot deployment.
+Recommended Gradle/Maven plugins that supports Tomcat hot deployment.
 
 - Gradle: [Gretty Plugin](https://github.com/gretty-gradle-plugin/gretty?tab=readme-ov-file)
 - Maven: [Codehaus Cargo Plugin](https://codehaus-cargo.github.io/cargo/Maven+3+Plugin+Getting+Started.html)
