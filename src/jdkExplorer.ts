@@ -92,6 +92,8 @@ export async function scan(javaConfig: redhat.IJavaConfig, runtimes: redhat.Java
 				//   Remove entry JavaSE-24('latest'), Keep 'latest'(24 -> 25 DL later) dir
 				runtimes.splice(i, 1);
 			}
+			// Suppress latest runtime name error
+			javaConfig.needsReload = true;
 		}
 	}
 

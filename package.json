@@ -129,6 +129,7 @@
 		"@vscode/l10n-dev": "0.x",
 		"esbuild": "0.x",
 		"ts-node": "10.x",
+		"typescript": "5.5.x",
 		"typescript-eslint": "8.x"
 	},
 	"dependencies": {
@@ -142,5 +143,5 @@
 	"volta": {
 		"node": "20.17.0"
 	},
-	"version": "2024.828.0"
+	"version": "2024.925.0"
 }

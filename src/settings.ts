@@ -254,10 +254,26 @@ export async function updateJavaRuntimes(
 		await update(Profile.CONFIG_NAME_TERMINAL_PROFILES, sortedProfiles);
 		// await for following defaultProfile update
 	}
-	if (terminalDefaultRuntime) {
+	if (OS.isWindows) {
+		// Suppress error 'Incorrect parameter format -/d' when using defaultProfile & args chcp
+		// Resolved) https://github.com/microsoft/vscode/issues/202691
+		const CONFIG_NAME_AUTO_PROFILE = 'terminal.integrated.automationProfile.windows';
+		const newValue = {"path": "cmd"};
+		const oldValue = _.cloneDeep(getUserOrDefault(CONFIG_NAME_AUTO_PROFILE));
+		if (!_.isEqual(newValue, oldValue)) {
+			update(CONFIG_NAME_AUTO_PROFILE, newValue); // Note the order of entries in settings.json
+		}
+		// Not working "env"
+		// Open) https://github.com/microsoft/vscode-makefile-tools/issues/493
+	}
+
+	//-------------------------------------------------------------------------
+	// Default Profile
+	const defaultProfileRuntime = runtimes.findDefault() || latestLtsRuntime || stableLtsRuntime;
+	if (defaultProfileRuntime) {
 		// [Windows/Mac/Linux] Default profile
 		// Linux Maven uses the Java version of the default profile rcfile
-		const newDefaultProfile = Profile.nameOf(terminalDefaultRuntime.name);
+		const newDefaultProfile = Profile.nameOf(defaultProfileRuntime.name);
 		const profiles: any = getUserOrDefault(Profile.CONFIG_NAME_TERMINAL_PROFILES);
 		if (profiles?.[newDefaultProfile]) {
 			const oldDefaultProfile = getUserDefine<string>(Profile.CONFIG_NAME_TERMINAL_DEFAULT_PROFILE);
@@ -272,18 +288,6 @@ export async function updateJavaRuntimes(
 				update(Profile.CONFIG_NAME_TERMINAL_DEFAULT_PROFILE, newDefaultProfile);
 			}
 		}
-	}
-	if (OS.isWindows) {
-		// Suppress error 'Incorrect parameter format -/d' when using defaultProfile & args chcp
-		// Resolved) https://github.com/microsoft/vscode/issues/202691
-		const CONFIG_NAME_AUTO_PROFILE = 'terminal.integrated.automationProfile.windows';
-		const newValue = {"path": "cmd"};
-		const oldValue = _.cloneDeep(getUserOrDefault(CONFIG_NAME_AUTO_PROFILE));
-		if (!_.isEqual(newValue, oldValue)) {
-			update(CONFIG_NAME_AUTO_PROFILE, newValue); // Note the order of entries in settings.json
-		}
-		// Not working "env"
-		// Open) https://github.com/microsoft/vscode-makefile-tools/issues/493
 	}
 
 	//-------------------------------------------------------------------------
