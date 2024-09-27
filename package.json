@@ -113,7 +113,8 @@
 		"esbuild": "npm run esbuild-base -- --sourcemap",
 		"esbuild-watch": "npm run esbuild-base -- --sourcemap --watch",
 		"eslint": "eslint .",
-		"update": "npm update && npm run eslint && ncu -x @types/vscode && ts-node package.json.update.mjs",
+		"update": "npm update && npm run eslint && ncu -x @types/vscode && npm run update-readme-java",
+		"update-readme-java": "vite-node src/scripts/updateReadmeJava.ts",
 		"package": "npx vsce package --out dist/a.vsix",
 		"package-install": "npm run package && code --install-extension dist/a.vsix"
 	},
@@ -128,9 +129,9 @@
 		"@types/which": "3.x",
 		"@vscode/l10n-dev": "0.x",
 		"esbuild": "0.x",
-		"ts-node": "10.x",
 		"typescript": "5.5.x",
-		"typescript-eslint": "8.x"
+		"typescript-eslint": "8.x",
+		"vite-node": "2.x"
 	},
 	"dependencies": {
 		"axios": "1.x",
