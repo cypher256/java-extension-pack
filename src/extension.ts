@@ -48,10 +48,10 @@ export async function activate(context: vscode.ExtensionContext) {
 			await download(javaConfig, runtimes);
 			showMessage(javaConfig, runtimes, runtimesOld, isFirstStartup);
 			setTerminalEnvironment();
-			
+
 		} finally {
 			// Wait for another window event on change default profile
-			setTimeout(() => {state.isEventProcessing = false;}, 5_000);
+			setTimeout(() => { state.isEventProcessing = false; }, 5_000);
 			// Delay for prevent self update (2024.05.23 5s -> 0)
 			setTimeout(() => setChangeEvent(javaConfig), 0);
 		}
@@ -59,7 +59,7 @@ export async function activate(context: vscode.ExtensionContext) {
 	} catch (e: unknown) {
 		vscode.window.showErrorMessage(`Auto Config Java failed. ${e}`);
 		log.error('Failed activate', e);
-		
+
 	} finally {
 		log.info('Activate END');
 	}
@@ -79,7 +79,7 @@ async function copyRcfile() {
 		const dst = system.readString(system.getGlobalStoragePath(fileName));
 		if (src && src !== dst) {
 			fs.writeFile(system.getGlobalStoragePath(fileName), src, e => {
-				if (e) {log.warn('Failed copy rcfile', e);}
+				if (e) { log.warn('Failed copy rcfile', e); }
 			});
 		}
 	}
@@ -103,7 +103,7 @@ async function setTerminalEnvironment() {
 
 	// Set env var by workspace folder
 	const globalEnv = system.getExtensionContext().environmentVariableCollection;
-	const folderEnvs = vscode.workspace.workspaceFolders?.map(f => globalEnv.getScoped({workspaceFolder: f})) ?? [];
+	const folderEnvs = vscode.workspace.workspaceFolders?.map(f => globalEnv.getScoped({ workspaceFolder: f })) ?? [];
 
 	for (const envVarColl of folderEnvs.concat(globalEnv)) {
 		envVarColl.clear(); // Clear persisted values (Not cleared on restart)
@@ -166,7 +166,7 @@ async function download(
 		return;
 	}
 	const downloadVers = [...javaConfig.downloadLtsVers, javaConfig.latestAvailableVer];
-	const orderDescVers = _.uniq(downloadVers).sort((a,b) => b-a); // Reverse order
+	const orderDescVers = _.uniq(downloadVers).sort((a, b) => b - a); // Reverse order
 	if (!jdk.isTargetPlatform) {
 		log.info(`Download disabled JDK (${process.platform}/${process.arch})`);
 		orderDescVers.length = 0;
@@ -193,7 +193,7 @@ function showMessage(
 	runtimesNew: redhat.JavaConfigRuntimes,
 	runtimesOld: redhat.JavaConfigRuntimes,
 	isFirstStartup: boolean) {
-	
+
 	const oldVers = runtimesOld.map(r => redhat.versionOf(r.name));
 	const newVers = runtimesNew.map(r => redhat.versionOf(r.name));
 	const defaultVer = redhat.versionOf(runtimesNew.findDefault()?.name ?? '');
@@ -299,9 +299,9 @@ function setChangeEvent(javaConfig: redhat.IJavaConfig) {
 				event.affectsConfiguration(maven.CONFIG_NAME_MAVEN_EXE_PATH)
 			) {
 				/* For catch */ await SettingState.lockUpdate(async (state) => {
-					log.info('Change Event: Build Tools Path');
-					await setTerminalEnvironment();
-				});
+				log.info('Change Event: Build Tools Path');
+				await setTerminalEnvironment();
+			});
 				return;
 			}
 
@@ -313,12 +313,12 @@ function setChangeEvent(javaConfig: redhat.IJavaConfig) {
 			// Reconfigure Terminal Profiles
 			if (event.affectsConfiguration(redhat.JavaConfigRuntimes.CONFIG_NAME)) {
 				/* For catch */ await SettingState.lockUpdate(async (state) => {
-					log.info(`Change Event: ${redhat.JavaConfigRuntimes.CONFIG_NAME}`);
-					const runtimes = settings.getJavaConfigRuntimes();
-					await detect(javaConfig, runtimes); // Freeze without await
-					// Don't download due to heavy processing on event
-					//await download(javaConfig, runtimes);
-				});
+				log.info(`Change Event: ${redhat.JavaConfigRuntimes.CONFIG_NAME}`);
+				const runtimes = settings.getJavaConfigRuntimes();
+				await detect(javaConfig, runtimes); // Freeze without await
+				// Don't download due to heavy processing on event
+				//await download(javaConfig, runtimes);
+			});
 				return;
 			}
 

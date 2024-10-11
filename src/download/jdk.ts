@@ -148,7 +148,7 @@ export async function download(
 	// Validate
 	if (!await jdkExplorer.isValidHome(downloadVerDir)) {
 		log.info('Failed download JDK:', downloadVerDir);
-		_.remove(runtimes, {name: runtimeName});
+		_.remove(runtimes, { name: runtimeName });
 		return; // Silent
 	}
 	fs.writeFileSync(versionFile, apiRes.fullVer); // Sync for throw
@@ -159,6 +159,6 @@ export async function download(
 		matchedRuntime.path = downloadVerDir;
 	} else {
 		// Add New
-		runtimes.push({name: runtimeName, path: downloadVerDir});
+		runtimes.push({ name: runtimeName, path: downloadVerDir });
 	}
 }

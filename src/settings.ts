@@ -82,27 +82,27 @@ export function getJavaConfigRuntimes(): redhat.JavaConfigRuntimes {
  */
 export namespace Profile {
 
-    export const CONFIG_NAME_TERMINAL_DEFAULT_PROFILE = 'terminal.integrated.defaultProfile.' + OS.configName;
+	export const CONFIG_NAME_TERMINAL_DEFAULT_PROFILE = 'terminal.integrated.defaultProfile.' + OS.configName;
 	export const CONFIG_NAME_TERMINAL_PROFILES = 'terminal.integrated.profiles.' + OS.configName;
 
 	export const nameOf = (runtimeName: string) =>
 		runtimeName + (redhat.isLtsVersion(redhat.versionOf(runtimeName)) ? ' LTS' : '')
-	;
+		;
 	export const toRuntimeName = (profileName: string) =>
 		profileName.replace(/ LTS$/, '')
-	;
+		;
 	export const toVersion = (profileName: string) =>
 		isGeneratedRuntime(profileName) ? redhat.versionOf(toRuntimeName(profileName)) : undefined;
 	;
 	export const getUserDefProfileVersion = () =>
 		toVersion(getUserDefine(CONFIG_NAME_TERMINAL_DEFAULT_PROFILE) || '')
-	;
+		;
 	export const isGeneratedRuntime = (profileName: string) =>
 		/^J(2|ava)SE-[\d.]+( LTS|)$/.test(profileName) // Strict names
-	;
+		;
 	export const isJavaPrefix = (profileName: string) =>
 		/^J(2|ava)SE/.test(profileName) // Includes custom names by user
-	;
+		;
 }
 
 /**
@@ -258,7 +258,7 @@ export async function updateJavaRuntimes(
 		// Suppress error 'Incorrect parameter format -/d' when using defaultProfile & args chcp
 		// Resolved) https://github.com/microsoft/vscode/issues/202691
 		const CONFIG_NAME_AUTO_PROFILE = 'terminal.integrated.automationProfile.windows';
-		const newValue = {"path": "cmd"};
+		const newValue = { "path": "cmd" };
 		const oldValue = _.cloneDeep(getUserOrDefault(CONFIG_NAME_AUTO_PROFILE));
 		if (!_.isEqual(newValue, oldValue)) {
 			update(CONFIG_NAME_AUTO_PROFILE, newValue); // Note the order of entries in settings.json
@@ -341,10 +341,10 @@ export async function updateJavaRuntimes(
 		const CONFIG_NAME_MAVEN_CUSTOM_ENV = 'maven.terminal.customEnv';
 		const customEnv: any[] = _.cloneDeep(getUserOrDefault(CONFIG_NAME_MAVEN_CUSTOM_ENV) ?? []);
 		const customEnvOld = _.cloneDeep(customEnv);
-		function _getCustomEnv(envName: string): {value: string} {
+		function _getCustomEnv(envName: string): { value: string } {
 			let element = customEnv.find(i => i.environmentVariable === envName);
 			if (!element) {
-				element = {environmentVariable: envName};
+				element = { environmentVariable: envName };
 				customEnv.push(element);
 			}
 			return element;
@@ -361,7 +361,7 @@ export async function updateJavaRuntimes(
 
 		// [Windows] maven and gradle don't need java/bin in PATH (java command cannot be executed)
 		// [Linux/Mac] PATH is not required because defaultProfile's rcfile is used
-		_.remove(customEnv, {environmentVariable: 'PATH'}); // Remove for previous version
+		_.remove(customEnv, { environmentVariable: 'PATH' }); // Remove for previous version
 		/*
 		if (OS.isWindows) {
 			// [Windows] PATH: for java command (mvn and gradle work without java/bin in PATH)
@@ -378,7 +378,7 @@ export async function updateJavaRuntimes(
 		if (OS.isMac) {
 			_getCustomEnv('ZDOTDIR').value = rcfileDir;
 		}
-		
+
 		if (!_.isEqual(customEnv, customEnvOld)) {
 			update(CONFIG_NAME_MAVEN_CUSTOM_ENV, customEnv);
 		}
@@ -438,8 +438,7 @@ export async function updateJavaRuntimes(
 	//-------------------------------------------------------------------------
 	// Optional Extensions LS Java Home (Keep if set)
 	async function _updateOptionJavaHome(extensionId: string, configKey: string,
-		optionalRuntime?: redhat.IJavaConfigRuntime)
-	{
+		optionalRuntime?: redhat.IJavaConfigRuntime) {
 		if (!optionalRuntime || !vscode.extensions.getExtension(extensionId)) {
 			return;
 		}
@@ -531,10 +530,10 @@ export async function setDefault(javaConfig: redhat.IJavaConfig) {
 	// VS Code Workbench
 	setIfUndefined('workbench.colorCustomizations', {
 		"[Default Dark Modern]": {
-            "tab.activeBorderTop": "#00FF00",
-            "tab.unfocusedActiveBorderTop" : "#00FF0088",
-            "textCodeBlock.background": "#00000055", // Markdown preview code block
-        },
+			"tab.activeBorderTop": "#00FF00",
+			"tab.unfocusedActiveBorderTop": "#00FF0088",
+			"textCodeBlock.background": "#00000055", // Markdown preview code block
+		},
 		"editor.wordHighlightStrongBorder": "#FF6347",
 		"editor.wordHighlightBorder": "#FFD700",
 		"editor.selectionHighlightBorder": "#A9A9A9",
@@ -543,14 +542,14 @@ export async function setDefault(javaConfig: redhat.IJavaConfig) {
 	setIfUndefined('workbench.tree.indent', 20);
 	if (OS.isWindows) {
 		setIfUndefined('files.eol', '\n');
-		setIfUndefined('[bat]', {'files.eol': '\r\n'});
+		setIfUndefined('[bat]', { 'files.eol': '\r\n' });
 	}
 
 	// VS Code Emmet
-	setIfUndefined('emmet.variables', {'lang': OS.locale.substring(0, 2)});
+	setIfUndefined('emmet.variables', { 'lang': OS.locale.substring(0, 2) });
 
 	// Optional extensions
-	setIfUndefined('emmet.includeLanguages', {"jsp": "html"}, 'samuel-weinhardt.vscode-jsp-lang');
+	setIfUndefined('emmet.includeLanguages', { "jsp": "html" }, 'samuel-weinhardt.vscode-jsp-lang');
 	setIfUndefined('thunder-client.requestLayout', 'Top/Bottom', 'rangav.vscode-thunder-client');
 	if (vscode.extensions.getExtension('sohamkamani.code-eol')) {
 		// code-eol: License unknown, default color is theme text color
@@ -558,7 +557,7 @@ export async function setDefault(javaConfig: redhat.IJavaConfig) {
 	}
 	if (vscode.extensions.getExtension('jeff-hykin.code-eol') && OS.locale.startsWith('ja')) {
 		// code-eol 2022: License MIT, default color is theme whitespace color
-		setIfUndefined("code-eol.style", {"color": "#8888"});
+		setIfUndefined("code-eol.style", { "color": "#8888" });
 		setIfUndefined("code-eol.crlfCharacter", "↵");
 		setIfUndefined("code-eol.returnCharacter", "←");
 		setIfUndefined("code-eol.newlineCharacter", "↓");

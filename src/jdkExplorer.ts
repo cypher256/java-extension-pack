@@ -19,7 +19,7 @@ export async function scan(javaConfig: redhat.IJavaConfig, runtimes: redhat.Java
 
 	let needImmediateUpdate = false;
 	javaConfig.latestVerPath = undefined;
-	
+
 	// Fix JDK path
 	for (let i = runtimes.length - 1; i >= 0; i--) { // Decrement for splice (remove)
 		const runtime = runtimes[i];
@@ -77,7 +77,7 @@ export async function scan(javaConfig: redhat.IJavaConfig, runtimes: redhat.Java
 					try {
 						// e.g. Copy 'latest'(21) -> `21`(Save as LTS) dir,
 						//   DL later 'latest'(22)
-						fs.cpSync(fixedPath, ltsVerDir, {recursive: true});
+						fs.cpSync(fixedPath, ltsVerDir, { recursive: true });
 					} catch (e: unknown) {
 						log.warn('Failed cpSync:', e);
 					}
@@ -148,7 +148,7 @@ export async function scan(javaConfig: redhat.IJavaConfig, runtimes: redhat.Java
 			// else Keep (Auto-Download dir)
 		} else {
 			// Add new entry
-			runtimes.push({name: detectedName, path: detectedJdk.homePath});
+			runtimes.push({ name: detectedName, path: detectedJdk.homePath });
 		}
 	}
 }
@@ -175,7 +175,7 @@ function isNewerLeft(leftJdk: IDetectedJdk, rightJdk: IDetectedJdk): boolean {
  * @returns true if valid JDK dir.
  */
 export async function isValidHome(homeDir?: string): Promise<boolean> {
-	if (!homeDir) {return false;}
+	if (!homeDir) { return false; }
 	const utilRuntime = await jdkutils.getRuntime(homeDir, { checkJavac: true });
 	return !!(utilRuntime?.hasJavac);
 }
@@ -185,18 +185,18 @@ export async function isValidHome(homeDir?: string): Promise<boolean> {
  * @returns The fixed dir of the JDK. undefined if cannot fix.
  */
 export async function fixPath(homeDir?: string): Promise<string | undefined> {
-	if (!homeDir) {return undefined;}
+	if (!homeDir) { return undefined; }
 	const MAX_UPPER_LEVEL = 2; // e.g. /jdk/bin/java -> /jdk
 	let d = homeDir;
 	for (let i = 0; i <= MAX_UPPER_LEVEL; i++) {
-		if (await isValidHome(d)) {return d;};
+		if (await isValidHome(d)) { return d; };
 		d = path.join(d, '..');
 	}
 	if (OS.isMac) {
 		const contentsHome = path.join(homeDir, 'Contents', 'Home');
-		if (await isValidHome(contentsHome)) {return contentsHome;}
+		if (await isValidHome(contentsHome)) { return contentsHome; }
 		const home = path.join(homeDir, 'Home');
-		if (await isValidHome(home)) {return home;}
+		if (await isValidHome(home)) { return home; }
 	}
 	return undefined;
 };
@@ -234,7 +234,7 @@ function createJdk(utilRuntime?: jdkutils.IJavaRuntime): IDetectedJdk | undefine
 class DetectedJdkArray extends Array<IDetectedJdk> {
 
 	pushJdk(logMessage: string, jdk?: IDetectedJdk) {
-		if (!jdk) {return;} // undefined if JRE
+		if (!jdk) { return; } // undefined if JRE
 		this.push(jdk);
 		log.info(`Detected ${logMessage} ${jdk.majorVersion} (${jdk.fullVersion}) ${jdk.homePath}`);
 	}
@@ -262,7 +262,7 @@ async function findAll(): Promise<IDetectedJdk[]> {
 		async () => {
 			// Windows distributors not supported by jdk-utils
 			// https://github.com/Eskibear/node-jdk-utils/blob/main/src/from/windows.ts
-			if (!OS.isWindows) {return;}
+			if (!OS.isWindows) { return; }
 			for (const programDir of [env.ProgramFiles, env.LOCALAPPDATA].filter(Boolean) as string[]) {
 				const dists = ['BellSoft', 'OpenJDK', 'RedHat', 'Semeru'];
 				const patterns = dists.map(s => path.join(programDir, s));
@@ -273,7 +273,7 @@ async function findAll(): Promise<IDetectedJdk[]> {
 			// Scoop (Windows)
 			// e.g. C:\ProgramData\scoop\apps\sapmachine18-jdk\18.0.2.1\bin
 			// C:\Users\<UserName>\scoop\apps\sapmachine18-jdk\18.0.2.1\bin
-			if (!OS.isWindows) {return;}
+			if (!OS.isWindows) { return; }
 			const userDir = env.SCOOP ?? path.join(os.homedir(), 'scoop');
 			const globalDir = env.SCOOP_GLOBAL ?? path.join(env.ProgramData ?? '', 'scoop');
 			const patterns = [userDir, globalDir].map(s => path.join(s, 'apps/*jdk*'));
@@ -283,9 +283,9 @@ async function findAll(): Promise<IDetectedJdk[]> {
 			// mise (Linux, Mac)
 			// e.g. Linux ~/.local/share/mise/installs/java/21.0.1-open/bin
 			// e.g. Mac   ~/.local/share/mise/installs/java/21.0.1-open/Contents/Home/bin
-			if (OS.isWindows) {return;}
+			if (OS.isWindows) { return; }
 			let pattern = os.homedir() + '/.local/share/mise/installs/java';
-			if (OS.isMac) {pattern += '/*/Contents';}
+			if (OS.isMac) { pattern += '/*/Contents'; }
 			await jdks.pushByGlob('mise', pattern);
 		},
 		async () => {
@@ -305,7 +305,7 @@ async function findAll(): Promise<IDetectedJdk[]> {
 		async () => {
 			// IntelliJ (Windows, Linux)
 			// e.g. C:\Users\<UserName>\.jdks\openjdk-20.0.1\bin
-			if (OS.isMac) {return;} // Supported jdk-utils Mac.ts: /Library/Java/JavaVirtualMachines
+			if (OS.isMac) { return; } // Supported jdk-utils Mac.ts: /Library/Java/JavaVirtualMachines
 			const pattern = path.join(os.homedir(), '.jdks');
 			await jdks.pushByGlob('IntelliJ', pattern);
 		},
@@ -325,7 +325,7 @@ async function findAll(): Promise<IDetectedJdk[]> {
 		async () => {
 			// Common (Windows)
 			// e.g. C:\Java\jdk21.0.2\bin
-			if (!OS.isWindows) {return;}
+			if (!OS.isWindows) { return; }
 			const patterns = ['c', 'd'].map(drive => `${drive}:/java`);
 			await jdks.pushByGlob('Common', ...patterns);
 		},

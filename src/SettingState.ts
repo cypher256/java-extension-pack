@@ -37,13 +37,13 @@ export class SettingState {
 			await callback(state);
 		} finally {
 			// Wait for another window event and MessageItem auto-close (2024.07.25 5s -> 3s)
-			setTimeout(() => {state.isEventProcessing = false;}, 3_000);
+			setTimeout(() => { state.isEventProcessing = false; }, 3_000);
 		}
 	}
 
 	private readonly getStoreFile = () =>
 		system.getGlobalStoragePath('.SettingState.json');
-	
+
 	private store(setter: () => void) {
 		try {
 			const oldJsonStr = this.load();

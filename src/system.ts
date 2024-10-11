@@ -8,7 +8,7 @@ import which from 'which';
 /**
  * The output channel for the extension.
  */
-export const log: vscode.LogOutputChannel = vscode.window.createOutputChannel('Auto Config Java', {log: true});
+export const log: vscode.LogOutputChannel = vscode.window.createOutputChannel('Auto Config Java', { log: true });
 
 /**
  * A namespace for the OS information.
@@ -23,8 +23,8 @@ export namespace OS {
 		}
 	})();
 	export const isWindows = process.platform === 'win32';
-	export const isMac     = process.platform === 'darwin';
-	export const isLinux   = process.platform === 'linux';
+	export const isMac = process.platform === 'darwin';
+	export const isLinux = process.platform === 'linux';
 	export const configName = isWindows ? 'windows' : isMac ? 'osx' : 'linux';
 }
 
@@ -58,7 +58,7 @@ export function getExtensionContext() {
  * @returns The global storage path + optional sub paths.
  */
 export function getGlobalStoragePath(...optionalSubPaths: string[]): string {
-	if (!extensionContext) {throw new Error('context is not initialized');}
+	if (!extensionContext) { throw new Error('context is not initialized'); }
 	let p = extensionContext.globalStorageUri.fsPath;
 	// Match drive letter case to glob search results
 	p = p.replace(/^([a-z])(:.*)/, (m, winDriveLetter: string, dir) => {
@@ -81,7 +81,7 @@ export function isUserInstalled(checkPath: string): boolean {
  * @returns The joined path. undefined if basePath is undefined.
  */
 export function joinPathIfPresent(basePath?: string, ...paths: string[]) {
-	if (!basePath) {return undefined;}
+	if (!basePath) { return undefined; }
 	return path.join(basePath, ...paths);
 }
 
@@ -91,7 +91,7 @@ export function joinPathIfPresent(basePath?: string, ...paths: string[]) {
  * @returns true if subPath is included in basePath.
  */
 export function containsPath(basePath: string, subPath?: string): boolean {
-	if (!subPath) {return false;}
+	if (!subPath) { return false; }
 	const _subPath = normalizeCompare(subPath);
 	const _basePath = normalizeCompare(basePath);
 	return _subPath.startsWith(_basePath);
@@ -102,8 +102,8 @@ export function containsPath(basePath: string, subPath?: string): boolean {
  * @param path2 The path2 to check.
  * @returns true if path1 and path2 are equal.
  */
-export function equalsPath(path1:string, path2?:string): boolean {
-	if (!path2) {return false;}
+export function equalsPath(path1: string, path2?: string): boolean {
+	if (!path2) { return false; }
 	const _path1 = normalizeCompare(path1);
 	const _path2 = normalizeCompare(path2);
 	return _path1 === _path2;
@@ -170,7 +170,7 @@ export function getLastModified(p: string) {
  * @param p The directory path.
  */
 export function rmQuietly(p: string) {
-	fs.rm(p, {recursive: true, force: true}, e => {
+	fs.rm(p, { recursive: true, force: true }, e => {
 		if (e) {
 			log.info('Failed rm:', e); // Silent
 		}
@@ -183,7 +183,7 @@ export function rmQuietly(p: string) {
  */
 export function rmSyncQuietly(p: string) {
 	try {
-		fs.rmSync(p, {recursive: true, force: true});
+		fs.rmSync(p, { recursive: true, force: true });
 	} catch (e: unknown) {
 		log.info('Failed rmSync:', e); // Silent
 	}
@@ -197,7 +197,7 @@ export function rmSyncQuietly(p: string) {
 export function mkdirSyncQuietly(p: string): boolean {
 	try {
 		if (!fs.existsSync(p)) {
-			fs.mkdirSync(p, {recursive: true});
+			fs.mkdirSync(p, { recursive: true });
 			return true;
 		}
 	} catch (e: unknown) {

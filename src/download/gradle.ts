@@ -17,7 +17,7 @@ export function hasExtension(): boolean {
 		// Configuration is provided by RedHat extension rather than Gradle extension
 		//'vscjava.vscode-gradle'
 		'redhat.java'
-		) !== undefined;
+	) !== undefined;
 }
 
 /**
@@ -114,14 +114,14 @@ async function httpget(): Promise<string | undefined> {
 		return downloadDir;
 	}
 
-    // Download
+	// Download
 	await downloader.execute({
 		url: json.downloadUrl,
 		localZipFile: downloadDir + '_download_tmp.zip',
 		extractDestDir: downloadDir,
 		targetLabel: `Gradle ${version}`,
 	});
-	
+
 	// Validate
 	if (!existsExe(downloadDir)) {
 		log.info('Failed download Gradle:', downloadDir);
@@ -132,7 +132,7 @@ async function httpget(): Promise<string | undefined> {
 }
 
 function existsExe(homeDir: string) {
-    return system.existsFile(getExePath(homeDir));
+	return system.existsFile(getExePath(homeDir));
 }
 
 function getExePath(homeDir: string) {
@@ -143,7 +143,7 @@ function fixPath(homeDir: string): string | undefined {
 	const MAX_UPPER_LEVEL = 2; // e.g. /xxx/bin/gradle -> /xxx
 	let d = homeDir;
 	for (let i = 0; i <= MAX_UPPER_LEVEL; i++) {
-		if (existsExe(d)) {return d;};
+		if (existsExe(d)) { return d; };
 		d = path.join(d, '..');
 	}
 	return undefined;

@@ -100,10 +100,10 @@ async function resolvePath(configMavenExe?: string): Promise<string | undefined>
 async function httpget(): Promise<string | undefined> {
 
 	// Get Latest Version
-    const URL_PREFIX = 'https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/';
+	const URL_PREFIX = 'https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/';
 	const xml = (await axios.get(URL_PREFIX + 'maven-metadata.xml')).data;
-    const versionTag: string = xml.match(/<version>\d+\.\d+\.\d+<\/version>/g).at(-1) ?? '';
-    const version = versionTag.replace(/<.+?>/g, '');
+	const versionTag: string = xml.match(/<version>\d+\.\d+\.\d+<\/version>/g).at(-1) ?? '';
+	const version = versionTag.replace(/<.+?>/g, '');
 
 	// Check Version File
 	const downloadDir = getDownloadDir();
@@ -115,14 +115,14 @@ async function httpget(): Promise<string | undefined> {
 		return getExePath(downloadDir);
 	}
 
-    // Download
+	// Download
 	await downloader.execute({
 		url: `${URL_PREFIX}${version}/apache-maven-${version}-bin.tar.gz`,
 		localZipFile: downloadDir + '_download_tmp.tar.gz',
 		extractDestDir: downloadDir,
 		targetLabel: `Maven ${version}`,
 	});
-	
+
 	// Validate
 	if (!existsExe(downloadDir)) {
 		log.info('Failed download Maven:', downloadDir);
@@ -133,7 +133,7 @@ async function httpget(): Promise<string | undefined> {
 }
 
 function existsExe(homeDir: string) {
-    return system.existsFile(getExePath(homeDir));
+	return system.existsFile(getExePath(homeDir));
 }
 
 function getExePath(homeDir: string) {

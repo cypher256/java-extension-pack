@@ -9,45 +9,45 @@ import { log } from './system';
  * An interface for the VS Code Java configuration runtime.
  */
 export interface IJavaConfigRuntime {
-	readonly name: string;
-	path: string;
-	default?: boolean;
+    readonly name: string;
+    path: string;
+    default?: boolean;
 }
 
 /**
  * A class for the VS Code Java configuration runtime array.
  */
 export class JavaConfigRuntimes extends Array<IJavaConfigRuntime> {
-	
+
     static readonly CONFIG_NAME = 'java.configuration.runtimes';
 
-	/**
-	 * Finds the default Java runtime configuration for the VS Code Java extension.
-	 * @returns A Java runtime object. If no entry exists, returns undefined.
-	 */
-	findDefault(): IJavaConfigRuntime | undefined {
-		return this.find(runtime => runtime.default);
-	}
+    /**
+     * Finds the default Java runtime configuration for the VS Code Java extension.
+     * @returns A Java runtime object. If no entry exists, returns undefined.
+     */
+    findDefault(): IJavaConfigRuntime | undefined {
+        return this.find(runtime => runtime.default);
+    }
 
-	/**
-	 * Finds the Java runtime configuration for the VS Code Java extension.
-	 * @param name The Java name to find. See nameOf(majorVer: number).
-	 * @returns A Java runtime object. If no entry exists, returns undefined.
-	 */
-	findByName(name?: string): IJavaConfigRuntime | undefined {
-        if (!name) {return undefined;}
-		return this.find(runtime => runtime.name === name);
-	}
+    /**
+     * Finds the Java runtime configuration for the VS Code Java extension.
+     * @param name The Java name to find. See nameOf(majorVer: number).
+     * @returns A Java runtime object. If no entry exists, returns undefined.
+     */
+    findByName(name?: string): IJavaConfigRuntime | undefined {
+        if (!name) { return undefined; }
+        return this.find(runtime => runtime.name === name);
+    }
 
-	/**
-	 * Finds the Java runtime configuration for the VS Code Java extension.
-	 * @param version The Java version to find.
-	 * @returns A Java runtime object. If no entry exists, returns undefined.
-	 */
-	findByVersion(version?: number): IJavaConfigRuntime | undefined {
-        if (version === undefined) {return undefined;}
-		return this.findByName(nameOf(version));
-	}
+    /**
+     * Finds the Java runtime configuration for the VS Code Java extension.
+     * @param version The Java version to find.
+     * @returns A Java runtime object. If no entry exists, returns undefined.
+     */
+    findByVersion(version?: number): IJavaConfigRuntime | undefined {
+        if (version === undefined) { return undefined; }
+        return this.findByName(nameOf(version));
+    }
 }
 
 /**
@@ -74,10 +74,10 @@ export async function getJavaConfig(): Promise<IJavaConfig> {
     // because this extension will not start when redhat activation error occurs.
     const redhatExtension = vscode.extensions.getExtension('redhat.java');
     const availableNames = getAvailableNames(redhatExtension);
-    const availableVers = availableNames.map(versionOf).filter(Boolean).sort((a,b) => a-b); // Number asc order
+    const availableVers = availableNames.map(versionOf).filter(Boolean).sort((a, b) => a - b); // Number asc order
     const downloadLtsVers = availableVers.filter(isLtsVersion).slice(-4);
     const latestLtsVer = downloadLtsVers.at(-1) ?? 0;
-    
+
     const javaConfig: IJavaConfig = {
         availableNames,
         availableVers,
@@ -88,9 +88,9 @@ export async function getJavaConfig(): Promise<IJavaConfig> {
         embeddedJreVer: await findEmbeddedJREVersion(redhatExtension),
     };
     Object.entries(javaConfig)
-        .filter(([k]) => k !== Object.keys({availableNames})[0])
-        .forEach(([k,v]) => log.info(`JavaConfig ${k}: ${v}`))
-    ;
+        .filter(([k]) => k !== Object.keys({ availableNames })[0])
+        .forEach(([k, v]) => log.info(`JavaConfig ${k}: ${v}`))
+        ;
     return javaConfig;
 }
 
