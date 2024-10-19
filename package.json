@@ -114,7 +114,7 @@
 		"esbuild-watch": "npm run esbuild-base -- --sourcemap --watch",
 		"eslint": "eslint .",
 		"update": "npm update && npm run eslint && ncu -x @types/vscode && npm run update-readme-java",
-		"update-readme-java": "vite-node src/scripts/updateReadmeJava.ts",
+		"update-readme-java": "vite-node scripts/updateReadmeJava.ts",
 		"package": "npx vsce package --out dist/a.vsix",
 		"package-install": "npm run package && code --install-extension dist/a.vsix"
 	},

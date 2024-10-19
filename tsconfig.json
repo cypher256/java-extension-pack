@@ -7,6 +7,7 @@
 		"strict": true,
 	},
 	"exclude": [
-        "src/scripts"
-    ]
+        "scripts/*.ts",
+		"*.ts",
+	],
 }

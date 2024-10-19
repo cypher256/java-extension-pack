@@ -1,2 +1,11 @@
 {
+    "[typescript]": {
+        "editor.codeActionsOnSave": {
+            "source.sortImports": "explicit",
+            "source.organizeImports": "explicit",
+            "source.fixAll.tslint": "explicit"
+        },
+        "editor.formatOnSave": true,
+        "editor.tabSize": 4,
+    },
 }
