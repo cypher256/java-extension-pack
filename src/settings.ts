@@ -415,12 +415,16 @@ export async function updateJavaRuntimes(
 	}
 
 	//-------------------------------------------------------------------------
-	// VS Code LS Java Home (Remove if embedded JRE exists)
+	// VS Code LS Java Home
 	async function _useEmbeddedJre(extensionId: string, configKey: string) {
 		if (!vscode.extensions.getExtension(extensionId)) {
 			return;
 		}
 		const originPath = getUserOrDefault<string>(configKey);
+		// Remove if embedded JRE exists
+		/*
+		// 2024-10-31: Do not remove for javac-based compile support
+		// https://github.com/redhat-developer/vscode-java/pull/3558
 		if (javaConfig.embeddedJreVer) {
 			if (originPath) {
 				remove(configKey);
@@ -428,6 +432,8 @@ export async function updateJavaRuntimes(
 			return;
 		}
 		const fixedOrDefault = stableLtsRuntime?.path || await jdkExplorer.fixPath(originPath);
+		*/
+		const fixedOrDefault = await jdkExplorer.fixPath(originPath);
 		if (fixedOrDefault && fixedOrDefault !== originPath) { // Keep if undefined (= invalid path)
 			update(configKey, fixedOrDefault);
 		}
