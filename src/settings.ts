@@ -436,7 +436,8 @@ export async function updateJavaRuntimes(
 		const fixedOrDefault = await jdkExplorer.fixPath(originPath);
 		if (fixedOrDefault && fixedOrDefault !== originPath) { // Keep if undefined (= invalid path)
 			update(configKey, fixedOrDefault);
-			javaConfig.needsReload = true;
+			// Comment Out: Gradle extension shows reload dialog
+			//javaConfig.needsReload = true;
 		}
 	}
 	_useEmbeddedJre('redhat.java', 'java.jdt.ls.java.home');
