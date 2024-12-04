@@ -210,7 +210,9 @@ export async function updateJavaRuntimes(
 			}
 		} else if (OS.isMac) {
 			profile.path = 'zsh';
-			profile.env.ZDOTDIR = rcfileDir;
+			if (!process.env.ZDOTDIR) {
+				profile.env.ZDOTDIR = rcfileDir;
+			}
 		} else { // Linux
 			profile.path = 'bash';
 			profile.args = ['--rcfile', path.join(rcfileDir, '.bashrc')];
@@ -238,7 +240,9 @@ export async function updateJavaRuntimes(
 		};
 		if (OS.isMac) {
 			const profile = await _setDefaultProfile('zsh'); // Inherited -l from default profile
-			profile.env.ZDOTDIR = rcfileDir;
+			if (!process.env.ZDOTDIR) {
+				profile.env.ZDOTDIR = rcfileDir;
+			}
 		} else if (OS.isLinux) {
 			const profile = await _setDefaultProfile('bash');
 			profile.args = ['--rcfile', path.join(rcfileDir, '.bashrc')];
@@ -375,7 +379,7 @@ export async function updateJavaRuntimes(
 		// [Mac] Use custom rcfile in zsh
 		// Issue: maven.terminal.useJavaHome doesnt work if JAVA_HOME already set by shell startup scripts
 		// Open) https://github.com/microsoft/vscode-maven/issues/495#issuecomment-1869653082
-		if (OS.isMac) {
+		if (OS.isMac && !process.env.ZDOTDIR) {
 			_getCustomEnv('ZDOTDIR').value = rcfileDir;
 		}
 
