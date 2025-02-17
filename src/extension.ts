@@ -27,7 +27,7 @@ export async function activate(context: vscode.ExtensionContext) {
 		log.info('Global Storage', system.getGlobalStoragePath());
 		copyRcfile();
 		setTerminalEnvironment();
-		const javaConfig = await redhat.getJavaConfig();
+		const javaConfig = await redhat.getJavaConfig(isFirstStartup);
 
 		if (!settings.getWorkspace(settings.AUTO_CONFIG_ENABLED)) {
 			log.info(`${settings.AUTO_CONFIG_ENABLED}: false`);
@@ -46,7 +46,7 @@ export async function activate(context: vscode.ExtensionContext) {
 			const runtimesOld = _.cloneDeep(runtimes);
 			await detect(javaConfig, runtimes);
 			await download(javaConfig, runtimes);
-			showMessage(javaConfig, runtimes, runtimesOld, isFirstStartup);
+			showMessage(javaConfig, runtimes, runtimesOld);
 			setTerminalEnvironment();
 
 		} finally {
@@ -186,13 +186,11 @@ async function download(
  * @param javaConfig The Java configuration.
  * @param runtimesNew The Java runtimes after update.
  * @param runtimesOld The Java runtimes before update.
- * @param isFirstStartup Whether this is the first startup.
  */
 function showMessage(
 	javaConfig: redhat.IJavaConfig,
 	runtimesNew: redhat.JavaConfigRuntimes,
-	runtimesOld: redhat.JavaConfigRuntimes,
-	isFirstStartup: boolean) {
+	runtimesOld: redhat.JavaConfigRuntimes) {
 
 	const oldVers = runtimesOld.map(r => redhat.versionOf(r.name));
 	const newVers = runtimesNew.map(r => redhat.versionOf(r.name));
@@ -200,7 +198,7 @@ function showMessage(
 	log.info(`${redhat.JavaConfigRuntimes.CONFIG_NAME} [${newVers}] default ${defaultVer}`);
 	const availableMsg = `${l10n.t('Available Java versions:')} ${newVers.join(', ')}`;
 
-	if (isFirstStartup) {
+	if (javaConfig.isFirstStartup) {
 		vscode.window.showInformationMessage(availableMsg);
 		const langPackSuffix = getLangPackSuffix();
 		if (langPackSuffix) {

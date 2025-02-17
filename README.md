@@ -298,7 +298,7 @@ Command Palette **>Preferences: Open User Settings (JSON)**
 <br>
 
 ## Auto-Default Settings
-Entries without the following configurations in the user settings are automatically set to the default values of `Extension Pack for Java Auto Config`. To prevent automatic configuration, set the original default values listed below. Note that a debug run is required to enable Hot Code Replace (Hot Deploy).
+Entries without the following configurations in the user settings are automatically set to the default values of `Extension Pack for Java Auto Config` on the first startup only. Note that a debug run is required to enable Hot Code Replace (Hot Deploy).
 
 For Included Extensions
 
@@ -312,7 +312,6 @@ For Included Extensions
 |[emmet.variables](https://code.visualstudio.com/docs/editor/emmet#_emmet-configuration) > lang|`en`|OS locale|
 |[workbench.colorCustomizations](https://code.visualstudio.com/api/references/theme-color)|`{}`|Described later|
 |[workbench.editor.revealIfOpen](https://code.visualstudio.com/docs/getstarted/settings#:~:text=workbench.editor.revealIfOpen)|`false`|`true`|
-|[workbench.tree.indent](https://code.visualstudio.com/docs/getstarted/settings#:~:text=in%20pixels.%0A%20%20%22-,workbench.tree.indent,-%22%3A%208)|`8`|`20`|
 |[files.eol](https://code.visualstudio.com/docs/getstarted/settings#:~:text=line%20character.%0A%20%20%22-,files.eol,-%22%3A%20%22auto) (For Windows)|`auto`|`\n`|
 |`[bat]` > `files.eol`|`auto`|`\r\n`|
 |*Language support for Java*|

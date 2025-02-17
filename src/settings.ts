@@ -502,6 +502,10 @@ function setIfUndefined(section: string, value: any, extensionId?: string) {
  */
 export async function setDefault(javaConfig: redhat.IJavaConfig) {
 
+	if (!javaConfig.isFirstStartup) {
+		return;
+	}
+
 	// Workaround: Uninstall extension that cause configuration errors
 	// Closed) https://github.com/fabric8-analytics/fabric8-analytics-vscode-extension/issues/503
 	// Open) https://github.com/fabric8-analytics/fabric8-analytics-vscode-extension/issues/665
@@ -551,7 +555,6 @@ export async function setDefault(javaConfig: redhat.IJavaConfig) {
 		"editor.selectionHighlightBorder": "#A9A9A9",
 	});
 	setIfUndefined('workbench.editor.revealIfOpen', true);
-	setIfUndefined('workbench.tree.indent', 20);
 	if (OS.isWindows) {
 		setIfUndefined('files.eol', '\n');
 		setIfUndefined('[bat]', { 'files.eol': '\r\n' });

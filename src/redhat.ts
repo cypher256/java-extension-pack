@@ -54,6 +54,7 @@ export class JavaConfigRuntimes extends Array<IJavaConfigRuntime> {
  * An interface that represents the Java configuration.
  */
 export interface IJavaConfig {
+    readonly isFirstStartup: boolean;
     readonly availableNames: ReadonlyArray<string>;
     readonly availableVers: ReadonlyArray<number>;
     readonly downloadLtsVers: ReadonlyArray<number>;
@@ -68,7 +69,7 @@ export interface IJavaConfig {
 /**
  * @returns The Java configuration.
  */
-export async function getJavaConfig(): Promise<IJavaConfig> {
+export async function getJavaConfig(isFirstStartup: boolean): Promise<IJavaConfig> {
 
     // Do not add redhat.java extension to extensionDependencies in package.json,
     // because this extension will not start when redhat activation error occurs.
@@ -79,6 +80,7 @@ export async function getJavaConfig(): Promise<IJavaConfig> {
     const latestLtsVer = downloadLtsVers.at(-1) ?? 0;
 
     const javaConfig: IJavaConfig = {
+        isFirstStartup,
         availableNames,
         availableVers,
         downloadLtsVers,
