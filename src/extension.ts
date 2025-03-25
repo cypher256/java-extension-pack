@@ -28,12 +28,18 @@ export async function activate(context: vscode.ExtensionContext) {
 		copyRcfile();
 		setTerminalEnvironment();
 		const javaConfig = await redhat.getJavaConfig(isFirstStartup);
+		settings.setDefault(javaConfig);
 
+		if (javaConfig.availableNames.length === 0) {
+			log.warn('Not found RedHat Java Extension');
+			return;
+		}
 		if (!settings.getWorkspace(settings.AUTO_CONFIG_ENABLED)) {
 			log.info(`${settings.AUTO_CONFIG_ENABLED}: false`);
 			setChangeEvent(javaConfig);
 			return;
 		}
+
 		const state = SettingState.getInstance();
 		if (state.isEventProcessing) {
 			log.info('Activate canceled due to processing');
@@ -41,7 +47,6 @@ export async function activate(context: vscode.ExtensionContext) {
 		}
 		try {
 			state.isEventProcessing = true;
-			settings.setDefault(javaConfig);
 			const runtimes = settings.getJavaConfigRuntimes();
 			const runtimesOld = _.cloneDeep(runtimes);
 			await detect(javaConfig, runtimes);
