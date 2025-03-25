@@ -112,7 +112,6 @@
 		"esbuild-base": "esbuild ./src/extension.ts --bundle --outfile=dist/main.js --external:vscode --format=cjs --platform=node",
 		"esbuild": "npm run esbuild-base -- --sourcemap",
 		"esbuild-watch": "npm run esbuild-base -- --sourcemap --watch",
-		"eslint": "eslint .",
 		"update": "npm update && npm run eslint && ncu -x @types/vscode && npm run update-readme-java",
 		"update-readme-java": "vite-node scripts/updateReadmeJava.ts",
 		"package": "npx vsce package --out dist/a.vsix",
@@ -129,7 +128,7 @@
 		"@types/which": "^3",
 		"@vscode/l10n-dev": "^0",
 		"esbuild": "^0",
-		"typescript": "^5.7",
+		"typescript": "^5.8",
 		"typescript-eslint": "^8",
 		"vite-node": "^3"
 	},
@@ -142,8 +141,8 @@
 		"lodash": "^4"
 	},
 	"volta": {
-		"node": "20.18.3",
-		"npm": "11.1.0"
+		"node": "20.19.0",
+		"npm": "11.2.0"
 	},
-	"version": "2025.217.0"
+	"version": "2025.326.0"
 }

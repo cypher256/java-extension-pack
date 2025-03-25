@@ -1,6 +1,6 @@
 # Extension Pack for Java Auto Config
 
-[![Java 23 Ready](https://img.shields.io/badge/java%2023-ready-agreen?style=for-the-badge&color=red)](https://github.com/redhat-developer/vscode-java#features)
+[![Java 24 Ready](https://img.shields.io/badge/java%2024-ready-agreen?style=for-the-badge&color=red)](https://github.com/redhat-developer/vscode-java#features)
 ![Downloads](https://img.shields.io/visual-studio-marketplace/d/Pleiades.java-extension-pack-jdk?style=for-the-badge&logo=microsoft)
 ![Installes](https://img.shields.io/visual-studio-marketplace/i/Pleiades.java-extension-pack-jdk?style=for-the-badge&logo=visual-studio-code&color=blue)
 [![Buy Me a Coffee](https://img.shields.io/static/v1?label=Buy%20me%20a%20coffee&message=%E2%9D%A4&logo=coffeescript&color=orange&style=for-the-badge)](https://github.com/sponsors/cypher256)
