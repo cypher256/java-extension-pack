@@ -32,7 +32,11 @@ mvn -v
 <br>
 
 ### Set Default Java Version
-The built-in [Select Default Profile](https://code.visualstudio.com/docs/terminal/profiles) in VSCode only changes the default terminal profile. However, this extension applies the selected profile's Java version to all Java-related settings (⭐) within the **user** (global) [`settings.json`](https://code.visualstudio.com/docs/getstarted/settings#_settingsjson). To specify a different Java version for individual settings, edit the following files.
+The built-in [Select Default Profile](https://code.visualstudio.com/docs/terminal/profiles) in VSCode only changes the default terminal profile. However, this extension applies the selected profile's Java version to all Java-related settings (⭐) within the **user** (global) [`settings.json`](https://code.visualstudio.com/docs/getstarted/settings#_settingsjson).
+
+![Select Default Profile](https://raw.githubusercontent.com/cypher256/java-extension-pack/main/image/select_default_profile.png)
+
+To specify a different Java version for individual settings, edit the following files.
 <br>
 <br>
 
