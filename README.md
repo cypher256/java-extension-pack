@@ -2,7 +2,7 @@
 
 [![Java 24 Ready](https://img.shields.io/badge/java%2024-ready-agreen?style=for-the-badge&color=red)](https://github.com/redhat-developer/vscode-java#features)
 ![Downloads](https://img.shields.io/visual-studio-marketplace/d/Pleiades.java-extension-pack-jdk?style=for-the-badge&logo=microsoft)
-![Installes](https://img.shields.io/visual-studio-marketplace/i/Pleiades.java-extension-pack-jdk?style=for-the-badge&logo=visual-studio-code&color=blue)
+![Installs](https://img.shields.io/visual-studio-marketplace/i/Pleiades.java-extension-pack-jdk?style=for-the-badge&logo=visual-studio-code&color=blue)
 [![Buy Me a Coffee](https://img.shields.io/static/v1?label=Buy%20me%20a%20coffee&message=%E2%9D%A4&logo=coffeescript&color=orange&style=for-the-badge)](https://github.com/sponsors/cypher256)
 
 <br>
@@ -21,7 +21,7 @@ GitHub Issues
 <br>
 
 ### Open Terminals by Java Version
-This extension adds the Java versions available in your current environment to the VS Code terminal profiles dropdown. Select the Java version you want to use, [open a new terminal](https://code.visualstudio.com/docs/terminal/basics), and you can check the version with the following commands. While the latest versions of Gradle and Maven are available, it's generally recommended to use wrappers (gradlew, mvnw) for each project.
+This extension adds the Java versions available in your current environment to the VS Code terminal profiles dropdown. Select the Java version you want to use, [open a new terminal](https://code.visualstudio.com/docs/terminal/basics), and you can check the version with the following commands. Although the latest versions of Gradle and Maven are included, it is generally recommended to use project-specific wrappers (gradlew, mvnw).
 ```bash
 java -version
 gradle -v
@@ -129,6 +129,8 @@ JDKs, build tools, terminal settings, and other configurations are automatically
 
 ## JDK Auto-Configuration
 Automatically configure multiple versions of the JDK and build tools. If there are multiple JDKs of the same version, the latest minor version will be used. If you installed the JDK manually or encountered a configuration error, restart VS Code or execute **>Java: Clean Java Language Server Workspace ≫ Reload and delete** from the Command Palette. These settings are applied to the user `settings.json` (VS Code global), but can be manually edited for customization. If you want to further customize your setup, consider using [workspace settings](https://code.visualstudio.com/docs/getstarted/settings) or [profiles](https://code.visualstudio.com/docs/editor/profiles).
+
+Optimal Auto-Scan Locations
 
 1. Auto-fix invalid JDK configuration (e.g. `/foo/jdk-21.0.8/bin` -> `/foo/jdk-21.0.8`)
 1. Auto-remove configuration entries when JDK uninstalled or version path changed
@@ -245,7 +247,7 @@ Command Palette **>Preferences: Open User Settings (JSON)**
 <br>
 
 ## Terminal Auto-Configuration
-The terminal dropdown items by Java version are automatically created based on the `java.configuration.runtimes` above. You can easily open a terminal by selecting the Java version from command **>Terminal: Create New Terminal (With Profile)** or Terminal (Ctrl + \`) ≫ Profiles dropdown. Besides `java`, `gradle` and `mvn` commands can also be used. The configured environment variables have no effect outside the terminal, so the system and OS user environment remain clean. The terminal configuration `terminal.integrated.profiles` is always overwritten from `java.configuration.runtimes`, so if you want to customize it, copy the terminal configuration entry and create an entry with a different name.
+The terminal dropdown items by Java version are automatically created based on the `java.configuration.runtimes` above. You can easily open a terminal by selecting the Java version from command **>Terminal: Create New Terminal (With Profile)** or Terminal (Ctrl + \`) ≫ Profiles dropdown. Besides `java`, `gradle` and `mvn` commands can also be used. The configured environment variables have no effect outside the terminal, so the system and OS user environment remain clean. The terminal configuration `terminal.integrated.profiles` is always overwritten by `java.configuration.runtimes`. If you want to customize it, copy the terminal configuration entry and create an entry with a different name.
 
 |Configuration Name|Configured Value [Original Default]|
 |---|---|
@@ -302,7 +304,7 @@ Command Palette **>Preferences: Open User Settings (JSON)**
 <br>
 
 ## Auto-Default Settings
-Entries without the following configurations in the user settings are automatically set to the default values of `Extension Pack for Java Auto Config` on the first startup only. Note that a debug run is required to enable Hot Code Replace (Hot Deploy).
+Entries without the following configurations in the user settings are automatically set to the default values of `Extension Pack for Java Auto Config`, but only on the first startup. Note that a debug run is required to enable Hot Code Replace (Hot Deploy).
 
 For Included Extensions
 
