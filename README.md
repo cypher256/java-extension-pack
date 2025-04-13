@@ -21,7 +21,7 @@ GitHub Issues
 <br>
 
 ### Open Terminals by Java Version
-This extension adds the Java versions available in your current environment to the VS Code terminal profiles dropdown. Select the Java version you want to use, [open a new terminal](https://code.visualstudio.com/docs/terminal/basics), and you can check the version with the following commands. Although the latest versions of Gradle and Maven are included, it is generally recommended to use project-specific wrappers (gradlew, mvnw).
+This extension adds the Java versions available in your current environment to the VS Code terminal profiles dropdown. Select the Java version you want to use, open a new terminal, and you can check the version with the following commands. Although the latest versions of Gradle and Maven are included, it is generally recommended to use project-specific wrappers (gradlew, mvnw).
 ```bash
 java -version
 gradle -v
@@ -32,7 +32,7 @@ mvn -v
 <br>
 
 ### Set Default Java Version
-The built-in [Select Default Profile](https://code.visualstudio.com/docs/terminal/profiles) in VSCode only changes the default terminal profile. However, this extension applies the selected profile's Java version to all Java-related settings (⭐) within the **user** (global) [`settings.json`](https://code.visualstudio.com/docs/getstarted/settings#_settingsjson).
+The built-in Select Default Profile in VSCode only changes the default terminal profile. However, this extension applies the selected profile's Java version to all Java-related settings (⭐) within the **user** (global) `settings.json`.
 
 ![Select Default Profile](https://raw.githubusercontent.com/cypher256/java-extension-pack/main/image/select_default_profile.png)
 
