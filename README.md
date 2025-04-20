@@ -36,7 +36,7 @@ The built-in Select Default Profile in VSCode only changes the default terminal 
 
 ![Select Default Profile](https://raw.githubusercontent.com/cypher256/java-extension-pack/main/image/select_default_profile.png)
 
-To specify a different Java version for individual settings, edit the following files.
+To specify a different Java version for individual settings, edit the following files:
 <br>
 <br>
 
@@ -78,10 +78,10 @@ To specify a different Java version for individual settings, edit the following 
 
   ```gradle
   def javaVersion = 17
-  java.sourceCompatibility = javaVersion // Make it recognize to VS Code
+  java.sourceCompatibility = javaVersion // Makes it recognizable by VS Code
   compileJava.options.release = javaVersion // JEP 247: API validation
   ```
-  The [Gradle Toolchain](https://docs.gradle.org/current/userguide/building_java_projects.html#sec:java_cross_compilation) allows you to specify the exact JDK version to use for building.
+  The [Gradle Toolchain](https://docs.gradle.org/current/userguide/building_java_projects.html#sec:java_cross_compilation) allows you to specify the exact JDK version to use for building projects.
   ```gradle
   java.toolchain.languageVersion = JavaLanguageVersion.of(17)
   ```
@@ -108,7 +108,7 @@ To specify a different Java version for individual settings, edit the following 
       <maven.compiler.release>17</maven.compiler.release><!-- JEP 247: API validation -->
   </properties>
   ```
-  The [Maven Toolchain](https://maven.apache.org/guides/mini/guide-using-toolchains.html) allows you to specify the exact JDK version to use for building.
+  The [Maven Toolchain](https://maven.apache.org/guides/mini/guide-using-toolchains.html) allows you to specify the exact JDK version to use for building projects.
 <br><br>
 
 (*1) The `settings.json` [can be overridden by the project (workspace)](https://code.visualstudio.com/docs/getstarted/settings#_workspace-settings).<br>
