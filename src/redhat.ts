@@ -71,12 +71,15 @@ export interface IJavaConfig {
  */
 export async function getJavaConfig(isFirstStartup: boolean): Promise<IJavaConfig> {
 
+    // The number of latest LTS versions to download
+    const DOWNLOAD_LTS_COUNT = 3;
+
     // Do not add redhat.java extension to extensionDependencies in package.json,
     // because this extension will not start when redhat activation error occurs.
     const redhatExtension = vscode.extensions.getExtension('redhat.java');
     const availableNames = getAvailableNames(redhatExtension);
     const availableVers = availableNames.map(versionOf).filter(Boolean).sort((a, b) => a - b); // Number asc order
-    const downloadLtsVers = availableVers.filter(isLtsVersion).slice(-4);
+    const downloadLtsVers = availableVers.filter(isLtsVersion).slice(-DOWNLOAD_LTS_COUNT);
     const latestLtsVer = downloadLtsVers.at(-1) ?? 0;
 
     const javaConfig: IJavaConfig = {

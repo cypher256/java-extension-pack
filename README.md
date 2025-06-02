@@ -10,7 +10,7 @@
 # Overview
 Just install this extension and start Java development right out of the box with zero configuration.
 * No need to install JDKs, Gradle, or Maven, and no need to set `JAVA_HOME` or `PATH` environment variables.
-* Automatically configures, updates, and fixes multiple Java versions (at least 4 LTS versions and the latest).
+* Automatically configures, updates, and fixes multiple Java versions (at least 3 LTS versions and the latest).
 * Includes extensions for de facto standard Java development from Microsoft, Red Hat, and others.
 <br><br>
 GitHub Issues
@@ -190,7 +190,7 @@ For Optional Extensions (If installed)
 #### Auto-Download Support
 Automatic downloads are enabled if the [extensions.autoUpdate](https://code.visualstudio.com/docs/editor/extension-marketplace#_extension-autoupdate) setting is NOT set to `false`. Java will download multiple versions, but Gradle and Maven will only download the latest version. If you use an older version of Gradle/Maven due to compatibility issues, consider using `gradlew` ([Compatibility](https://docs.gradle.org/current/userguide/compatibility.html)) or `mvnw` ([Compatibility](https://maven.apache.org/developers/compatibility-plan.html)) in your project or manually set `java.import.gradle.home` or `maven.executable.path` in `settings.json`.
 
-- JDK - [Latest Adoptium LTS 4 versions](https://adoptium.net/support/#_release_roadmap) if not detected ([VS Code supported versions](https://github.com/redhat-developer/vscode-java#features))
+- JDK - [Latest Adoptium LTS 3 versions](https://adoptium.net/support/#_release_roadmap) if not detected ([VS Code supported versions](https://github.com/redhat-developer/vscode-java#features))
 - Gradle - Latest version
 - Maven - Latest version
 
