@@ -6,3 +6,4 @@ dist
 node_modules
 resources/.zcompdump
 resources/.zsh_history
+temp_*.md
