@@ -199,7 +199,7 @@ JDK auto-download supports the following platforms:
 - Mac x64, aarch64
 - Linux x64, aarch64
 
-It is saved in the following location.
+They are saved in the following location.
 
 |OS|Extension global storage location|
 |---|---|
@@ -478,7 +478,7 @@ This extension can start, stop, publish, and control servers such as Apache Feli
 -->
 <br>
 
-Recommended Gradle/Maven plugins that supports Tomcat hot deployment.
+Recommended Gradle/Maven plugins that support Tomcat hot deployment.
 
 - Gradle: [Gretty Plugin](https://github.com/gretty-gradle-plugin/gretty?tab=readme-ov-file)
 - Maven: [Codehaus Cargo Plugin](https://codehaus-cargo.github.io/cargo/Maven+3+Plugin+Getting+Started.html)
