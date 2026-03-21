@@ -1,16 +1,18 @@
-name: Deploy Extension
+name: Publish Extension
 on:
   workflow_dispatch:
 jobs:
-  deploy:
+  publish:
     runs-on: ubuntu-latest
     environment:
       name: production
     steps:
-      - uses: actions/checkout@v3
-      - run: npm install
-      - uses: lannonbr/vsce-action@3.0.0
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          args: "publish -p $VSCE_TOKEN"
-        env:
-          VSCE_TOKEN: ${{ secrets.VSCE_TOKEN }}
+          node-version: 20
+      - run: npm ci
+      - name: Publish to VS Code Marketplace
+        run: npx vsce publish -p ${{ secrets.VSCE_PAT }}
+      - name: Publish to Open VSX
+        run: npx ovsx publish -p ${{ secrets.OVSX_PAT }}
