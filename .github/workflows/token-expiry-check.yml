@@ -46,7 +46,7 @@ jobs:
           VSCE_RESULT: ${{ steps.vsce.outcome }}
           OVSX_RESULT: ${{ steps.ovsx.outcome }}
         run: |
-          EXISTING=$(gh issue list --label "token-expiry" --state open --json number --jq length)
+          EXISTING=$(gh issue list -R "$GITHUB_REPOSITORY" --label "token-expiry" --state open --json number --jq length)
           if [ "$EXISTING" != "0" ]; then
             echo "Issue already exists, skipping"
             exit 0
@@ -70,7 +70,7 @@ jobs:
           BODY+="### 注意\n"
           BODY+="- Azure DevOps は **kashihara@live.jp** でログイン\n"
           BODY+="- Mac ブラウザでは AD アカウント干渉でエラーになる場合あり、Windows Edge を使う\n"
-          gh issue create \
+          gh issue create -R "$GITHUB_REPOSITORY" \
             --title "Marketplace token expired" \
             --label "token-expiry" \
             --body "$(echo -e "$BODY")"
