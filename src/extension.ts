@@ -122,7 +122,9 @@ async function setTerminalEnvironment() {
 			// [Mac/Linux] Use custom rcfile in zsh/bash
 			// PRECEDENCE: profile JAVA_HOME > Env Gradle/Maven > original PATH
 			// Issue: PATH mutation using EnvironmentVariableCollection prepend is overwritten in zsh
-			// Open) https://github.com/microsoft/vscode/issues/188235
+			// Resolved) https://github.com/microsoft/vscode/issues/188235
+			// Fixed in VS Code 1.97+ via shell integration, but keep rcfile workaround for
+			// shell integration disabled users and JAVA_HOME priority control
 			envVarColl.replace('AUTO_CONFIG_PATH', toolsPath);
 		}
 

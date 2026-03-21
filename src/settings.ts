@@ -200,13 +200,13 @@ export async function updateJavaRuntimes(
 				profile.env.JAVA_TOOL_OPTIONS = '-Dstdout.encoding=UTF-8 -Dstderr.encoding=UTF-8';
 				// JAVA_TOOL_OPTIONS doesn't work in Gradle task UI (Specify in build.gradle instead)
 				// [build.gradle] applicationDefaultJvmArgs = ['-Dstdout.encoding=UTF-8', '-Dstderr.encoding=UTF-8']
-				// Open) https://github.com/microsoft/vscode-gradle/issues/1480
+				// Stale) https://github.com/microsoft/vscode-gradle/issues/1480
 				// Not working
 				// "java.import.gradle.arguments"   : "-DJAVA_TOOL_OPTIONS=-Dstdout.encoding=UTF-8 -Dstderr.encoding=UTF-8",
 				// "java.import.gradle.jvmArguments": "-DJAVA_TOOL_OPTIONS=-Dstdout.encoding=UTF-8 -Dstderr.encoding=UTF-8",
 
 				// Gradle: Set applicationDefaultJvmArgs default for Task UI and cmd
-				// Open) https://github.com/gradle/gradle/issues/28959
+				// Closed: Won't fix) https://github.com/gradle/gradle/issues/28959
 			}
 		} else if (OS.isMac) {
 			profile.path = 'zsh';
@@ -267,8 +267,8 @@ export async function updateJavaRuntimes(
 		if (!_.isEqual(newValue, oldValue)) {
 			update(CONFIG_NAME_AUTO_PROFILE, newValue); // Note the order of entries in settings.json
 		}
-		// Not working "env"
-		// Open) https://github.com/microsoft/vscode-makefile-tools/issues/493
+		// Not working "env" in automationProfile (makefile-tools fixed in 0.12.0, but VS Code terminal still not)
+		// Resolved) https://github.com/microsoft/vscode-makefile-tools/issues/493
 	}
 
 	//-------------------------------------------------------------------------
@@ -357,7 +357,7 @@ export async function updateJavaRuntimes(
 		// [Windows]     PRECEDENCE: Env Gradle/Maven > customEnv > terminal.integrated.env > original PATH
 		// [Mac/Linux] PRECEDENCE: customEnv > .*shrc JAVA_HOME > Env Gradle/Maven > original PATH
 		// Issue: Option to use specific Java SDK to run Maven
-		//   Open) https://github.com/microsoft/vscode-maven/issues/992
+		//   Closed) https://github.com/microsoft/vscode-maven/issues/992
 		// Issue: Change the scope of maven.terminal.customEnv to machine-overridable
 		//   Open) https://github.com/microsoft/vscode-maven/issues/991
 		const javaHomeEnv = _getCustomEnv('JAVA_HOME');
@@ -508,7 +508,7 @@ export async function setDefault(javaConfig: redhat.IJavaConfig) {
 
 	// Workaround: Uninstall extension that cause configuration errors
 	// Closed) https://github.com/fabric8-analytics/fabric8-analytics-vscode-extension/issues/503
-	// Open) https://github.com/fabric8-analytics/fabric8-analytics-vscode-extension/issues/665
+	// Closed: Won't fix) https://github.com/fabric8-analytics/fabric8-analytics-vscode-extension/issues/665
 	const redhatDependExId = 'redhat.fabric8-analytics';
 	if (vscode.extensions.getExtension(redhatDependExId)) {
 		if (!await jdkExplorer.isValidHome(process.env.JAVA_HOME) ||
