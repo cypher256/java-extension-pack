@@ -12,4 +12,5 @@ jobs:
         with:
           node-version: 20
       - run: npm ci
-      - run: npx ovsx publish -p ${{ secrets.OVSX_PAT }}
+      - name: Publish to Open VSX
+        run: npx ovsx publish -p ${{ secrets.OVSX_PAT }} || echo "::warning::Publish failed (version may already exist)"
