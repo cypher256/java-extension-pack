@@ -13,6 +13,6 @@ jobs:
           node-version: 20
       - run: npm ci
       - name: Publish to VS Code Marketplace
-        run: npx vsce publish -p ${{ secrets.VSCE_PAT }}
+        run: npx @vscode/vsce publish -p ${{ secrets.VSCE_PAT }}
       - name: Publish to Open VSX
         run: npx ovsx publish -p ${{ secrets.OVSX_PAT }}
