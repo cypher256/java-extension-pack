@@ -12,7 +12,9 @@ jobs:
         with:
           node-version: 20
       - run: npm ci
-      - name: Publish to VS Code Marketplace
-        run: npx @vscode/vsce publish -p ${{ secrets.VSCE_PAT }}
+      # VS Code Marketplace: PAT で Access Denied のため手動アップロード (2026-03)
+      # 復旧したら下記を有効化
+      #- name: Publish to VS Code Marketplace
+      #  run: npx @vscode/vsce publish -p ${{ secrets.VSCE_PAT }}
       - name: Publish to Open VSX
         run: npx ovsx publish -p ${{ secrets.OVSX_PAT }}
