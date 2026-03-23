@@ -378,7 +378,7 @@ export async function updateJavaRuntimes(
 
 		// [Mac] Use custom rcfile in zsh
 		// Issue: maven.terminal.useJavaHome doesnt work if JAVA_HOME already set by shell startup scripts
-		// Open) https://github.com/microsoft/vscode-maven/issues/495#issuecomment-1869653082
+		// Closed: not fixed) https://github.com/microsoft/vscode-maven/issues/495#issuecomment-1869653082
 		if (OS.isMac && !process.env.ZDOTDIR) {
 			_getCustomEnv('ZDOTDIR').value = rcfileDir;
 		}
