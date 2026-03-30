@@ -21,7 +21,7 @@ GitHub Issues
 <br>
 
 ### Open Terminals by Java Version
-This extension adds the Java versions available in your current environment to the VS Code terminal profiles dropdown. Select the Java version you want to use, open a new terminal, and you can check the version with the following commands. Although the latest versions of Gradle and Maven are included, it is generally recommended to use project-specific wrappers (gradlew, mvnw).
+This extension adds the Java versions available in your current environment to the VS Code terminal profiles dropdown. Select the Java version you want to use, open a new terminal, and you can check the version with the following commands. Although the latest versions of Gradle and Maven are bundled, it is generally recommended to use project-specific wrappers (gradlew, mvnw).
 ```bash
 java -version
 gradle -v
@@ -32,7 +32,7 @@ mvn -v
 <br>
 
 ### Set Default Java Version
-The built-in Select Default Profile in VSCode only changes the default terminal profile. However, this extension applies the selected profile's Java version to all Java-related settings (⭐) within the **user** (global) `settings.json`.
+The built-in Select Default Profile in VS Code only changes the default terminal profile. However, this extension applies the selected profile's Java version to all Java-related settings (⭐) within the **user** (global) `settings.json`.
 
 ![Select Default Profile](https://raw.githubusercontent.com/cypher256/java-extension-pack/main/image/select_default_profile.png)
 
@@ -123,14 +123,20 @@ To specify a different Java version for individual settings, edit the following 
 
 # Features
 
-JDKs, build tools, terminal settings, and other configurations are automatically set up and updated at startup based on the current environment, as shown below. If you want to disable all auto-configuration features, set `javaAutoConfig.enabled` to `false`. However, `java.import.gradle.java.home` and `maven.executable.path` are always prepended to the `PATH` in the terminal.
-<br>
+JDKs, build tools, terminal settings, and other configurations are automatically set up and updated at startup based on the current environment, as shown below. However, `java.import.gradle.java.home` and `maven.executable.path` are always prepended to the `PATH` in the terminal.
+
+## Extension Settings
+
+|Setting|Default|Description|
+|---|---|---|
+|`javaAutoConfig.enabled`|`true`|Enable/disable all auto-configuration features. If you don't want this extension to modify your `settings.json` automatically, set to `false`.|
+
 <br>
 
 ## JDK Auto-Configuration
 Automatically configure multiple versions of the JDK and build tools. If there are multiple JDKs of the same version, the latest minor version will be used. If you installed the JDK manually or encountered a configuration error, restart VS Code or execute **>Java: Clean Java Language Server Workspace ≫ Reload and delete** from the Command Palette. These settings are applied to the user `settings.json` (VS Code global), but can be manually edited for customization. If you want to further customize your setup, consider using [workspace settings](https://code.visualstudio.com/docs/getstarted/settings) or [profiles](https://code.visualstudio.com/docs/editor/profiles).
 
-Optimal Auto-Scan Locations
+Auto-Scan and Configuration Order
 
 1. Auto-fix invalid JDK configuration (e.g. `/foo/jdk-21.0.8/bin` -> `/foo/jdk-21.0.8`)
 1. Auto-remove configuration entries when JDK uninstalled or version path changed
@@ -139,7 +145,7 @@ Optimal Auto-Scan Locations
 1. Auto-download Adoptium LTS JDKs, Gradle, Maven if not detected
 1. Auto-update auto-downloaded JDKs, Gradle, Maven to the latest version
 
-Best Auto-Scan
+Supported Auto-Scan Locations
 * OS specific locations: Adoptium, BellSoft, Corretto, Microsoft, Oracle, Red Hat, Semeru, Zulu etc...
 * Package Managers: asdf, Chocolatey, jabba, jEnv, Homebrew, IntelliJ, mise, Scoop, SDKMAN, vfox etc...
 * Toolchains: Gradle jdks directory, Maven toolchains.xml
@@ -199,7 +205,7 @@ JDK auto-download supports the following platforms:
 - Mac x64, aarch64
 - Linux x64, aarch64
 
-They are saved in the following location.
+They are saved in the following locations.
 
 |OS|Extension global storage location|
 |---|---|
@@ -304,7 +310,7 @@ Command Palette **>Preferences: Open User Settings (JSON)**
 <br>
 
 ## Auto-Default Settings
-Entries without the following configurations in the user settings are automatically set to the default values of `Extension Pack for Java Auto Config`, but only on the first startup. Note that a debug run is required to enable Hot Code Replace (Hot Deploy).
+The following settings are automatically applied to user settings on first startup if not already configured. Note that a debug run is required to enable Hot Code Replace (Hot Deploy).
 
 For Included Extensions
 
@@ -394,7 +400,7 @@ A big thank you to the developers of VS Code and its extensions.
 
 ## Included Extensions
 
-The *`Extension Pack for Java`* is required. Other extensions can be [disabled](https://code.visualstudio.com/docs/editor/extension-marketplace#_disable-an-extension) or [uninstalled](https://code.visualstudio.com/docs/editor/extension-marketplace#_uninstall-an-extension) based on your preference. If you want to configure extensions and configurations by development language, consider using [Profiles](https://code.visualstudio.com/docs/editor/profiles). Extensions marked with (*) will be installed automatically if available in the environment at first startup. Note that uninstalling the `Extension Pack for Java Auto Config` will <a href="https://github.com/microsoft/vscode/issues/169109">uninstall all</a> of the following extensions.
+The *`Extension Pack for Java`* is required. Other extensions can be [disabled](https://code.visualstudio.com/docs/editor/extension-marketplace#_disable-an-extension) or [uninstalled](https://code.visualstudio.com/docs/editor/extension-marketplace#_uninstall-an-extension) based on your preference. If you want to configure extensions and configurations by development language, consider using [Profiles](https://code.visualstudio.com/docs/editor/profiles). Extensions marked with (*) will be installed automatically if the corresponding environment is detected at first startup. Note that uninstalling the `Extension Pack for Java Auto Config` will <a href="https://github.com/microsoft/vscode/issues/169109">uninstall all</a> of the following extensions.
 
 - ![](https://img.shields.io/visual-studio-marketplace/i/streetsidesoftware.code-spell-checker?style=plastic)
 [Code Spell Checker](https://marketplace.visualstudio.com/items?itemName=streetsidesoftware.code-spell-checker) (Street Side Software: GPL)<br>
@@ -474,7 +480,7 @@ Navigate Thymeleaf 3 fragments.
 <!--
 - ![](https://img.shields.io/visual-studio-marketplace/i/redhat.vscode-community-server-connector?style=plastic)
 [Community Server Connectors](https://marketplace.visualstudio.com/items?itemName=redhat.vscode-community-server-connector) (Red Hat: EPL) / [VS Code Document](https://code.visualstudio.com/docs/java/java-tomcat-jetty)<br>
-This extension can start, stop, publish, and control servers such as Apache Felix, Karaf, and Tomcat..<br>
+This extension can start, stop, publish, and control servers such as Apache Felix, Karaf, and Tomcat.<br>
 -->
 <br>
 
