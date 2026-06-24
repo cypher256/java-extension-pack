@@ -84,7 +84,6 @@
 		"vmware.vscode-boot-dev-pack",
 		"redhat.vscode-xml",
 		"streetsidesoftware.code-spell-checker",
-		"Gruntfuggly.todo-tree",
 		"ritwickdey.LiveServer",
 		"shardulm94.trailing-spaces",
 		"oderwat.indent-rainbow",
@@ -144,5 +143,5 @@
 		"node": "20.19.0",
 		"npm": "11.2.0"
 	},
-	"version": "2026.321.0"
+	"version": "2026.624.0"
 }
