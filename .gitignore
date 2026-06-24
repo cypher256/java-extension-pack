@@ -1,6 +1,7 @@
 .DS_Store
 .vscode-test/
 .VSCodeCounter/
+.claude/
 *.vsix
 dist
 node_modules
