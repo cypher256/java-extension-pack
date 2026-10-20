@@ -148,7 +148,7 @@ export async function download(
 	// Validate
 	if (!await jdkExplorer.isValidHome(downloadVerDir)) {
 		log.info('Failed download JDK:', downloadVerDir);
-		_.remove(runtimes, { name: runtimeName });
+		_.remove<redhat.IJavaConfigRuntime[]>(runtimes, { name: runtimeName });
 		return; // Silent
 	}
 	fs.writeFileSync(versionFile, apiRes.fullVer); // Sync for throw

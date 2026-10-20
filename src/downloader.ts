@@ -1,6 +1,6 @@
 /*! VS Code Extension (c) 2023 Shinji Kashihara (cypher256) @ WILL */
 import axios from 'axios';
-import decompress from 'decompress';
+import decompress from '@xhmikosr/decompress';
 import * as fs from 'fs';
 import * as _ from "lodash";
 import * as stream from 'stream';
@@ -74,7 +74,7 @@ async function download(progress: vscode.Progress<{ message: string }>, req: IDo
         const msg = `${l10n.t('Downloading')}... ${req.targetLabel.replace(/[^A-z].*$/, '')}`;
         report(progress, msg);
 
-        const totalLength = res.headers['content-length'];
+        const totalLength = Number(res.headers['content-length']);
         if (totalLength) {
             let currentLength = 0;
 

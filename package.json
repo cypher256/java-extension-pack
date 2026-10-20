@@ -120,21 +120,22 @@
 		"vscode": "^1.92.0"
 	},
 	"devDependencies": {
-		"@types/decompress": "^4",
+		"@eslint/js": "^10.0.1",
 		"@types/lodash": "^4",
 		"@types/node": "^22",
 		"@types/vscode": "^1.92.0",
 		"@types/which": "^3",
 		"@vscode/l10n-dev": "^0",
 		"esbuild": "^0",
+		"eslint": "^10.13.0",
 		"typescript": "^5.8",
 		"typescript-eslint": "^8",
 		"vite-node": "^3"
 	},
 	"dependencies": {
+		"@xhmikosr/decompress": "^11.1.4",
 		"axios": "^1",
 		"compare-versions": "^6",
-		"decompress": "^4",
 		"glob": "^11",
 		"jdk-utils": "^0",
 		"lodash": "^4"
@@ -143,5 +144,5 @@
 		"node": "20.19.0",
 		"npm": "11.2.0"
 	},
-	"version": "2026.624.0"
+	"version": "2026.1020.0"
 }
